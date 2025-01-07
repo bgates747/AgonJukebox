@@ -73,7 +73,10 @@ if __name__ == "__main__":
         # {"title": "Dire Straits", "artist": "Dire Straits", "url": "https://youtu.be/4Y8kJGK2C0Y"},
         # {"title": "The Dark Side of the Moon", "artist": "Pink Floyd", "url": "https://youtu.be/k9ynZnEBtvw"},
         # {"title": "Abbey Road", "artist": "The Beatles", "url": "https://youtu.be/VpV53LqcuhU"},
-        {"title": "Rumours", "artist": "Fleetwood Mac", "url": "https://youtu.be/lrltGatijXc"},
+        # {"title": "Rumours", "artist": "Fleetwood Mac", "url": "https://youtu.be/lrltGatijXc"},
+        # {"title": "Physical Graffiti", "artist": "Led Zeppelin", "url": "https://youtu.be/D2HC0G4T74Y"},
+        {"title": "Led Zeppelin I", "artist": "Led Zeppelin", "url": "https://youtu.be/LKbDC3lNVPQ"},
+        {"title": "Led Zeppelin II", "artist": "Led Zeppelin", "url": "https://youtu.be/W2bxOJX-E3M"},
     ]
 
     output_directory = "assets/sound/music"

@@ -225,16 +225,15 @@ def create_tar_gz(src_dir, output_dir, sample_rate):
 
 if __name__ == '__main__':
     sample_rate = 32768
-    db_path = 'build/data/build.db'
     src_dir = 'assets/sound/music/staging'
     proc_dir = 'assets/sound/music/processed'
     tgt_dir = 'tgt/music'
-    make_sfx(db_path, src_dir, proc_dir, tgt_dir, sample_rate)
+    make_sfx(src_dir, proc_dir, tgt_dir, sample_rate)
 
     asm_tgt_dir = 'music'
     sfx_inc_path = f"src/asm/music.inc"
     next_buffer_id = 0x3000
-    make_asm_sfx(db_path, sfx_inc_path, asm_tgt_dir, next_buffer_id, sample_rate)
+    make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate)
     assemble_jukebox()
 
     # tar_src_dir = "tgt"  # Source directory to compress
