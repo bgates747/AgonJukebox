@@ -31,8 +31,8 @@ def download_youtube_playlist(playlist_url, output_dir):
         raise
 
 if __name__ == "__main__":
-    playlist_url = "https://www.youtube.com/playlist?list=PLHTo__bpnlYVQ-UR1vc4G4ytdZWDnXI6W"
-    output_directory = "assets/sound/music/electric"
+    playlist_url = "https://www.youtube.com/playlist?list=PL085FFD0FB0D1DC25"
+    output_directory = "assets/sound/music/who"
     try:
         download_youtube_playlist(playlist_url, output_directory)
     except Exception as e:
