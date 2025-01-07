@@ -1,4 +1,3 @@
-
 ; stream a song from the SD card
 ; inputs: hl = pointer to filename
 ; requirements: the file must be 8-bit signed PCM mono
@@ -28,12 +27,19 @@ play_song:
     MOSCALL mos_fopen
     ld (ps_filehandle),a
 
-ps_read_file:
-; set the play next sample timer
-    ld iy,tmr_play
-    ld hl,120 ; 1 second
-    call tmr_set
+; synchronise MOS timer with VBLANK
+    call vdu_vblank
+; start the PRT timer
+    call ps_prt_start
+; jump to user input loop:
+; the play sample interrupt will return to there
+; and exit app will return to main from there as well
+    jp get_input
+; end play_song
 
+; read the next 1-second's worth of sound data from the file
+; and upload it to the sample buffer
+ps_read_file:
 ; Read a block of data from a file
 ;   C: Filehandle
 ; HLU: Pointer to where to write the data to
@@ -74,19 +80,15 @@ ps_read_file:
     inc l
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
-
-; call user input loop
-; (the jp avoids some awkward dummy pops of the return address)
-    jp get_input
-get_input_return: 
-
-; read the next block
-    jp ps_read_file
+    ret
+; end ps_read_file
 
 ; close the file
 ps_close_file:
     ld a,(ps_filehandle)
     MOSCALL mos_fclose
+    ; fall through to ps_play_random TODO: until other modes are implemented
+; end ps_close_file
 
 ; queue a random song to play next
 ps_play_random:
@@ -104,7 +106,9 @@ ps_play_random:
     sbc hl,de
     jp z,ps_play_random ; same song, try again
     ex de,hl ; pointer back to hl
-    jp play_song ; hit it
+    call play_song ; hit it
+    ret
+; end ps_play_random
 
 ; current active channel and bufferId's
 ps_channel: db 0 ; channel number
