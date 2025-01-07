@@ -1,12 +1,8 @@
-from build_98_asm_sfx import make_asm_sfx, assemble_jukebox
-
 import os
-import sqlite3
 import shutil
 import subprocess
 from tempfile import NamedTemporaryFile
 import math
-import tarfile
 import re
 
 def make_tbl_08_sfx(conn, cursor):
@@ -199,26 +195,15 @@ def convert_to_signed_raw(src_path, tgt_path, sample_rate):
         tgt_path                 # Output file (raw binary)
     ], check=True)
 
-
-
-def make_sfx(db_path, src_dir, proc_dir, tgt_dir, sample_rate):
+def make_sfx_wav(src_dir, proc_dir, sample_rate):
     """
-    Workflow:
-    1. Convert source file to unsigned 8-bit PCM `.wav`.
-    2. Process `.wav` files iteratively.
-    3. Convert the final `.wav` to signed 8-bit PCM `.raw`.
+    Processes all audio files in the source directory and combines them into a single `.wav` file.
     """
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()
+    if os.path.exists(proc_dir):
+        shutil.rmtree(proc_dir)
+    os.makedirs(proc_dir)
 
-    make_tbl_08_sfx(conn, cursor)
-
-    # Create processing and target directories
-    for directory in (proc_dir, tgt_dir):
-        if os.path.exists(directory):
-            shutil.rmtree(directory)
-        os.makedirs(directory)
-
+    # Prepare list of files to process
     sfxs = []
     for filename in sorted(os.listdir(src_dir)):
         if filename.endswith(('.wav', '.mp3')):
@@ -227,17 +212,11 @@ def make_sfx(db_path, src_dir, proc_dir, tgt_dir, sample_rate):
             filename_base = re.sub(r'[^a-zA-Z0-9\s]', '', filename_base)  # Remove non-alphanumeric characters
             filename_base = filename_base.title().replace(' ', '_')       # Proper Case and replace spaces with underscores
             filename_wav = filename_base + '.wav'
-            filename_raw = filename_base + '.raw'
-            sfxs.append((len(sfxs), filename, filename_wav, filename_raw))
+            sfxs.append((filename, filename_wav))
 
-    for sfx in sfxs:
-        sfx_id, original_filename, wav_filename, raw_filename = sfx
+    for original_filename, wav_filename in sfxs:
         src_path = os.path.join(src_dir, original_filename)
         proc_path = os.path.join(proc_dir, wav_filename)
-        tgt_path = os.path.join(tgt_dir, raw_filename)
-
-        # Extract metadata (optional debugging/logging)
-        metadata = extract_audio_metadata(src_path)
 
         # Convert source file to .wav without modifying frame rate or codec
         convert_to_wav(src_path, proc_path)
@@ -252,73 +231,78 @@ def make_sfx(db_path, src_dir, proc_dir, tgt_dir, sample_rate):
         normalize_audio(temp_path, proc_path)
         os.remove(temp_path)
 
-        # # Apply lowpass filter
-        # temp_path = copy_to_temp(proc_path)
-        # lowpass_filter(temp_path, proc_path, sample_rate)
-        # os.remove(temp_path)
-
         # Resample .wav file to the specified frame rate
         temp_path = copy_to_temp(proc_path)
         resample_wav(temp_path, proc_path, sample_rate)
         os.remove(temp_path)
 
-        # # Apply noise gate
-        # temp_path = copy_to_temp(proc_path)
-        # noise_gate(temp_path, proc_path)
-        # os.remove(temp_path)
+def rename_files_to_sequence(directory, extension="wav"):
+    """
+    Renames all files in the given directory to a sequential numeric format (e.g., 01.wav, 02.wav).
+    
+    Args:
+        directory (str): The directory containing the files to rename.
+        extension (str): The extension of files to rename (default is "wav").
+    """
+    # Get all files in the directory with the specified extension
+    files = sorted(f for f in os.listdir(directory) if f.endswith(f".{extension}"))
+    
+    # Rename files to sequential names
+    for i, filename in enumerate(files, start=1):
+        old_path = os.path.join(directory, filename)
+        new_filename = f"{i:02d}.{extension}"
+        new_path = os.path.join(directory, new_filename)
+        os.rename(old_path, new_path)
+        print(f"Renamed {old_path} to {new_path}")
 
-        # FINAL STEP: Convert .wav file to signed 8-bit PCM .raw
-        convert_to_signed_raw(proc_path, tgt_path, sample_rate)
+def concatenate_to_raw(proc_dir, tgt_filepath):
+    """
+    Concatenate all `.wav` files in the `proc_dir` into a single `.raw` file.
 
-        # Calculate size and duration
-        size = os.path.getsize(tgt_path)
-        duration = int(metadata['duration'] * 1000)  # Convert to ms and ensure it's an integer
-        cursor.execute("""
-            INSERT INTO tbl_08_sfx (sfx_id, size, duration, filename)
-            VALUES (?, ?, ?, ?);
-        """, (sfx_id, size, duration, raw_filename))
+    Args:
+        proc_dir (str): Directory containing processed `.wav` files.
+        tgt_filepath (str): Path to save the final `.raw` file.
+    """
+    # Ensure the target directory exists
+    tgt_dir = os.path.dirname(tgt_filepath)
+    os.makedirs(tgt_dir, exist_ok=True)
 
-    conn.commit()
-    conn.close()
+    # Temporary concatenation `.wav` file
+    concat_temp_wav = os.path.join(tgt_dir, "temp_concat.wav")
 
-    # Delete the processing directory
-    shutil.rmtree(proc_dir)
+    # Generate file list for FFmpeg
+    file_list_path = os.path.join(proc_dir, "file_list.txt")
+    with open(file_list_path, "w") as file_list:
+        for filename in sorted(os.listdir(proc_dir)):
+            if filename.endswith(".wav"):
+                filepath = os.path.abspath(os.path.join(proc_dir, filename))
+                file_list.write(f"file '{filepath}'\n")  # Use absolute paths to avoid duplication issues
 
-def create_tar_gz(src_dir, output_dir, sample_rate):
-    # Create the archive name with the sample rate
-    archive_name = os.path.join(output_dir, f"jukebox{sample_rate}.tar.gz")
+    # Use FFmpeg to concatenate `.wav` files
+    try:
+        subprocess.run([
+            "ffmpeg", "-y", "-f", "concat", "-safe", "0",
+            "-i", file_list_path, "-c", "copy", concat_temp_wav
+        ], check=True)
 
-    # Remove existing archive if it exists
-    if os.path.exists(archive_name):
-        os.remove(archive_name)
+        # Convert concatenated `.wav` to 8-bit unsigned PCM `.raw`
+        subprocess.run([
+            "ffmpeg", "-y", "-i", concat_temp_wav, "-f", "u8", tgt_filepath
+        ], check=True)
 
-    # Create the tar.gz archive
-    with tarfile.open(archive_name, "w:gz") as tar:
-        tar.add(src_dir, arcname=os.path.basename(src_dir))
+    finally:
+        # Clean up temporary files
+        if os.path.exists(concat_temp_wav):
+            os.remove(concat_temp_wav)
+        if os.path.exists(file_list_path):
+            os.remove(file_list_path)
 
-    print(f"Archive created: {archive_name}")
 
 if __name__ == '__main__':
-    # sample_rate = 44100 # standard high quality audio
-    # sample_rate = 44100 // 2 # powers of two are good
-    # sample_rate = 16384 # default rate for Agon
-    sample_rate = 32768 # a nice power of two of bytes/sec if she'll take it
-    # sample_rate = 16000 # A standard Audacity option
-    # sample_rate = 15360 # for 8-bit PCM this is 256 bytes per 1/60th of a second
-    # sample_rate = 15360*2 # for 8-bit PCM this is 512 bytes per 1/60th of a second
-    db_path = 'build/data/build.db'
-    src_dir = 'assets/sound/music/staging'
+    sample_rate = 32768 
+    src_dir = 'assets/sound/music/elton'
     proc_dir = 'assets/sound/music/processed'
-    tgt_dir = 'tgt/music'
-    make_sfx(db_path, src_dir, proc_dir, tgt_dir, sample_rate)
-
-    asm_tgt_dir = 'music'
-    sfx_inc_path = f"src/asm/music.inc"
-    next_buffer_id = 0x3000
-    make_asm_sfx(db_path, sfx_inc_path, asm_tgt_dir, next_buffer_id, sample_rate)
-    assemble_jukebox()
-
-    tar_src_dir = "tgt"  # Source directory to compress
-    tar_output_dir = "."  # Directory to save the archive
-
-    create_tar_gz(tar_src_dir, tar_output_dir, sample_rate)
+    tgt_filepath = 'assets/sound/music/staging/Goodbye Yellow Brick Road.wav'
+    # make_sfx_wav(src_dir, proc_dir, sample_rate)
+    # rename_files_to_sequence(proc_dir)
+    concatenate_to_raw(proc_dir, tgt_filepath)

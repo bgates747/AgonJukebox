@@ -60,16 +60,20 @@ def download_youtube_audio(url, output_dir, final_filename):
 
 if __name__ == "__main__":
     songs = [
-        {"title": "Un Millon De Primaveras", "artist": "Vicente Fernandez", "url": "https://youtu.be/yvEtkdpRls8"},
-        {"title": "Cielito Lindo", "artist": "Pedro Infante", "url": "https://youtu.be/41xqsorstKQ"},
-        {"title": "Cucurrucucu Paloma", "artist": "Lola Beltran", "url": "https://youtu.be/wFV1IwmnhEU"},
-        {"title": "El Rey", "artist": "Jose Alfredo Jimenez", "url": "https://youtu.be/ZipzeNiBe_E"},
-        {"title": "La Malaguena", "artist": "Javier Solis", "url": "https://youtu.be/CeilXN6100M"},
-        {"title": "Sombras Nada Mas", "artist": "Javier Solis", "url": "https://youtu.be/UasiMOoMz1o"},
-        {"title": "Amor Eterno", "artist": "Rocio Durcal", "url": "https://youtu.be/BzLFsD0Wi6I"},
-        {"title": "Mi Ranchito", "artist": "Antonio Aguilar", "url": "https://youtu.be/hejohIYQ5cs"},
-        {"title": "Paloma Negra", "artist": "Chavela Vargas", "url": "https://youtu.be/bUqzNlbuyD0"},
-        {"title": "Volver Volver", "artist": "Luis Miguel", "url": "https://youtu.be/us-pj-m3Xlw"}
+        # {"title": "Un Millon De Primaveras", "artist": "Vicente Fernandez", "url": "https://youtu.be/yvEtkdpRls8"},
+        # {"title": "Cielito Lindo", "artist": "Pedro Infante", "url": "https://youtu.be/41xqsorstKQ"},
+        # {"title": "Cucurrucucu Paloma", "artist": "Lola Beltran", "url": "https://youtu.be/wFV1IwmnhEU"},
+        # {"title": "El Rey", "artist": "Jose Alfredo Jimenez", "url": "https://youtu.be/ZipzeNiBe_E"},
+        # {"title": "La Malaguena", "artist": "Javier Solis", "url": "https://youtu.be/CeilXN6100M"},
+        # {"title": "Sombras Nada Mas", "artist": "Javier Solis", "url": "https://youtu.be/UasiMOoMz1o"},
+        # {"title": "Amor Eterno", "artist": "Rocio Durcal", "url": "https://youtu.be/BzLFsD0Wi6I"},
+        # {"title": "Mi Ranchito", "artist": "Antonio Aguilar", "url": "https://youtu.be/hejohIYQ5cs"},
+        # {"title": "Paloma Negra", "artist": "Chavela Vargas", "url": "https://youtu.be/bUqzNlbuyD0"},
+        # {"title": "Volver Volver", "artist": "Luis Miguel", "url": "https://youtu.be/us-pj-m3Xlw"},
+        # {"title": "Dire Straits", "artist": "Dire Straits", "url": "https://youtu.be/4Y8kJGK2C0Y"},
+        # {"title": "The Dark Side of the Moon", "artist": "Pink Floyd", "url": "https://youtu.be/k9ynZnEBtvw"},
+        # {"title": "Abbey Road", "artist": "The Beatles", "url": "https://youtu.be/VpV53LqcuhU"},
+        {"title": "Rumours", "artist": "Fleetwood Mac", "url": "https://youtu.be/lrltGatijXc"},
     ]
 
     output_directory = "assets/sound/music"
