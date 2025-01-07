@@ -1,12 +1,21 @@
 ; Table 32. Timer Control Registers
-; this constant is the base address of the timer control registers
-; each timer takes three bytes:
+TMR0_CTL: equ 80h 
+TMR1_CTL: equ 83h
+TMR2_CTL: equ 86h 
+TMR3_CTL: equ 89h 
+TMR4_CTL: equ 8Ch
+TMR5_CTL: equ 8Fh
+
+; each timer register takes three bytes:
 ;   0: control register
 ;   1: low byte of timer reset value
 ;   2: high byte of timer reset value
 ; note that the value is only 8-bits,so we use in0/out0 i/o calls,
 ; which correctly force the high and upper bytes of the address bus to zero
-TMR_CTL:     equ 80h
+
+TMR_REG_CTL: equ 0
+TMR_RES_LOW: equ 1
+TMR_RES_HIGH: equ 2
 
 ; Timer Control Register Bit Definitions
 PRT_IRQ_0:    equ %00000000 ; The timer does not reach its end-of-count value. 
@@ -134,14 +143,14 @@ prt_set:
     ld hl,0
     ld (prt_irq_counter),hl
     ld hl,(prt_reload)
-    out0 ($84),l
-	out0 ($85),h
+    out0 (TMR1_CTL+TMR_RES_LOW),l
+	out0 (TMR1_CTL+TMR_RES_HIGH),h
 ; disable timer
     ld a,PRT_IRQ_0 | IRQ_EN_0 | PRT_MODE_0 | CLK_DIV_16 | RST_EN_1 | PRT_EN_0
-	out0 ($83),a
+	out0 (TMR1_CTL+TMR_REG_CTL),a
 ; enable timer,with interrupt and CONTINUOUS mode,clock divider 16
     ld a,PRT_IRQ_0 | IRQ_EN_1 | PRT_MODE_1 | CLK_DIV_16 | RST_EN_1 | PRT_EN_1
-	out0 ($83),a
+	out0 (TMR1_CTL+TMR_REG_CTL),a
     ret
 
 ; ===============================================
@@ -174,7 +183,7 @@ prt_irq_handler:
 	di
 	push af
     push hl
-	in0 a,($83)
+	in0 a,(TMR1_CTL+TMR_REG_CTL)
 	ld hl,(prt_irq_counter)
 	inc hl
 	ld (prt_irq_counter),hl
