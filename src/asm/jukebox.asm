@@ -45,16 +45,15 @@ exit:
     include "input.inc"
     include "music.inc"
     include "play.inc"
+    include "timer_jukebox.inc"
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
 init:
 ; load play sample command buffers
     call load_command_buffer
-; initialize input timer
-    ld iy,tmr_input
-    ld hl,100 ; 1 second
-    call tmr_set
+; initialize play sample timer interrupt handler
+    call ps_prt_irq_init
     ret
 ; end init
 
@@ -64,7 +63,10 @@ main:
     ld hl,SFX_filename_index
     ld hl,(hl) ; pointer to first song filename
     call play_song
-    ret
+    call ps_prt_stop ; stop the PRT timer
+    call printNewLine
+    ei ; interrupts were disabled by input handler
+    ret ; back to MOS
 ; end main
 
 ; buffer for sound data
