@@ -3,13 +3,10 @@ get_input:
 ; wait for the user to push a button
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
-; DEBUG
-    call printNewLine
-    rst.lil 10h ; print the key pressed
-; END DEBUG
+    ; rst.lil 10h ; print the key pressed
 ; app control commands
     cp '\e' ; escape
-    ret z ; return from main, which exits app
+    ret z ; returns to main, which re-enables interrupts and exits app
 ; song playing commands
     cp '0'
     jp c,@other ; not a song command
