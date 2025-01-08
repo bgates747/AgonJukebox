@@ -199,6 +199,12 @@ vdu_set_gfx_viewport:
 @y0: 	dw 0x0000 ; set by de
 @end:   db 0x00	  ; padding
 
+; VDU 26: Reset graphics and text viewports
+vdu_reset_viewports:
+    ld a,26
+    rst.lil $10  
+    ret
+
 ; SCREEN MODES
 ; ===============================
 ; Mode  Horz  Vert  Cols  Refresh

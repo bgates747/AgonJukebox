@@ -12,12 +12,23 @@ play_song:
 ; stop the PRT timer
     call ps_prt_stop
 ; tell the user what they've won
+    ld c,0 ; left
+    ld d,0 ; top
+    ld e,62 ; right
+    ld b,1; bottom
+    call vdu_set_txt_viewport
+    call vdu_cls
     ld hl,(current_song)
     call printInline
     asciz " Playing song: "
     ld hl,(current_song)
     call printString ; print the song filename
-    call printNewLine
+; reset text viewport for playing breadcrumbs
+    ld c,0 ; left
+    ld d,1 ; top
+    ld e,62 ; right
+    ld b,1; bottom
+    call vdu_set_txt_viewport
 ; open the file in read mode
 ; Open a file
 ; HLU: Filename
@@ -44,10 +55,9 @@ play_song:
 ps_read_file:
 ; disable interrupts so load is guaranteed to complete
     di
-; DEBUG
+; print a playing breadcrumb
     ld a,'.'
     rst.lil 10h
-; END DEBUG
 ; Read a block of data from a file
 ;   C: Filehandle
 ; HLU: Pointer to where to write the data to
@@ -65,8 +75,6 @@ ps_read_file:
     sbc hl,de ; hl = 0-chunksize
     jp nz,@load ; we read some data
 ; no data read so close file and play a random song
-    ld a,%10000000 ; wait a second to let the final sample play
-    call multiPurposeDelay
     call ps_close_file
     jp ps_play_random 
 ; load a vdu buffer from local memory
