@@ -78,7 +78,7 @@ init:
 ; load fonts
 	call fonts_load
 ; select font
-    ld hl,Lat7_VGA8_8x8
+    ld hl,Lat2_VGA8_8x8
     ld a,1 ; flags
     call vdu_font_select
 ; print ascii art splash screen
@@ -87,11 +87,11 @@ init:
     ld b,4 ; y
     call vdu_move_cursor
     call printInline
-    asciz "Welcome to\r\n"
+    asciz "Welcome to...\r\n"
     ld hl,agon_jukebox_ascii
     call printString
     call printInline
-    asciz "Press keys 0-9 to play a song...\r\n"
+    asciz "Press keys 0-9 to play a song.\r\n"
 ; load play sample command buffers
     call load_command_buffer
 ; initialize play sample timer interrupt handler
@@ -100,17 +100,11 @@ init:
 ; end init
 
 main:
-; ; point to first song in the index
-;     ld hl,SFX_filename_index
-;     ld hl,(hl) ; pointer to first song filename
-;     call play_song
-
-; call get_input to play first song
+; call get_input to start player
     call get_input
-
-; shut down everytyhing and gracefully exit to MOS
+; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
     call ps_prt_stop ; stop the PRT timer
-    ei ; interrupts were disabled by input handler
+    ei ; interrupts were disabled by get_input
 ; restore original screen mode
     ld a,(original_screen_mode)
     call vdu_set_screen_mode

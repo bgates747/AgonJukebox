@@ -228,14 +228,14 @@ if __name__ == '__main__':
     src_dir = 'assets/sound/music/staging'
     proc_dir = 'assets/sound/music/processed'
     tgt_dir = 'tgt/music'
-    # make_sfx(src_dir, proc_dir, tgt_dir, sample_rate)
+    make_sfx(src_dir, proc_dir, tgt_dir, sample_rate)
 
-    asm_tgt_dir = 'music'
-    sfx_inc_path = f"src/asm/music.inc"
-    next_buffer_id = 0x3000
+    # asm_tgt_dir = 'music'
+    # sfx_inc_path = f"src/asm/music.inc"
+    # next_buffer_id = 0x3000
     # make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate)
     # assemble_jukebox()
 
-    tar_src_dir = "tgt"  # Source directory to compress
-    tar_output_dir = "."  # Directory to save the archive
-    create_tar_gz(tar_src_dir, tar_output_dir, sample_rate)
+    # tar_src_dir = "tgt"  # Source directory to compress
+    # tar_output_dir = "."  # Directory to save the archive
+    # create_tar_gz(tar_src_dir, tar_output_dir, sample_rate)
