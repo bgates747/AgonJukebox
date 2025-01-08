@@ -3,30 +3,27 @@
 SFX_num_buffers: equ 10
 sample_rate: equ 32768
 
-	align 256
-
 ; File name lookup index:
 SFX_filename_index:
-	dl FN_Abbey_Road
-	dl FN_Dire_Straits
-	dl FN_Electric
-	dl FN_Goodbye_Yellow_Brick_Road_1
-	dl FN_Goodbye_Yellow_Brick_Road_2
-	dl FN_Led_Zeppelin_I
-	dl FN_Led_Zeppelin_Ii
-	dl FN_Rumours
-	dl FN_The_Dark_Side_Of_The_Moon
-	dl FN_Whos_Next
+	dl FN_Africa
+	dl FN_Anytime
+	dl FN_Barracuda
+	dl FN_Come_Undone
+	dl FN_Every_Breath_You_Take
+	dl FN_Jukebox_Hero
+	dl FN_Rhiannon
+	dl FN_Take_A_Ride
+	dl FN_Wild_Flower
+	dl FN_Wont_Get_Fooled_Again
 
-	align 256
 ; File name lookups:
-FN_Abbey_Road: db "music/Abbey_Road.raw",0
-FN_Dire_Straits: db "music/Dire_Straits.raw",0
-FN_Electric: db "music/Electric.raw",0
-FN_Goodbye_Yellow_Brick_Road_1: db "music/Goodbye_Yellow_Brick_Road_1.raw",0
-FN_Goodbye_Yellow_Brick_Road_2: db "music/Goodbye_Yellow_Brick_Road_2.raw",0
-FN_Led_Zeppelin_I: db "music/Led_Zeppelin_I.raw",0
-FN_Led_Zeppelin_Ii: db "music/Led_Zeppelin_Ii.raw",0
-FN_Rumours: db "music/Rumours.raw",0
-FN_The_Dark_Side_Of_The_Moon: db "music/The_Dark_Side_Of_The_Moon.raw",0
-FN_Whos_Next: db "music/Whos_Next.raw",0
+FN_Africa: db "music/Africa.raw",0
+FN_Anytime: db "music/Anytime.raw",0
+FN_Barracuda: db "music/Barracuda.raw",0
+FN_Come_Undone: db "music/Come_Undone.raw",0
+FN_Every_Breath_You_Take: db "music/Every_Breath_You_Take.raw",0
+FN_Jukebox_Hero: db "music/Jukebox_Hero.raw",0
+FN_Rhiannon: db "music/Rhiannon.raw",0
+FN_Take_A_Ride: db "music/Take_A_Ride.raw",0
+FN_Wild_Flower: db "music/Wild_Flower.raw",0
+FN_Wont_Get_Fooled_Again: db "music/Wont_Get_Fooled_Again.raw",0
