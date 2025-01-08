@@ -10,7 +10,6 @@ current_song: dl 0 ; pointer to current song filename
 play_song:
 ; stop the PRT timer
     call ps_prt_stop
-
 ; tell the user what they've won
     ld (current_song),hl
     call printInline
@@ -18,7 +17,6 @@ play_song:
     ld hl,(current_song)
     call printString ; print the song filename
     call printNewLine
-
 ; open the file in read mode
 ; Open a file
 ; HLU: Filename
@@ -29,7 +27,8 @@ play_song:
 	ld c,fa_read
     MOSCALL mos_fopen
     ld (ps_filehandle),a
-
+; read the first block of data
+    call ps_read_file
 ; enable interrupts and start the PRT timer
     ei
     call ps_prt_start
@@ -59,15 +58,16 @@ ps_read_file:
     ld hl,song_data
     ld de,sample_rate
     MOSCALL mos_fread
-
 ; test de for zero bytes read
     ld hl,0
     xor a ; clear carry
     sbc hl,de ; hl = 0-chunksize
     jp nz,@load ; we read some data
+; no data read so close file and play a random song
+    ld a,%10000000 ; wait a second to let the final sample play
+    call multiPurposeDelay
     call ps_close_file
-    jp ps_play_random ; no data, play a random song
-
+    jp ps_play_random 
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
@@ -84,18 +84,23 @@ ps_read_file:
     pop bc ; how much data to load
     ld de,song_data ; pointer to data
     call vdu_load_buffer
+    ret
+; end ps_read_file
 
+; this is called by the PRT timer interrupt
+ps_play_sample:
 ; call the command buffer to play the sound
     ld hl,(ps_sampleId)
     inc l
     inc l
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
-
+; load the next chunk of data
+    call ps_read_file
 ; reenable interrupts and return to the user input loop
     ei
     ret
-; end ps_read_file
+; end ps_play_sample
 
 ; close the file
 ps_close_file:
