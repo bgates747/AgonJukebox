@@ -1,4 +1,4 @@
-ps_prt_reload: equ [72000/36000]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
+ps_prt_reload: equ [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
 
 ; start PRT timer
 ps_prt_start:

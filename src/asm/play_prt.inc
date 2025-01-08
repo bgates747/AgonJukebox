@@ -8,6 +8,9 @@ cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
 current_song: dl 0 ; pointer to current song filename
 play_song:
+; stop the PRT timer
+    call ps_prt_stop
+
 ; tell the user what they've won
     ld (current_song),hl
     call printInline
@@ -27,9 +30,8 @@ play_song:
     MOSCALL mos_fopen
     ld (ps_filehandle),a
 
-; synchronise MOS timer with VBLANK
-    call vdu_vblank
-; start the PRT timer
+; enable interrupts and start the PRT timer
+    ei
     call ps_prt_start
 ; jump to user input loop:
 ; the play sample interrupt will return to there
@@ -40,6 +42,12 @@ play_song:
 ; read the next 1-second's worth of sound data from the file
 ; and upload it to the sample buffer
 ps_read_file:
+; disable interrupts so load is guaranteed to complete
+    di
+; DEBUG
+    ld a,'.'
+    rst.lil 10h
+; END DEBUG
 ; Read a block of data from a file
 ;   C: Filehandle
 ; HLU: Pointer to where to write the data to
@@ -80,11 +88,15 @@ ps_read_file:
     inc l
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
+
+; reenable interrupts and return to the user input loop
+    ei
     ret
 ; end ps_read_file
 
 ; close the file
 ps_close_file:
+    call ps_prt_stop ; stop the PRT timer
     ld a,(ps_filehandle)
     MOSCALL mos_fclose
     ; fall through to ps_play_random TODO: until other modes are implemented
