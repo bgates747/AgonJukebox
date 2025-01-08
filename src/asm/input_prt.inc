@@ -17,6 +17,10 @@ get_input:
     jp c,@other ; not a song command
     cp '9'+1
     jp nc,@other ; not a song command
+; new song requested so stop playing current one
+    push af ; preserve keypress
+    call ps_close_file
+    pop af ; restore keypress
 ; get pointer to song filename and play it
     sub '0' ; a = index into filename lut
     ld d,a
@@ -31,6 +35,3 @@ get_input:
     ei ; reenable interrupts
     jp @loop ; no valid commmand so loop
 ; end get_input
-
-; tmr_play: ds 6 ; play timer buffer
-; tmr_input: ds 6 ; input timer buffer
