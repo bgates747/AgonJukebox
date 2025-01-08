@@ -3,6 +3,8 @@
 SFX_num_buffers: equ 10
 sample_rate: equ 32768
 
+	align 256
+
 ; File name lookup index:
 SFX_filename_index:
 	dl FN_Abbey_Road
@@ -16,6 +18,7 @@ SFX_filename_index:
 	dl FN_The_Dark_Side_Of_The_Moon
 	dl FN_Whos_Next
 
+	align 256
 ; File name lookups:
 FN_Abbey_Road: db "music/Abbey_Road.raw",0
 FN_Dire_Straits: db "music/Dire_Straits.raw",0

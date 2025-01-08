@@ -63,7 +63,9 @@ main:
     ld hl,SFX_filename_index
     ld hl,(hl) ; pointer to first song filename
     call play_song
-    ret
+    call ps_prt_stop ; stop the PRT timer
+    call printNewLine
+    ret ; back to MOS
 ; end main
 
 ; buffer for sound data
