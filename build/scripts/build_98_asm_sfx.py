@@ -51,7 +51,6 @@ def make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate):
             f.write(f"FN_{base_filename}: db \"{asm_tgt_dir}/{base_filename}.raw\",0\n")
 
 if __name__ == "__main__":
-    db_path = 'build/data/build.db'
     tgt_dir = 'tgt/music'
     asm_tgt_dir = 'music'
     sfx_inc_path = f'src/asm/music.inc'
