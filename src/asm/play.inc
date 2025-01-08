@@ -20,7 +20,7 @@ play_song:
     call vdu_cls
     ld hl,(current_song)
     call printInline
-    asciz " Playing song: "
+    asciz "Playing song: "
     ld hl,(current_song)
     call printString ; print the song filename
 ; reset text viewport for playing breadcrumbs
