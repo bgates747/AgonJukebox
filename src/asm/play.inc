@@ -14,7 +14,7 @@ play_song:
 ; tell the user what they've won
     ld hl,(current_song)
     call printInline
-    asciz "Playing song: "
+    asciz " Playing song: "
     ld hl,(current_song)
     call printString ; print the song filename
     call printNewLine

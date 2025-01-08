@@ -52,17 +52,23 @@ ps_prt_irq_init:
 ps_prt_irq_counter:
 	db 0
 ps_prt_irq_handler:
-	di
-	ex af,af'
+    di
+    ex af,af'
     exx
-	in0 a,(TMR1_CTL+TMR_REG_CTL)
+; clear sysvar_keyascii
+	MOSCALL mos_sysvars
+	xor a
+	ld (IX+sysvar_keyascii),a
+; read the timer interrupt and bump the counter
+    in0 a,(TMR1_CTL+TMR_REG_CTL)
     ld a,(ps_prt_irq_counter)
     inc a
     and 1 ; modulo 2
     ld (ps_prt_irq_counter),a
+; if counter zero, play the next sample
     call z,ps_play_sample
     exx
     ex af,af'
-	ei
-	reti.l
+    ei
+    reti.l
 ; end ps_prt_irq_handler

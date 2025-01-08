@@ -3,11 +3,9 @@ get_input:
 ; wait for the user to push a button
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
-; DEBUG    
-    push af ; save the key pressed
-    rst.lil 10h ; print the key pressed
+; DEBUG
     call printNewLine
-    pop af ; get the key back
+    rst.lil 10h ; print the key pressed
 ; END DEBUG
 ; app control commands
     cp '\e' ; escape
@@ -30,7 +28,7 @@ get_input:
     add hl,de ; hl points to the filename index
     ld hl,(hl) ; hl is pointer to song filename
     ld (current_song),hl ; save song request
-    jp play_song ; will jp to get_input
+    jp play_song ; re-enables interrupts and jp's to get_input when finished
 @other: ; TODO: other commands
     ei ; reenable interrupts
     jp @loop ; no valid commmand so loop
