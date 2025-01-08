@@ -60,7 +60,7 @@ ps_prt_irq_handler:
     inc a
     and 1 ; modulo 2
     ld (ps_prt_irq_counter),a
-    call z,ps_read_file
+    call z,ps_play_sample
     exx
     ex af,af'
 	ei
