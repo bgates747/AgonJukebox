@@ -64,10 +64,13 @@ ps_read_file:
     ld hl,0
     xor a ; clear carry
     sbc hl,de ; hl = 0-chunksize
-    jp z,ps_close_file
+    jp nz,@load ; we read some data
+    call ps_close_file
+    jp ps_play_random ; no data, play a random song
 
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
+@load:
     ld a,(ps_channel)
     inc a
     and 1
@@ -99,7 +102,7 @@ ps_close_file:
     call ps_prt_stop ; stop the PRT timer
     ld a,(ps_filehandle)
     MOSCALL mos_fclose
-    ; fall through to ps_play_random TODO: until other modes are implemented
+    ret
 ; end ps_close_file
 
 ; queue a random song to play next
