@@ -8,10 +8,11 @@ cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
 current_song: dl 0 ; pointer to current song filename
 play_song:
+    ld (current_song),hl
 ; stop the PRT timer
     call ps_prt_stop
 ; tell the user what they've won
-    ld (current_song),hl
+    ld hl,(current_song)
     call printInline
     asciz "Playing song: "
     ld hl,(current_song)
