@@ -12,7 +12,7 @@ def assemble_jukebox():
         os.chdir('src/asm')  # Change to the target directory
         # Run the subprocess command
         subprocess.run(
-            ['ez80asm', '-l', 'jukebox.asm', '../../tgt/jukebox.bin'],
+            ['ez80asm', '-l', 'app.asm', '../../tgt/jukebox.bin'],
             check=True
         )
     except subprocess.CalledProcessError as e:
