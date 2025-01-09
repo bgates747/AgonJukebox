@@ -2,25 +2,27 @@
 
 ; File name lookup index:
 SFX_filename_index:
-	dl FN_Africa
-	dl FN_Anytime
-	dl FN_Barracuda
-	dl FN_Come_Undone
-	dl FN_Every_Breath_You_Take
-	dl FN_Jukebox_Hero
-	dl FN_Rhiannon
-	dl FN_Take_A_Ride
-	dl FN_Wild_Flower
-	dl FN_Wont_Get_Fooled_Again
+	dl FN_Abbey_Road
+	dl FN_Dire_Straits
+	dl FN_Electric
+	dl FN_Goodbye_Yellow_Brick_Road_1
+	dl FN_Goodbye_Yellow_Brick_Road_2
+	dl FN_Led_Zeppelin_I
+	dl FN_Led_Zeppelin_Ii
+	dl FN_Physical_Graffiti
+	dl FN_Rumours
+	dl FN_The_Dark_Side_Of_The_Moon
+	dl FN_Whos_Next
 
 ; File name lookups:
-FN_Africa: db "music/Africa.wav",0
-FN_Anytime: db "music/Anytime.wav",0
-FN_Barracuda: db "music/Barracuda.wav",0
-FN_Come_Undone: db "music/Come_Undone.wav",0
-FN_Every_Breath_You_Take: db "music/Every_Breath_You_Take.wav",0
-FN_Jukebox_Hero: db "music/Jukebox_Hero.wav",0
-FN_Rhiannon: db "music/Rhiannon.wav",0
-FN_Take_A_Ride: db "music/Take_A_Ride.wav",0
-FN_Wild_Flower: db "music/Wild_Flower.wav",0
-FN_Wont_Get_Fooled_Again: db "music/Wont_Get_Fooled_Again.wav",0
+FN_Abbey_Road: db "music/Abbey_Road.wav",0
+FN_Dire_Straits: db "music/Dire_Straits.wav",0
+FN_Electric: db "music/Electric.wav",0
+FN_Goodbye_Yellow_Brick_Road_1: db "music/Goodbye_Yellow_Brick_Road_1.wav",0
+FN_Goodbye_Yellow_Brick_Road_2: db "music/Goodbye_Yellow_Brick_Road_2.wav",0
+FN_Led_Zeppelin_I: db "music/Led_Zeppelin_I.wav",0
+FN_Led_Zeppelin_Ii: db "music/Led_Zeppelin_Ii.wav",0
+FN_Physical_Graffiti: db "music/Physical_Graffiti.wav",0
+FN_Rumours: db "music/Rumours.wav",0
+FN_The_Dark_Side_Of_The_Moon: db "music/The_Dark_Side_Of_The_Moon.wav",0
+FN_Whos_Next: db "music/Whos_Next.wav",0
