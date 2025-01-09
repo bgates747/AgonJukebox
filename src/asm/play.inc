@@ -182,7 +182,8 @@ ps_cmd0:
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
     dw ch0_buffer
-    db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
+    ; db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
+    db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
     dw sample_rate ; Hz
 ; vdu_play_sfx command string
 ; Command 4: Set waveform
@@ -211,8 +212,8 @@ ps_cmd1:
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
     dw ch1_buffer
-    db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
-    dw sample_rate ; Hz
+    ; db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
+    db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows    dw sample_rate ; Hz
 ; vdu_play_sfx command string
 ; Command 4: Set waveform
 ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
