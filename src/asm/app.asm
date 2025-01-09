@@ -45,8 +45,7 @@ exit:
 ; APPLICATION INCLUDES
     include "ascii.inc"
     include "input_dir.inc"
-    include "music_dir.inc" ; soon to be deprecated
-    include "play.inc"
+    include "play_dir.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
@@ -227,13 +226,20 @@ print_dir:
 print_dir_page:
 ; loop through the filename table and print out the filenames
     ld ix,ps_dir_fil_list      ; get the address of the filename table
-    ld hl,(ps_dir_num_files)   ; get the number of files 
+    ld de,(ps_dir_num_files)   ; get the number of files 
+    ld hl,10 ; max files per page
+    or a ; clear carry
+    sbc hl,de ; subtract number of files from 10
+    jp p,@F ; if >= 0 then we have <= 10 files
+    ld de,10 ; max files per page
+@@:
+    ex de,hl ; hl = number of files to print
     push hl ; save loop counter
 @print_loop:
-    ld a,11
+    ld a,10
     sub l
-    cp 10
-    jp z,@end ; stop at 10
+    ; cp 10
+    ; jp z,@end ; stop at 10
     call printHexA
     push ix
     pop hl ; get the address of the filename

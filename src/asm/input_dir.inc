@@ -18,12 +18,12 @@ get_input:
     pop af ; restore keypress
 ; get pointer to song filename and play it
     sub '0' ; a = index into filename lut
-    ld d,a
-    ld e,3 ; three bytes per filename index
-    mlt de ; index into the filename table
-    ld hl,SFX_filename_index
-    add hl,de ; hl points to the filename index
-    ld hl,(hl) ; hl is pointer to song filename
+    ld de,0
+    ld e,a
+    ld hl,256 ; 256 bytes per filename index
+    call umul24 ; hl index into the filename table
+    ld de,ps_dir_fil_list
+    add hl,de ; hl points to the filename
     ld (current_song),hl ; save song request
     jp play_song ; re-enables interrupts and jp's to get_input when finished
 @other: ; TODO: other commands
