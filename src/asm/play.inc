@@ -38,7 +38,7 @@ play_song:
     ld hl,(current_song)
 	ld c,fa_read
     MOSCALL mos_fopen
-    ld (ps_filehandle),a
+    ld (ps_filehandle_cur),a
 ; read the .wav header data and copy it to the buffer
     call ps_read_wav_header
 ; read the first block of data
@@ -66,7 +66,7 @@ ps_read_file:
 ; DEU: Number of bytes to read
 ; Returns:
 ; DEU: Number of bytes read
-    ld a,(ps_filehandle)
+    ld a,(ps_filehandle_cur)
     ld c,a
     ld hl,ps_wav_data_start
     ld de,(ps_wav_sample_rate)
@@ -116,7 +116,7 @@ ps_play_sample:
 ; close the file
 ps_close_file:
     call ps_prt_stop ; stop the PRT timer
-    ld a,(ps_filehandle)
+    ld a,(ps_filehandle_cur)
     MOSCALL mos_fclose
     ret
 ; end ps_close_file
@@ -148,7 +148,7 @@ ps_read_wav_header:
 ; DEU: Number of bytes to read
 ; Returns:
 ; DEU: Number of bytes read
-    ld a,(ps_filehandle)
+    ld a,(ps_filehandle_cur)
     ld c,a
     ld hl,ps_wav_header
     ld de,wav_header_size
@@ -169,18 +169,6 @@ ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
 
-; song file info
-ps_filehandle: db 0 ; file handle
-ps_fil: dl 0 ; pointer to FIL struct
-ps_chunkpointer: dl 0 ; pointer to current chunk
-; File information structure (FILINFO)
-ps_filinfo:
-ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
-ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
-ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
-ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
-ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
-ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
 ; end play_song
 
 load_command_buffers:
