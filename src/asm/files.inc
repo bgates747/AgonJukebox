@@ -1,7 +1,11 @@
+; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+
 ; buffer for loading files unrelated to audio
 ; e.g.: fonts, sprites, etc. (limited to 8k)
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
+; play_song directory info
+ps_dir_num_files: dl 0 ; number of files/directories in the directory
 ps_dir_path:   blkw 256,0 ; path of the current directory
 ps_dir_struct:             
 ps_dptr:       blkb  4,0   ; Current read/write offset
@@ -11,7 +15,7 @@ ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
 ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
 ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
 
-; song file info
+; play_song file info
 ps_filehandle_cur: db 0 ; file handle
 ps_chunkpointer: dl 0 ; pointer to current chunk
 ; File information structure (FILINFO)
@@ -23,8 +27,7 @@ ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
 ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
 ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
 
-; buffer for sound data
-; must be in the final include of the program
+; buffer for play_song sound data
 ps_wav_header: ; marker for top of the wav file header and song data
 ; (must be last so buffer doesn't overwrite other program code or data)
 ; .wav header data
@@ -58,4 +61,6 @@ ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
 ; buffer for sound data
 ps_wav_data_start:    equ $   ; Start of audio data
 
+; this list can grow as large as necessary to hold all the files in the directory
+; each entry will be 256 bytes long, the max filename size MOS/FFS supports
 ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
