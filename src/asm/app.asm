@@ -32,7 +32,6 @@ exit:
     include "functions.inc"
     include "arith24.inc"
     include "maths.inc"
-    include "files.inc"
     include "fonts.inc"
     include "fonts_list.inc"
     include "fixed168.inc"
@@ -118,34 +117,5 @@ main:
     ret ; back to MOS
 ; end main
 
-ps_wav_header: ; marker for top of the wav file header and song data
-; (must be last so buffer doesn't overwrite other program code or data)
-; .wav header data
-; WAV File Structure in Memory with LIST Chunk
-ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
-ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
-ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
-ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
-ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
-ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
-ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
-ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
-ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
-ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
-ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
-
-; LIST Chunk (Extra Metadata)
-ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
-ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
-ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
-ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
-ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
-ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
-
-; Data Chunk
-ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
-ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
-; Total Header Size: 76 bytes
-;
-; buffer for sound data
-ps_wav_data_start:    blkb 0,0   ; Start of audio data
+; must be final include in program so file data does not stomp on program code or other data
+    include "files.inc"
