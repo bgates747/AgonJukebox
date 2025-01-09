@@ -39,6 +39,8 @@ play_song:
 	ld c,fa_read
     MOSCALL mos_fopen
     ld (ps_filehandle),a
+; read the .wav header data and copy it to the buffer
+    call ps_read_wav_header
 ; read the first block of data
     call ps_read_file
 ; enable interrupts and start the PRT timer
@@ -66,8 +68,8 @@ ps_read_file:
 ; DEU: Number of bytes read
     ld a,(ps_filehandle)
     ld c,a
-    ld hl,song_data
-    ld de,sample_rate
+    ld hl,ps_wav_data_start
+    ld de,(ps_wav_sample_rate)
     MOSCALL mos_fread
 ; test de for zero bytes read
     ld hl,0
@@ -91,7 +93,7 @@ ps_read_file:
     ld hl,(ps_sampleId)
     push de ; chunksize
     pop bc ; how much data to load
-    ld de,song_data ; pointer to data
+    ld de,ps_wav_data_start ; pointer to data
     call vdu_load_buffer
     ret
 ; end ps_read_file
@@ -139,6 +141,29 @@ ps_play_random:
     ret
 ; end ps_play_random
 
+ps_read_wav_header:
+; Read a block of data from a file
+;   C: Filehandle
+; HLU: Pointer to where to write the data to
+; DEU: Number of bytes to read
+; Returns:
+; DEU: Number of bytes read
+    ld a,(ps_filehandle)
+    ld c,a
+    ld hl,ps_wav_header
+    ld de,wav_header_size
+    MOSCALL mos_fread
+; test de for zero bytes read
+    ld hl,0
+    xor a ; clear carry
+    sbc hl,de ; hl = 0-chunksize
+    ret z ; no data read so return zero to caller
+; data read so initialize song variables
+; load play sample command buffers (namely the sample rate for now)
+    call load_command_buffers
+    ret
+; end ps_read_wav_header
+
 ; current active channel and bufferId's
 ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
@@ -158,9 +183,13 @@ ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
 ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
 ; end play_song
 
-load_command_buffer:
+load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
+    ld hl,(ps_wav_sample_rate)
+    ld (ps_sr0),hl
+    ld a,23
+    ld (ps_sr0+2),a
     ld hl,cmd0_buffer
     ld bc,ps_cmd0_end-ps_cmd0
     ld de,ps_cmd0
@@ -168,6 +197,10 @@ load_command_buffer:
 
     ld hl,cmd1_buffer
     call vdu_clear_buffer
+    ld hl,(ps_wav_sample_rate)
+    ld (ps_sr1),hl
+    ld a,23
+    ld (ps_sr1+2),a
     ld hl,cmd1_buffer
     ld bc,ps_cmd1_end-ps_cmd1
     ld de,ps_cmd1
@@ -182,9 +215,9 @@ ps_cmd0:
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
     dw ch0_buffer
-    ; db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
     db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
-    dw sample_rate ; Hz
+ps_sr0:
+    dw 0x0000 ; sample rate Hz
 ; vdu_play_sfx command string
 ; Command 4: Set waveform
 ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
@@ -212,9 +245,9 @@ ps_cmd1:
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
     dw ch1_buffer
-    ; db 0+8 ; 0 = 8-bit signed PCM mono, 8 = sample rate argument follows
     db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows    
-    dw sample_rate ; Hz
+ps_sr1:
+    dw 0x0000 ; sample rate Hz
 ; vdu_play_sfx command string
 ; Command 4: Set waveform
 ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
