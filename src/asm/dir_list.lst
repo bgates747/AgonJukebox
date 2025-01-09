@@ -1,0 +1,644 @@
+PC     Output      Line
+040000             0001        .assume adl=1                       ; ez80 ADL memory mode
+040000             0002        .org $40000                         ; load code here
+040000             0003    
+040000 C3 45 00 04 0004        jp start_here                       ; jump to start of code
+040004             0005    
+040004 FF FF FF FF 0006        .align 64                           ; MOS header
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+040040 4D 4F 53 00 0007        .db "MOS",0,1
+       01          
+040045             0008    
+040045             0009        include "mos_api.inc"               ; include the MOS API
+040045             0001*   ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/mos_api.inc
+040045             0002*   ; Title:	AGON MOS - API for user projects
+040045             0003*   ; Author:	Dean Belfield
+040045             0004*   ;			Adapted for agon-ez80asm by Jeroen Venema
+040045             0005*   ;			Added MOS error codes for return in HL
+040045             0006*   ; Created:	03/08/2022
+040045             0007*   ; Last Updated:	10/08/2023
+040045             0008*   ;
+040045             0009*   ; Modinfo:
+040045             0010*   ; 05/08/2022:	Added mos_feof
+040045             0011*   ; 09/08/2022:	Added system variables: cursorX, cursorY
+040045             0012*   ; 18/08/2022:	Added system variables: scrchar, scrpixel, audioChannel, audioSuccess, vpd_pflags
+040045             0013*   ; 05/09/2022:	Added mos_ren, vdp_pflag_mode
+040045             0014*   ; 24/09/2022:	Added mos_getError, mos_mkdir
+040045             0015*   ; 13/10/2022:	Added mos_oscli
+040045             0016*   ; 23/02/2023:	Added more sysvars, fixed typo in sysvar_audioSuccess, offsets for sysvar_scrCols, sysvar_scrRows
+040045             0017*   ; 04/03/2023:	Added sysvar_scrpixelIndex
+040045             0018*   ; 08/03/2023:	Renamed sysvar_keycode to sysvar_keyascii, added sysvar_vkeycode
+040045             0019*   ; 15/03/2023:	Added mos_copy, mos_getrtc, mos_setrtc, rtc, vdp_pflag_rtc
+040045             0020*   ; 21/03/2023:	Added mos_setintvector, sysvars for keyboard status, vdu codes for vdp
+040045             0021*   ; 22/03/2023:	The VDP commands are now indexed from 0x80
+040045             0022*   ; 29/03/2023:	Added mos_uopen, mos_uclose, mos_ugetc, mos_uputc
+040045             0023*   ; 13/04/2023:	Added FatFS file structures (FFOBJID, FIL, DIR, FILINFO)
+040045             0024*   ; 15/04/2023:	Added mos_getfil, mos_fread, mos_fwrite and mos_flseek
+040045             0025*   ; 19/05/2023:	Added sysvar_scrMode
+040045             0026*   ; 05/06/2023:	Added sysvar_rtcEnable
+040045             0027*   ; 03/08/2023:	Added mos_setkbvector
+040045             0028*   ; 10/08/2023:	Added mos_getkbmap
+040045             0029*   
+040045             0030*   ; VDP control (VDU 23, 0, n)
+040045             0031*   ;
+040045             0032*   vdp_gp:				EQU 80h
+040045             0033*   vdp_keycode:		EQU 81h
+040045             0034*   vdp_cursor:			EQU	82h
+040045             0035*   vdp_scrchar:		EQU	83h
+040045             0036*   vdp_scrpixel:		EQU	84h
+040045             0037*   vdp_audio:			EQU	85h
+040045             0038*   vdp_mode:			EQU	86h
+040045             0039*   vdp_rtc:			EQU	87h
+040045             0040*   vdp_keystate:		EQU	88h
+040045             0041*   vdp_logicalcoords:	EQU	C0h
+040045             0042*   vdp_terminalmode:	EQU	FFh
+040045             0043*   
+040045             0044*   ; MOS high level functions
+040045             0045*   ;
+040045             0046*   mos_getkey:			EQU	00h
+040045             0047*   mos_load:			EQU	01h
+040045             0048*   mos_save:			EQU	02h
+040045             0049*   mos_cd:				EQU	03h
+040045             0050*   mos_dir:			EQU	04h
+040045             0051*   mos_del:			EQU	05h
+040045             0052*   mos_ren:			EQU	06h
+040045             0053*   mos_mkdir:			EQU	07h
+040045             0054*   mos_sysvars:		EQU	08h
+040045             0055*   mos_editline:		EQU	09h
+040045             0056*   mos_fopen:			EQU	0Ah
+040045             0057*   mos_fclose:			EQU	0Bh
+040045             0058*   mos_fgetc:			EQU	0Ch
+040045             0059*   mos_fputc:			EQU	0Dh
+040045             0060*   mos_feof:			EQU	0Eh
+040045             0061*   mos_getError:		EQU	0Fh
+040045             0062*   mos_oscli:			EQU	10h
+040045             0063*   mos_copy:			EQU	11h
+040045             0064*   mos_getrtc:			EQU	12h
+040045             0065*   mos_setrtc:			EQU	13h
+040045             0066*   mos_setintvector:	EQU	14h
+040045             0067*   mos_uopen:			EQU	15h
+040045             0068*   mos_uclose:			EQU	16h
+040045             0069*   mos_ugetc:			EQU	17h
+040045             0070*   mos_uputc:			EQU	18h
+040045             0071*   mos_getfil:			EQU	19h
+040045             0072*   mos_fread:			EQU	1Ah
+040045             0073*   mos_fwrite:			EQU	1Bh
+040045             0074*   mos_flseek:			EQU	1Ch
+040045             0075*   mos_setkbvector:	EQU	1Dh
+040045             0076*   mos_getkbmap:		EQU	1Eh
+040045             0077*   
+040045             0078*   ; MOS program exit codes
+040045             0079*   ;
+040045             0080*   EXIT_OK:				EQU  0;	"OK",
+040045             0081*   EXIT_ERROR_SD_ACCESS:	EQU	 1;	"Error accessing SD card",
+040045             0082*   EXIT_ERROR_ASSERTION:	EQU  2;	"Assertion failed",
+040045             0083*   EXIT_SD_CARDFAILURE:	EQU  3;	"SD card failure",
+040045             0084*   EXIT_FILENOTFOUND:		EQU  4;	"Could not find file",
+040045             0085*   EXIT_PATHNOTFOUND:		EQU  5;	"Could not find path",
+040045             0086*   EXIT_INVALIDPATHNAME:	EQU  6;	"Invalid path name",
+040045             0087*   EXIT_ACCESSDENIED_FULL:	EQU  7;	"Access denied or directory full",
+040045             0088*   EXIT_ACCESSDENIED:		EQU  8;	"Access denied",
+040045             0089*   EXIT_INVALIDOBJECT:		EQU  9;	"Invalid file/directory object",
+040045             0090*   EXIT_SD_WRITEPROTECTED:	EQU 10;	"SD card is write protected",
+040045             0091*   EXIT_INVALIDDRIVENUMBER:EQU 11;	"Logical drive number is invalid",
+040045             0092*   EXIT_NOVOLUMEWORKAREA:	EQU 12;	"Volume has no work area",
+040045             0093*   EXIT_NOVALIDFATVOLUME:	EQU 13;	"No valid FAT volume",
+040045             0094*   EXIT_ERRORMKFS:			EQU 14;	"Error occurred during mkfs",
+040045             0095*   EXIT_VOLUMETIMEOUT:		EQU 15;	"Volume timeout",
+040045             0096*   EXIT_VOLUMELOCKED:		EQU 16;	"Volume locked",
+040045             0097*   EXIT_LFNALLOCATION:		EQU 17;	"LFN working buffer could not be allocated",
+040045             0098*   EXIT_MAXOPENFILES:		EQU 18;	"Too many open files",
+040045             0099*   EXIT_INVALIDPARAMETER:	EQU 19;	"Invalid parameter",
+040045             0100*   EXIT_INVALIDCOMMAND:	EQU 20;	"Invalid command",
+040045             0101*   EXIT_INVALIDEXECUTABLE:	EQU 21;	"Invalid executable",
+040045             0102*   ; FatFS file access functions
+040045             0103*   ;
+040045             0104*   ffs_fopen:			EQU	80h
+040045             0105*   ffs_fclose:			EQU	81h
+040045             0106*   ffs_fread:			EQU	82h
+040045             0107*   ffs_fwrite:			EQU	83h
+040045             0108*   ffs_flseek:			EQU	84h
+040045             0109*   ffs_ftruncate:		EQU	85h
+040045             0110*   ffs_fsync:			EQU	86h
+040045             0111*   ffs_fforward:		EQU	87h
+040045             0112*   ffs_fexpand:		EQU	88h
+040045             0113*   ffs_fgets:			EQU	89h
+040045             0114*   ffs_fputc:			EQU	8Ah
+040045             0115*   ffs_fputs:			EQU	8Bh
+040045             0116*   ffs_fprintf:		EQU	8Ch
+040045             0117*   ffs_ftell:			EQU	8Dh
+040045             0118*   ffs_feof:			EQU	8Eh
+040045             0119*   ffs_fsize:			EQU	8Fh
+040045             0120*   ffs_ferror:			EQU	90h
+040045             0121*   
+040045             0122*   ; FatFS directory access functions
+040045             0123*   ;
+040045             0124*   ffs_dopen:			EQU	91h
+040045             0125*   ffs_dclose:			EQU	92h
+040045             0126*   ffs_dread:			EQU	93h
+040045             0127*   ffs_dfindfirst:		EQU	94h
+040045             0128*   ffs_dfindnext:		EQU	95h
+040045             0129*   
+040045             0130*   ; FatFS file and directory management functions
+040045             0131*   ;
+040045             0132*   ffs_stat:			EQU	96h
+040045             0133*   ffs_unlink:			EQU	97h
+040045             0134*   ffs_rename:			EQU	98h
+040045             0135*   ffs_chmod:			EQU	99h
+040045             0136*   ffs_utime:			EQU	9Ah
+040045             0137*   ffs_mkdir:			EQU	9Bh
+040045             0138*   ffs_chdir:			EQU	9Ch
+040045             0139*   ffs_chdrive:		EQU	9Dh
+040045             0140*   ffs_getcwd:			EQU	9Eh
+040045             0141*   
+040045             0142*   ; FatFS volume management and system configuration functions
+040045             0143*   ;
+040045             0144*   ffs_mount:			EQU	9Fh
+040045             0145*   ffs_mkfs:			EQU	A0h
+040045             0146*   ffs_fdisk:			EQU	A1h
+040045             0147*   ffs_getfree:		EQU	A2h
+040045             0148*   ffs_getlabel:		EQU	A3h
+040045             0149*   ffs_setlabel:		EQU	A4h
+040045             0150*   ffs_setcp:			EQU	A5h
+040045             0151*   
+040045             0152*   ; File access modes
+040045             0153*   ;
+040045             0154*   fa_read:			EQU	01h
+040045             0155*   fa_write:			EQU	02h
+040045             0156*   fa_open_existing:	EQU	00h
+040045             0157*   fa_create_new:		EQU	04h
+040045             0158*   fa_create_always:	EQU	08h
+040045             0159*   fa_open_always:		EQU	10h
+040045             0160*   fa_open_append:		EQU	30h
+040045             0161*   
+040045             0162*   ; System variable indexes for api_sysvars
+040045             0163*   ; Index into _sysvars in globals.inc
+040045             0164*   ;
+040045             0165*   sysvar_time:			EQU	00h	; 4: Clock timer in centiseconds (incremented by 2 every VBLANK)
+040045             0166*   sysvar_vpd_pflags:		EQU	04h	; 1: Flags to indicate completion of VDP commands
+040045             0167*   sysvar_keyascii:		EQU	05h	; 1: ASCII keycode, or 0 if no key is pressed
+040045             0168*   sysvar_keymods:			EQU	06h	; 1: Keycode modifiers
+040045             0169*   sysvar_cursorX:			EQU	07h	; 1: Cursor X position
+040045             0170*   sysvar_cursorY:			EQU	08h	; 1: Cursor Y position
+040045             0171*   sysvar_scrchar:			EQU	09h	; 1: Character read from screen
+040045             0172*   sysvar_scrpixel:		EQU	0Ah	; 3: Pixel data read from screen (R,B,G)
+040045             0173*   sysvar_audioChannel:	EQU	0Dh	; 1: Audio channel
+040045             0174*   sysvar_audioSuccess:	EQU	0Eh	; 1: Audio channel note queued (0 = no, 1 = yes)
+040045             0175*   sysvar_scrWidth:		EQU	0Fh	; 2: Screen width in pixels
+040045             0176*   sysvar_scrHeight:		EQU	11h	; 2: Screen height in pixels
+040045             0177*   sysvar_scrCols:			EQU	13h	; 1: Screen columns in characters
+040045             0178*   sysvar_scrRows:			EQU	14h	; 1: Screen rows in characters
+040045             0179*   sysvar_scrColours:		EQU	15h	; 1: Number of colours displayed
+040045             0180*   sysvar_scrpixelIndex:	EQU	16h	; 1: Index of pixel data read from screen
+040045             0181*   sysvar_vkeycode:		EQU	17h	; 1: Virtual key code from FabGL
+040045             0182*   sysvar_vkeydown:		EQU	18h	; 1: Virtual key state from FabGL (0=up, 1=down)
+040045             0183*   sysvar_vkeycount:		EQU	19h	; 1: Incremented every time a key packet is received
+040045             0184*   sysvar_rtc:				EQU	1Ah	; 6: Real time clock data
+040045             0185*   sysvar_spare:			EQU	20h	; 2: Spare, previously used by rtc
+040045             0186*   sysvar_keydelay:		EQU	22h	; 2: Keyboard repeat delay
+040045             0187*   sysvar_keyrate:			EQU	24h	; 2: Keyboard repeat reat
+040045             0188*   sysvar_keyled:			EQU	26h	; 1: Keyboard LED status
+040045             0189*   sysvar_scrMode:			EQU	27h	; 1: Screen mode
+040045             0190*   sysvar_rtcEnable:		EQU	28h	; 1: RTC enable flag (0: disabled, 1: use ESP32 RTC)
+040045             0191*   
+040045             0192*   ; Flags for the VPD protocol
+040045             0193*   ;
+040045             0194*   vdp_pflag_cursor:		EQU	00000001b
+040045             0195*   vdp_pflag_scrchar:		EQU	00000010b
+040045             0196*   vdp_pflag_point:		EQU	00000100b
+040045             0197*   vdp_pflag_audio:		EQU	00001000b
+040045             0198*   vdp_pflag_mode:			EQU	00010000b
+040045             0199*   vdp_pflag_rtc:			EQU	00100000b
+040045             0200*   
+040045             0201*   ;
+040045             0202*   ; FatFS structures
+040045             0203*   ; These mirror the structures contained in src_fatfs/ff.h in the MOS project
+040045             0204*   ;
+040045             0205*   ; Object ID and allocation information (FFOBJID)
+040045             0206*   ;
+040045             0207*   ; Indexes into FFOBJID structure
+040045             0208*   ffobjid_fs:			EQU	0	; 3: Pointer to the hosting volume of this object
+040045             0209*   ffobjid_id:			EQU	3	; 2: Hosting volume mount ID
+040045             0210*   ffobjid_attr:		EQU	5	; 1: Object attribute
+040045             0211*   ffobjid_stat:		EQU	6	; 1: Object chain status (b1-0: =0:not contiguous, =2:contiguous, =3:fragmented in this session, b2:sub-directory stretched)
+040045             0212*   ffobjid_sclust:		EQU	7	; 4: Object data start cluster (0:no cluster or root directory)
+040045             0213*   ffobjid_objsize:	EQU	11	; 4: Object size (valid when sclust != 0)
+040045             0214*   ;
+040045             0215*   ; File object structure (FIL)
+040045             0216*   ;
+040045             0217*   ; Indexes into FIL structure
+040045             0218*   fil_obj:		EQU 0	; 15: Object identifier
+040045             0219*   fil_flag:		EQU	15 	;  1: File status flags
+040045             0220*   fil_err:		EQU	16	;  1: Abort flag (error code)
+040045             0221*   fil_fptr:		EQU	17	;  4: File read/write pointer (Zeroed on file open)
+040045             0222*   fil_clust:		EQU	21	;  4: Current cluster of fpter (invalid when fptr is 0)
+040045             0223*   fil_sect:		EQU	25	;  4: Sector number appearing in buf[] (0:invalid)
+040045             0224*   fil_dir_sect:	EQU	29	;  4: Sector number containing the directory entry
+040045             0225*   fil_dir_ptr:	EQU	33	;  3: Pointer to the directory entry in the win[]
+040045             0226*   ;
+040045             0227*   ; Directory object structure (DIR)
+040045             0228*   ; Indexes into DIR structure
+040045             0229*   dir_obj:		EQU  0	; 15: Object identifier
+040045             0230*   dir_dptr:		EQU	15	;  4: Current read/write offset
+040045             0231*   dir_clust:		EQU	19	;  4: Current cluster
+040045             0232*   dir_sect:		EQU	23	;  4: Current sector (0:Read operation has terminated)
+040045             0233*   dir_dir:		EQU	27	;  3: Pointer to the directory item in the win[]
+040045             0234*   dir_fn:			EQU	30	; 12: SFN (in/out) {body[8],ext[3],status[1]}
+040045             0235*   dir_blk_ofs:	EQU	42	;  4: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+040045             0236*   ;
+040045             0237*   ; File information structure (FILINFO)
+040045             0238*   ;
+040045             0239*   ; Indexes into FILINFO structure
+040045             0240*   filinfo_fsize:		EQU 0	;   4: File size
+040045             0241*   filinfo_fdate:		EQU	4	;   2: Modified date
+040045             0242*   filinfo_ftime:		EQU	6	;   2: Modified time
+040045             0243*   filinfo_fattrib:	EQU	8	;   1: File attribute
+040045             0244*   filinfo_altname:	EQU	9	;  13: Alternative file name
+040045             0245*   filinfo_fname:		EQU	22	; 256: Primary file name
+040045             0246*   ;
+040045             0247*   ; Macro for calling the API
+040045             0248*   ; Parameters:
+040045             0249*   ; - function: One of the function numbers listed above
+040045             0250*   ;
+040045             0251*   	MACRO	MOSCALL	function
+040045             0252*   			LD	A, function
+040045             0253*   			RST.LIL	08h
+040045             0254*   	ENDMACRO
+040045             0010    start_here:
+040045             0011    
+040045 F5          0012        push af                             ; store all the registers
+040046 C5          0013        push bc
+040047 D5          0014        push de
+040048 DD E5       0015        push ix
+04004A FD E5       0016        push iy
+04004C             0017    
+04004C             0018    ; ------------------
+04004C             0019    
+04004C             0020    
+04004C 21 E1 00 04 0021        ld hl, ps_dir_path                      ; where to store result
+040050 01 FF 00 00 0022        ld bc, 255                          ; max length
+040054             0023        MOSCALL ffs_getcwd                  ; MOS api get current working directory
+040054 3E 9E       0001M1  			LD	A, function
+040056 5B CF       0002M1  			RST.LIL	08h
+040058             0024    
+040058 21 BA 00 04 0025        ld hl, printDirHeading              ; Sending initial text message
+04005C CD D9 00 04 0026        call printString
+040060             0027    
+040060 21 E1 00 04 0028        ld hl, ps_dir_path                ; get pointer to the path
+040064 CD D9 00 04 0029        call printString
+040068             0030    
+040068 21 D6 00 04 0031        ld hl, printCR                      ; address of string
+04006C CD D9 00 04 0032        call printString                    ; print lf/cr
+040070             0033    
+040070             0034    
+040070             0035                                            ; now get dir info
+040070             0036    
+040070 21 E1 02 04 0037        ld hl, ps_dir_struct                   ; define where to store directory info
+040074 11 E1 00 04 0038        ld de, ps_dir_path                ; this is pointer to the path to the directory
+040078             0039        MOSCALL ffs_dopen                         ; open dir
+040078 3E 91       0001M1  			LD	A, function
+04007A 5B CF       0002M1  			RST.LIL	08h
+04007C             0040    
+04007C             0041    
+04007C             0042    _readFileInfo:                          ; we will loop here until all files have been processed
+04007C             0043    
+04007C 21 E1 02 04 0044        ld hl, ps_dir_struct                   ; HL is where to get directory info
+040080 11 04 03 04 0045        ld de, ps_filinfo_struct               ; define where to store current file info
+040084             0046        MOSCALL ffs_dread                         ; read next item from dir
+040084 3E 93       0001M1  			LD	A, function
+040086 5B CF       0002M1  			RST.LIL	08h
+040088             0047    
+040088 3A 1A 03 04 0048        ld a, (ps_filinfo_fname)                       ; get first char of file name
+04008C FE 00       0049        cp 0                                ; if 0 then we are at the end of the listing
+04008E 28 16       0050        jr z, _allDone
+040090             0051    
+040090 21 1A 03 04 0052        ld hl, ps_filinfo_fname                        ; this is pointer to the name of current file
+040094 01 00 00 00 0053        ld bc, 0
+040098 3E 00       0054        ld a, 0                             ; name will end with a 0
+04009A 5B DF       0055        rst.lil $18                         ; print to screen
+04009C             0056    
+04009C 21 D6 00 04 0057        ld hl, printCR                      ; now print a carriage retrun before the next entry
+0400A0 CD D9 00 04 0058        call printString
+0400A4             0059    
+0400A4 18 D6       0060        jr _readFileInfo                    ; loop around to check next entry
+0400A6             0061    
+0400A6             0062    _allDone:
+0400A6             0063    
+0400A6             0064    
+0400A6 21 E1 02 04 0065        ld hl, ps_dir_struct                   ; load H: with address of the DIR struct
+0400AA             0066        MOSCALL ffs_dclose                         ; close dir
+0400AA 3E 92       0001M1  			LD	A, function
+0400AC 5B CF       0002M1  			RST.LIL	08h
+0400AE             0067    
+0400AE             0068    
+0400AE             0069    ; ------------------
+0400AE             0070    ; This is where we exit the program
+0400AE             0071    
+0400AE FD E1       0072        pop iy                              ; Pop all registers back from the stack
+0400B0 DD E1       0073        pop ix
+0400B2 D1          0074        pop de
+0400B3 C1          0075        pop bc
+0400B4 F1          0076        pop af
+0400B5 21 00 00 00 0077        ld hl,0                             ; Load the MOS API return code (0) for no errors.
+0400B9 C9          0078        ret                                 ; Return to MOS
+0400BA             0079    
+0400BA             0080    ; ------------------
+0400BA             0081    ; Some data stored here
+0400BA             0082    
+0400BA             0083    printDirHeading:
+0400BA 4F 75 72 20 0084        .db     "Our current directory is:\r\n",0       ; text to print
+       63 75 72 72 
+       65 6E 74 20 
+       64 69 72 65 
+       63 74 6F 72 
+       79 20 69 73 
+       3A 0D 0A 00 
+0400D6             0085    
+0400D6             0086    printCR:
+0400D6 0D 0A 00    0087        .db     "\r\n",0                                ; text to print
+0400D9             0088    
+0400D9             0089    ; ps_dir_path:    .blkb     256,0                           ; 256 x 0 bytes allocated for path name
+0400D9             0090    
+0400D9             0091    ; ------------------
+0400D9             0092    ; Routine to print zero terminated string
+0400D9             0093    
+0400D9             0094    printString:
+0400D9 7E          0095        ld a,(hl)
+0400DA B7          0096        or a
+0400DB C8          0097        ret z
+0400DC 5B D7       0098        RST.LIL 10h
+0400DE 23          0099        inc hl
+0400DF 18 F8       0100        jr printString
+0400E1             0101    
+0400E1             0102    
+0400E1             0103        include "files.inc"
+0400E1             0001*   ; load to onboard 8k sram
+0400E1             0002*   filedata: equ 0xB7E000
+0400E1             0003*   
+0400E1 00 00 00 00 0004*   ps_dir_path:   blkw 256,0 ; path of the current directory
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+0402E1             0005*   ps_dir_struct:
+0402E1 00 00 00 00 0006*   ps_dptr:       blkb  4,0   ; Current read/write offset
+0402E5 00 00 00 00 0007*   ps_clust:      blkb  4,0   ; Current cluster
+0402E9 00 00 00 00 0008*   ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
+0402ED 00 00 00    0009*   ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
+0402F0 00 00 00 00 0010*   ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
+       00 00 00 00 
+       00 00 00 00 
+0402FC 00 00 00 00 0011*   ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+040300             0012*   
+040300             0013*   ; song file info
+040300 00          0014*   ps_filehandle_cur: db 0 ; file handle
+040301 00 00 00    0015*   ps_chunkpointer: dl 0 ; pointer to current chunk
+040304             0016*   ; File information structure (FILINFO)
+040304             0017*   ps_filinfo_struct:
+040304 00 00 00 00 0018*   ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
+040308 00 00       0019*   ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
+04030A 00 00       0020*   ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
+04030C 00          0021*   ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
+04030D 00 00 00 00 0022*   ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
+       00 00 00 00 
+       00 00 00 00 
+       00          
+04031A 00 00 00 00 0023*   ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+       00 00 00 00 
+04041A             0024*   
+04041A             0025*   ; buffer for sound data
+04041A             0026*   ; must be in the final include of the program
+04041A             0027*   ps_wav_header: ; marker for top of the wav file header and song data
+04041A             0028*   ; (must be last so buffer doesn't overwrite other program code or data)
+04041A             0029*   ; .wav header data
+04041A             0030*   ; WAV File Structure in Memory with LIST Chunk
+04041A 00 00 00 00 0031*   ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
+04041E 00 00 00 00 0032*   ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
+040422 00 00 00 00 0033*   ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
+040426 00 00 00 00 0034*   ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
+04042A 00 00 00 00 0035*   ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
+04042E 00 00       0036*   ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
+040430 00 00       0037*   ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
+040432 00 00 00 00 0038*   ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
+040436 00 00 00 00 0039*   ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
+04043A 00 00       0040*   ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
+04043C 00 00       0041*   ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
+04043E             0042*   
+04043E             0043*   ; LIST Chunk (Extra Metadata)
+04043E 00 00 00 00 0044*   ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
+040442 00 00 00 00 0045*   ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
+040446 00 00 00 00 0046*   ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
+04044A 00 00 00 00 0047*   ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
+04044E 00 00 00 00 0048*   ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
+       00 00 00 00 
+       00 00 00 00 
+       00 00       
+04045C 00 00       0049*   ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
+04045E             0050*   
+04045E             0051*   ; Data Chunk
+04045E 00 00 00 00 0052*   ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
+040462 00 00 00 00 0053*   ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
+040466             0054*   ; Total Header Size: 76 bytes
+040466             0055*   ;
+040466             0056*   ; buffer for sound data
+040466             0057*   ps_wav_data_start:    blkb 0,0   ; Start of audio data
+040466             0104    
+040466             0105    

@@ -1,5 +1,6 @@
-; load to onboard 8k sram
-filedata: equ 0xB7E000
+; buffer for loading files unrelated to audio
+; e.g.: fonts, sprites, etc. (limited to 8k)
+filedata: equ 0xB7E000 ; address of onboard 8k sram
 
 ps_dir_path:   blkw 256,0 ; path of the current directory
 ps_dir_struct:             
@@ -52,6 +53,9 @@ ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignmen
 ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
 ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
 ; Total Header Size: 76 bytes
-;
+
+    align 256 ; make things nice for indexing into especially ps_dir_fil_list
 ; buffer for sound data
 ps_wav_data_start:    equ $   ; Start of audio data
+
+ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
