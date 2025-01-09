@@ -1,8 +1,5 @@
 ; This file is created by build_98_asm_sfx.py, do not edit it!
 
-SFX_num_buffers: equ 10
-sample_rate: equ 32768
-
 ; File name lookup index:
 SFX_filename_index:
 	dl FN_Africa

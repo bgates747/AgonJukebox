@@ -34,8 +34,6 @@ def make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate):
     with open(sfx_inc_path, 'w') as f:
         # Write the header
         f.write("; This file is created by build_98_asm_sfx.py, do not edit it!\n\n")
-        f.write(f"SFX_num_buffers: equ {len(raw_files)}\n")
-        f.write(f"sample_rate: equ {sample_rate}\n\n")
 
         # Write the file name lookup index
         f.write("; File name lookup index:\n")
