@@ -24,7 +24,7 @@ def assemble_jukebox():
 
 import os
 
-def make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate):
+def make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir):
     # Get the list of `.wav` files from the target directory
     raw_files = sorted(
         [f for f in os.listdir(tgt_dir) if f.endswith(".wav")]
@@ -52,6 +52,5 @@ if __name__ == "__main__":
     tgt_dir = 'tgt/music'
     asm_tgt_dir = 'music'
     sfx_inc_path = f'src/asm/music.inc'
-    sample_rate = 32768 
-    make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir, sample_rate)
+    make_asm_sfx(sfx_inc_path, tgt_dir, asm_tgt_dir)
     assemble_jukebox()
