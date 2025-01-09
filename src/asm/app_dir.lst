@@ -29,7 +29,7 @@ PC     Output      Line
 04004A FD E5       0014        push iy
 04004C             0015    
 04004C CD AB 28 04 0016        call init
-040050 CD 36 29 04 0017        call main
+040050 CD 45 29 04 0017        call main
 040054             0018    
 040054             0019    exit:
 040054 FD E1       0020        pop iy
@@ -5629,7 +5629,7 @@ PC     Output      Line
 0422D9             0040*       MOSCALL mos_fopen
 0422D9 3E 0A       0001*M1 			LD	A, function
 0422DB 5B CF       0002*M1 			RST.LIL	08h
-0422DD 32 60 2B 04 0041*       ld (ps_filehandle_cur),a
+0422DD 32 62 2C 04 0041*       ld (ps_filehandle_cur),a
 0422E1             0042*   ; read the .wav header data and copy it to the buffer
 0422E1 CD 88 23 04 0043*       call ps_read_wav_header
 0422E5             0044*   ; read the first block of data
@@ -5657,10 +5657,10 @@ PC     Output      Line
 0422F7             0066*   ; DEU: Number of bytes to read
 0422F7             0067*   ; Returns:
 0422F7             0068*   ; DEU: Number of bytes read
-0422F7 3A 60 2B 04 0069*       ld a,(ps_filehandle_cur)
+0422F7 3A 62 2C 04 0069*       ld a,(ps_filehandle_cur)
 0422FB 4F          0070*       ld c,a
-0422FC 21 00 2D 04 0071*       ld hl,ps_wav_data_start
-042300 ED 5B 92 2C 0072*       ld de,(ps_wav_sample_rate)
+0422FC 21 00 2E 04 0071*       ld hl,ps_wav_data_start
+042300 ED 5B 94 2D 0072*       ld de,(ps_wav_sample_rate)
        04          
 042305             0073*       MOSCALL mos_fread
 042305 3E 1A       0001*M1 			LD	A, function
@@ -5687,7 +5687,7 @@ PC     Output      Line
 042334 2A AA 23 04 0093*       ld hl,(ps_sampleId)
 042338 D5          0094*       push de ; chunksize
 042339 C1          0095*       pop bc ; how much data to load
-04233A 11 00 2D 04 0096*       ld de,ps_wav_data_start ; pointer to data
+04233A 11 00 2E 04 0096*       ld de,ps_wav_data_start ; pointer to data
 04233E CD 7B 18 04 0097*       call vdu_load_buffer
 042342 C9          0098*       ret
 042343             0099*   ; end ps_read_file
@@ -5710,7 +5710,7 @@ PC     Output      Line
 042357             0116*   ; close the file
 042357             0117*   ps_close_file:
 042357 CD 51 24 04 0118*       call ps_prt_stop ; stop the PRT timer
-04235B 3A 60 2B 04 0119*       ld a,(ps_filehandle_cur)
+04235B 3A 62 2C 04 0119*       ld a,(ps_filehandle_cur)
 04235F             0120*       MOSCALL mos_fclose
 04235F 3E 0B       0001*M1 			LD	A, function
 042361 5B CF       0002*M1 			RST.LIL	08h
@@ -5744,9 +5744,9 @@ PC     Output      Line
 042388             0148*   ; DEU: Number of bytes to read
 042388             0149*   ; Returns:
 042388             0150*   ; DEU: Number of bytes read
-042388 3A 60 2B 04 0151*       ld a,(ps_filehandle_cur)
+042388 3A 62 2C 04 0151*       ld a,(ps_filehandle_cur)
 04238C 4F          0152*       ld c,a
-04238D 21 7A 2C 04 0153*       ld hl,ps_wav_header
+04238D 21 7C 2D 04 0153*       ld hl,ps_wav_header
 042391 11 4C 00 00 0154*       ld de,wav_header_size
 042395             0155*       MOSCALL mos_fread
 042395 3E 1A       0001*M1 			LD	A, function
@@ -5772,7 +5772,7 @@ PC     Output      Line
 0423AD             0174*   load_command_buffers:
 0423AD 21 02 30 00 0175*       ld hl,cmd0_buffer
 0423B1 CD 90 1A 04 0176*       call vdu_clear_buffer
-0423B5 2A 92 2C 04 0177*       ld hl,(ps_wav_sample_rate)
+0423B5 2A 94 2D 04 0177*       ld hl,(ps_wav_sample_rate)
 0423B9 22 03 24 04 0178*       ld (ps_sr0),hl
 0423BD 3E 17       0179*       ld a,23
 0423BF 32 05 24 04 0180*       ld (ps_sr0+2),a
@@ -5783,7 +5783,7 @@ PC     Output      Line
 0423D3             0185*   
 0423D3 21 03 30 00 0186*       ld hl,cmd1_buffer
 0423D7 CD 90 1A 04 0187*       call vdu_clear_buffer
-0423DB 2A 92 2C 04 0188*       ld hl,(ps_wav_sample_rate)
+0423DB 2A 94 2D 04 0188*       ld hl,(ps_wav_sample_rate)
 0423DF 22 20 24 04 0189*       ld (ps_sr1),hl
 0423E3 3E 17       0190*       ld a,23
 0423E5 32 22 24 04 0191*       ld (ps_sr1+2),a
@@ -6741,40 +6741,155 @@ PC     Output      Line
 042935 C9          0097        ret
 042936             0098    ; end init
 042936             0099    
-042936             0100    main:
-042936             0101    ; ; call get_input to start player
-042936             0102    ;     call get_input
-042936             0103    ; call directory listing test
-042936 CD 40 29 04 0104        call get_dir
-04293A             0105    ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
-04293A CD 51 24 04 0106        call ps_prt_stop ; stop the PRT timer
-04293E FB          0107        ei ; interrupts were disabled by get_input
-04293F             0108    ; ; restore original screen mode
-04293F             0109    ;     ld a,(original_screen_mode)
-04293F             0110    ;     call vdu_set_screen_mode
-04293F             0111    ;     call vdu_reset_viewports
-04293F             0112    ;     call vdu_cls
-04293F             0113    ; ; print thanks for playing message
-04293F             0114    ;     call printInline
-04293F             0115    ;     asciz "Thank you for using\r\n"
-04293F             0116    ;     ld hl,agon_jukebox_ascii
-04293F             0117    ;     call printString
-04293F             0118    ;     call vdu_cursor_on
-04293F C9          0119        ret ; back to MOS
-042940             0120    ; end main
-042940             0121    
-042940             0122    get_dir:
-042940 C9          0123        ret
-042941             0124    ; end get_dir
-042941             0125    
-042941             0126    
-042941             0127    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
-042941             0128        include "files.inc"
-042941             0001*   ; buffer for loading files unrelated to audio
-042941             0002*   ; e.g.: fonts, sprites, etc. (limited to 8k)
-042941             0003*   filedata: equ 0xB7E000 ; address of onboard 8k sram
-042941             0004*   
-042941 00 00 00 00 0005*   ps_dir_path:   blkw 256,0 ; path of the current directory
+042936 63 64 20 6D 0100    cmd_cd_music: asciz "cd music"
+       75 73 69 63 
+       00          
+04293F 63 64 20 2E 0101    cmd_cd_up: asciz "cd .."
+       2E 00       
+042945             0102    main:
+042945             0103    ; ; call get_input to start player
+042945             0104    ;     call get_input
+042945             0105    ; change directory to music
+042945 21 36 29 04 0106        ld hl,cmd_cd_music
+042949             0107        MOSCALL mos_oscli
+042949 3E 10       0001M1  			LD	A, function
+04294B 5B CF       0002M1  			RST.LIL	08h
+04294D             0108    ; call directory listing test
+04294D CD 89 29 04 0109        call get_dir
+042951 CD 17 2A 04 0110        call print_dir
+042955             0111    ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
+042955 CD 51 24 04 0112        call ps_prt_stop ; stop the PRT timer
+042959 FB          0113        ei ; interrupts were disabled by get_input
+04295A             0114    ; ; restore original screen mode
+04295A             0115    ;     ld a,(original_screen_mode)
+04295A             0116    ;     call vdu_set_screen_mode
+04295A             0117    ;     call vdu_reset_viewports
+04295A             0118    ;     call vdu_cls
+04295A             0119    ; change back to directory containing the program
+04295A 21 3F 29 04 0120        ld hl,cmd_cd_up
+04295E             0121        MOSCALL mos_oscli
+04295E 3E 10       0001M1  			LD	A, function
+042960 5B CF       0002M1  			RST.LIL	08h
+042962             0122    ; print thanks for playing message
+042962 CD 60 00 04 0123        call printInline
+042966 54 68 61 6E 0124        asciz "Thank you for using\r\n"
+       6B 20 79 6F 
+       75 20 66 6F 
+       72 20 75 73 
+       69 6E 67 0D 
+       0A 00       
+04297C 21 42 1E 04 0125        ld hl,agon_jukebox_ascii
+042980 CD 67 00 04 0126        call printString
+042984 CD 90 16 04 0127        call vdu_cursor_on
+042988 C9          0128        ret ; back to MOS
+042989             0129    ; end main
+042989             0130    
+042989             0131    get_dir:
+042989             0132    ; reset filecounter
+042989 21 00 00 00 0133        ld hl,0
+04298D 22 40 2A 04 0134        ld (ps_dir_num_files),hl
+042991             0135    
+042991             0136    ; initialize pointers to store directory info
+042991 21 43 2A 04 0137        ld hl,ps_dir_path  ; where to store result
+042995 01 FF 00 00 0138        ld bc,255          ; max length
+042999             0139        MOSCALL ffs_getcwd ; MOS api get current working directory
+042999 3E 9E       0001M1  			LD	A, function
+04299B 5B CF       0002M1  			RST.LIL	08h
+04299D             0140    
+04299D             0141    ; print out current directory path
+04299D CD 60 00 04 0142        call printInline
+0429A1 4F 75 72 20 0143        asciz "Our current directory is:\r\n"
+       63 75 72 72 
+       65 6E 74 20 
+       64 69 72 65 
+       63 74 6F 72 
+       79 20 69 73 
+       3A 0D 0A 00 
+0429BD 21 43 2A 04 0144        ld hl,ps_dir_path
+0429C1 CD 67 00 04 0145        call printString
+0429C5 CD 7C 00 04 0146        call printNewLine
+0429C9             0147    
+0429C9             0148    ; now get dir info
+0429C9 21 43 2C 04 0149        ld hl,ps_dir_struct ; define where to store directory info
+0429CD 11 43 2A 04 0150        ld de,ps_dir_path   ; this is pointer to the path to the directory
+0429D1             0151        MOSCALL ffs_dopen   ; open dir
+0429D1 3E 91       0001M1  			LD	A, function
+0429D3 5B CF       0002M1  			RST.LIL	08h
+0429D5             0152    
+0429D5             0153    _readFileInfo:               ; we will loop here until all files have been processed
+0429D5 21 43 2C 04 0154        ld hl,ps_dir_struct      ; HL is where to get directory info
+0429D9 11 66 2C 04 0155        ld de,ps_filinfo_struct  ; define where to store current file info
+0429DD             0156        MOSCALL ffs_dread        ; read next item from dir
+0429DD 3E 93       0001M1  			LD	A, function
+0429DF 5B CF       0002M1  			RST.LIL	08h
+0429E1             0157    
+0429E1 3A 7C 2C 04 0158        ld a,(ps_filinfo_fname)  ; get first char of file name
+0429E5 FE 00       0159        cp 0                     ; if 0 then we are at the end of the listing
+0429E7 28 25       0160        jr z,_allDone
+0429E9             0161    
+0429E9 ED 5B 40 2A 0162        ld de,(ps_dir_num_files) ; get the current file counter
+       04          
+0429EE 21 00 01 00 0163        ld hl,256 ; bytes per filename
+0429F2 CD 67 03 04 0164        call umul24 ; hl = offset into the filename table
+0429F6 13          0165        inc de                  ; increment the counter
+0429F7 ED 53 40 2A 0166        ld (ps_dir_num_files),de
+       04          
+0429FC 11 00 2E 05 0167        ld de,ps_dir_fil_list ; get the address of the filename table
+042A00 19          0168        add hl,de ; add the offset to the base address
+042A01 EB          0169        ex de,hl ; de is the destination address to copy the filename
+042A02 21 7C 2C 04 0170        ld hl,ps_filinfo_fname   ; this is pointer to the name of current file
+042A06 01 00 01 00 0171        ld bc,256 ; bytes per filename
+042A0A ED B0       0172        ldir ; copy the filename to the filename table
+042A0C             0173    
+042A0C 18 C7       0174        jr _readFileInfo         ; loop around to check next entry
+042A0E             0175    
+042A0E             0176    _allDone:
+042A0E 21 43 2C 04 0177        ld hl,ps_dir_struct      ; load H: with address of the DIR struct
+042A12             0178        MOSCALL ffs_dclose       ; close dir
+042A12 3E 92       0001M1  			LD	A, function
+042A14 5B CF       0002M1  			RST.LIL	08h
+042A16 C9          0179        ret
+042A17             0180    ; end get_dir
+042A17             0181    
+042A17             0182    print_dir:
+042A17             0183    ; loop through the filename table and print out the filenames
+042A17 DD 21 00 2E 0184        ld ix,ps_dir_fil_list      ; get the address of the filename table
+       05          
+042A1C 2A 40 2A 04 0185        ld hl,(ps_dir_num_files)   ; get the number of files
+042A20 E5          0186        push hl ; save loop counter
+042A21             0187    _print_loop:
+042A21 DD E5       0188        push ix
+042A23 E1          0189        pop hl ; get the address of the filename
+042A24 CD 67 00 04 0190        call printString
+042A28 CD 7C 00 04 0191        call printNewLine
+042A2C ED 32 7F    0192        lea ix,ix+127 ; bump the pointer
+042A2F ED 32 7F    0193        lea ix,ix+127 ; to the next file
+042A32 ED 32 02    0194        lea ix,ix+2   ; 256 bytes
+042A35 E1          0195        pop hl ; get the loop counter
+042A36 2B          0196        dec hl ; decrement the loop counter
+042A37 E5          0197        push hl ; save loop counter
+042A38             0198        SIGN_HLU ; check for zero
+042A38 19          0001M1      add hl,de ; 1 cycle
+042A39 B7          0002M1      or a ; clear flags ; 1 cycle
+042A3A ED 52       0003M1      sbc hl,de ; 2 cycles
+042A3C             0004M1      ; 4 cycles total
+042A3C 20 E3       0199        jr nz,_print_loop
+042A3E E1          0200        pop hl ; dummy pop to balance stack
+042A3F C9          0201        ret
+042A40             0202    ; end print_dir
+042A40             0203    
+042A40             0204    
+042A40             0205    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+042A40             0206        include "files.inc"
+042A40             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+042A40             0002*   
+042A40             0003*   ; buffer for loading files unrelated to audio
+042A40             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
+042A40             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
+042A40             0006*   
+042A40             0007*   ; play_song directory info
+042A40 00 00 00    0008*   ps_dir_num_files: dl 0 ; number of files/directories in the directory
+042A43 00 00 00 00 0009*   ps_dir_path:   blkw 256,0 ; path of the current directory
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
@@ -6902,30 +7017,30 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-042B41             0006*   ps_dir_struct:
-042B41 00 00 00 00 0007*   ps_dptr:       blkb  4,0   ; Current read/write offset
-042B45 00 00 00 00 0008*   ps_clust:      blkb  4,0   ; Current cluster
-042B49 00 00 00 00 0009*   ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
-042B4D 00 00 00    0010*   ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
-042B50 00 00 00 00 0011*   ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
+042C43             0010*   ps_dir_struct:
+042C43 00 00 00 00 0011*   ps_dptr:       blkb  4,0   ; Current read/write offset
+042C47 00 00 00 00 0012*   ps_clust:      blkb  4,0   ; Current cluster
+042C4B 00 00 00 00 0013*   ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
+042C4F 00 00 00    0014*   ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
+042C52 00 00 00 00 0015*   ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
        00 00 00 00 
        00 00 00 00 
-042B5C 00 00 00 00 0012*   ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-042B60             0013*   
-042B60             0014*   ; song file info
-042B60 00          0015*   ps_filehandle_cur: db 0 ; file handle
-042B61 00 00 00    0016*   ps_chunkpointer: dl 0 ; pointer to current chunk
-042B64             0017*   ; File information structure (FILINFO)
-042B64             0018*   ps_filinfo_struct:
-042B64 00 00 00 00 0019*   ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
-042B68 00 00       0020*   ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
-042B6A 00 00       0021*   ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
-042B6C 00          0022*   ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
-042B6D 00 00 00 00 0023*   ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
+042C5E 00 00 00 00 0016*   ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+042C62             0017*   
+042C62             0018*   ; play_song file info
+042C62 00          0019*   ps_filehandle_cur: db 0 ; file handle
+042C63 00 00 00    0020*   ps_chunkpointer: dl 0 ; pointer to current chunk
+042C66             0021*   ; File information structure (FILINFO)
+042C66             0022*   ps_filinfo_struct:
+042C66 00 00 00 00 0023*   ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
+042C6A 00 00       0024*   ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
+042C6C 00 00       0025*   ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
+042C6E 00          0026*   ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
+042C6F 00 00 00 00 0027*   ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
        00 00 00 00 
        00 00 00 00 
        00          
-042B7A 00 00 00 00 0024*   ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
+042C7C 00 00 00 00 0028*   ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
@@ -6989,42 +7104,41 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-042C7A             0025*   
-042C7A             0026*   ; buffer for sound data
-042C7A             0027*   ; must be in the final include of the program
-042C7A             0028*   ps_wav_header: ; marker for top of the wav file header and song data
-042C7A             0029*   ; (must be last so buffer doesn't overwrite other program code or data)
-042C7A             0030*   ; .wav header data
-042C7A             0031*   ; WAV File Structure in Memory with LIST Chunk
-042C7A 00 00 00 00 0032*   ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
-042C7E 00 00 00 00 0033*   ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
-042C82 00 00 00 00 0034*   ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
-042C86 00 00 00 00 0035*   ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
-042C8A 00 00 00 00 0036*   ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
-042C8E 00 00       0037*   ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
-042C90 00 00       0038*   ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
-042C92 00 00 00 00 0039*   ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
-042C96 00 00 00 00 0040*   ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
-042C9A 00 00       0041*   ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
-042C9C 00 00       0042*   ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
-042C9E             0043*   
-042C9E             0044*   ; LIST Chunk (Extra Metadata)
-042C9E 00 00 00 00 0045*   ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
-042CA2 00 00 00 00 0046*   ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
-042CA6 00 00 00 00 0047*   ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
-042CAA 00 00 00 00 0048*   ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
-042CAE 00 00 00 00 0049*   ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
+042D7C             0029*   
+042D7C             0030*   ; buffer for play_song sound data
+042D7C             0031*   ps_wav_header: ; marker for top of the wav file header and song data
+042D7C             0032*   ; (must be last so buffer doesn't overwrite other program code or data)
+042D7C             0033*   ; .wav header data
+042D7C             0034*   ; WAV File Structure in Memory with LIST Chunk
+042D7C 00 00 00 00 0035*   ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
+042D80 00 00 00 00 0036*   ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
+042D84 00 00 00 00 0037*   ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
+042D88 00 00 00 00 0038*   ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
+042D8C 00 00 00 00 0039*   ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
+042D90 00 00       0040*   ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
+042D92 00 00       0041*   ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
+042D94 00 00 00 00 0042*   ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
+042D98 00 00 00 00 0043*   ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
+042D9C 00 00       0044*   ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
+042D9E 00 00       0045*   ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
+042DA0             0046*   
+042DA0             0047*   ; LIST Chunk (Extra Metadata)
+042DA0 00 00 00 00 0048*   ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
+042DA4 00 00 00 00 0049*   ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
+042DA8 00 00 00 00 0050*   ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
+042DAC 00 00 00 00 0051*   ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
+042DB0 00 00 00 00 0052*   ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
        00 00 00 00 
        00 00 00 00 
        00 00       
-042CBC 00 00       0050*   ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
-042CBE             0051*   
-042CBE             0052*   ; Data Chunk
-042CBE 00 00 00 00 0053*   ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
-042CC2 00 00 00 00 0054*   ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
-042CC6             0055*   ; Total Header Size: 76 bytes
-042CC6             0056*   
-042CC6 FF FF FF FF 0057*       align 256 ; make things nice for indexing into especially ps_dir_fil_list
+042DBE 00 00       0053*   ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
+042DC0             0054*   
+042DC0             0055*   ; Data Chunk
+042DC0 00 00 00 00 0056*   ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
+042DC4 00 00 00 00 0057*   ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
+042DC8             0058*   ; Total Header Size: 76 bytes
+042DC8             0059*   
+042DC8 FF FF FF FF 0060*       align 256 ; make things nice for indexing into especially ps_dir_fil_list
        FF FF FF FF 
        FF FF FF FF 
        FF FF FF FF 
@@ -7038,8 +7152,9 @@ PC     Output      Line
        FF FF FF FF 
        FF FF FF FF 
        FF FF FF FF 
-       FF FF       
-042D00             0058*   ; buffer for sound data
-042D00             0059*   ps_wav_data_start:    equ $   ; Start of audio data
-042D00             0060*   
-042D00             0061*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
+042E00             0061*   ; buffer for sound data
+042E00             0062*   ps_wav_data_start:    equ $   ; Start of audio data
+042E00             0063*   
+042E00             0064*   ; this list can grow as large as necessary to hold all the files in the directory
+042E00             0065*   ; each entry will be 256 bytes long, the max filename size MOS/FFS supports
+042E00             0066*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
