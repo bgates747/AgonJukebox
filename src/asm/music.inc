@@ -17,13 +17,13 @@ SFX_filename_index:
 	dl FN_Wont_Get_Fooled_Again
 
 ; File name lookups:
-FN_Africa: db "music/Africa.raw",0
-FN_Anytime: db "music/Anytime.raw",0
-FN_Barracuda: db "music/Barracuda.raw",0
-FN_Come_Undone: db "music/Come_Undone.raw",0
-FN_Every_Breath_You_Take: db "music/Every_Breath_You_Take.raw",0
-FN_Jukebox_Hero: db "music/Jukebox_Hero.raw",0
-FN_Rhiannon: db "music/Rhiannon.raw",0
-FN_Take_A_Ride: db "music/Take_A_Ride.raw",0
-FN_Wild_Flower: db "music/Wild_Flower.raw",0
-FN_Wont_Get_Fooled_Again: db "music/Wont_Get_Fooled_Again.raw",0
+FN_Africa: db "music/Africa.wav",0
+FN_Anytime: db "music/Anytime.wav",0
+FN_Barracuda: db "music/Barracuda.wav",0
+FN_Come_Undone: db "music/Come_Undone.wav",0
+FN_Every_Breath_You_Take: db "music/Every_Breath_You_Take.wav",0
+FN_Jukebox_Hero: db "music/Jukebox_Hero.wav",0
+FN_Rhiannon: db "music/Rhiannon.wav",0
+FN_Take_A_Ride: db "music/Take_A_Ride.wav",0
+FN_Wild_Flower: db "music/Wild_Flower.wav",0
+FN_Wont_Get_Fooled_Again: db "music/Wont_Get_Fooled_Again.wav",0

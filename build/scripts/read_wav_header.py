@@ -39,5 +39,5 @@ def read_wav_header(file_path):
     print("Data Size:          ", data_size)
 
 # Test the function with the given file path
-file_path = "assets/sound/music/processed/Rhiannon.wav"
+file_path = 'tgt/music/Africa.wav'
 read_wav_header(file_path)
