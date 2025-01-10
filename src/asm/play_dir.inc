@@ -15,10 +15,13 @@ ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
 ps_dir_path:   blkw 256,0 ; path of the current directory
 ps_dir_num_files: dl 0 ; number of files/directories in the directory (virtually unlimited)
+ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
 ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
+ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 ps_page_cur: dl 0 ; current directory page number
-ps_song_idx_cur: db 0 ; current song index in the directory page
+ps_song_idx_cur: dl 0 ; current song index in the directory page
 ps_song_fn_cur: dl 0 ; pointer to current song filename
+ps_page_fn_ptrs: blkw 10*3,0 ; list of filename pointers in the current directory page
 
 ; play_song directory info
 ps_dir_struct:             
@@ -184,17 +187,148 @@ ps_close_file:
     ret
 ; end ps_close_file
 
-; queue a random song to play next
-ps_play_random:
-    call rand_8 ; a = 0-255
+ps_get_dir:
+; reset filecounter
+    ld hl,0
+    ld (ps_dir_num_files),hl
+; initialize pointers to store directory info
+    ld hl,ps_dir_path  ; where to store result
+    ld bc,255          ; max length
+    MOSCALL ffs_getcwd ; MOS api get current working directory
+; now get dir info
+    ld hl,ps_dir_struct ; define where to store directory info
+    ld de,ps_dir_path   ; this is pointer to the path to the directory
+    MOSCALL ffs_dopen   ; open dir
+@readFileInfo:               ; we will loop here until all files have been processed
+    ld hl,ps_dir_struct      ; HL is where to get directory info
+    ld de,ps_filinfo_struct  ; define where to store current file info
+    MOSCALL ffs_dread        ; read next item from dir
+    ld a,(ps_filinfo_fname)  ; get first char of file name
+    cp 0                     ; if 0 then we are at the end of the listing
+    jr z,@allDone
+    ld de,(ps_dir_num_files) ; get the current file counter
+    ld hl,256 ; bytes per filename
+    call umul24 ; hl = offset into the filename table
+    inc de                  ; increment the counter
+    ld (ps_dir_num_files),de
+    ld de,ps_dir_fil_list ; get the address of the filename table
+    add hl,de ; add the offset to the base address
+    ex de,hl ; de is the destination address to copy the filename
+    ld hl,ps_filinfo_fname   ; this is pointer to the name of current file
+    ld bc,256 ; bytes per filename
+    ldir ; copy the filename to the filename table
+    jp @readFileInfo         ; loop around to check next entry
+@allDone:
+; compute page statistics
+    ld hl,(ps_dir_num_files) ; get the number of files
+    ld de,10 ; max files per page
+    call udiv24 ; de = hl/10, hl = mod(hl,10)
+    SIGN_HLU ; check remainder for zero
+    jp z,@F ; if zero then we have exactly 10 files
+    inc de ; bump the page count
+@@:
+    ld (ps_dir_num_pages),de ; save the number of pages
+    ld (ps_pagelast_num_files),hl ; save the number of files on the last page
+; reset the song index and page to zero and populate the page filename pointers
+    ld hl,0 
+    ld (ps_song_idx_cur),hl
+    ld (ps_page_cur),hl
+    call ps_fill_page_fn_ptrs
+; close the directory
+    ld hl,ps_dir_struct      ; load H: with address of the DIR struct
+    MOSCALL ffs_dclose       ; close dir
+    ret
+; end ps_get_dir
+
+; populate the page filename pointers for the current directory page
+; inputs: ps_page_cur
+; prerequisites: ps_get_dir called on a valid directory
+; outputs: a populated filename pointer list for the current page
+; destroys: a, hl, bc, de, ix
+ps_fill_page_fn_ptrs:
+    ld hl,(ps_page_cur) ; get the current page number
+    ld de,10*256 ; records/page * 256 bytes/record
+    call umul24 ; hl = offset into the filename table
+    ld de,ps_dir_fil_list ; base address of filename table
+    add hl,de ; add the offset to the base address
+    ld ix,ps_page_fn_ptrs ; get the address of the page filename pointer table
+    ld de,256 ; bytes per filename record
+    ld b,10 ; number of files per page
+@loop:
+    ld (ix),hl ; store the filename pointer
+    lea ix,ix+3 ; bump the index pointer
+    add hl,de ; add the record size to the filename pointer
+    djnz @loop
+    ret
+; end ps_fill_page_fn_ptrs
+
+ps_print_dir_page:
+; check whether we're at last page
+    ld hl,(ps_page_cur)
+    ld de,(ps_dir_num_pages)
+    dec de ; zero-based
+    or a ; clear carry
+    sbc hl,de
+    ld b,10 ; default number of files per page
+    jp nz,@F ; not last page so skip ahead
+    ld a,(ps_pagelast_num_files) ; get the number of files on the last page
+    ld b,a ; loop counter
+@@: ; print the current directory page
+    xor a ; song index
+    ld ix,ps_page_fn_ptrs
+@loop:
+    push bc ; save loop counter
+    push af ; save song index
+    call printHexA ; print the song index
+    ld hl,(ix) ; get the filename pointer
+    call printString ; print the filename
+    call printNewLine
+    lea ix,ix+3 ; bump the filename pointer
+    pop af ; restore song index
+    inc a ; increment the song index
+    pop bc ; restore loop counter
+    djnz @loop
+    ret
+; end ps_print_dir_page
+
+ps_print_dir:
+; loop through the filename table and print out the filenames
+    ld ix,ps_dir_fil_list      ; get the address of the filename table
+    ld hl,(ps_dir_num_files)   ; get the number of files 
+    push hl ; save loop counter
+@print_loop:
+    push ix
+    pop hl ; get the address of the filename
+    call printString
+    call printNewLine
+    lea ix,ix+127 ; bump the pointer
+    lea ix,ix+127 ; to the next file
+    lea ix,ix+2   ; 256 bytes
+    pop hl ; get the loop counter
+    dec hl ; decrement the loop counter
+    push hl ; save loop counter
+    SIGN_HLU ; check for zero
+    jr nz,@print_loop
+    pop hl ; dummy pop to balance stack
+    ret
+; end ps_print_dir
+
+ps_get_song_fn_from_pg_idx:
     ld hl,0 ; clear hlu and h
     ld l,a
-    ld de,(ps_dir_num_files)
+    ld de,(ps_page_num_files)
     call udiv24 ; hl = mod(hl,num_files)
     ld de,256 ; 256 bytes per filename record
     call umul24 ; hl = index into the filename table
     ld de,ps_dir_fil_list
     add hl,de ; hl points to the filename
+    ret
+; end ps_get_song_fn_from_pg_idx
+
+; queue a random song to play next
+ps_play_random:
+    call rand_8 ; a = 0-255
+    call ps_get_song_fn_from_pg_idx
     ex de,hl ; setting up cp hl,de
     ld hl,(ps_song_fn_cur) ; don't play the same song twice in a row
     or a ; clear carry
@@ -224,11 +358,11 @@ ps_read_wav_header:
     ret z ; no data read so return zero to caller
 ; data read so initialize song variables
 ; load play sample command buffers (namely the sample rate for now)
-    call load_command_buffers
+    call ps_load_command_buffers
     ret
 ; end ps_read_wav_header
 
-load_command_buffers:
+ps_load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_sample_rate)
@@ -310,4 +444,4 @@ ps_sr1:
     dw 0 ; frequency (relevant only for tuneable samples)
     dw 0 ; duration (ms), zero means play one time in full
 ps_cmd1_end:
-; end load_command_buffers
+; end ps_load_command_buffers

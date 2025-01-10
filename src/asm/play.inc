@@ -160,7 +160,7 @@ ps_read_wav_header:
     ret z ; no data read so return zero to caller
 ; data read so initialize song variables
 ; load play sample command buffers (namely the sample rate for now)
-    call load_command_buffers
+    call ps_load_command_buffers
     ret
 ; end ps_read_wav_header
 
@@ -171,7 +171,7 @@ ps_sampleId: dl 0 ; sample bufferId
 
 ; end play_song
 
-load_command_buffers:
+ps_load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_sample_rate)
@@ -253,5 +253,5 @@ ps_sr1:
     dw 0 ; frequency (relevant only for tuneable samples)
     dw 0 ; duration (ms), zero means play one time in full
 ps_cmd1_end:
-; end load_command_buffers
+; end ps_load_command_buffers
 

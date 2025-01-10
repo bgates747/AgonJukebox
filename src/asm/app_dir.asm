@@ -58,7 +58,7 @@ init:
     ld hl,cmd_cd_music
     MOSCALL mos_oscli
 ; call directory page listing
-    call get_dir
+    call ps_get_dir
 ; get current screen mode and save it so we can return to it on exit
     call vdu_get_screen_mode
     ld (original_screen_mode),a
@@ -112,7 +112,7 @@ init:
     call printString
 ; print first 10 files in the directory
     call printNewLine
-    call print_dir_page
+    call ps_print_dir_page
     ld hl,str_thick_dashes
     call printString
     call printNewLine
@@ -150,7 +150,7 @@ main:
 ; end main
 
 
-get_dir:
+ps_get_dir:
 ; reset filecounter
     ld hl,0
     ld (ps_dir_num_files),hl
@@ -172,14 +172,14 @@ get_dir:
     ld de,ps_dir_path   ; this is pointer to the path to the directory
     MOSCALL ffs_dopen   ; open dir
 
-_readFileInfo:               ; we will loop here until all files have been processed
+@readFileInfo:               ; we will loop here until all files have been processed
     ld hl,ps_dir_struct      ; HL is where to get directory info
     ld de,ps_filinfo_struct  ; define where to store current file info
     MOSCALL ffs_dread        ; read next item from dir
 
     ld a,(ps_filinfo_fname)  ; get first char of file name
     cp 0                     ; if 0 then we are at the end of the listing
-    jr z,_allDone
+    jr z,@allDone
 
     ld de,(ps_dir_num_files) ; get the current file counter
     ld hl,256 ; bytes per filename
@@ -193,15 +193,15 @@ _readFileInfo:               ; we will loop here until all files have been proce
     ld bc,256 ; bytes per filename
     ldir ; copy the filename to the filename table
 
-    jr _readFileInfo         ; loop around to check next entry
+    jr @readFileInfo         ; loop around to check next entry
 
-_allDone:
+@allDone:
     ld hl,ps_dir_struct      ; load H: with address of the DIR struct
     MOSCALL ffs_dclose       ; close dir
     ret
-; end get_dir
+; end ps_get_dir
 
-print_dir:
+ps_print_dir:
 ; loop through the filename table and print out the filenames
     ld ix,ps_dir_fil_list      ; get the address of the filename table
     ld hl,(ps_dir_num_files)   ; get the number of files 
@@ -221,9 +221,9 @@ print_dir:
     jr nz,@print_loop
     pop hl ; dummy pop to balance stack
     ret
-; end print_dir
+; end ps_print_dir
 
-print_dir_page:
+ps_print_dir_page:
 ; loop through the filename table and print out the filenames
     ld ix,ps_dir_fil_list      ; get the address of the filename table
     ld de,(ps_dir_num_files)   ; get the number of files 
@@ -256,7 +256,7 @@ print_dir_page:
 @end:
     pop hl ; dummy pop to balance stack
     ret
-; end print_dir
+; end ps_print_dir
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

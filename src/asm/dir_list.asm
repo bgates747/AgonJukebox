@@ -39,7 +39,7 @@ start_here:
     MOSCALL ffs_dopen                         ; open dir
 
 
-_readFileInfo:                          ; we will loop here until all files have been processed
+@readFileInfo:                          ; we will loop here until all files have been processed
 
     ld hl, ps_dir_struct                   ; HL is where to get directory info
     ld de, ps_filinfo_struct               ; define where to store current file info
@@ -47,7 +47,7 @@ _readFileInfo:                          ; we will loop here until all files have
 
     ld a, (ps_filinfo_fname)                       ; get first char of file name
     cp 0                                ; if 0 then we are at the end of the listing
-    jr z, _allDone
+    jr z, @allDone
 
     ld hl, ps_filinfo_fname                        ; this is pointer to the name of current file
     ld bc, 0
@@ -57,9 +57,9 @@ _readFileInfo:                          ; we will loop here until all files have
     ld hl, printCR                      ; now print a carriage retrun before the next entry
     call printString
 
-    jr _readFileInfo                    ; loop around to check next entry
+    jr @readFileInfo                    ; loop around to check next entry
 
-_allDone:
+@allDone:
 
 
     ld hl, ps_dir_struct                   ; load H: with address of the DIR struct
