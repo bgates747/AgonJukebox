@@ -98,6 +98,36 @@ hlu_udiv256:
     ret
 @buffer: ds 4
 
+; floor(value,n)
+; inputs: hl = value to floor, de = n
+; outputs: hl = value floored to n
+; destroys: af, hl, bc, de
+hlu_floor:
+    push de ; save n
+    call udiv24 ; de = quotient, hl = remainder
+    pop hl ; get n back (was de)
+    call umul24 ; hl = n * quotient
+    ret
+; end hlu_floor
+
+; ceil(value,n)
+; inputs: hl = value to ceil, de = n
+; outputs: hl = value ceiled to n
+; destroys: af, hl, bc, de
+hlu_ceiling:
+    push de ; save n
+    call udiv24 ; de = quotient, hl = remainder
+    SIGN_HLU ; test remaider for zero
+    jp z,@F ; if zero, nothing to add
+    inc de ; add 1 to quotient for the ceiling
+@@:
+    pop hl ; get n back (was de)
+    call umul24 ; hl = n * quotient    
+    ret
+; end hlu_ceiling
+
+    ret
+
 add_bcd_arg1: db #00,#00,#00,#00
 add_bcd_arg2: db #00,#00,#00,#00
 
