@@ -5,7 +5,9 @@
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
 ; play_song directory info
-ps_dir_num_files: dl 0 ; number of files/directories in the directory
+ps_dir_num_files: dl 0 ; number of files/directories in the directory (virtually unlimited)
+ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
+ps_page_cur: dl 0 ; current directory page number
 ps_dir_path:   blkw 256,0 ; path of the current directory
 ps_dir_struct:             
 ps_dptr:       blkb  4,0   ; Current read/write offset

@@ -8,6 +8,8 @@ get_input:
     cp '\e' ; escape
     ret z ; returns to main, which re-enables interrupts and exits app
 ; song playing commands
+    cp 'r' ; random song
+    jp z,ps_play_random
     cp '0'
     jp c,@other ; not a song command
     cp '9'+1
