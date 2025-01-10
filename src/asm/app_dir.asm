@@ -44,9 +44,8 @@ exit:
 
 ; APPLICATION INCLUDES
     include "ascii.inc"
-    include "input.inc"
-    include "music.inc"
-    include "play.inc"
+    include "input_dir.inc"
+    include "play_dir.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
@@ -55,6 +54,11 @@ exit:
 original_screen_mode: db 0
 
 init:
+; change directory to music
+    ld hl,cmd_cd_music
+    MOSCALL mos_oscli
+; call directory page listing
+    call get_dir
 ; get current screen mode and save it so we can return to it on exit
     call vdu_get_screen_mode
     ld (original_screen_mode),a
@@ -90,8 +94,28 @@ init:
     asciz "Welcome to...\r\n"
     ld hl,agon_jukebox_ascii
     call printString
+; print out current directory path
+    call printNewLine
+    ld hl,str_thick_dashes
+    call printString
     call printInline
-    asciz "Press keys 0-9 to play a song.\r\n"
+    asciz "\r\nOur current directory is:\r\n"
+    ld hl,ps_dir_path
+    call printString
+    call printNewLine
+    ld hl,str_thick_dashes
+    call printString
+; print instructions
+    call printInline
+    asciz "\r\nPress keys 0-9 to play a song:\r\n"
+    ld hl,str_dashes
+    call printString
+; print first 10 files in the directory
+    call printNewLine
+    call print_dir_page
+    ld hl,str_thick_dashes
+    call printString
+    call printNewLine
 ; initialize play sample timer interrupt handler
     call ps_prt_irq_init
     ret
@@ -99,23 +123,20 @@ init:
 
 cmd_cd_music: asciz "cd music"
 cmd_cd_up: asciz "cd .."
+str_dashes: asciz "------------------------------"
+str_thick_dashes: asciz "=============================="
+
 main:
-; ; call get_input to start player
-;     call get_input
-; change directory to music
-    ld hl,cmd_cd_music
-    MOSCALL mos_oscli
-; call directory listing test
-    call get_dir
-    call print_dir
+; call get_input to start player
+    call get_input
 ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
     call ps_prt_stop ; stop the PRT timer
     ei ; interrupts were disabled by get_input
-; ; restore original screen mode
-;     ld a,(original_screen_mode)
-;     call vdu_set_screen_mode
-;     call vdu_reset_viewports
-;     call vdu_cls
+; restore original screen mode
+    ld a,(original_screen_mode)
+    call vdu_set_screen_mode
+    call vdu_reset_viewports
+    call vdu_cls
 ; change back to directory containing the program
     ld hl,cmd_cd_up
     MOSCALL mos_oscli
@@ -128,6 +149,7 @@ main:
     ret ; back to MOS
 ; end main
 
+
 get_dir:
 ; reset filecounter
     ld hl,0
@@ -138,12 +160,12 @@ get_dir:
     ld bc,255          ; max length
     MOSCALL ffs_getcwd ; MOS api get current working directory
 
-; print out current directory path
-    call printInline
-    asciz "Our current directory is:\r\n"
-    ld hl,ps_dir_path
-    call printString
-    call printNewLine
+; ; print out current directory path
+;     call printInline
+;     asciz "\r\nOur current directory is:\r\n"
+;     ld hl,ps_dir_path
+;     call printString
+;     call printNewLine
 
 ; now get dir info
     ld hl,ps_dir_struct ; define where to store directory info
@@ -184,7 +206,7 @@ print_dir:
     ld ix,ps_dir_fil_list      ; get the address of the filename table
     ld hl,(ps_dir_num_files)   ; get the number of files 
     push hl ; save loop counter
-_print_loop:
+@print_loop:
     push ix
     pop hl ; get the address of the filename
     call printString
@@ -196,11 +218,45 @@ _print_loop:
     dec hl ; decrement the loop counter
     push hl ; save loop counter
     SIGN_HLU ; check for zero
-    jr nz,_print_loop
+    jr nz,@print_loop
     pop hl ; dummy pop to balance stack
     ret
 ; end print_dir
 
+print_dir_page:
+; loop through the filename table and print out the filenames
+    ld ix,ps_dir_fil_list      ; get the address of the filename table
+    ld de,(ps_dir_num_files)   ; get the number of files 
+    ld hl,10 ; max files per page
+    or a ; clear carry
+    sbc hl,de ; subtract number of files from 10
+    jp p,@F ; if >= 0 then we have <= 10 files
+    ld de,10 ; max files per page
+@@:
+    ex de,hl ; hl = number of files to print
+    push hl ; save loop counter
+@print_loop:
+    ld a,10
+    sub l
+    ; cp 10
+    ; jp z,@end ; stop at 10
+    call printHexA
+    push ix
+    pop hl ; get the address of the filename
+    call printString
+    call printNewLine
+    lea ix,ix+127 ; bump the pointer
+    lea ix,ix+127 ; to the next file
+    lea ix,ix+2   ; 256 bytes
+    pop hl ; get the loop counter
+    dec hl ; decrement the loop counter
+    push hl ; save loop counter
+    SIGN_HLU ; check for zero
+    jr nz,@print_loop
+@end:
+    pop hl ; dummy pop to balance stack
+    ret
+; end print_dir
 
-; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

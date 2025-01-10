@@ -6,9 +6,9 @@ ch0_buffer: equ 0x3000
 ch1_buffer: equ 0x3001
 cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
-current_song: dl 0 ; pointer to current song filename
+ps_song_fn_cur: dl 0 ; pointer to current song filename
 play_song:
-    ld (current_song),hl
+    ld (ps_song_fn_cur),hl
 ; stop the PRT timer
     call ps_prt_stop
 ; tell the user what they've won
@@ -18,10 +18,10 @@ play_song:
     ld b,1; bottom
     call vdu_set_txt_viewport
     call vdu_cls
-    ld hl,(current_song)
+    ld hl,(ps_song_fn_cur)
     call printInline
     asciz "Playing song: "
-    ld hl,(current_song)
+    ld hl,(ps_song_fn_cur)
     call printString ; print the song filename
 ; reset text viewport for playing breadcrumbs
     ld c,0 ; left
@@ -35,7 +35,7 @@ play_song:
 ;   C: Mode
 ; Returns:
 ;   A: Filehandle, or 0 if couldn't open
-    ld hl,(current_song)
+    ld hl,(ps_song_fn_cur)
 	ld c,fa_read
     MOSCALL mos_fopen
     ld (ps_filehandle_cur),a
@@ -132,7 +132,7 @@ ps_play_random:
     add hl,de ; hl points to the filename index
     ld hl,(hl) ; hl points to the filename
     ex de,hl ; setting up cp hl,de
-    ld hl,(current_song) ; don't play the same song twice in a row
+    ld hl,(ps_song_fn_cur) ; don't play the same song twice in a row
     or a ; clear carry
     sbc hl,de
     jp z,ps_play_random ; same song, try again

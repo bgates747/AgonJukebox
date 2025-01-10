@@ -24,7 +24,7 @@ get_input:
     ld hl,SFX_filename_index
     add hl,de ; hl points to the filename index
     ld hl,(hl) ; hl is pointer to song filename
-    ld (current_song),hl ; save song request
+    ld (ps_song_fn_cur),hl ; save song request
     jp play_song ; re-enables interrupts and jp's to get_input when finished
 @other: ; TODO: other commands
     ei ; reenable interrupts

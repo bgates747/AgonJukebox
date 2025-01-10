@@ -26,7 +26,7 @@ get_input:
     call umul24 ; hl index into the filename table
     ld de,ps_dir_fil_list
     add hl,de ; hl points to the filename
-    ld (current_song),hl ; save song request
+    ld (ps_song_fn_cur),hl ; save song request
     jp play_song ; re-enables interrupts and jp's to get_input when finished
 @other: ; TODO: other commands
     ei ; reenable interrupts
