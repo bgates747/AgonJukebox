@@ -28,8 +28,8 @@ PC     Output      Line
 040048 DD E5       0013        push ix
 04004A FD E5       0014        push iy
 04004C             0015    
-04004C CD 7A 2C 04 0016        call init
-040050 CD BE 2D 04 0017        call main
+04004C CD 23 2C 04 0016        call init
+040050 CD 71 2C 04 0017        call main
 040054             0018    
 040054             0019    exit:
 040054 FD E1       0020        pop iy
@@ -451,238 +451,236 @@ PC     Output      Line
 040067             0013*   ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
 040067             0014*   ; Print a zero-terminated string
 040067             0015*   ; HL: Pointer to string
-040067             0016*   ; returns: hl pointed to character after string terminator
-040067             0017*   ; destroys: af, hl
-040067             0018*   printString:
-040067 C5          0019*       PUSH BC
-040068 01 00 00 00 0020*       LD BC,0
-04006C 3E 00       0021*       LD A,0
-04006E 5B DF       0022*       RST.LIL 18h
-040070 C1          0023*       POP BC
-040071 C9          0024*       RET
-040072             0025*   ; print a VDU sequence
-040072             0026*   ; HL: Pointer to VDU sequence - <1 byte length> <data>
-040072             0027*   sendVDUsequence:
-040072 C5          0028*       PUSH BC
-040073 01 00 00 00 0029*       LD BC, 0
-040077 4E          0030*       LD C, (HL)
-040078 5B DF       0031*       RST.LIL 18h
-04007A C1          0032*       POP BC
-04007B C9          0033*       RET
-04007C             0034*   ; Print Newline sequence to VDP
-04007C             0035*   ; destroys: nothing
-04007C             0036*   printNewLine:
-04007C F5          0037*       push af ; for some reason rst.lil 10h sets carry flag
-04007D 3E 0D       0038*       LD A, '\r'
-04007F 5B D7       0039*       RST.LIL 10h
-040081 3E 0A       0040*       LD A, '\n'
-040083 5B D7       0041*       RST.LIL 10h
-040085 F1          0042*       pop af
-040086 C9          0043*       RET
-040087             0044*   
-040087             0045*   ; print a zero-terminated string at a graphics coordinate
-040087             0046*   ; Inputs: HL Pointer to string, BC,DE x,y position (in pixels)
-040087             0047*   printStringGfx:
-040087 E5          0048*       push hl ; preserve string pointer
-040088             0049*   ; move graphics cursor to x,y location
-040088 3E 44       0050*       ld a,plot_pt+mv_abs
-04008A CD D0 1B 04 0051*       call vdu_plot
-04008E             0052*   ; print string
-04008E E1          0053*       pop hl ; restore string pointer
-04008F             0054*   @print_loop:
-04008F 7E          0055*       ld a,(hl)
-040090 B7          0056*       or a ; check for end of string
-040091 C8          0057*       ret z ; if zero, we're done
-040092 08          0058*       ex af,af' ; preserve character
-040093 3E 05       0059*       ld a,5 ; VDU 5 char to gfx cursor
-040095 5B D7       0060*       rst.lil 10h ; send it
-040097 08          0061*       ex af,af' ; restore character
-040098 5B D7       0062*       rst.lil 10h ; print character
-04009A 23          0063*       inc hl
-04009B C3 8F 00 04 0064*       jp @print_loop
-04009F C9          0065*       ret
-0400A0             0066*   ; end printStringGfx
-0400A0             0067*   
-0400A0             0068*   ; Print a 24-bit HEX number
-0400A0             0069*   ; HLU: Number to print
-0400A0             0070*   printHex24:
-0400A0             0071*       HLU_TO_A
+040067             0016*   printString:
+040067 C5          0017*       PUSH BC
+040068 01 00 00 00 0018*       LD BC,0
+04006C 3E 00       0019*       LD A,0
+04006E 5B DF       0020*       RST.LIL 18h
+040070 C1          0021*       POP BC
+040071 C9          0022*       RET
+040072             0023*   ; print a VDU sequence
+040072             0024*   ; HL: Pointer to VDU sequence - <1 byte length> <data>
+040072             0025*   sendVDUsequence:
+040072 C5          0026*       PUSH BC
+040073 01 00 00 00 0027*       LD BC, 0
+040077 4E          0028*       LD C, (HL)
+040078 5B DF       0029*       RST.LIL 18h
+04007A C1          0030*       POP BC
+04007B C9          0031*       RET
+04007C             0032*   ; Print Newline sequence to VDP
+04007C             0033*   ; destroys bc
+04007C             0034*   printNewLine:
+04007C F5          0035*       push af ; for some reason rst.lil 10h sets carry flag
+04007D 3E 0D       0036*       LD A, '\r'
+04007F 5B D7       0037*       RST.LIL 10h
+040081 3E 0A       0038*       LD A, '\n'
+040083 5B D7       0039*       RST.LIL 10h
+040085 F1          0040*       pop af
+040086 C9          0041*       RET
+040087             0042*   
+040087             0043*   ; print a zero-terminated string at a graphics coordinate
+040087             0044*   ; Inputs: HL Pointer to string, BC,DE x,y position (in pixels)
+040087             0045*   printStringGfx:
+040087 E5          0046*       push hl ; preserve string pointer
+040088             0047*   ; move graphics cursor to x,y location
+040088 3E 44       0048*       ld a,plot_pt+mv_abs
+04008A CD D0 1B 04 0049*       call vdu_plot
+04008E             0050*   ; print string
+04008E E1          0051*       pop hl ; restore string pointer
+04008F             0052*   @print_loop:
+04008F 7E          0053*       ld a,(hl)
+040090 B7          0054*       or a ; check for end of string
+040091 C8          0055*       ret z ; if zero, we're done
+040092 08          0056*       ex af,af' ; preserve character
+040093 3E 05       0057*       ld a,5 ; VDU 5 char to gfx cursor
+040095 5B D7       0058*       rst.lil 10h ; send it
+040097 08          0059*       ex af,af' ; restore character
+040098 5B D7       0060*       rst.lil 10h ; print character
+04009A 23          0061*       inc hl
+04009B C3 8F 00 04 0062*       jp @print_loop
+04009F C9          0063*       ret
+0400A0             0064*   ; end printStringGfx
+0400A0             0065*   
+0400A0             0066*   ; Print a 24-bit HEX number
+0400A0             0067*   ; HLU: Number to print
+0400A0             0068*   printHex24:
+0400A0             0069*       HLU_TO_A
 0400A0 3B          0001*M1     dec sp ; 1 cycle
 0400A1 E5          0002*M1     push hl ; 4 cycles
 0400A2 33          0003*M1     inc sp ; 1 cycle
 0400A3 F1          0004*M1     pop af ; 4 cycles
 0400A4             0005*M1     ; 10 cycles total
-0400A4 CD AE 00 04 0072*       CALL printHex8
-0400A8             0073*   ; Print a 16-bit HEX number
-0400A8             0074*   ; HL: Number to print
-0400A8             0075*   printHex16:
-0400A8 7C          0076*       LD A,H
-0400A9 CD AE 00 04 0077*       CALL printHex8
-0400AD 7D          0078*       LD A,L
-0400AE             0079*   ; Print an 8-bit HEX number
-0400AE             0080*   ; A: Number to print
-0400AE             0081*   printHex8:
-0400AE 4F          0082*       LD C,A
-0400AF 1F          0083*       RRA
-0400B0 1F          0084*       RRA
-0400B1 1F          0085*       RRA
-0400B2 1F          0086*       RRA
-0400B3 CD B8 00 04 0087*       CALL @F
-0400B7 79          0088*       LD A,C
-0400B8             0089*   @@:
-0400B8 E6 0F       0090*       AND 0Fh
-0400BA C6 90       0091*       ADD A,90h
-0400BC 27          0092*       DAA
-0400BD CE 40       0093*       ADC A,40h
-0400BF 27          0094*       DAA
-0400C0 5B D7       0095*       RST.LIL 10h
-0400C2 C9          0096*       RET
-0400C3             0097*   
-0400C3             0098*   ; Print a 0x HEX prefix
-0400C3             0099*   DisplayHexPrefix:
-0400C3 3E 30       0100*       LD A, '0'
-0400C5 5B D7       0101*       RST.LIL 10h
-0400C7 3E 78       0102*       LD A, 'x'
-0400C9 5B D7       0103*       RST.LIL 10h
-0400CB C9          0104*       RET
-0400CC             0105*   
-0400CC             0106*       MACRO printDecBC
-0400CC             0107*       push hl
-0400CC             0108*       push bc
+0400A4 CD AE 00 04 0070*       CALL printHex8
+0400A8             0071*   ; Print a 16-bit HEX number
+0400A8             0072*   ; HL: Number to print
+0400A8             0073*   printHex16:
+0400A8 7C          0074*       LD A,H
+0400A9 CD AE 00 04 0075*       CALL printHex8
+0400AD 7D          0076*       LD A,L
+0400AE             0077*   ; Print an 8-bit HEX number
+0400AE             0078*   ; A: Number to print
+0400AE             0079*   printHex8:
+0400AE 4F          0080*       LD C,A
+0400AF 1F          0081*       RRA
+0400B0 1F          0082*       RRA
+0400B1 1F          0083*       RRA
+0400B2 1F          0084*       RRA
+0400B3 CD B8 00 04 0085*       CALL @F
+0400B7 79          0086*       LD A,C
+0400B8             0087*   @@:
+0400B8 E6 0F       0088*       AND 0Fh
+0400BA C6 90       0089*       ADD A,90h
+0400BC 27          0090*       DAA
+0400BD CE 40       0091*       ADC A,40h
+0400BF 27          0092*       DAA
+0400C0 5B D7       0093*       RST.LIL 10h
+0400C2 C9          0094*       RET
+0400C3             0095*   
+0400C3             0096*   ; Print a 0x HEX prefix
+0400C3             0097*   DisplayHexPrefix:
+0400C3 3E 30       0098*       LD A, '0'
+0400C5 5B D7       0099*       RST.LIL 10h
+0400C7 3E 78       0100*       LD A, 'x'
+0400C9 5B D7       0101*       RST.LIL 10h
+0400CB C9          0102*       RET
+0400CC             0103*   
+0400CC             0104*       MACRO printDecBC
+0400CC             0105*       push hl
+0400CC             0106*       push bc
+0400CC             0107*       pop hl
+0400CC             0108*       call printDec
 0400CC             0109*       pop hl
-0400CC             0110*       call printDec
-0400CC             0111*       pop hl
-0400CC             0112*       ENDMACRO
-0400CC             0113*   
-0400CC             0114*       MACRO printDecDE
-0400CC             0115*       push hl
-0400CC             0116*       push de
+0400CC             0110*       ENDMACRO
+0400CC             0111*   
+0400CC             0112*       MACRO printDecDE
+0400CC             0113*       push hl
+0400CC             0114*       push de
+0400CC             0115*       pop hl
+0400CC             0116*       call printDec
 0400CC             0117*       pop hl
-0400CC             0118*       call printDec
-0400CC             0119*       pop hl
-0400CC             0120*       ENDMACRO
-0400CC             0121*   
-0400CC             0122*       MACRO printDecHL
-0400CC             0123*       call printDec
-0400CC             0124*       ENDMACRO
-0400CC             0125*   
-0400CC             0126*       MACRO printDecIX
-0400CC             0127*       push hl
-0400CC             0128*       push ix
+0400CC             0118*       ENDMACRO
+0400CC             0119*   
+0400CC             0120*       MACRO printDecHL
+0400CC             0121*       call printDec
+0400CC             0122*       ENDMACRO
+0400CC             0123*   
+0400CC             0124*       MACRO printDecIX
+0400CC             0125*       push hl
+0400CC             0126*       push ix
+0400CC             0127*       pop hl
+0400CC             0128*       call printDec
 0400CC             0129*       pop hl
-0400CC             0130*       call printDec
-0400CC             0131*       pop hl
-0400CC             0132*       ENDMACRO
-0400CC             0133*   
-0400CC             0134*       MACRO printDecIY
-0400CC             0135*       push hl
-0400CC             0136*       push iy
+0400CC             0130*       ENDMACRO
+0400CC             0131*   
+0400CC             0132*       MACRO printDecIY
+0400CC             0133*       push hl
+0400CC             0134*       push iy
+0400CC             0135*       pop hl
+0400CC             0136*       call printDec
 0400CC             0137*       pop hl
-0400CC             0138*       call printDec
-0400CC             0139*       pop hl
-0400CC             0140*       ENDMACRO
-0400CC             0141*   
-0400CC             0142*   
-0400CC             0143*   ; Prints the right justified decimal value in HL without leading zeroes
-0400CC             0144*   ; HL : Value to print
-0400CC             0145*   ; preserves all registers and flags
-0400CC             0146*   printDec:
-0400CC             0147*   ; BEGIN MY CODE
-0400CC             0148*   ; back up all the things
-0400CC F5          0149*       push af
-0400CD C5          0150*       push bc
-0400CE D5          0151*       push de
-0400CF E5          0152*       push hl
-0400D0             0153*   ; END MY CODE
-0400D0 11 F8 00 04 0154*       LD DE, _printDecBuffer
-0400D4 CD 08 01 04 0155*       CALL u24_to_ascii
-0400D8             0156*   ; BEGIN MY CODE
-0400D8             0157*   ; replace leading zeroes with spaces
-0400D8 21 F8 00 04 0158*       LD HL, _printDecBuffer
-0400DC 06 07       0159*       ld B, 7 ; if HL was 0, we want to keep the final zero
-0400DE             0160*   @loop:
-0400DE 7E          0161*       LD A, (HL)
-0400DF FE 30       0162*       CP '0'
-0400E1 C2 EB 00 04 0163*       JP NZ, @done
-0400E5 3E 20       0164*       LD A, ' '
-0400E7 77          0165*       LD (HL), A
-0400E8 23          0166*       INC HL
-0400E9             0167*       ; CALL vdu_cursor_forward
-0400E9 10 F3       0168*       DJNZ @loop
-0400EB             0169*   @done:
-0400EB             0170*   ; END MY CODE
-0400EB 21 F8 00 04 0171*       LD HL, _printDecBuffer
-0400EF CD 67 00 04 0172*       CALL printString
-0400F3             0173*   ; BEGIN MY CODE
-0400F3             0174*   ; restore all the things
-0400F3 E1          0175*       pop hl
-0400F4 D1          0176*       pop de
-0400F5 C1          0177*       pop bc
-0400F6 F1          0178*       pop af
-0400F7             0179*   ; END MY CODE
-0400F7 C9          0180*       RET
-0400F8 00 00 00 00 0181*   _printDecBuffer: blkb 16,0 ; a few bytes extra just to be sure
+0400CC             0138*       ENDMACRO
+0400CC             0139*   
+0400CC             0140*   
+0400CC             0141*   ; Prints the right justified decimal value in HL without leading zeroes
+0400CC             0142*   ; HL : Value to print
+0400CC             0143*   ; preserves all registers and flags
+0400CC             0144*   printDec:
+0400CC             0145*   ; BEGIN MY CODE
+0400CC             0146*   ; back up all the things
+0400CC F5          0147*       push af
+0400CD C5          0148*       push bc
+0400CE D5          0149*       push de
+0400CF E5          0150*       push hl
+0400D0             0151*   ; END MY CODE
+0400D0 11 F8 00 04 0152*       LD DE, _printDecBuffer
+0400D4 CD 08 01 04 0153*       CALL u24_to_ascii
+0400D8             0154*   ; BEGIN MY CODE
+0400D8             0155*   ; replace leading zeroes with spaces
+0400D8 21 F8 00 04 0156*       LD HL, _printDecBuffer
+0400DC 06 07       0157*       ld B, 7 ; if HL was 0, we want to keep the final zero
+0400DE             0158*   @loop:
+0400DE 7E          0159*       LD A, (HL)
+0400DF FE 30       0160*       CP '0'
+0400E1 C2 EB 00 04 0161*       JP NZ, @done
+0400E5 3E 20       0162*       LD A, ' '
+0400E7 77          0163*       LD (HL), A
+0400E8 23          0164*       INC HL
+0400E9             0165*       ; CALL vdu_cursor_forward
+0400E9 10 F3       0166*       DJNZ @loop
+0400EB             0167*   @done:
+0400EB             0168*   ; END MY CODE
+0400EB 21 F8 00 04 0169*       LD HL, _printDecBuffer
+0400EF CD 67 00 04 0170*       CALL printString
+0400F3             0171*   ; BEGIN MY CODE
+0400F3             0172*   ; restore all the things
+0400F3 E1          0173*       pop hl
+0400F4 D1          0174*       pop de
+0400F5 C1          0175*       pop bc
+0400F6 F1          0176*       pop af
+0400F7             0177*   ; END MY CODE
+0400F7 C9          0178*       RET
+0400F8 00 00 00 00 0179*   _printDecBuffer: blkb 16,0 ; a few bytes extra just to be sure
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-040108             0182*   
-040108             0183*   ; This routine converts the unsigned 24-bit value in HLU into its ASCII representation,
-040108             0184*   ; starting to memory location pointing by DE, in decimal form and with leading zeroes
-040108             0185*   ; so it will allways be 8 characters length
-040108             0186*   ; HL : Value to convert to string
-040108             0187*   ; DE : pointer to buffer, at least 8 byte + 0
-040108             0188*   u24_to_ascii:
-040108 01 80 69 67 0189*       LD BC,-10000000
-04010C CD 3F 01 04 0190*       CALL @one_digit
-040110 01 C0 BD F0 0191*       LD BC,-1000000
-040114 CD 3F 01 04 0192*       CALL @one_digit
-040118 01 60 79 FE 0193*       LD BC,-100000
-04011C CD 3F 01 04 0194*       CALL @one_digit
-040120 01 F0 D8 FF 0195*       LD BC,-10000
-040124 CD 3F 01 04 0196*       CALL @one_digit
-040128 01 18 FC FF 0197*       LD BC,-1000
-04012C CD 3F 01 04 0198*       CALL @one_digit
-040130 01 9C FF FF 0199*       LD BC,-100
-040134 CD 3F 01 04 0200*       CALL @one_digit
-040138 0E F6       0201*       LD C,-10
-04013A CD 3F 01 04 0202*       CALL @one_digit
-04013E 48          0203*       LD C,B
-04013F             0204*   @one_digit:
-04013F 3E 2F       0205*       LD A,'0'-1
-040141             0206*   @divide_me:
-040141 3C          0207*       INC A
-040142 09          0208*       ADD HL,BC
-040143 38 FC       0209*       JR C,@divide_me
-040145 ED 42       0210*       SBC HL,BC
-040147 12          0211*       LD (DE),A
-040148 13          0212*       INC DE
-040149 C9          0213*       RET
-04014A             0214*   
-04014A             0215*   print_u24:
-04014A D5          0216*       push de
-04014B E5          0217*       push hl
-04014C 11 F8 00 04 0218*       ld de,_printDecBuffer
-040150 CD 08 01 04 0219*       call u24_to_ascii
-040154 21 F8 00 04 0220*       ld hl,_printDecBuffer
-040158 CD 67 00 04 0221*       call printString
-04015C 3E 20       0222*       ld a,' '
-04015E 5B D7       0223*       rst.lil 10h
-040160 E1          0224*       pop hl
-040161 D1          0225*       pop de
-040162 C9          0226*       ret
-040163             0227*   
-040163             0228*   ; u168_to_ascii: Converts an unsigned 16.8 fixed-point value in HL to an ASCII string.
-040163             0229*   ; HL : Value to convert to string (integer part in H, fractional part in L)
-040163             0230*   ; DE : Pointer to buffer, requires at least 11 bytes (8 digits, sign, decimal point, and null terminator)
-040163             0231*   u168_to_ascii:
-040163             0232*   ; add a leading space to make room for sign flag if needed
-040163 3E 20       0233*       ld a,' '
-040165 12          0234*       ld (de),a
-040166 13          0235*       inc de
-040167             0236*   ; Convert integer part
-040167 E5          0237*       push hl ; Save HL (we’ll need the fractional part later)
-040168             0238*       ; call hlu_udiv256 ; Shift to get integer portion in HL
-040168             0239*       SRL_UHL ; Shift to get integer portion in HL
+040108             0180*   
+040108             0181*   ; This routine converts the unsigned 24-bit value in HLU into its ASCII representation,
+040108             0182*   ; starting to memory location pointing by DE, in decimal form and with leading zeroes
+040108             0183*   ; so it will allways be 8 characters length
+040108             0184*   ; HL : Value to convert to string
+040108             0185*   ; DE : pointer to buffer, at least 8 byte + 0
+040108             0186*   u24_to_ascii:
+040108 01 80 69 67 0187*       LD BC,-10000000
+04010C CD 3F 01 04 0188*       CALL @one_digit
+040110 01 C0 BD F0 0189*       LD BC,-1000000
+040114 CD 3F 01 04 0190*       CALL @one_digit
+040118 01 60 79 FE 0191*       LD BC,-100000
+04011C CD 3F 01 04 0192*       CALL @one_digit
+040120 01 F0 D8 FF 0193*       LD BC,-10000
+040124 CD 3F 01 04 0194*       CALL @one_digit
+040128 01 18 FC FF 0195*       LD BC,-1000
+04012C CD 3F 01 04 0196*       CALL @one_digit
+040130 01 9C FF FF 0197*       LD BC,-100
+040134 CD 3F 01 04 0198*       CALL @one_digit
+040138 0E F6       0199*       LD C,-10
+04013A CD 3F 01 04 0200*       CALL @one_digit
+04013E 48          0201*       LD C,B
+04013F             0202*   @one_digit:
+04013F 3E 2F       0203*       LD A,'0'-1
+040141             0204*   @divide_me:
+040141 3C          0205*       INC A
+040142 09          0206*       ADD HL,BC
+040143 38 FC       0207*       JR C,@divide_me
+040145 ED 42       0208*       SBC HL,BC
+040147 12          0209*       LD (DE),A
+040148 13          0210*       INC DE
+040149 C9          0211*       RET
+04014A             0212*   
+04014A             0213*   print_u24:
+04014A D5          0214*       push de
+04014B E5          0215*       push hl
+04014C 11 F8 00 04 0216*       ld de,_printDecBuffer
+040150 CD 08 01 04 0217*       call u24_to_ascii
+040154 21 F8 00 04 0218*       ld hl,_printDecBuffer
+040158 CD 67 00 04 0219*       call printString
+04015C 3E 20       0220*       ld a,' '
+04015E 5B D7       0221*       rst.lil 10h
+040160 E1          0222*       pop hl
+040161 D1          0223*       pop de
+040162 C9          0224*       ret
+040163             0225*   
+040163             0226*   ; u168_to_ascii: Converts an unsigned 16.8 fixed-point value in HL to an ASCII string.
+040163             0227*   ; HL : Value to convert to string (integer part in H, fractional part in L)
+040163             0228*   ; DE : Pointer to buffer, requires at least 11 bytes (8 digits, sign, decimal point, and null terminator)
+040163             0229*   u168_to_ascii:
+040163             0230*   ; add a leading space to make room for sign flag if needed
+040163 3E 20       0231*       ld a,' '
+040165 12          0232*       ld (de),a
+040166 13          0233*       inc de
+040167             0234*   ; Convert integer part
+040167 E5          0235*       push hl ; Save HL (we’ll need the fractional part later)
+040168             0236*       ; call hlu_udiv256 ; Shift to get integer portion in HL
+040168             0237*       SRL_UHL ; Shift to get integer portion in HL
 040168 3B          0001*M1     dec sp ; 1 cycle
 040169 E5          0002*M1     push hl ; 4 cycles
 04016A 33          0003*M1     inc sp ; 1 cycle
@@ -690,347 +688,347 @@ PC     Output      Line
 04016C 23          0005*M1     inc hl ; 1 cycle
 04016D 52 2B       0006*M1     dec.s hl ; 2 cycles <-- the .s sets hlu to zero (undocumented)
 04016F             0007*M1     ; 13 cycles total
-04016F 01 F0 D8 FF 0240*       ld bc, -10000
-040173 CD 96 01 04 0241*       call @one_int
-040177 01 18 FC FF 0242*       ld bc, -1000
-04017B CD 96 01 04 0243*       call @one_int
-04017F 01 9C FF FF 0244*       ld bc, -100
-040183 CD 96 01 04 0245*       call @one_int
-040187 0E F6       0246*       ld c, -10
-040189 CD 96 01 04 0247*       call @one_int
-04018D 48          0248*       ld c, b
-04018E CD 96 01 04 0249*       call @one_int
-040192 C3 A1 01 04 0250*       jp @frac ; Jump to fractional part conversion
-040196             0251*   @one_int:
-040196 3E 2F       0252*       ld a, '0' - 1 ; Start ASCII character at '0'
-040198             0253*   @divide_me:
-040198 3C          0254*       inc a
-040199 09          0255*       add hl, bc ; Accumulate until overflow
-04019A 38 FC       0256*       jr c, @divide_me
-04019C ED 42       0257*       sbc hl, bc ; Remove excess after overflow
-04019E 12          0258*       ld (de), a ; Store ASCII digit
-04019F 13          0259*       inc de
-0401A0 C9          0260*       ret
-0401A1             0261*   ; Convert fractional part
-0401A1             0262*   @frac:
-0401A1 3E 2E       0263*       ld a, '.' ; Decimal point
-0401A3 12          0264*       ld (de), a
-0401A4 13          0265*       inc de
-0401A5 E1          0266*       pop hl ; Restore HL with original fraction
-0401A6 06 03       0267*       ld b, 3 ; Loop counter for 3 fractional digits
-0401A8             0268*   @frac_loop:
-0401A8 26 0A       0269*       ld h, 10 ; Load multiplier for fractional part
-0401AA ED 6C       0270*       mlt hl ; Multiply by 10, result in HL (H holds the integer part)
-0401AC 3E 30       0271*       ld a, '0'
-0401AE 84          0272*       add a, h ; Convert integer part to ASCII
-0401AF 12          0273*       ld (de), a
-0401B0 13          0274*       inc de
-0401B1 10 F5       0275*       djnz @frac_loop ; Repeat for each fractional digit
-0401B3             0276*   ; Add null terminator
-0401B3 AF          0277*       xor a ; Null terminator
-0401B4 12          0278*       ld (de), a
-0401B5 C9          0279*       ret
-0401B6             0280*   
-0401B6             0281*   print_u168:
-0401B6 D5          0282*       push de
-0401B7 E5          0283*       push hl
-0401B8 11 F8 00 04 0284*       ld de,_printDecBuffer
-0401BC CD 63 01 04 0285*       call u168_to_ascii
-0401C0 21 F8 00 04 0286*       ld hl,_printDecBuffer
-0401C4 CD 67 00 04 0287*       call printString
-0401C8 E1          0288*       pop hl
-0401C9 D1          0289*       pop de
-0401CA C9          0290*       ret
-0401CB             0291*   
-0401CB             0292*   ; signed version of u168_to_ascii
-0401CB             0293*   s168_to_ascii:
-0401CB D5          0294*       push de ; save starting address of buffer
-0401CC CD 70 04 04 0295*       call hlu_abs
-0401D0 F5          0296*       push af ; save sign flag
-0401D1 CD 63 01 04 0297*       call u168_to_ascii
-0401D5 F1          0298*       pop af ; restore sign flag
-0401D6 D1          0299*       pop de ; restore starting address of buffer
-0401D7 F0          0300*       ret p ; hlu was positive so nothing to do
-0401D8 3E 2D       0301*       ld a,'-'
-0401DA 12          0302*       ld (de),a
-0401DB C9          0303*       ret
-0401DC             0304*   
-0401DC             0305*   print_s168:
-0401DC D5          0306*       push de
-0401DD E5          0307*       push hl
-0401DE 11 F8 00 04 0308*       ld de,_printDecBuffer
-0401E2 CD CB 01 04 0309*       call s168_to_ascii
-0401E6 21 F8 00 04 0310*       ld hl,_printDecBuffer
-0401EA CD 67 00 04 0311*       call printString
-0401EE E1          0312*       pop hl
-0401EF D1          0313*       pop de
-0401F0 C9          0314*       ret
-0401F1             0315*   
-0401F1             0316*   print_s168_hl:
-0401F1 F5          0317*       push af
-0401F2 E5          0318*       push hl
-0401F3 CD DC 01 04 0319*       call print_s168
-0401F7 3E 20       0320*       ld a,' '
-0401F9 5B D7       0321*       rst.lil 10h
-0401FB E1          0322*       pop hl
-0401FC F1          0323*       pop af
-0401FD C9          0324*       ret
-0401FE             0325*   
-0401FE             0326*   print_s168_bc:
-0401FE F5          0327*       push af
-0401FF C5          0328*       push bc
-040200 E5          0329*       push hl
-040201 C5          0330*       push bc
-040202 E1          0331*       pop hl
-040203 CD DC 01 04 0332*       call print_s168
-040207 3E 20       0333*       ld a,' '
-040209 5B D7       0334*       rst.lil 10h
-04020B E1          0335*       pop hl
-04020C C1          0336*       pop bc
-04020D F1          0337*       pop af
-04020E C9          0338*       ret
-04020F             0339*   
-04020F             0340*   print_s168_de:
-04020F F5          0341*       push af
-040210 D5          0342*       push de
-040211 E5          0343*       push hl
-040212 EB          0344*       ex de,hl
-040213 CD DC 01 04 0345*       call print_s168
-040217 3E 20       0346*       ld a,' '
-040219 5B D7       0347*       rst.lil 10h
-04021B E1          0348*       pop hl
-04021C D1          0349*       pop de
-04021D F1          0350*       pop af
-04021E C9          0351*       ret
-04021F             0352*   
-04021F             0353*   print_s168_hl_bc_de:
-04021F F5          0354*       push af
-040220 C5          0355*       push bc
-040221 D5          0356*       push de
-040222 E5          0357*       push hl
-040223 CD DC 01 04 0358*       call print_s168
-040227 3E 20       0359*       ld a,' '
-040229 5B D7       0360*       rst.lil 10h
-04022B C5          0361*       push bc
-04022C E1          0362*       pop hl
-04022D CD DC 01 04 0363*       call print_s168
-040231 3E 20       0364*       ld a,' '
-040233 5B D7       0365*       rst.lil 10h
-040235 EB          0366*       ex de,hl
-040236 CD DC 01 04 0367*       call print_s168
-04023A 3E 20       0368*       ld a,' '
-04023C 5B D7       0369*       rst.lil 10h
-04023E E1          0370*       pop hl
-04023F D1          0371*       pop de
-040240 C1          0372*       pop bc
-040241 F1          0373*       pop af
-040242 C9          0374*       ret
-040243             0375*   
-040243             0376*   print_s168_bc_de:
-040243 F5          0377*       push af
-040244 C5          0378*       push bc
-040245 D5          0379*       push de
-040246 C5          0380*       push bc
-040247 E1          0381*       pop hl
-040248 CD DC 01 04 0382*       call print_s168
-04024C 3E 20       0383*       ld a,' '
-04024E 5B D7       0384*       rst.lil 10h
-040250 EB          0385*       ex de,hl
-040251 CD DC 01 04 0386*       call print_s168
-040255 3E 20       0387*       ld a,' '
-040257 5B D7       0388*       rst.lil 10h
-040259 E1          0389*       pop hl
-04025A D1          0390*       pop de
-04025B C1          0391*       pop bc
-04025C F1          0392*       pop af
-04025D C9          0393*       ret
-04025E             0394*   
-04025E             0395*   print_s168_a:
-04025E F5          0396*       push af
-04025F C5          0397*       push bc
-040260 E5          0398*       push hl
-040261 21 00 00 00 0399*       ld hl,0
-040265 6F          0400*       ld l,a
-040266 CD F1 01 04 0401*       call print_s168_hl
-04026A E1          0402*       pop hl
-04026B C1          0403*       pop bc
-04026C F1          0404*       pop af
-04026D C9          0405*       ret
+04016F 01 F0 D8 FF 0238*       ld bc, -10000
+040173 CD 96 01 04 0239*       call @one_int
+040177 01 18 FC FF 0240*       ld bc, -1000
+04017B CD 96 01 04 0241*       call @one_int
+04017F 01 9C FF FF 0242*       ld bc, -100
+040183 CD 96 01 04 0243*       call @one_int
+040187 0E F6       0244*       ld c, -10
+040189 CD 96 01 04 0245*       call @one_int
+04018D 48          0246*       ld c, b
+04018E CD 96 01 04 0247*       call @one_int
+040192 C3 A1 01 04 0248*       jp @frac ; Jump to fractional part conversion
+040196             0249*   @one_int:
+040196 3E 2F       0250*       ld a, '0' - 1 ; Start ASCII character at '0'
+040198             0251*   @divide_me:
+040198 3C          0252*       inc a
+040199 09          0253*       add hl, bc ; Accumulate until overflow
+04019A 38 FC       0254*       jr c, @divide_me
+04019C ED 42       0255*       sbc hl, bc ; Remove excess after overflow
+04019E 12          0256*       ld (de), a ; Store ASCII digit
+04019F 13          0257*       inc de
+0401A0 C9          0258*       ret
+0401A1             0259*   ; Convert fractional part
+0401A1             0260*   @frac:
+0401A1 3E 2E       0261*       ld a, '.' ; Decimal point
+0401A3 12          0262*       ld (de), a
+0401A4 13          0263*       inc de
+0401A5 E1          0264*       pop hl ; Restore HL with original fraction
+0401A6 06 03       0265*       ld b, 3 ; Loop counter for 3 fractional digits
+0401A8             0266*   @frac_loop:
+0401A8 26 0A       0267*       ld h, 10 ; Load multiplier for fractional part
+0401AA ED 6C       0268*       mlt hl ; Multiply by 10, result in HL (H holds the integer part)
+0401AC 3E 30       0269*       ld a, '0'
+0401AE 84          0270*       add a, h ; Convert integer part to ASCII
+0401AF 12          0271*       ld (de), a
+0401B0 13          0272*       inc de
+0401B1 10 F5       0273*       djnz @frac_loop ; Repeat for each fractional digit
+0401B3             0274*   ; Add null terminator
+0401B3 AF          0275*       xor a ; Null terminator
+0401B4 12          0276*       ld (de), a
+0401B5 C9          0277*       ret
+0401B6             0278*   
+0401B6             0279*   print_u168:
+0401B6 D5          0280*       push de
+0401B7 E5          0281*       push hl
+0401B8 11 F8 00 04 0282*       ld de,_printDecBuffer
+0401BC CD 63 01 04 0283*       call u168_to_ascii
+0401C0 21 F8 00 04 0284*       ld hl,_printDecBuffer
+0401C4 CD 67 00 04 0285*       call printString
+0401C8 E1          0286*       pop hl
+0401C9 D1          0287*       pop de
+0401CA C9          0288*       ret
+0401CB             0289*   
+0401CB             0290*   ; signed version of u168_to_ascii
+0401CB             0291*   s168_to_ascii:
+0401CB D5          0292*       push de ; save starting address of buffer
+0401CC CD 70 04 04 0293*       call hlu_abs
+0401D0 F5          0294*       push af ; save sign flag
+0401D1 CD 63 01 04 0295*       call u168_to_ascii
+0401D5 F1          0296*       pop af ; restore sign flag
+0401D6 D1          0297*       pop de ; restore starting address of buffer
+0401D7 F0          0298*       ret p ; hlu was positive so nothing to do
+0401D8 3E 2D       0299*       ld a,'-'
+0401DA 12          0300*       ld (de),a
+0401DB C9          0301*       ret
+0401DC             0302*   
+0401DC             0303*   print_s168:
+0401DC D5          0304*       push de
+0401DD E5          0305*       push hl
+0401DE 11 F8 00 04 0306*       ld de,_printDecBuffer
+0401E2 CD CB 01 04 0307*       call s168_to_ascii
+0401E6 21 F8 00 04 0308*       ld hl,_printDecBuffer
+0401EA CD 67 00 04 0309*       call printString
+0401EE E1          0310*       pop hl
+0401EF D1          0311*       pop de
+0401F0 C9          0312*       ret
+0401F1             0313*   
+0401F1             0314*   print_s168_hl:
+0401F1 F5          0315*       push af
+0401F2 E5          0316*       push hl
+0401F3 CD DC 01 04 0317*       call print_s168
+0401F7 3E 20       0318*       ld a,' '
+0401F9 5B D7       0319*       rst.lil 10h
+0401FB E1          0320*       pop hl
+0401FC F1          0321*       pop af
+0401FD C9          0322*       ret
+0401FE             0323*   
+0401FE             0324*   print_s168_bc:
+0401FE F5          0325*       push af
+0401FF C5          0326*       push bc
+040200 E5          0327*       push hl
+040201 C5          0328*       push bc
+040202 E1          0329*       pop hl
+040203 CD DC 01 04 0330*       call print_s168
+040207 3E 20       0331*       ld a,' '
+040209 5B D7       0332*       rst.lil 10h
+04020B E1          0333*       pop hl
+04020C C1          0334*       pop bc
+04020D F1          0335*       pop af
+04020E C9          0336*       ret
+04020F             0337*   
+04020F             0338*   print_s168_de:
+04020F F5          0339*       push af
+040210 D5          0340*       push de
+040211 E5          0341*       push hl
+040212 EB          0342*       ex de,hl
+040213 CD DC 01 04 0343*       call print_s168
+040217 3E 20       0344*       ld a,' '
+040219 5B D7       0345*       rst.lil 10h
+04021B E1          0346*       pop hl
+04021C D1          0347*       pop de
+04021D F1          0348*       pop af
+04021E C9          0349*       ret
+04021F             0350*   
+04021F             0351*   print_s168_hl_bc_de:
+04021F F5          0352*       push af
+040220 C5          0353*       push bc
+040221 D5          0354*       push de
+040222 E5          0355*       push hl
+040223 CD DC 01 04 0356*       call print_s168
+040227 3E 20       0357*       ld a,' '
+040229 5B D7       0358*       rst.lil 10h
+04022B C5          0359*       push bc
+04022C E1          0360*       pop hl
+04022D CD DC 01 04 0361*       call print_s168
+040231 3E 20       0362*       ld a,' '
+040233 5B D7       0363*       rst.lil 10h
+040235 EB          0364*       ex de,hl
+040236 CD DC 01 04 0365*       call print_s168
+04023A 3E 20       0366*       ld a,' '
+04023C 5B D7       0367*       rst.lil 10h
+04023E E1          0368*       pop hl
+04023F D1          0369*       pop de
+040240 C1          0370*       pop bc
+040241 F1          0371*       pop af
+040242 C9          0372*       ret
+040243             0373*   
+040243             0374*   print_s168_bc_de:
+040243 F5          0375*       push af
+040244 C5          0376*       push bc
+040245 D5          0377*       push de
+040246 C5          0378*       push bc
+040247 E1          0379*       pop hl
+040248 CD DC 01 04 0380*       call print_s168
+04024C 3E 20       0381*       ld a,' '
+04024E 5B D7       0382*       rst.lil 10h
+040250 EB          0383*       ex de,hl
+040251 CD DC 01 04 0384*       call print_s168
+040255 3E 20       0385*       ld a,' '
+040257 5B D7       0386*       rst.lil 10h
+040259 E1          0387*       pop hl
+04025A D1          0388*       pop de
+04025B C1          0389*       pop bc
+04025C F1          0390*       pop af
+04025D C9          0391*       ret
+04025E             0392*   
+04025E             0393*   print_s168_a:
+04025E F5          0394*       push af
+04025F C5          0395*       push bc
+040260 E5          0396*       push hl
+040261 21 00 00 00 0397*       ld hl,0
+040265 6F          0398*       ld l,a
+040266 CD F1 01 04 0399*       call print_s168_hl
+04026A E1          0400*       pop hl
+04026B C1          0401*       pop bc
+04026C F1          0402*       pop af
+04026D C9          0403*       ret
+04026E             0404*   
+04026E             0405*   ; #### new functions added by Brandon R. Gates ####
 04026E             0406*   
-04026E             0407*   ; #### new functions added by Brandon R. Gates ####
-04026E             0408*   
-04026E             0409*   ; print the binary representation of the 8-bit value in a
-04026E             0410*   ; destroys a, hl, bc
-04026E             0411*   printBin8:
-04026E 06 08       0412*       ld b,8 ; loop counter for 8 bits
-040270 21 8B 02 04 0413*       ld hl,@cmd ; set hl to the low byte of the output string
-040274             0414*       ; (which will be the high bit of the value in a)
-040274             0415*   @loop:
-040274 07          0416*       rlca ; put the next highest bit into carry
-040275 38 04       0417*       jr c,@one
-040277 36 30       0418*       ld (hl),'0'
-040279 18 02       0419*       jr @next_bit
-04027B             0420*   @one:
-04027B 36 31       0421*       ld (hl),'1'
-04027D             0422*   @next_bit:
-04027D 23          0423*       inc hl
-04027E 10 F4       0424*       djnz @loop
-040280             0425*   ; print it
-040280 21 8B 02 04 0426*       ld hl,@cmd
-040284 01 08 00 00 0427*       ld bc,@end-@cmd
-040288 5B DF       0428*       rst.lil $18
-04028A C9          0429*       ret
-04028B             0430*   @cmd: ds 8 ; eight bytes for eight bits
-040293             0431*   @end:
-040293             0432*   
-040293             0433*   ; print the binary representation of the 8-bit value in a
-040293             0434*   ; in reverse order (lsb first)
-040293             0435*   ; destroys a, hl, bc
-040293             0436*   printBin8Rev:
+04026E             0407*   ; print the binary representation of the 8-bit value in a
+04026E             0408*   ; destroys a, hl, bc
+04026E             0409*   printBin8:
+04026E 06 08       0410*       ld b,8 ; loop counter for 8 bits
+040270 21 8B 02 04 0411*       ld hl,@cmd ; set hl to the low byte of the output string
+040274             0412*       ; (which will be the high bit of the value in a)
+040274             0413*   @loop:
+040274 07          0414*       rlca ; put the next highest bit into carry
+040275 38 04       0415*       jr c,@one
+040277 36 30       0416*       ld (hl),'0'
+040279 18 02       0417*       jr @next_bit
+04027B             0418*   @one:
+04027B 36 31       0419*       ld (hl),'1'
+04027D             0420*   @next_bit:
+04027D 23          0421*       inc hl
+04027E 10 F4       0422*       djnz @loop
+040280             0423*   ; print it
+040280 21 8B 02 04 0424*       ld hl,@cmd
+040284 01 08 00 00 0425*       ld bc,@end-@cmd
+040288 5B DF       0426*       rst.lil $18
+04028A C9          0427*       ret
+04028B             0428*   @cmd: ds 8 ; eight bytes for eight bits
+040293             0429*   @end:
+040293             0430*   
+040293             0431*   ; print the binary representation of the 8-bit value in a
+040293             0432*   ; in reverse order (lsb first)
+040293             0433*   ; destroys a, hl, bc
+040293             0434*   printBin8Rev:
        FF FF FF FF 
        FF FF FF FF 
-040293 06 08       0437*       ld b,8 ; loop counter for 8 bits
-040295 21 B0 02 04 0438*       ld hl,@cmd ; set hl to the low byte of the output string
-040299             0439*       ; (which will be the high bit of the value in a)
-040299             0440*   @loop:
-040299 0F          0441*       rrca ; put the next lowest bit into carry
-04029A 38 04       0442*       jr c,@one
-04029C 36 30       0443*       ld (hl),'0'
-04029E 18 02       0444*       jr @next_bit
-0402A0             0445*   @one:
-0402A0 36 31       0446*       ld (hl),'1'
-0402A2             0447*   @next_bit:
-0402A2 23          0448*       inc hl
-0402A3 10 F4       0449*       djnz @loop
-0402A5             0450*   ; print it
-0402A5 21 B0 02 04 0451*       ld hl,@cmd
-0402A9 01 08 00 00 0452*       ld bc,@end-@cmd
-0402AD 5B DF       0453*       rst.lil $18
-0402AF C9          0454*       ret
-0402B0             0455*   @cmd: ds 8 ; eight bytes for eight bits
-0402B8             0456*   @end:
-0402B8             0457*   
+040293 06 08       0435*       ld b,8 ; loop counter for 8 bits
+040295 21 B0 02 04 0436*       ld hl,@cmd ; set hl to the low byte of the output string
+040299             0437*       ; (which will be the high bit of the value in a)
+040299             0438*   @loop:
+040299 0F          0439*       rrca ; put the next lowest bit into carry
+04029A 38 04       0440*       jr c,@one
+04029C 36 30       0441*       ld (hl),'0'
+04029E 18 02       0442*       jr @next_bit
+0402A0             0443*   @one:
+0402A0 36 31       0444*       ld (hl),'1'
+0402A2             0445*   @next_bit:
+0402A2 23          0446*       inc hl
+0402A3 10 F4       0447*       djnz @loop
+0402A5             0448*   ; print it
+0402A5 21 B0 02 04 0449*       ld hl,@cmd
+0402A9 01 08 00 00 0450*       ld bc,@end-@cmd
+0402AD 5B DF       0451*       rst.lil $18
+0402AF C9          0452*       ret
+0402B0             0453*   @cmd: ds 8 ; eight bytes for eight bits
+0402B8             0454*   @end:
+0402B8             0455*   
        FF FF FF FF 
        FF FF FF FF 
-0402B8 20 61 66 3D 0458*   str_afu: db " af=",0
+0402B8 20 61 66 3D 0456*   str_afu: db " af=",0
        00          
-0402BD 20 68 6C 3D 0459*   str_hlu: db " hl=",0
+0402BD 20 68 6C 3D 0457*   str_hlu: db " hl=",0
        00          
-0402C2 20 62 63 3D 0460*   str_bcu: db " bc=",0
+0402C2 20 62 63 3D 0458*   str_bcu: db " bc=",0
        00          
-0402C7 20 64 65 3D 0461*   str_deu: db " de=",0
+0402C7 20 64 65 3D 0459*   str_deu: db " de=",0
        00          
-0402CC 20 69 78 3D 0462*   str_ixu: db " ix=",0
+0402CC 20 69 78 3D 0460*   str_ixu: db " ix=",0
        00          
-0402D1 20 69 79 3D 0463*   str_iyu: db " iy=",0
+0402D1 20 69 79 3D 0461*   str_iyu: db " iy=",0
        00          
-0402D6             0464*   
-0402D6             0465*   ; print udeuhl to screen in hexidecimal format
-0402D6             0466*   ; inputs: none
-0402D6             0467*   ; outputs: concatenated hexidecimal udeuhl
-0402D6             0468*   ; destroys: nothing
-0402D6             0469*   dumpUDEUHLHex:
-0402D6             0470*   ; store everything in scratch
-0402D6 22 35 03 04 0471*       ld (uhl),hl
-0402DA ED 43 38 03 0472*       ld (ubc),bc
+0402D6             0462*   
+0402D6             0463*   ; print udeuhl to screen in hexidecimal format
+0402D6             0464*   ; inputs: none
+0402D6             0465*   ; outputs: concatenated hexidecimal udeuhl
+0402D6             0466*   ; destroys: nothing
+0402D6             0467*   dumpUDEUHLHex:
+0402D6             0468*   ; store everything in scratch
+0402D6 22 35 03 04 0469*       ld (uhl),hl
+0402DA ED 43 38 03 0470*       ld (ubc),bc
        04          
-0402DF ED 53 3B 03 0473*       ld (ude),de
+0402DF ED 53 3B 03 0471*       ld (ude),de
        04          
-0402E4 DD 22 3E 03 0474*       ld (uix),ix
+0402E4 DD 22 3E 03 0472*       ld (uix),ix
        04          
-0402E9 FD 22 41 03 0475*       ld (uiy),iy
+0402E9 FD 22 41 03 0473*       ld (uiy),iy
        04          
-0402EE F5          0476*       push af
+0402EE F5          0474*       push af
+0402EF             0475*   
+0402EF             0476*   ; print each register
 0402EF             0477*   
-0402EF             0478*   ; print each register
-0402EF             0479*   
-0402EF 21 29 03 04 0480*       ld hl,str_udeuhl
-0402F3 CD 67 00 04 0481*       call printString
-0402F7 2A 3B 03 04 0482*       ld hl,(ude)
-0402FB CD A0 00 04 0483*       call printHex24
-0402FF 3E 2E       0484*       ld a,'.' ; print a dot to separate the values
-040301 5B D7       0485*       rst.lil 10h
-040303 2A 35 03 04 0486*       ld hl,(uhl)
-040307 CD A0 00 04 0487*       call printHex24
-04030B CD 7C 00 04 0488*       call printNewLine
-04030F             0489*   
-04030F             0490*   ; restore everything
-04030F 2A 35 03 04 0491*       ld hl, (uhl)
-040313 ED 4B 38 03 0492*       ld bc, (ubc)
+0402EF 21 29 03 04 0478*       ld hl,str_udeuhl
+0402F3 CD 67 00 04 0479*       call printString
+0402F7 2A 3B 03 04 0480*       ld hl,(ude)
+0402FB CD A0 00 04 0481*       call printHex24
+0402FF 3E 2E       0482*       ld a,'.' ; print a dot to separate the values
+040301 5B D7       0483*       rst.lil 10h
+040303 2A 35 03 04 0484*       ld hl,(uhl)
+040307 CD A0 00 04 0485*       call printHex24
+04030B CD 7C 00 04 0486*       call printNewLine
+04030F             0487*   
+04030F             0488*   ; restore everything
+04030F 2A 35 03 04 0489*       ld hl, (uhl)
+040313 ED 4B 38 03 0490*       ld bc, (ubc)
        04          
-040318 ED 5B 3B 03 0493*       ld de, (ude)
+040318 ED 5B 3B 03 0491*       ld de, (ude)
        04          
-04031D DD 2A 3E 03 0494*       ld ix, (uix)
+04031D DD 2A 3E 03 0492*       ld ix, (uix)
        04          
-040322 FD 2A 41 03 0495*       ld iy, (uiy)
+040322 FD 2A 41 03 0493*       ld iy, (uiy)
        04          
-040327 F1          0496*       pop af
-040328             0497*   ; all done
-040328 C9          0498*       ret
-040329             0499*   
-040329 75 64 65 2E 0500*   str_udeuhl: db "ude.uhl=",0
+040327 F1          0494*       pop af
+040328             0495*   ; all done
+040328 C9          0496*       ret
+040329             0497*   
+040329 75 64 65 2E 0498*   str_udeuhl: db "ude.uhl=",0
        75 68 6C 3D 
        00          
-040332             0501*   
-040332             0502*   ; global scratch memory for registers
-040332 00 00 00    0503*   uaf: dl 0
-040335 00 00 00    0504*   uhl: dl 0
-040338 00 00 00    0505*   ubc: dl 0
-04033B 00 00 00    0506*   ude: dl 0
-04033E 00 00 00    0507*   uix: dl 0
-040341 00 00 00    0508*   uiy: dl 0
-040344 00 00 00    0509*   usp: dl 0
-040347 00 00 00    0510*   upc: dl 0
-04034A             0511*   
-04034A             0512*   
-04034A             0513*   ; set all the bits in the flag register
-04034A             0514*   ; more of an academic exercise than anything useful
-04034A             0515*   ; inputs; none
-04034A             0516*   ; outputs; a=0,f=255
-04034A             0517*   ; destroys: flags, hl
-04034A             0518*   ; preserves: a, because why not
-04034A             0519*   setAllFlags:
-04034A 21 FF 00 00 0520*       ld hl,255
-04034E 67          0521*       ld h,a ; four cycles to preserve a is cheap
-04034F E5          0522*       push hl
-040350 F1          0523*       pop af
-040351 C9          0524*       ret
-040352             0525*   
-040352             0526*   ; reset all the bits in the flag register
-040352             0527*   ; unlike its inverse counterpart, this may actually be useful
-040352             0528*   ; inputs; none
-040352             0529*   ; outputs; a=0,f=0
-040352             0530*   ; destroys: flags, hl
-040352             0531*   ; preserves: a, because why not
-040352             0532*   resetAllFlags:
-040352 21 00 00 00 0533*       ld hl,0
-040356 67          0534*       ld h,a ; four cycles to preserve a is cheap
-040357 E5          0535*       push hl
-040358 F1          0536*       pop af
-040359 C9          0537*       ret
-04035A             0538*   
-04035A             0539*   ; wait until user presses a key
-04035A             0540*   ; inputs: none
-04035A             0541*   ; outputs: ascii code of key pressed in a
-04035A             0542*   ; destroys: af,ix
-04035A             0543*   waitKeypress:
-04035A             0544*       MOSCALL mos_getkey
+040332             0499*   
+040332             0500*   ; global scratch memory for registers
+040332 00 00 00    0501*   uaf: dl 0
+040335 00 00 00    0502*   uhl: dl 0
+040338 00 00 00    0503*   ubc: dl 0
+04033B 00 00 00    0504*   ude: dl 0
+04033E 00 00 00    0505*   uix: dl 0
+040341 00 00 00    0506*   uiy: dl 0
+040344 00 00 00    0507*   usp: dl 0
+040347 00 00 00    0508*   upc: dl 0
+04034A             0509*   
+04034A             0510*   
+04034A             0511*   ; set all the bits in the flag register
+04034A             0512*   ; more of an academic exercise than anything useful
+04034A             0513*   ; inputs; none
+04034A             0514*   ; outputs; a=0,f=255
+04034A             0515*   ; destroys: flags, hl
+04034A             0516*   ; preserves: a, because why not
+04034A             0517*   setAllFlags:
+04034A 21 FF 00 00 0518*       ld hl,255
+04034E 67          0519*       ld h,a ; four cycles to preserve a is cheap
+04034F E5          0520*       push hl
+040350 F1          0521*       pop af
+040351 C9          0522*       ret
+040352             0523*   
+040352             0524*   ; reset all the bits in the flag register
+040352             0525*   ; unlike its inverse counterpart, this may actually be useful
+040352             0526*   ; inputs; none
+040352             0527*   ; outputs; a=0,f=0
+040352             0528*   ; destroys: flags, hl
+040352             0529*   ; preserves: a, because why not
+040352             0530*   resetAllFlags:
+040352 21 00 00 00 0531*       ld hl,0
+040356 67          0532*       ld h,a ; four cycles to preserve a is cheap
+040357 E5          0533*       push hl
+040358 F1          0534*       pop af
+040359 C9          0535*       ret
+04035A             0536*   
+04035A             0537*   ; wait until user presses a key
+04035A             0538*   ; inputs: none
+04035A             0539*   ; outputs: ascii code of key pressed in a
+04035A             0540*   ; destroys: af,ix
+04035A             0541*   waitKeypress:
+04035A             0542*       MOSCALL mos_getkey
 04035A 3E 00       0001*M1 			LD	A, function
 04035C 5B CF       0002*M1 			RST.LIL	08h
-04035E C9          0545*       ret
-04035F             0546*   
-04035F             0547*   ; clear a block of memory by writing a prescribed value to each byte in the range
-04035F             0548*   ; inputs: a = value to write, hl = address of first byte, bc = number of bytes
-04035F             0549*   ; outputs: memory block is cleared
-04035F             0550*   ; destroys: hl, de
-04035F             0551*   clear_mem:
-04035F 0B          0552*       dec bc ; we do this because we will increment de before writing the first byte
-040360 77          0553*       ld (hl),a
-040361 E5          0554*       push hl
-040362 D1          0555*       pop de
-040363 13          0556*       inc de ; target address
-040364 ED B0       0557*       ldir
-040366 C9          0558*       ret
+04035E C9          0543*       ret
+04035F             0544*   
+04035F             0545*   ; clear a block of memory by writing a prescribed value to each byte in the range
+04035F             0546*   ; inputs: a = value to write, hl = address of first byte, bc = number of bytes
+04035F             0547*   ; outputs: memory block is cleared
+04035F             0548*   ; destroys: hl, de
+04035F             0549*   clear_mem:
+04035F 0B          0550*       dec bc ; we do this because we will increment de before writing the first byte
+040360 77          0551*       ld (hl),a
+040361 E5          0552*       push hl
+040362 D1          0553*       pop de
+040363 13          0554*       inc de ; target address
+040364 ED B0       0555*       ldir
+040366 C9          0556*       ret
 040367             0033        include "arith24.inc"
 040367             0001*   ;------------------------------------------------------------------------
 040367             0002*   ;  arith24.asm
@@ -5503,14 +5501,14 @@ PC     Output      Line
 04213A C8          0009*       ret z ; returns to main, which re-enables interrupts and exits app
 04213B             0010*   ; song playing commands
 04213B FE 72       0011*       cp 'r' ; random song
-04213D CA 44 27 04 0012*       jp z,ps_play_random
+04213D CA ED 26 04 0012*       jp z,ps_play_random
 042141 FE 30       0013*       cp '0'
 042143 DA 6F 21 04 0014*       jp c,@other ; not a song command
 042147 FE 3A       0015*       cp '9'+1
 042149 D2 6F 21 04 0016*       jp nc,@other ; not a song command
 04214D             0017*   ; new song requested so stop playing current one
 04214D F5          0018*       push af ; preserve keypress
-04214E CD 18 26 04 0019*       call ps_close_file
+04214E CD DA 25 04 0019*       call ps_close_file
 042152 F1          0020*       pop af ; restore keypress
 042153             0021*   ; get pointer to song filename and play it
 042153 D6 30       0022*       sub '0' ; a = index into filename lut
@@ -5518,10 +5516,10 @@ PC     Output      Line
 042159 5F          0024*       ld e,a
 04215A 21 00 01 00 0025*       ld hl,256 ; 256 bytes per filename index
 04215E CD 67 03 04 0026*       call umul24 ; hl index into the filename table
-042162 11 00 00 06 0027*       ld de,ps_dir_fil_list
+042162 11 00 2D 05 0027*       ld de,ps_dir_fil_list
 042166 19          0028*       add hl,de ; hl points to the filename
-042167 22 8D 23 04 0029*       ld (ps_song_fn_cur),hl ; save song request
-04216B C3 51 25 04 0030*       jp play_song ; re-enables interrupts and jp's to get_input when finished
+042167 22 8B 23 04 0029*       ld (ps_song_fn_cur),hl ; save song request
+04216B C3 13 25 04 0030*       jp play_song ; re-enables interrupts and jp's to get_input when finished
 04216F             0031*   @other: ; TODO: other commands
 04216F FB          0032*       ei ; reenable interrupts
 042170 C3 33 21 04 0033*       jp @loop ; no valid commmand so loop
@@ -5675,49 +5673,34 @@ PC     Output      Line
 042381 00 00 00    0019*   ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
 042384 00 00 00    0020*   ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 042387 00 00 00    0021*   ps_page_cur: dl 0 ; current directory page number
-04238A 00 00 00    0022*   ps_song_idx_cur: dl 0 ; current song index in the directory page
-04238D 00 00 00    0023*   ps_song_fn_cur: dl 0 ; pointer to current song filename
-042390 00 00 00 00 0024*   ps_page_fn_ptrs: blkw 10*3,0 ; list of filename pointers in the current directory page
+04238A 00          0022*   ps_song_idx_cur: db 0 ; current song index in the directory page
+04238B 00 00 00    0023*   ps_song_fn_cur: dl 0 ; pointer to current song filename
+04238E             0024*   
+04238E             0025*   ; play_song directory info
+04238E             0026*   ps_dir_struct:
+04238E 00 00 00 00 0027*   ps_dptr:       blkb  4,0   ; Current read/write offset
+042392 00 00 00 00 0028*   ps_clust:      blkb  4,0   ; Current cluster
+042396 00 00 00 00 0029*   ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
+04239A 00 00 00    0030*   ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
+04239D 00 00 00 00 0031*   ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
        00 00 00 00 
        00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-       00 00 00 00 
-0423CC             0025*   
-0423CC             0026*   ; play_song directory info
-0423CC             0027*   ps_dir_struct:
-0423CC 00 00 00 00 0028*   ps_dptr:       blkb  4,0   ; Current read/write offset
-0423D0 00 00 00 00 0029*   ps_clust:      blkb  4,0   ; Current cluster
-0423D4 00 00 00 00 0030*   ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
-0423D8 00 00 00    0031*   ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
-0423DB 00 00 00 00 0032*   ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
-       00 00 00 00 
-       00 00 00 00 
-0423E7 00 00 00 00 0033*   ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-0423EB             0034*   
-0423EB             0035*   ; play_song file info
-0423EB 00          0036*   ps_filehandle_cur: db 0 ; file handle
-0423EC 00 00 00    0037*   ps_chunkpointer: dl 0 ; pointer to current chunk
-0423EF             0038*   ; File information structure (FILINFO)
-0423EF             0039*   ps_filinfo_struct:
-0423EF 00 00 00 00 0040*   ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
-0423F3 00 00       0041*   ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
-0423F5 00 00       0042*   ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
-0423F7 00          0043*   ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
-0423F8 00 00 00 00 0044*   ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
+0423A9 00 00 00 00 0032*   ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+0423AD             0033*   
+0423AD             0034*   ; play_song file info
+0423AD 00          0035*   ps_filehandle_cur: db 0 ; file handle
+0423AE 00 00 00    0036*   ps_chunkpointer: dl 0 ; pointer to current chunk
+0423B1             0037*   ; File information structure (FILINFO)
+0423B1             0038*   ps_filinfo_struct:
+0423B1 00 00 00 00 0039*   ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
+0423B5 00 00       0040*   ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
+0423B7 00 00       0041*   ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
+0423B9 00          0042*   ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
+0423BA 00 00 00 00 0043*   ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
        00 00 00 00 
        00 00 00 00 
        00          
-042405 00 00 00 00 0045*   ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
+0423C7 00 00 00 00 0044*   ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
@@ -5781,1362 +5764,1282 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-042505             0046*   
-042505             0047*   ; buffer for play_song sound data
-042505             0048*   ps_wav_header: ; marker for top of the wav file header and song data
-042505             0049*   ; (must be last so buffer doesn't overwrite other program code or data)
-042505             0050*   ; .wav header data
-042505             0051*   ; WAV File Structure in Memory with LIST Chunk
-042505 00 00 00 00 0052*   ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
-042509 00 00 00 00 0053*   ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
-04250D 00 00 00 00 0054*   ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
-042511 00 00 00 00 0055*   ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
-042515 00 00 00 00 0056*   ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
-042519 00 00       0057*   ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
-04251B 00 00       0058*   ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
-04251D 00 00 00 00 0059*   ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
-042521 00 00 00 00 0060*   ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
-042525 00 00       0061*   ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
-042527 00 00       0062*   ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
-042529             0063*   
-042529             0064*   ; LIST Chunk (Extra Metadata)
-042529 00 00 00 00 0065*   ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
-04252D 00 00 00 00 0066*   ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
-042531 00 00 00 00 0067*   ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
-042535 00 00 00 00 0068*   ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
-042539 00 00 00 00 0069*   ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
+0424C7             0045*   
+0424C7             0046*   ; buffer for play_song sound data
+0424C7             0047*   ps_wav_header: ; marker for top of the wav file header and song data
+0424C7             0048*   ; (must be last so buffer doesn't overwrite other program code or data)
+0424C7             0049*   ; .wav header data
+0424C7             0050*   ; WAV File Structure in Memory with LIST Chunk
+0424C7 00 00 00 00 0051*   ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
+0424CB 00 00 00 00 0052*   ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
+0424CF 00 00 00 00 0053*   ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
+0424D3 00 00 00 00 0054*   ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
+0424D7 00 00 00 00 0055*   ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
+0424DB 00 00       0056*   ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
+0424DD 00 00       0057*   ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
+0424DF 00 00 00 00 0058*   ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
+0424E3 00 00 00 00 0059*   ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
+0424E7 00 00       0060*   ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
+0424E9 00 00       0061*   ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
+0424EB             0062*   
+0424EB             0063*   ; LIST Chunk (Extra Metadata)
+0424EB 00 00 00 00 0064*   ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
+0424EF 00 00 00 00 0065*   ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
+0424F3 00 00 00 00 0066*   ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
+0424F7 00 00 00 00 0067*   ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
+0424FB 00 00 00 00 0068*   ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
        00 00 00 00 
        00 00 00 00 
        00 00       
-042547 00 00       0070*   ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
-042549             0071*   
-042549             0072*   ; Data Chunk
-042549 00 00 00 00 0073*   ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
-04254D 00 00 00 00 0074*   ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
-042551             0075*   ; Total Header Size: 76 bytes
-042551             0076*   play_song:
-042551 22 8D 23 04 0077*       ld (ps_song_fn_cur),hl
-042555             0078*   ; stop the PRT timer
-042555 CD 20 28 04 0079*       call ps_prt_stop
-042559             0080*   ; tell the user what they've won
-042559 0E 00       0081*       ld c,0 ; left
-04255B 16 00       0082*       ld d,0 ; top
-04255D 1E 3E       0083*       ld e,62 ; right
-04255F 06 01       0084*       ld b,1; bottom
-042561 CD 4F 17 04 0085*       call vdu_set_txt_viewport
-042565 CD F6 16 04 0086*       call vdu_cls
-042569 2A 8D 23 04 0087*       ld hl,(ps_song_fn_cur)
-04256D CD 60 00 04 0088*       call printInline
-042571 50 6C 61 79 0089*       asciz "Playing song: "
+042509 00 00       0069*   ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
+04250B             0070*   
+04250B             0071*   ; Data Chunk
+04250B 00 00 00 00 0072*   ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
+04250F 00 00 00 00 0073*   ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
+042513             0074*   ; Total Header Size: 76 bytes
+042513             0075*   play_song:
+042513 22 8B 23 04 0076*       ld (ps_song_fn_cur),hl
+042517             0077*   ; stop the PRT timer
+042517 CD C9 27 04 0078*       call ps_prt_stop
+04251B             0079*   ; tell the user what they've won
+04251B 0E 00       0080*       ld c,0 ; left
+04251D 16 00       0081*       ld d,0 ; top
+04251F 1E 3E       0082*       ld e,62 ; right
+042521 06 01       0083*       ld b,1; bottom
+042523 CD 4F 17 04 0084*       call vdu_set_txt_viewport
+042527 CD F6 16 04 0085*       call vdu_cls
+04252B 2A 8B 23 04 0086*       ld hl,(ps_song_fn_cur)
+04252F CD 60 00 04 0087*       call printInline
+042533 50 6C 61 79 0088*       asciz "Playing song: "
        69 6E 67 20 
        73 6F 6E 67 
        3A 20 00    
-042580 2A 8D 23 04 0090*       ld hl,(ps_song_fn_cur)
-042584 CD 67 00 04 0091*       call printString ; print the song filename
-042588             0092*   ; reset text viewport for playing breadcrumbs
-042588 0E 00       0093*       ld c,0 ; left
-04258A 16 01       0094*       ld d,1 ; top
-04258C 1E 3E       0095*       ld e,62 ; right
-04258E 06 01       0096*       ld b,1; bottom
-042590 CD 4F 17 04 0097*       call vdu_set_txt_viewport
-042594             0098*   ; open the file in read mode
-042594             0099*   ; Open a file
-042594             0100*   ; HLU: Filename
-042594             0101*   ;   C: Mode
-042594             0102*   ; Returns:
-042594             0103*   ;   A: Filehandle, or 0 if couldn't open
-042594 2A 8D 23 04 0104*       ld hl,(ps_song_fn_cur)
-042598 0E 01       0105*   	ld c,fa_read
-04259A             0106*       MOSCALL mos_fopen
-04259A 3E 0A       0001*M1 			LD	A, function
-04259C 5B CF       0002*M1 			RST.LIL	08h
-04259E 32 EB 23 04 0107*       ld (ps_filehandle_cur),a
-0425A2             0108*   ; read the .wav header data and copy it to the buffer
-0425A2 CD 5E 27 04 0109*       call ps_read_wav_header
-0425A6             0110*   ; read the first block of data
-0425A6 CD B3 25 04 0111*       call ps_read_file
-0425AA             0112*   ; enable interrupts and start the PRT timer
-0425AA FB          0113*       ei
-0425AB CD 03 28 04 0114*       call ps_prt_start
-0425AF             0115*   ; jump to user input loop:
-0425AF             0116*   ; the play sample interrupt will return to there
-0425AF             0117*   ; and exit app will return to main from there as well
-0425AF C3 33 21 04 0118*       jp get_input
-0425B3             0119*   ; end play_song
-0425B3             0120*   
-0425B3             0121*   ; read the next 1-second's worth of sound data from the file
-0425B3             0122*   ; and upload it to the sample buffer
-0425B3             0123*   ps_read_file:
-0425B3             0124*   ; disable interrupts so load is guaranteed to complete
-0425B3 F3          0125*       di
-0425B4             0126*   ; print a playing breadcrumb
-0425B4 3E 2E       0127*       ld a,'.'
-0425B6 5B D7       0128*       rst.lil 10h
-0425B8             0129*   ; Read a block of data from a file
-0425B8             0130*   ;   C: Filehandle
-0425B8             0131*   ; HLU: Pointer to where to write the data to
-0425B8             0132*   ; DEU: Number of bytes to read
-0425B8             0133*   ; Returns:
-0425B8             0134*   ; DEU: Number of bytes read
-0425B8 3A EB 23 04 0135*       ld a,(ps_filehandle_cur)
-0425BC 4F          0136*       ld c,a
-0425BD 21 00 00 05 0137*       ld hl,ps_wav_data_start
-0425C1 ED 5B 1D 25 0138*       ld de,(ps_wav_sample_rate)
+042542 2A 8B 23 04 0089*       ld hl,(ps_song_fn_cur)
+042546 CD 67 00 04 0090*       call printString ; print the song filename
+04254A             0091*   ; reset text viewport for playing breadcrumbs
+04254A 0E 00       0092*       ld c,0 ; left
+04254C 16 01       0093*       ld d,1 ; top
+04254E 1E 3E       0094*       ld e,62 ; right
+042550 06 01       0095*       ld b,1; bottom
+042552 CD 4F 17 04 0096*       call vdu_set_txt_viewport
+042556             0097*   ; open the file in read mode
+042556             0098*   ; Open a file
+042556             0099*   ; HLU: Filename
+042556             0100*   ;   C: Mode
+042556             0101*   ; Returns:
+042556             0102*   ;   A: Filehandle, or 0 if couldn't open
+042556 2A 8B 23 04 0103*       ld hl,(ps_song_fn_cur)
+04255A 0E 01       0104*   	ld c,fa_read
+04255C             0105*       MOSCALL mos_fopen
+04255C 3E 0A       0001*M1 			LD	A, function
+04255E 5B CF       0002*M1 			RST.LIL	08h
+042560 32 AD 23 04 0106*       ld (ps_filehandle_cur),a
+042564             0107*   ; read the .wav header data and copy it to the buffer
+042564 CD 07 27 04 0108*       call ps_read_wav_header
+042568             0109*   ; read the first block of data
+042568 CD 75 25 04 0110*       call ps_read_file
+04256C             0111*   ; enable interrupts and start the PRT timer
+04256C FB          0112*       ei
+04256D CD AC 27 04 0113*       call ps_prt_start
+042571             0114*   ; jump to user input loop:
+042571             0115*   ; the play sample interrupt will return to there
+042571             0116*   ; and exit app will return to main from there as well
+042571 C3 33 21 04 0117*       jp get_input
+042575             0118*   ; end play_song
+042575             0119*   
+042575             0120*   ; read the next 1-second's worth of sound data from the file
+042575             0121*   ; and upload it to the sample buffer
+042575             0122*   ps_read_file:
+042575             0123*   ; disable interrupts so load is guaranteed to complete
+042575 F3          0124*       di
+042576             0125*   ; print a playing breadcrumb
+042576 3E 2E       0126*       ld a,'.'
+042578 5B D7       0127*       rst.lil 10h
+04257A             0128*   ; Read a block of data from a file
+04257A             0129*   ;   C: Filehandle
+04257A             0130*   ; HLU: Pointer to where to write the data to
+04257A             0131*   ; DEU: Number of bytes to read
+04257A             0132*   ; Returns:
+04257A             0133*   ; DEU: Number of bytes read
+04257A 3A AD 23 04 0134*       ld a,(ps_filehandle_cur)
+04257E 4F          0135*       ld c,a
+04257F 21 00 2D 04 0136*       ld hl,ps_wav_data_start
+042583 ED 5B DF 24 0137*       ld de,(ps_wav_sample_rate)
        04          
-0425C6             0139*       MOSCALL mos_fread
-0425C6 3E 1A       0001*M1 			LD	A, function
-0425C8 5B CF       0002*M1 			RST.LIL	08h
-0425CA             0140*   ; test de for zero bytes read
-0425CA 21 00 00 00 0141*       ld hl,0
-0425CE AF          0142*       xor a ; clear carry
-0425CF ED 52       0143*       sbc hl,de ; hl = 0-chunksize
-0425D1 C2 DD 25 04 0144*       jp nz,@load ; we read some data
-0425D5             0145*   ; no data read so close file and play a random song
-0425D5 CD 18 26 04 0146*       call ps_close_file
-0425D9 C3 44 27 04 0147*       jp ps_play_random
-0425DD             0148*   ; load a vdu buffer from local memory
-0425DD             0149*   ; inputs: hl = bufferId ; bc = length ; de = pointer to data
-0425DD             0150*   @load:
-0425DD 3A 74 21 04 0151*       ld a,(ps_channel)
-0425E1 3C          0152*       inc a
-0425E2 E6 01       0153*       and 1
-0425E4 32 74 21 04 0154*       ld (ps_channel),a
-0425E8 21 00 30 00 0155*       ld hl,ch0_buffer
-0425EC 6F          0156*       ld l,a
-0425ED 22 78 21 04 0157*       ld (ps_sampleId),hl
-0425F1 CD B0 1A 04 0158*       call vdu_clear_buffer
-0425F5 2A 78 21 04 0159*       ld hl,(ps_sampleId)
-0425F9 D5          0160*       push de ; chunksize
-0425FA C1          0161*       pop bc ; how much data to load
-0425FB 11 00 00 05 0162*       ld de,ps_wav_data_start ; pointer to data
-0425FF CD 9B 18 04 0163*       call vdu_load_buffer
-042603 C9          0164*       ret
-042604             0165*   ; end ps_read_file
-042604             0166*   
-042604             0167*   ; this is called by the PRT timer interrupt
-042604             0168*   ps_play_sample:
-042604             0169*   ; call the command buffer to play the sound
-042604 2A 78 21 04 0170*       ld hl,(ps_sampleId)
-042608 2C          0171*       inc l
-042609 2C          0172*       inc l
-04260A 22 75 21 04 0173*       ld (ps_cmdId),hl ; TODO: perhaps not needed
-04260E CD 95 1A 04 0174*       call vdu_call_buffer
-042612             0175*   ; load the next chunk of data
-042612 CD B3 25 04 0176*       call ps_read_file
-042616             0177*   ; reenable interrupts and return to the user input loop
-042616 FB          0178*       ei
-042617 C9          0179*       ret
-042618             0180*   ; end ps_play_sample
-042618             0181*   
-042618             0182*   ; close the file
-042618             0183*   ps_close_file:
-042618 CD 20 28 04 0184*       call ps_prt_stop ; stop the PRT timer
-04261C 3A EB 23 04 0185*       ld a,(ps_filehandle_cur)
-042620             0186*       MOSCALL mos_fclose
-042620 3E 0B       0001*M1 			LD	A, function
-042622 5B CF       0002*M1 			RST.LIL	08h
-042624 C9          0187*       ret
-042625             0188*   ; end ps_close_file
-042625             0189*   
-042625             0190*   ps_get_dir:
-042625             0191*   ; reset filecounter
-042625 21 00 00 00 0192*       ld hl,0
-042629 22 7B 23 04 0193*       ld (ps_dir_num_files),hl
-04262D             0194*   ; initialize pointers to store directory info
-04262D 21 7B 21 04 0195*       ld hl,ps_dir_path  ; where to store result
-042631 01 FF 00 00 0196*       ld bc,255          ; max length
-042635             0197*       MOSCALL ffs_getcwd ; MOS api get current working directory
-042635 3E 9E       0001*M1 			LD	A, function
-042637 5B CF       0002*M1 			RST.LIL	08h
-042639             0198*   ; now get dir info
-042639 21 CC 23 04 0199*       ld hl,ps_dir_struct ; define where to store directory info
-04263D 11 7B 21 04 0200*       ld de,ps_dir_path   ; this is pointer to the path to the directory
-042641             0201*       MOSCALL ffs_dopen   ; open dir
-042641 3E 91       0001*M1 			LD	A, function
-042643 5B CF       0002*M1 			RST.LIL	08h
-042645             0202*   @readFileInfo:               ; we will loop here until all files have been processed
-042645 21 CC 23 04 0203*       ld hl,ps_dir_struct      ; HL is where to get directory info
-042649 11 EF 23 04 0204*       ld de,ps_filinfo_struct  ; define where to store current file info
-04264D             0205*       MOSCALL ffs_dread        ; read next item from dir
-04264D 3E 93       0001*M1 			LD	A, function
-04264F 5B CF       0002*M1 			RST.LIL	08h
-042651 3A 05 24 04 0206*       ld a,(ps_filinfo_fname)  ; get first char of file name
-042655 FE 00       0207*       cp 0                     ; if 0 then we are at the end of the listing
-042657 28 27       0208*       jr z,@allDone
-042659 ED 5B 7B 23 0209*       ld de,(ps_dir_num_files) ; get the current file counter
+042588             0138*       MOSCALL mos_fread
+042588 3E 1A       0001*M1 			LD	A, function
+04258A 5B CF       0002*M1 			RST.LIL	08h
+04258C             0139*   ; test de for zero bytes read
+04258C 21 00 00 00 0140*       ld hl,0
+042590 AF          0141*       xor a ; clear carry
+042591 ED 52       0142*       sbc hl,de ; hl = 0-chunksize
+042593 C2 9F 25 04 0143*       jp nz,@load ; we read some data
+042597             0144*   ; no data read so close file and play a random song
+042597 CD DA 25 04 0145*       call ps_close_file
+04259B C3 ED 26 04 0146*       jp ps_play_random
+04259F             0147*   ; load a vdu buffer from local memory
+04259F             0148*   ; inputs: hl = bufferId ; bc = length ; de = pointer to data
+04259F             0149*   @load:
+04259F 3A 74 21 04 0150*       ld a,(ps_channel)
+0425A3 3C          0151*       inc a
+0425A4 E6 01       0152*       and 1
+0425A6 32 74 21 04 0153*       ld (ps_channel),a
+0425AA 21 00 30 00 0154*       ld hl,ch0_buffer
+0425AE 6F          0155*       ld l,a
+0425AF 22 78 21 04 0156*       ld (ps_sampleId),hl
+0425B3 CD B0 1A 04 0157*       call vdu_clear_buffer
+0425B7 2A 78 21 04 0158*       ld hl,(ps_sampleId)
+0425BB D5          0159*       push de ; chunksize
+0425BC C1          0160*       pop bc ; how much data to load
+0425BD 11 00 2D 04 0161*       ld de,ps_wav_data_start ; pointer to data
+0425C1 CD 9B 18 04 0162*       call vdu_load_buffer
+0425C5 C9          0163*       ret
+0425C6             0164*   ; end ps_read_file
+0425C6             0165*   
+0425C6             0166*   ; this is called by the PRT timer interrupt
+0425C6             0167*   ps_play_sample:
+0425C6             0168*   ; call the command buffer to play the sound
+0425C6 2A 78 21 04 0169*       ld hl,(ps_sampleId)
+0425CA 2C          0170*       inc l
+0425CB 2C          0171*       inc l
+0425CC 22 75 21 04 0172*       ld (ps_cmdId),hl ; TODO: perhaps not needed
+0425D0 CD 95 1A 04 0173*       call vdu_call_buffer
+0425D4             0174*   ; load the next chunk of data
+0425D4 CD 75 25 04 0175*       call ps_read_file
+0425D8             0176*   ; reenable interrupts and return to the user input loop
+0425D8 FB          0177*       ei
+0425D9 C9          0178*       ret
+0425DA             0179*   ; end ps_play_sample
+0425DA             0180*   
+0425DA             0181*   ; close the file
+0425DA             0182*   ps_close_file:
+0425DA CD C9 27 04 0183*       call ps_prt_stop ; stop the PRT timer
+0425DE 3A AD 23 04 0184*       ld a,(ps_filehandle_cur)
+0425E2             0185*       MOSCALL mos_fclose
+0425E2 3E 0B       0001*M1 			LD	A, function
+0425E4 5B CF       0002*M1 			RST.LIL	08h
+0425E6 C9          0186*       ret
+0425E7             0187*   ; end ps_close_file
+0425E7             0188*   
+0425E7             0189*   ps_get_dir:
+0425E7             0190*   ; reset filecounter
+0425E7 21 00 00 00 0191*       ld hl,0
+0425EB 22 7B 23 04 0192*       ld (ps_dir_num_files),hl
+0425EF             0193*   
+0425EF             0194*   ; initialize pointers to store directory info
+0425EF 21 7B 21 04 0195*       ld hl,ps_dir_path  ; where to store result
+0425F3 01 FF 00 00 0196*       ld bc,255          ; max length
+0425F7             0197*       MOSCALL ffs_getcwd ; MOS api get current working directory
+0425F7 3E 9E       0001*M1 			LD	A, function
+0425F9 5B CF       0002*M1 			RST.LIL	08h
+0425FB             0198*   
+0425FB             0199*   ; now get dir info
+0425FB 21 8E 23 04 0200*       ld hl,ps_dir_struct ; define where to store directory info
+0425FF 11 7B 21 04 0201*       ld de,ps_dir_path   ; this is pointer to the path to the directory
+042603             0202*       MOSCALL ffs_dopen   ; open dir
+042603 3E 91       0001*M1 			LD	A, function
+042605 5B CF       0002*M1 			RST.LIL	08h
+042607             0203*   
+042607             0204*   _readFileInfo:               ; we will loop here until all files have been processed
+042607 21 8E 23 04 0205*       ld hl,ps_dir_struct      ; HL is where to get directory info
+04260B 11 B1 23 04 0206*       ld de,ps_filinfo_struct  ; define where to store current file info
+04260F             0207*       MOSCALL ffs_dread        ; read next item from dir
+04260F 3E 93       0001*M1 			LD	A, function
+042611 5B CF       0002*M1 			RST.LIL	08h
+042613             0208*   
+042613 3A C7 23 04 0209*       ld a,(ps_filinfo_fname)  ; get first char of file name
+042617 FE 00       0210*       cp 0                     ; if 0 then we are at the end of the listing
+042619 28 25       0211*       jr z,_allDone
+04261B             0212*   
+04261B ED 5B 7B 23 0213*       ld de,(ps_dir_num_files) ; get the current file counter
        04          
-04265E 21 00 01 00 0210*       ld hl,256 ; bytes per filename
-042662 CD 67 03 04 0211*       call umul24 ; hl = offset into the filename table
-042666 13          0212*       inc de                  ; increment the counter
-042667 ED 53 7B 23 0213*       ld (ps_dir_num_files),de
+042620 21 00 01 00 0214*       ld hl,256 ; bytes per filename
+042624 CD 67 03 04 0215*       call umul24 ; hl = offset into the filename table
+042628 13          0216*       inc de                  ; increment the counter
+042629 ED 53 7B 23 0217*       ld (ps_dir_num_files),de
        04          
-04266C 11 00 00 06 0214*       ld de,ps_dir_fil_list ; get the address of the filename table
-042670 19          0215*       add hl,de ; add the offset to the base address
-042671 EB          0216*       ex de,hl ; de is the destination address to copy the filename
-042672 21 05 24 04 0217*       ld hl,ps_filinfo_fname   ; this is pointer to the name of current file
-042676 01 00 01 00 0218*       ld bc,256 ; bytes per filename
-04267A ED B0       0219*       ldir ; copy the filename to the filename table
-04267C C3 45 26 04 0220*       jp @readFileInfo         ; loop around to check next entry
-042680             0221*   @allDone:
-042680             0222*   ; compute page statistics
-042680 2A 7B 23 04 0223*       ld hl,(ps_dir_num_files) ; get the number of files
-042684 11 0A 00 00 0224*       ld de,10 ; max files per page
-042688 CD 80 03 04 0225*       call udiv24 ; de = hl/10, hl = mod(hl,10)
-04268C             0226*       SIGN_HLU ; check remainder for zero
-04268C 19          0001*M1     add hl,de ; 1 cycle
-04268D B7          0002*M1     or a ; clear flags ; 1 cycle
-04268E ED 52       0003*M1     sbc hl,de ; 2 cycles
-042690             0004*M1     ; 4 cycles total
-042690 CA 95 26 04 0227*       jp z,@F ; if zero then we have exactly 10 files
-042694 13          0228*       inc de ; bump the page count
-042695             0229*   @@:
-042695 ED 53 7E 23 0230*       ld (ps_dir_num_pages),de ; save the number of pages
+04262E 11 00 2D 05 0218*       ld de,ps_dir_fil_list ; get the address of the filename table
+042632 19          0219*       add hl,de ; add the offset to the base address
+042633 EB          0220*       ex de,hl ; de is the destination address to copy the filename
+042634 21 C7 23 04 0221*       ld hl,ps_filinfo_fname   ; this is pointer to the name of current file
+042638 01 00 01 00 0222*       ld bc,256 ; bytes per filename
+04263C ED B0       0223*       ldir ; copy the filename to the filename table
+04263E             0224*   
+04263E 18 C7       0225*       jr _readFileInfo         ; loop around to check next entry
+042640             0226*   
+042640             0227*   _allDone:
+042640             0228*   ; compute page statistics
+042640 2A 7B 23 04 0229*       ld hl,(ps_dir_num_files) ; get the number of files
+042644 11 0A 00 00 0230*       ld de,10 ; max files per page
+042648 CD 80 03 04 0231*       call udiv24 ; de = hl/10, hl = mod(hl,10)
+04264C             0232*       SIGN_HLU ; check remainder for zero
+04264C 19          0001*M1     add hl,de ; 1 cycle
+04264D B7          0002*M1     or a ; clear flags ; 1 cycle
+04264E ED 52       0003*M1     sbc hl,de ; 2 cycles
+042650             0004*M1     ; 4 cycles total
+042650 CA 55 26 04 0233*       jp z,@F ; if zero then we have exactly 10 files
+042654 13          0234*       inc de ; bump the page count
+042655             0235*   @@:
+042655 ED 53 7E 23 0236*       ld (ps_dir_num_pages),de ; save the number of pages
        04          
-04269A 22 84 23 04 0231*       ld (ps_pagelast_num_files),hl ; save the number of files on the last page
-04269E             0232*   ; reset the song index and page to zero and populate the page filename pointers
-04269E 21 00 00 00 0233*       ld hl,0
-0426A2 22 8A 23 04 0234*       ld (ps_song_idx_cur),hl
-0426A6 22 87 23 04 0235*       ld (ps_page_cur),hl
-0426AA CD B7 26 04 0236*       call ps_fill_page_fn_ptrs
-0426AE             0237*   ; close the directory
-0426AE 21 CC 23 04 0238*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
-0426B2             0239*       MOSCALL ffs_dclose       ; close dir
-0426B2 3E 92       0001*M1 			LD	A, function
-0426B4 5B CF       0002*M1 			RST.LIL	08h
-0426B6 C9          0240*       ret
-0426B7             0241*   ; end ps_get_dir
-0426B7             0242*   
-0426B7             0243*   ; populate the page filename pointers for the current directory page
-0426B7             0244*   ; inputs: ps_page_cur
-0426B7             0245*   ; prerequisites: ps_get_dir called on a valid directory
-0426B7             0246*   ; outputs: a populated filename pointer list for the current page
-0426B7             0247*   ; destroys: a, hl, bc, de, ix
-0426B7             0248*   ps_fill_page_fn_ptrs:
-0426B7 2A 87 23 04 0249*       ld hl,(ps_page_cur) ; get the current page number
-0426BB 11 00 0A 00 0250*       ld de,10*256 ; records/page * 256 bytes/record
-0426BF CD 67 03 04 0251*       call umul24 ; hl = offset into the filename table
-0426C3 11 00 00 06 0252*       ld de,ps_dir_fil_list ; base address of filename table
-0426C7 19          0253*       add hl,de ; add the offset to the base address
-0426C8 DD 21 90 23 0254*       ld ix,ps_page_fn_ptrs ; get the address of the page filename pointer table
+04265A 22 84 23 04 0237*       ld (ps_pagelast_num_files),hl ; save the number of files on the last page
+04265E             0238*   
+04265E             0239*   
+04265E             0240*   ; close the directory
+04265E 21 8E 23 04 0241*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
+042662             0242*       MOSCALL ffs_dclose       ; close dir
+042662 3E 92       0001*M1 			LD	A, function
+042664 5B CF       0002*M1 			RST.LIL	08h
+042666 C9          0243*       ret
+042667             0244*   ; end ps_get_dir
+042667             0245*   
+042667             0246*   ps_print_dir:
+042667             0247*   ; loop through the filename table and print out the filenames
+042667 DD 21 00 2D 0248*       ld ix,ps_dir_fil_list      ; get the address of the filename table
+       05          
+04266C 2A 7B 23 04 0249*       ld hl,(ps_dir_num_files)   ; get the number of files
+042670 E5          0250*       push hl ; save loop counter
+042671             0251*   @print_loop:
+042671 DD E5       0252*       push ix
+042673 E1          0253*       pop hl ; get the address of the filename
+042674 CD 67 00 04 0254*       call printString
+042678 CD 7C 00 04 0255*       call printNewLine
+04267C ED 32 7F    0256*       lea ix,ix+127 ; bump the pointer
+04267F ED 32 7F    0257*       lea ix,ix+127 ; to the next file
+042682 ED 32 02    0258*       lea ix,ix+2   ; 256 bytes
+042685 E1          0259*       pop hl ; get the loop counter
+042686 2B          0260*       dec hl ; decrement the loop counter
+042687 E5          0261*       push hl ; save loop counter
+042688             0262*       SIGN_HLU ; check for zero
+042688 19          0001*M1     add hl,de ; 1 cycle
+042689 B7          0002*M1     or a ; clear flags ; 1 cycle
+04268A ED 52       0003*M1     sbc hl,de ; 2 cycles
+04268C             0004*M1     ; 4 cycles total
+04268C 20 E3       0263*       jr nz,@print_loop
+04268E E1          0264*       pop hl ; dummy pop to balance stack
+04268F C9          0265*       ret
+042690             0266*   ; end ps_print_dir
+042690             0267*   
+042690             0268*   ps_print_dir_page:
+042690             0269*   ; loop through the filename table and print out the filenames
+042690 DD 21 00 2D 0270*       ld ix,ps_dir_fil_list      ; get the address of the filename table
+       05          
+042695 ED 5B 7B 23 0271*       ld de,(ps_dir_num_files)   ; get the number of files
        04          
-0426CD 11 00 01 00 0255*       ld de,256 ; bytes per filename record
-0426D1 06 0A       0256*       ld b,10 ; number of files per page
-0426D3             0257*   @loop:
-0426D3 DD 2F 00    0258*       ld (ix),hl ; store the filename pointer
-0426D6 ED 32 03    0259*       lea ix,ix+3 ; bump the index pointer
-0426D9 19          0260*       add hl,de ; add the record size to the filename pointer
-0426DA 10 F7       0261*       djnz @loop
-0426DC C9          0262*       ret
-0426DD             0263*   ; end ps_fill_page_fn_ptrs
-0426DD             0264*   
-0426DD             0265*   ps_print_dir_page:
-0426DD AF          0266*       xor a
-0426DE DD 21 90 23 0267*       ld ix,ps_page_fn_ptrs
+04269A 21 0A 00 00 0272*       ld hl,10 ; max files per page
+04269E B7          0273*       or a ; clear carry
+04269F ED 52       0274*       sbc hl,de ; subtract number of files from 10
+0426A1 F2 A9 26 04 0275*       jp p,@F ; if >= 0 then we have <= 10 files
+0426A5 11 0A 00 00 0276*       ld de,10 ; max files per page
+0426A9             0277*   @@:
+0426A9 EB          0278*       ex de,hl ; hl = number of files to print
+0426AA E5          0279*       push hl ; save loop counter
+0426AB             0280*   @print_loop:
+0426AB 3E 0A       0281*       ld a,10
+0426AD 95          0282*       sub l
+0426AE             0283*       ; cp 10
+0426AE             0284*       ; jp z,@end ; stop at 10
+0426AE CD 0F 28 04 0285*       call printHexA
+0426B2 DD E5       0286*       push ix
+0426B4 E1          0287*       pop hl ; get the address of the filename
+0426B5 CD 67 00 04 0288*       call printString
+0426B9 CD 7C 00 04 0289*       call printNewLine
+0426BD ED 32 7F    0290*       lea ix,ix+127 ; bump the pointer
+0426C0 ED 32 7F    0291*       lea ix,ix+127 ; to the next file
+0426C3 ED 32 02    0292*       lea ix,ix+2   ; 256 bytes
+0426C6 E1          0293*       pop hl ; get the loop counter
+0426C7 2B          0294*       dec hl ; decrement the loop counter
+0426C8 E5          0295*       push hl ; save loop counter
+0426C9             0296*       SIGN_HLU ; check for zero
+0426C9 19          0001*M1     add hl,de ; 1 cycle
+0426CA B7          0002*M1     or a ; clear flags ; 1 cycle
+0426CB ED 52       0003*M1     sbc hl,de ; 2 cycles
+0426CD             0004*M1     ; 4 cycles total
+0426CD 20 DC       0297*       jr nz,@print_loop
+0426CF             0298*   @end:
+0426CF E1          0299*       pop hl ; dummy pop to balance stack
+0426D0 C9          0300*       ret
+0426D1             0301*   ; end ps_print_dir
+0426D1             0302*   
+0426D1             0303*   ps_get_song_fn_from_pg_idx:
+0426D1 21 00 00 00 0304*       ld hl,0 ; clear hlu and h
+0426D5 6F          0305*       ld l,a
+0426D6 ED 5B 81 23 0306*       ld de,(ps_page_num_files)
        04          
-0426E3             0268*   @loop:
-0426E3 F5          0269*       push af
-0426E4 CD 66 28 04 0270*       call printHexA
-0426E8 DD 27 00    0271*       ld hl,(ix)
-0426EB CD 67 00 04 0272*       call printString
-0426EF CD 7C 00 04 0273*       call printNewLine
-0426F3 ED 32 03    0274*       lea ix,ix+3
-0426F6 F1          0275*       pop af
-0426F7 3C          0276*       inc a
-0426F8 FE 0A       0277*       cp 10
-0426FA C2 E3 26 04 0278*       jp nz,@loop
-0426FE C9          0279*       ret
-0426FF             0280*   ; end ps_print_dir_page
-0426FF             0281*   
-0426FF             0282*   ps_print_dir:
-0426FF             0283*   ; loop through the filename table and print out the filenames
-0426FF DD 21 00 00 0284*       ld ix,ps_dir_fil_list      ; get the address of the filename table
-       06          
-042704 2A 7B 23 04 0285*       ld hl,(ps_dir_num_files)   ; get the number of files
-042708 E5          0286*       push hl ; save loop counter
-042709             0287*   @print_loop:
-042709 DD E5       0288*       push ix
-04270B E1          0289*       pop hl ; get the address of the filename
-04270C CD 67 00 04 0290*       call printString
-042710 CD 7C 00 04 0291*       call printNewLine
-042714 ED 32 7F    0292*       lea ix,ix+127 ; bump the pointer
-042717 ED 32 7F    0293*       lea ix,ix+127 ; to the next file
-04271A ED 32 02    0294*       lea ix,ix+2   ; 256 bytes
-04271D E1          0295*       pop hl ; get the loop counter
-04271E 2B          0296*       dec hl ; decrement the loop counter
-04271F E5          0297*       push hl ; save loop counter
-042720             0298*       SIGN_HLU ; check for zero
-042720 19          0001*M1     add hl,de ; 1 cycle
-042721 B7          0002*M1     or a ; clear flags ; 1 cycle
-042722 ED 52       0003*M1     sbc hl,de ; 2 cycles
-042724             0004*M1     ; 4 cycles total
-042724 20 E3       0299*       jr nz,@print_loop
-042726 E1          0300*       pop hl ; dummy pop to balance stack
-042727 C9          0301*       ret
-042728             0302*   ; end ps_print_dir
-042728             0303*   
-042728             0304*   ps_get_song_fn_from_pg_idx:
-042728 21 00 00 00 0305*       ld hl,0 ; clear hlu and h
-04272C 6F          0306*       ld l,a
-04272D ED 5B 81 23 0307*       ld de,(ps_page_num_files)
+0426DB CD 80 03 04 0307*       call udiv24 ; hl = mod(hl,num_files)
+0426DF 11 00 01 00 0308*       ld de,256 ; 256 bytes per filename record
+0426E3 CD 67 03 04 0309*       call umul24 ; hl = index into the filename table
+0426E7 11 00 2D 05 0310*       ld de,ps_dir_fil_list
+0426EB 19          0311*       add hl,de ; hl points to the filename
+0426EC C9          0312*       ret
+0426ED             0313*   ; end ps_get_song_fn_from_pg_idx
+0426ED             0314*   
+0426ED             0315*   ; queue a random song to play next
+0426ED             0316*   ps_play_random:
+0426ED CD 38 05 04 0317*       call rand_8 ; a = 0-255
+0426F1 CD D1 26 04 0318*       call ps_get_song_fn_from_pg_idx
+0426F5 EB          0319*       ex de,hl ; setting up cp hl,de
+0426F6 2A 8B 23 04 0320*       ld hl,(ps_song_fn_cur) ; don't play the same song twice in a row
+0426FA B7          0321*       or a ; clear carry
+0426FB ED 52       0322*       sbc hl,de
+0426FD CA ED 26 04 0323*       jp z,ps_play_random ; same song, try again
+042701 EB          0324*       ex de,hl ; pointer back to hl
+042702 CD 13 25 04 0325*       call play_song ; hit it
+042706 C9          0326*       ret
+042707             0327*   ; end ps_play_random
+042707             0328*   
+042707             0329*   ps_read_wav_header:
+042707             0330*   ; Read a block of data from a file
+042707             0331*   ;   C: Filehandle
+042707             0332*   ; HLU: Pointer to where to write the data to
+042707             0333*   ; DEU: Number of bytes to read
+042707             0334*   ; Returns:
+042707             0335*   ; DEU: Number of bytes read
+042707 3A AD 23 04 0336*       ld a,(ps_filehandle_cur)
+04270B 4F          0337*       ld c,a
+04270C 21 C7 24 04 0338*       ld hl,ps_wav_header
+042710 11 4C 00 00 0339*       ld de,wav_header_size
+042714             0340*       MOSCALL mos_fread
+042714 3E 1A       0001*M1 			LD	A, function
+042716 5B CF       0002*M1 			RST.LIL	08h
+042718             0341*   ; test de for zero bytes read
+042718 21 00 00 00 0342*       ld hl,0
+04271C AF          0343*       xor a ; clear carry
+04271D ED 52       0344*       sbc hl,de ; hl = 0-chunksize
+04271F C8          0345*       ret z ; no data read so return zero to caller
+042720             0346*   ; data read so initialize song variables
+042720             0347*   ; load play sample command buffers (namely the sample rate for now)
+042720 CD 25 27 04 0348*       call ps_load_command_buffers
+042724 C9          0349*       ret
+042725             0350*   ; end ps_read_wav_header
+042725             0351*   
+042725             0352*   ps_load_command_buffers:
+042725 21 02 30 00 0353*       ld hl,cmd0_buffer
+042729 CD B0 1A 04 0354*       call vdu_clear_buffer
+04272D 2A DF 24 04 0355*       ld hl,(ps_wav_sample_rate)
+042731 22 7B 27 04 0356*       ld (ps_sr0),hl
+042735 3E 17       0357*       ld a,23
+042737 32 7D 27 04 0358*       ld (ps_sr0+2),a
+04273B 21 02 30 00 0359*       ld hl,cmd0_buffer
+04273F 01 1D 00 00 0360*       ld bc,ps_cmd0_end-ps_cmd0
+042743 11 72 27 04 0361*       ld de,ps_cmd0
+042747 CD 6D 1A 04 0362*       call vdu_write_block_to_buffer
+04274B             0363*   
+04274B 21 03 30 00 0364*       ld hl,cmd1_buffer
+04274F CD B0 1A 04 0365*       call vdu_clear_buffer
+042753 2A DF 24 04 0366*       ld hl,(ps_wav_sample_rate)
+042757 22 98 27 04 0367*       ld (ps_sr1),hl
+04275B 3E 17       0368*       ld a,23
+04275D 32 9A 27 04 0369*       ld (ps_sr1+2),a
+042761 21 03 30 00 0370*       ld hl,cmd1_buffer
+042765 01 1D 00 00 0371*       ld bc,ps_cmd1_end-ps_cmd1
+042769 11 8F 27 04 0372*       ld de,ps_cmd1
+04276D CD 6D 1A 04 0373*       call vdu_write_block_to_buffer
+042771 C9          0374*       ret
+042772             0375*   ps_cmd0:
+042772             0376*   ; vdu_buffer_to_sound command string
+042772             0377*   ; Command 5: Buffer to sound
+042772             0378*   ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
+042772 17 00 85    0379*       db 23,0,0x85 ; vdu sound command header
+042775 00          0380*       db 0x00 ; channel (ignored)
+042776 05          0381*       db 0x05 ; buffer to sound command
+042777 02          0382*       db 0x02 ; command 2 create sample
+042778 00 30       0383*       dw ch0_buffer
+04277A 09          0384*       db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+04277B             0385*   ps_sr0:
+04277B 00 00       0386*       dw 0x0000 ; sample rate Hz
+04277D             0387*   ; vdu_play_sfx command string
+04277D             0388*   ; Command 4: Set waveform
+04277D             0389*   ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+04277D 17 00 85    0390*       db 23,0,$85 ; vdu sound command header
+042780 00          0391*       db 0 ; channel
+042781 04          0392*       db 4 ; set waveform command
+042782 08          0393*       db 8 ; waveform 8 = sample
+042783 00 30       0394*       dw ch0_buffer ; sample bufferId
+042785             0395*   ; Command 0: Play note
+042785             0396*   ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+042785 17 00 85    0397*       db 23,0,$85 ; vdu sound command header
+042788 00          0398*       db 0 ; channel
+042789 00          0399*       db 0 ; play note command
+04278A 7F          0400*       db 127  ; volume 127 = max
+04278B 00 00       0401*       dw 0 ; frequency (relevant only for tuneable samples)
+04278D 00 00       0402*       dw 0 ; duration (ms), zero means play one time in full
+04278F             0403*   ps_cmd0_end:
+04278F             0404*   
+04278F             0405*   ps_cmd1:
+04278F             0406*   ; vdu_buffer_to_sound command string
+04278F             0407*   ; Command 5: Buffer to sound
+04278F             0408*   ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
+04278F 17 00 85    0409*       db 23,0,0x85 ; vdu sound command header
+042792 00          0410*       db 0x00 ; channel (ignored)
+042793 05          0411*       db 0x05 ; buffer to sound command
+042794 02          0412*       db 0x02 ; command 2 create sample
+042795 01 30       0413*       dw ch1_buffer
+042797 09          0414*       db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+042798             0415*   ps_sr1:
+042798 00 00       0416*       dw 0x0000 ; sample rate Hz
+04279A             0417*   ; vdu_play_sfx command string
+04279A             0418*   ; Command 4: Set waveform
+04279A             0419*   ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+04279A 17 00 85    0420*       db 23,0,$85 ; vdu sound command header
+04279D 01          0421*       db 1 ; channel
+04279E 04          0422*       db 4 ; set waveform command
+04279F 08          0423*       db 8 ; waveform 8 = sample
+0427A0 01 30       0424*       dw ch1_buffer ; sample bufferId
+0427A2             0425*   ; Command 0: Play note
+0427A2             0426*   ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+0427A2 17 00 85    0427*       db 23,0,$85 ; vdu sound command header
+0427A5 01          0428*       db 1 ; channel
+0427A6 00          0429*       db 0 ; play note command
+0427A7 7F          0430*       db 127  ; volume 127 = max
+0427A8 00 00       0431*       dw 0 ; frequency (relevant only for tuneable samples)
+0427AA 00 00       0432*       dw 0 ; duration (ms), zero means play one time in full
+0427AC             0433*   ps_cmd1_end:
+0427AC             0434*   ; end ps_load_command_buffers
+0427AC             0049        include "timer_jukebox.inc"
+0427AC             0001*   ps_prt_reload: equ [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
+0427AC             0002*   
+0427AC             0003*   ; start PRT timer
+0427AC             0004*   ps_prt_start:
+0427AC 21 00 00 00 0005*       ld hl,0
+0427B0 22 EB 27 04 0006*       ld (ps_prt_irq_counter),hl
+0427B4 21 A1 8C 00 0007*       ld hl,ps_prt_reload
+0427B8 ED 29 84    0008*       out0 (TMR1_CTL+TMR_RES_LOW),l
+0427BB ED 21 85    0009*   	out0 (TMR1_CTL+TMR_RES_HIGH),h
+0427BE             0010*   ; disable timer (in effect, reset it)
+0427BE 3E 0E       0011*       ld a,PRT_IRQ_0 | IRQ_EN_0 | PRT_MODE_0 | CLK_DIV_256 | RST_EN_1 | PRT_EN_0
+0427C0 ED 39 83    0012*   	out0 (TMR1_CTL+TMR_REG_CTL),a
+0427C3             0013*   ; enable timer,with interrupt and CONTINUOUS mode,clock divider 256
+0427C3 3E 5F       0014*       ld a,PRT_IRQ_0 | IRQ_EN_1 | PRT_MODE_1 | CLK_DIV_256 | RST_EN_1 | PRT_EN_1
+0427C5 ED 39 83    0015*   	out0 (TMR1_CTL+TMR_REG_CTL),a
+0427C8 C9          0016*       ret
+0427C9             0017*   
+0427C9             0018*   ; stop PRT timer
+0427C9             0019*   ps_prt_stop:
+0427C9 3E 0E       0020*       ld a,PRT_IRQ_0 | IRQ_EN_0 | PRT_MODE_0 | CLK_DIV_256 | RST_EN_1 | PRT_EN_0
+0427CB ED 39 83    0021*   	out0 (TMR1_CTL+TMR_REG_CTL),a
+0427CE C9          0022*       ret
+0427CF             0023*   
+0427CF             0024*   ; ===============================================
+0427CF             0025*   ; PRT Timer Interrupt Handling
+0427CF             0026*   ; https://github.com/tomm/agon-cpu-emulator/blob/main/sdcard/regression_suite/timerirq.asm
+0427CF             0027*   ; -----------------------------------------------
+0427CF             0028*   ps_prt_irq_init:
+0427CF             0029*       ; set up interrupt vector table 2
+0427CF 21 00 00 00 0030*   	ld hl,0
+0427D3 3A 0C 01 00 0031*   	ld a,($10c)
+0427D7 6F          0032*   	ld l,a
+0427D8 3A 0D 01 00 0033*   	ld a,($10d)
+0427DC 67          0034*   	ld h,a
+0427DD             0035*   
+0427DD             0036*   	; skip over CALL ($c3)
+0427DD 23          0037*   	inc hl
+0427DE             0038*   	; load address of jump into vector table 2 (in ram)
+0427DE ED 27       0039*   	ld hl,(hl)
+0427E0             0040*   
+0427E0             0041*   	; write CALL ps_prt_irq_handler to vector table 2
+0427E0 3E C3       0042*   	ld a,$c3
+0427E2 77          0043*   	ld (hl),a
+0427E3 23          0044*   	inc hl
+0427E4 11 EC 27 04 0045*   	ld de,ps_prt_irq_handler
+0427E8 ED 1F       0046*   	ld (hl),de
+0427EA             0047*   
+0427EA C9          0048*       ret
+0427EB             0049*   ; end ps_prt_irq_init
+0427EB             0050*   
+0427EB             0051*   ; interrupt routine for playing the next sample
+0427EB             0052*   ps_prt_irq_counter:
+0427EB 00          0053*   	db 0
+0427EC             0054*   ps_prt_irq_handler:
+0427EC F3          0055*       di
+0427ED 08          0056*       ex af,af'
+0427EE D9          0057*       exx
+0427EF             0058*   ; clear sysvar_keyascii
+0427EF             0059*   	MOSCALL mos_sysvars
+0427EF 3E 08       0001*M1 			LD	A, function
+0427F1 5B CF       0002*M1 			RST.LIL	08h
+0427F3 AF          0060*   	xor a
+0427F4 DD 77 05    0061*   	ld (IX+sysvar_keyascii),a
+0427F7             0062*   ; read the timer interrupt and bump the counter
+0427F7 ED 38 83    0063*       in0 a,(TMR1_CTL+TMR_REG_CTL)
+0427FA 3A EB 27 04 0064*       ld a,(ps_prt_irq_counter)
+0427FE 3C          0065*       inc a
+0427FF E6 01       0066*       and 1 ; modulo 2
+042801 32 EB 27 04 0067*       ld (ps_prt_irq_counter),a
+042805             0068*   ; if counter zero, play the next sample
+042805 CC C6 25 04 0069*       call z,ps_play_sample
+042809 D9          0070*       exx
+04280A 08          0071*       ex af,af'
+04280B FB          0072*       ei
+04280C 5B ED 4D    0073*       reti.l
+04280F             0074*   ; end ps_prt_irq_handler
+04280F             0050        include "wav.inc"
+04280F             0001*   ; WAV File Structure Offsets and Descriptions
+04280F             0002*   wav_riff:          EQU 0    ; 4 bytes: "RIFF" identifier
+04280F             0003*   wav_file_size:     EQU 4    ; 4 bytes: Total file size minus 8 bytes for RIFF header
+04280F             0004*   wav_wave:          EQU 8    ; 4 bytes: "WAVE" identifier
+04280F             0005*   wav_fmt_marker:    EQU 12   ; 4 bytes: "fmt " subchunk marker
+04280F             0006*   wav_fmt_size:      EQU 16   ; 4 bytes: Format chunk size (16 for PCM)
+04280F             0007*   wav_audio_format:  EQU 20   ; 2 bytes: Audio format (1 = PCM)
+04280F             0008*   wav_num_channels:  EQU 22   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
+04280F             0009*   wav_sample_rate:   EQU 24   ; 4 bytes: Sample rate in Hz (e.g., 32768)
+04280F             0010*   wav_byte_rate:     EQU 28   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
+04280F             0011*   wav_block_align:   EQU 32   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
+04280F             0012*   wav_bits_per_sample: EQU 34 ; 2 bytes: Bits per sample (e.g., 8 or 16)
+04280F             0013*   
+04280F             0014*   ; LIST Chunk (Extra Metadata)
+04280F             0015*   wav_list_marker:   EQU 36   ; 4 bytes: "LIST" marker
+04280F             0016*   wav_list_size:     EQU 40   ; 4 bytes: Size of the LIST chunk (e.g., 26)
+04280F             0017*   wav_info_marker:   EQU 44   ; 4 bytes: "INFO" marker
+04280F             0018*   wav_isft_marker:   EQU 48   ; 4 bytes: "ISFT" marker (software identifier)
+04280F             0019*   wav_isft_data:     EQU 52   ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
+04280F             0020*   wav_isft_padding:  EQU 66   ; 2 bytes: Padding/NULL terminator for alignment
+04280F             0021*   
+04280F             0022*   ; Data Chunk
+04280F             0023*   wav_data_marker:   EQU 68   ; 4 bytes: "data" subchunk marker
+04280F             0024*   wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
+04280F             0025*   wav_data_start:    EQU 76   ; Start of audio data
+04280F             0026*   wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
+04280F             0051        include "debug.inc"
+04280F             0001*   printHexA:
+04280F F5          0002*       push af
+042810 C5          0003*       push bc
+042811 CD AE 00 04 0004*       call printHex8
+042815 3E 20       0005*       ld a,' '
+042817 5B D7       0006*       rst.lil 10h
+042819 C1          0007*       pop bc
+04281A F1          0008*       pop af
+04281B C9          0009*       ret
+04281C             0010*   
+04281C             0011*   printHexHL:
+04281C F5          0012*       push af
+04281D C5          0013*       push bc
+04281E CD A8 00 04 0014*       call printHex16
+042822 3E 20       0015*       ld a,' '
+042824 5B D7       0016*       rst.lil 10h
+042826 C1          0017*       pop bc
+042827 F1          0018*       pop af
+042828 C9          0019*       ret
+042829             0020*   
+042829             0021*   printHexUHL:
+042829 F5          0022*       push af
+04282A C5          0023*       push bc
+04282B CD A0 00 04 0024*       call printHex24
+04282F 3E 20       0025*       ld a,' '
+042831 5B D7       0026*       rst.lil 10h
+042833 C1          0027*       pop bc
+042834 F1          0028*       pop af
+042835 C9          0029*       ret
+042836             0030*   
+042836             0031*   printHexAUHL:
+042836 F5          0032*       push af
+042837 C5          0033*       push bc
+042838 CD AE 00 04 0034*       call printHex8
+04283C 3E 2E       0035*       ld a,'.'
+04283E 5B D7       0036*       rst.lil 10h
+042840 CD A0 00 04 0037*       call printHex24
+042844 3E 20       0038*       ld a,' '
+042846 5B D7       0039*       rst.lil 10h
+042848 C1          0040*       pop bc
+042849 F1          0041*       pop af
+04284A C9          0042*       ret
+04284B             0043*   
+04284B             0044*   printHexABHL:
+04284B             0045*   ; preserve registers
+04284B C5          0046*       push bc ; b will be ok c will not
+04284C F5          0047*       push af ; will get totally destroyed
+04284D             0048*   ; print a
+04284D CD AE 00 04 0049*       call printHex8
+042851             0050*   ; print b
+042851 78          0051*       ld a,b
+042852 CD AE 00 04 0052*       call printHex8
+042856             0053*   ; print hl
+042856 CD A8 00 04 0054*       call printHex16
+04285A             0055*   ; restore registers
+04285A F1          0056*       pop af
+04285B C1          0057*       pop bc
+04285C C9          0058*       ret
+04285D             0059*   
+04285D             0060*   printHexBHL:
+04285D             0061*   ; preserve registers
+04285D C5          0062*       push bc ; b will be ok c will not
+04285E F5          0063*       push af ; will get totally destroyed
+04285F             0064*   ; print b
+04285F 78          0065*       ld a,b
+042860 CD AE 00 04 0066*       call printHex8
+042864             0067*   ; print hl
+042864 CD A8 00 04 0068*       call printHex16
+042868             0069*   ; restore registers
+042868 F1          0070*       pop af
+042869 C1          0071*       pop bc
+04286A C9          0072*       ret
+04286B             0073*   
+04286B             0074*   printHexCDE:
+04286B             0075*   ; preserve registers
+04286B C5          0076*       push bc ; b will be ok c will not
+04286C F5          0077*       push af ; will get totally destroyed
+04286D             0078*   ; print c
+04286D 79          0079*       ld a,c
+04286E CD AE 00 04 0080*       call printHex8
+042872             0081*   ; print de
+042872 EB          0082*       ex de,hl
+042873 CD A8 00 04 0083*       call printHex16
+042877 EB          0084*       ex de,hl
+042878             0085*   ; restore registers
+042878 F1          0086*       pop af
+042879 C1          0087*       pop bc
+04287A C9          0088*       ret
+04287B             0089*   
+04287B             0090*   printHexUIX:
+04287B             0091*   ; store everything in scratch
+04287B 22 35 03 04 0092*       ld (uhl),hl
+04287F ED 43 38 03 0093*       ld (ubc),bc
        04          
-042732 CD 80 03 04 0308*       call udiv24 ; hl = mod(hl,num_files)
-042736 11 00 01 00 0309*       ld de,256 ; 256 bytes per filename record
-04273A CD 67 03 04 0310*       call umul24 ; hl = index into the filename table
-04273E 11 00 00 06 0311*       ld de,ps_dir_fil_list
-042742 19          0312*       add hl,de ; hl points to the filename
-042743 C9          0313*       ret
-042744             0314*   ; end ps_get_song_fn_from_pg_idx
-042744             0315*   
-042744             0316*   ; queue a random song to play next
-042744             0317*   ps_play_random:
-042744 CD 38 05 04 0318*       call rand_8 ; a = 0-255
-042748 CD 28 27 04 0319*       call ps_get_song_fn_from_pg_idx
-04274C EB          0320*       ex de,hl ; setting up cp hl,de
-04274D 2A 8D 23 04 0321*       ld hl,(ps_song_fn_cur) ; don't play the same song twice in a row
-042751 B7          0322*       or a ; clear carry
-042752 ED 52       0323*       sbc hl,de
-042754 CA 44 27 04 0324*       jp z,ps_play_random ; same song, try again
-042758 EB          0325*       ex de,hl ; pointer back to hl
-042759 CD 51 25 04 0326*       call play_song ; hit it
-04275D C9          0327*       ret
-04275E             0328*   ; end ps_play_random
-04275E             0329*   
-04275E             0330*   ps_read_wav_header:
-04275E             0331*   ; Read a block of data from a file
-04275E             0332*   ;   C: Filehandle
-04275E             0333*   ; HLU: Pointer to where to write the data to
-04275E             0334*   ; DEU: Number of bytes to read
-04275E             0335*   ; Returns:
-04275E             0336*   ; DEU: Number of bytes read
-04275E 3A EB 23 04 0337*       ld a,(ps_filehandle_cur)
-042762 4F          0338*       ld c,a
-042763 21 05 25 04 0339*       ld hl,ps_wav_header
-042767 11 4C 00 00 0340*       ld de,wav_header_size
-04276B             0341*       MOSCALL mos_fread
-04276B 3E 1A       0001*M1 			LD	A, function
-04276D 5B CF       0002*M1 			RST.LIL	08h
-04276F             0342*   ; test de for zero bytes read
-04276F 21 00 00 00 0343*       ld hl,0
-042773 AF          0344*       xor a ; clear carry
-042774 ED 52       0345*       sbc hl,de ; hl = 0-chunksize
-042776 C8          0346*       ret z ; no data read so return zero to caller
-042777             0347*   ; data read so initialize song variables
-042777             0348*   ; load play sample command buffers (namely the sample rate for now)
-042777 CD 7C 27 04 0349*       call ps_load_command_buffers
-04277B C9          0350*       ret
-04277C             0351*   ; end ps_read_wav_header
-04277C             0352*   
-04277C             0353*   ps_load_command_buffers:
-04277C 21 02 30 00 0354*       ld hl,cmd0_buffer
-042780 CD B0 1A 04 0355*       call vdu_clear_buffer
-042784 2A 1D 25 04 0356*       ld hl,(ps_wav_sample_rate)
-042788 22 D2 27 04 0357*       ld (ps_sr0),hl
-04278C 3E 17       0358*       ld a,23
-04278E 32 D4 27 04 0359*       ld (ps_sr0+2),a
-042792 21 02 30 00 0360*       ld hl,cmd0_buffer
-042796 01 1D 00 00 0361*       ld bc,ps_cmd0_end-ps_cmd0
-04279A 11 C9 27 04 0362*       ld de,ps_cmd0
-04279E CD 6D 1A 04 0363*       call vdu_write_block_to_buffer
-0427A2             0364*   
-0427A2 21 03 30 00 0365*       ld hl,cmd1_buffer
-0427A6 CD B0 1A 04 0366*       call vdu_clear_buffer
-0427AA 2A 1D 25 04 0367*       ld hl,(ps_wav_sample_rate)
-0427AE 22 EF 27 04 0368*       ld (ps_sr1),hl
-0427B2 3E 17       0369*       ld a,23
-0427B4 32 F1 27 04 0370*       ld (ps_sr1+2),a
-0427B8 21 03 30 00 0371*       ld hl,cmd1_buffer
-0427BC 01 1D 00 00 0372*       ld bc,ps_cmd1_end-ps_cmd1
-0427C0 11 E6 27 04 0373*       ld de,ps_cmd1
-0427C4 CD 6D 1A 04 0374*       call vdu_write_block_to_buffer
-0427C8 C9          0375*       ret
-0427C9             0376*   ps_cmd0:
-0427C9             0377*   ; vdu_buffer_to_sound command string
-0427C9             0378*   ; Command 5: Buffer to sound
-0427C9             0379*   ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
-0427C9 17 00 85    0380*       db 23,0,0x85 ; vdu sound command header
-0427CC 00          0381*       db 0x00 ; channel (ignored)
-0427CD 05          0382*       db 0x05 ; buffer to sound command
-0427CE 02          0383*       db 0x02 ; command 2 create sample
-0427CF 00 30       0384*       dw ch0_buffer
-0427D1 09          0385*       db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
-0427D2             0386*   ps_sr0:
-0427D2 00 00       0387*       dw 0x0000 ; sample rate Hz
-0427D4             0388*   ; vdu_play_sfx command string
-0427D4             0389*   ; Command 4: Set waveform
-0427D4             0390*   ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
-0427D4 17 00 85    0391*       db 23,0,$85 ; vdu sound command header
-0427D7 00          0392*       db 0 ; channel
-0427D8 04          0393*       db 4 ; set waveform command
-0427D9 08          0394*       db 8 ; waveform 8 = sample
-0427DA 00 30       0395*       dw ch0_buffer ; sample bufferId
-0427DC             0396*   ; Command 0: Play note
-0427DC             0397*   ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
-0427DC 17 00 85    0398*       db 23,0,$85 ; vdu sound command header
-0427DF 00          0399*       db 0 ; channel
-0427E0 00          0400*       db 0 ; play note command
-0427E1 7F          0401*       db 127  ; volume 127 = max
-0427E2 00 00       0402*       dw 0 ; frequency (relevant only for tuneable samples)
-0427E4 00 00       0403*       dw 0 ; duration (ms), zero means play one time in full
-0427E6             0404*   ps_cmd0_end:
-0427E6             0405*   
-0427E6             0406*   ps_cmd1:
-0427E6             0407*   ; vdu_buffer_to_sound command string
-0427E6             0408*   ; Command 5: Buffer to sound
-0427E6             0409*   ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
-0427E6 17 00 85    0410*       db 23,0,0x85 ; vdu sound command header
-0427E9 00          0411*       db 0x00 ; channel (ignored)
-0427EA 05          0412*       db 0x05 ; buffer to sound command
-0427EB 02          0413*       db 0x02 ; command 2 create sample
-0427EC 01 30       0414*       dw ch1_buffer
-0427EE 09          0415*       db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
-0427EF             0416*   ps_sr1:
-0427EF 00 00       0417*       dw 0x0000 ; sample rate Hz
-0427F1             0418*   ; vdu_play_sfx command string
-0427F1             0419*   ; Command 4: Set waveform
-0427F1             0420*   ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
-0427F1 17 00 85    0421*       db 23,0,$85 ; vdu sound command header
-0427F4 01          0422*       db 1 ; channel
-0427F5 04          0423*       db 4 ; set waveform command
-0427F6 08          0424*       db 8 ; waveform 8 = sample
-0427F7 01 30       0425*       dw ch1_buffer ; sample bufferId
-0427F9             0426*   ; Command 0: Play note
-0427F9             0427*   ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
-0427F9 17 00 85    0428*       db 23,0,$85 ; vdu sound command header
-0427FC 01          0429*       db 1 ; channel
-0427FD 00          0430*       db 0 ; play note command
-0427FE 7F          0431*       db 127  ; volume 127 = max
-0427FF 00 00       0432*       dw 0 ; frequency (relevant only for tuneable samples)
-042801 00 00       0433*       dw 0 ; duration (ms), zero means play one time in full
-042803             0434*   ps_cmd1_end:
-042803             0435*   ; end ps_load_command_buffers
-042803             0049        include "timer_jukebox.inc"
-042803             0001*   ps_prt_reload: equ [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
-042803             0002*   
-042803             0003*   ; start PRT timer
-042803             0004*   ps_prt_start:
-042803 21 00 00 00 0005*       ld hl,0
-042807 22 42 28 04 0006*       ld (ps_prt_irq_counter),hl
-04280B 21 A1 8C 00 0007*       ld hl,ps_prt_reload
-04280F ED 29 84    0008*       out0 (TMR1_CTL+TMR_RES_LOW),l
-042812 ED 21 85    0009*   	out0 (TMR1_CTL+TMR_RES_HIGH),h
-042815             0010*   ; disable timer (in effect, reset it)
-042815 3E 0E       0011*       ld a,PRT_IRQ_0 | IRQ_EN_0 | PRT_MODE_0 | CLK_DIV_256 | RST_EN_1 | PRT_EN_0
-042817 ED 39 83    0012*   	out0 (TMR1_CTL+TMR_REG_CTL),a
-04281A             0013*   ; enable timer,with interrupt and CONTINUOUS mode,clock divider 256
-04281A 3E 5F       0014*       ld a,PRT_IRQ_0 | IRQ_EN_1 | PRT_MODE_1 | CLK_DIV_256 | RST_EN_1 | PRT_EN_1
-04281C ED 39 83    0015*   	out0 (TMR1_CTL+TMR_REG_CTL),a
-04281F C9          0016*       ret
-042820             0017*   
-042820             0018*   ; stop PRT timer
-042820             0019*   ps_prt_stop:
-042820 3E 0E       0020*       ld a,PRT_IRQ_0 | IRQ_EN_0 | PRT_MODE_0 | CLK_DIV_256 | RST_EN_1 | PRT_EN_0
-042822 ED 39 83    0021*   	out0 (TMR1_CTL+TMR_REG_CTL),a
-042825 C9          0022*       ret
-042826             0023*   
-042826             0024*   ; ===============================================
-042826             0025*   ; PRT Timer Interrupt Handling
-042826             0026*   ; https://github.com/tomm/agon-cpu-emulator/blob/main/sdcard/regression_suite/timerirq.asm
-042826             0027*   ; -----------------------------------------------
-042826             0028*   ps_prt_irq_init:
-042826             0029*       ; set up interrupt vector table 2
-042826 21 00 00 00 0030*   	ld hl,0
-04282A 3A 0C 01 00 0031*   	ld a,($10c)
-04282E 6F          0032*   	ld l,a
-04282F 3A 0D 01 00 0033*   	ld a,($10d)
-042833 67          0034*   	ld h,a
-042834             0035*   
-042834             0036*   	; skip over CALL ($c3)
-042834 23          0037*   	inc hl
-042835             0038*   	; load address of jump into vector table 2 (in ram)
-042835 ED 27       0039*   	ld hl,(hl)
-042837             0040*   
-042837             0041*   	; write CALL ps_prt_irq_handler to vector table 2
-042837 3E C3       0042*   	ld a,$c3
-042839 77          0043*   	ld (hl),a
-04283A 23          0044*   	inc hl
-04283B 11 43 28 04 0045*   	ld de,ps_prt_irq_handler
-04283F ED 1F       0046*   	ld (hl),de
-042841             0047*   
-042841 C9          0048*       ret
-042842             0049*   ; end ps_prt_irq_init
-042842             0050*   
-042842             0051*   ; interrupt routine for playing the next sample
-042842             0052*   ps_prt_irq_counter:
-042842 00          0053*   	db 0
-042843             0054*   ps_prt_irq_handler:
-042843 F3          0055*       di
-042844 08          0056*       ex af,af'
-042845 D9          0057*       exx
-042846             0058*   ; clear sysvar_keyascii
-042846             0059*   	MOSCALL mos_sysvars
-042846 3E 08       0001*M1 			LD	A, function
-042848 5B CF       0002*M1 			RST.LIL	08h
-04284A AF          0060*   	xor a
-04284B DD 77 05    0061*   	ld (IX+sysvar_keyascii),a
-04284E             0062*   ; read the timer interrupt and bump the counter
-04284E ED 38 83    0063*       in0 a,(TMR1_CTL+TMR_REG_CTL)
-042851 3A 42 28 04 0064*       ld a,(ps_prt_irq_counter)
-042855 3C          0065*       inc a
-042856 E6 01       0066*       and 1 ; modulo 2
-042858 32 42 28 04 0067*       ld (ps_prt_irq_counter),a
-04285C             0068*   ; if counter zero, play the next sample
-04285C CC 04 26 04 0069*       call z,ps_play_sample
-042860 D9          0070*       exx
-042861 08          0071*       ex af,af'
-042862 FB          0072*       ei
-042863 5B ED 4D    0073*       reti.l
-042866             0074*   ; end ps_prt_irq_handler
-042866             0050        include "wav.inc"
-042866             0001*   ; WAV File Structure Offsets and Descriptions
-042866             0002*   wav_riff:          EQU 0    ; 4 bytes: "RIFF" identifier
-042866             0003*   wav_file_size:     EQU 4    ; 4 bytes: Total file size minus 8 bytes for RIFF header
-042866             0004*   wav_wave:          EQU 8    ; 4 bytes: "WAVE" identifier
-042866             0005*   wav_fmt_marker:    EQU 12   ; 4 bytes: "fmt " subchunk marker
-042866             0006*   wav_fmt_size:      EQU 16   ; 4 bytes: Format chunk size (16 for PCM)
-042866             0007*   wav_audio_format:  EQU 20   ; 2 bytes: Audio format (1 = PCM)
-042866             0008*   wav_num_channels:  EQU 22   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
-042866             0009*   wav_sample_rate:   EQU 24   ; 4 bytes: Sample rate in Hz (e.g., 32768)
-042866             0010*   wav_byte_rate:     EQU 28   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
-042866             0011*   wav_block_align:   EQU 32   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
-042866             0012*   wav_bits_per_sample: EQU 34 ; 2 bytes: Bits per sample (e.g., 8 or 16)
-042866             0013*   
-042866             0014*   ; LIST Chunk (Extra Metadata)
-042866             0015*   wav_list_marker:   EQU 36   ; 4 bytes: "LIST" marker
-042866             0016*   wav_list_size:     EQU 40   ; 4 bytes: Size of the LIST chunk (e.g., 26)
-042866             0017*   wav_info_marker:   EQU 44   ; 4 bytes: "INFO" marker
-042866             0018*   wav_isft_marker:   EQU 48   ; 4 bytes: "ISFT" marker (software identifier)
-042866             0019*   wav_isft_data:     EQU 52   ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
-042866             0020*   wav_isft_padding:  EQU 66   ; 2 bytes: Padding/NULL terminator for alignment
-042866             0021*   
-042866             0022*   ; Data Chunk
-042866             0023*   wav_data_marker:   EQU 68   ; 4 bytes: "data" subchunk marker
-042866             0024*   wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
-042866             0025*   wav_data_start:    EQU 76   ; Start of audio data
-042866             0026*   wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
-042866             0051        include "debug.inc"
-042866             0001*   printHexA:
-042866 F5          0002*       push af
-042867 C5          0003*       push bc
-042868 CD AE 00 04 0004*       call printHex8
-04286C 3E 20       0005*       ld a,' '
-04286E 5B D7       0006*       rst.lil 10h
-042870 C1          0007*       pop bc
-042871 F1          0008*       pop af
-042872 C9          0009*       ret
-042873             0010*   
-042873             0011*   printHexHL:
-042873 F5          0012*       push af
-042874 C5          0013*       push bc
-042875 CD A8 00 04 0014*       call printHex16
-042879 3E 20       0015*       ld a,' '
-04287B 5B D7       0016*       rst.lil 10h
-04287D C1          0017*       pop bc
-04287E F1          0018*       pop af
-04287F C9          0019*       ret
-042880             0020*   
-042880             0021*   printHexUHL:
-042880 F5          0022*       push af
-042881 C5          0023*       push bc
-042882 CD A0 00 04 0024*       call printHex24
-042886 3E 20       0025*       ld a,' '
-042888 5B D7       0026*       rst.lil 10h
-04288A C1          0027*       pop bc
-04288B F1          0028*       pop af
-04288C C9          0029*       ret
-04288D             0030*   
-04288D             0031*   printHexAUHL:
-04288D F5          0032*       push af
-04288E C5          0033*       push bc
-04288F CD AE 00 04 0034*       call printHex8
-042893 3E 2E       0035*       ld a,'.'
-042895 5B D7       0036*       rst.lil 10h
-042897 CD A0 00 04 0037*       call printHex24
-04289B 3E 20       0038*       ld a,' '
-04289D 5B D7       0039*       rst.lil 10h
-04289F C1          0040*       pop bc
-0428A0 F1          0041*       pop af
-0428A1 C9          0042*       ret
-0428A2             0043*   
-0428A2             0044*   printHexABHL:
-0428A2             0045*   ; preserve registers
-0428A2 C5          0046*       push bc ; b will be ok c will not
-0428A3 F5          0047*       push af ; will get totally destroyed
-0428A4             0048*   ; print a
-0428A4 CD AE 00 04 0049*       call printHex8
-0428A8             0050*   ; print b
-0428A8 78          0051*       ld a,b
-0428A9 CD AE 00 04 0052*       call printHex8
-0428AD             0053*   ; print hl
-0428AD CD A8 00 04 0054*       call printHex16
-0428B1             0055*   ; restore registers
-0428B1 F1          0056*       pop af
-0428B2 C1          0057*       pop bc
-0428B3 C9          0058*       ret
-0428B4             0059*   
-0428B4             0060*   printHexBHL:
-0428B4             0061*   ; preserve registers
-0428B4 C5          0062*       push bc ; b will be ok c will not
-0428B5 F5          0063*       push af ; will get totally destroyed
-0428B6             0064*   ; print b
-0428B6 78          0065*       ld a,b
-0428B7 CD AE 00 04 0066*       call printHex8
-0428BB             0067*   ; print hl
-0428BB CD A8 00 04 0068*       call printHex16
-0428BF             0069*   ; restore registers
-0428BF F1          0070*       pop af
-0428C0 C1          0071*       pop bc
-0428C1 C9          0072*       ret
-0428C2             0073*   
-0428C2             0074*   printHexCDE:
-0428C2             0075*   ; preserve registers
-0428C2 C5          0076*       push bc ; b will be ok c will not
-0428C3 F5          0077*       push af ; will get totally destroyed
-0428C4             0078*   ; print c
-0428C4 79          0079*       ld a,c
-0428C5 CD AE 00 04 0080*       call printHex8
-0428C9             0081*   ; print de
-0428C9 EB          0082*       ex de,hl
-0428CA CD A8 00 04 0083*       call printHex16
-0428CE EB          0084*       ex de,hl
-0428CF             0085*   ; restore registers
-0428CF F1          0086*       pop af
-0428D0 C1          0087*       pop bc
-0428D1 C9          0088*       ret
-0428D2             0089*   
-0428D2             0090*   printHexUIX:
-0428D2             0091*   ; store everything in scratch
-0428D2 22 35 03 04 0092*       ld (uhl),hl
-0428D6 ED 43 38 03 0093*       ld (ubc),bc
+042884 ED 53 3B 03 0094*       ld (ude),de
        04          
-0428DB ED 53 3B 03 0094*       ld (ude),de
+042889 DD 22 3E 03 0095*       ld (uix),ix
        04          
-0428E0 DD 22 3E 03 0095*       ld (uix),ix
+04288E FD 22 41 03 0096*       ld (uiy),iy
        04          
-0428E5 FD 22 41 03 0096*       ld (uiy),iy
+042893 F5          0097*       push af ; fml
+042894             0098*   
+042894 21 CC 02 04 0099*       ld hl,str_ixu
+042898 CD 67 00 04 0100*       call printString
+04289C 2A 3E 03 04 0101*       ld hl,(uix)
+0428A0 CD A0 00 04 0102*       call printHex24
+0428A4 CD 7C 00 04 0103*       call printNewLine
+0428A8             0104*   
+0428A8             0105*   ; restore everything
+0428A8 2A 35 03 04 0106*       ld hl, (uhl)
+0428AC ED 4B 38 03 0107*       ld bc, (ubc)
        04          
-0428EA F5          0097*       push af ; fml
-0428EB             0098*   
-0428EB 21 CC 02 04 0099*       ld hl,str_ixu
-0428EF CD 67 00 04 0100*       call printString
-0428F3 2A 3E 03 04 0101*       ld hl,(uix)
-0428F7 CD A0 00 04 0102*       call printHex24
-0428FB CD 7C 00 04 0103*       call printNewLine
-0428FF             0104*   
-0428FF             0105*   ; restore everything
-0428FF 2A 35 03 04 0106*       ld hl, (uhl)
-042903 ED 4B 38 03 0107*       ld bc, (ubc)
+0428B1 ED 5B 3B 03 0108*       ld de, (ude)
        04          
-042908 ED 5B 3B 03 0108*       ld de, (ude)
+0428B6 DD 2A 3E 03 0109*       ld ix, (uix)
        04          
-04290D DD 2A 3E 03 0109*       ld ix, (uix)
+0428BB FD 2A 41 03 0110*       ld iy, (uiy)
        04          
-042912 FD 2A 41 03 0110*       ld iy, (uiy)
+0428C0 F1          0111*       pop af
+0428C1             0112*   ; all done
+0428C1 C9          0113*       ret
+0428C2             0114*   
+0428C2             0115*   
+0428C2             0116*   ; print registers to screen in hexidecimal format
+0428C2             0117*   ; inputs: none
+0428C2             0118*   ; outputs: values of every register printed to screen
+0428C2             0119*   ;    values of each register in global scratch memory
+0428C2             0120*   ; destroys: nothing
+0428C2             0121*   stepRegistersHex:
+0428C2             0122*   ; store everything in scratch
+0428C2 22 35 03 04 0123*       ld (uhl),hl
+0428C6 ED 43 38 03 0124*       ld (ubc),bc
        04          
-042917 F1          0111*       pop af
-042918             0112*   ; all done
-042918 C9          0113*       ret
-042919             0114*   
-042919             0115*   
-042919             0116*   ; print registers to screen in hexidecimal format
-042919             0117*   ; inputs: none
-042919             0118*   ; outputs: values of every register printed to screen
-042919             0119*   ;    values of each register in global scratch memory
-042919             0120*   ; destroys: nothing
-042919             0121*   stepRegistersHex:
-042919             0122*   ; store everything in scratch
-042919 22 35 03 04 0123*       ld (uhl),hl
-04291D ED 43 38 03 0124*       ld (ubc),bc
+0428CB ED 53 3B 03 0125*       ld (ude),de
        04          
-042922 ED 53 3B 03 0125*       ld (ude),de
+0428D0 DD 22 3E 03 0126*       ld (uix),ix
        04          
-042927 DD 22 3E 03 0126*       ld (uix),ix
+0428D5 FD 22 41 03 0127*       ld (uiy),iy
        04          
-04292C FD 22 41 03 0127*       ld (uiy),iy
+0428DA F5          0128*       push af ; fml
+0428DB E1          0129*       pop hl ; thanks, zilog
+0428DC 22 32 03 04 0130*       ld (uaf),hl
+0428E0 F5          0131*       push af ; dammit
+0428E1             0132*   
+0428E1             0133*   ; home the cursor
+0428E1             0134*       ; call vdu_home_cursor
+0428E1             0135*   
+0428E1             0136*   ; print each register
+0428E1 21 B8 02 04 0137*       ld hl,str_afu
+0428E5 CD 67 00 04 0138*       call printString
+0428E9 2A 32 03 04 0139*       ld hl,(uaf)
+0428ED CD A0 00 04 0140*       call printHex24
+0428F1 CD 7C 00 04 0141*       call printNewLine
+0428F5             0142*   
+0428F5 21 BD 02 04 0143*       ld hl,str_hlu
+0428F9 CD 67 00 04 0144*       call printString
+0428FD 2A 35 03 04 0145*       ld hl,(uhl)
+042901 CD A0 00 04 0146*       call printHex24
+042905 CD 7C 00 04 0147*       call printNewLine
+042909             0148*   
+042909 21 C2 02 04 0149*       ld hl,str_bcu
+04290D CD 67 00 04 0150*       call printString
+042911 2A 38 03 04 0151*       ld hl,(ubc)
+042915 CD A0 00 04 0152*       call printHex24
+042919 CD 7C 00 04 0153*       call printNewLine
+04291D             0154*   
+04291D 21 C7 02 04 0155*       ld hl,str_deu
+042921 CD 67 00 04 0156*       call printString
+042925 2A 3B 03 04 0157*       ld hl,(ude)
+042929 CD A0 00 04 0158*       call printHex24
+04292D CD 7C 00 04 0159*       call printNewLine
+042931             0160*   
+042931 21 CC 02 04 0161*       ld hl,str_ixu
+042935 CD 67 00 04 0162*       call printString
+042939 2A 3E 03 04 0163*       ld hl,(uix)
+04293D CD A0 00 04 0164*       call printHex24
+042941 CD 7C 00 04 0165*       call printNewLine
+042945             0166*   
+042945 21 D1 02 04 0167*       ld hl,str_iyu
+042949 CD 67 00 04 0168*       call printString
+04294D 2A 41 03 04 0169*       ld hl,(uiy)
+042951 CD A0 00 04 0170*       call printHex24
+042955 CD 7C 00 04 0171*       call printNewLine
+042959             0172*   
+042959             0173*       ; call vsync
+042959             0174*   
+042959 CD 7C 00 04 0175*       call printNewLine
+04295D             0176*   
+04295D             0177*   ; check for right shift key and quit if pressed
+04295D             0178*       MOSCALL mos_getkbmap
+04295D 3E 1E       0001*M1 			LD	A, function
+04295F 5B CF       0002*M1 			RST.LIL	08h
+042961             0179*   @stayhere:
+042961             0180*   ; 7 RightShift
+042961 DD CB 00 76 0181*       bit 6,(ix+0)
+042965 20 02       0182*       jr nz,@RightShift
+042967 18 F8       0183*       jr @stayhere
+042969             0184*   @RightShift:
+042969 DD CB 0E 86 0185*       res 0,(ix+14) ; debounce the key (hopefully)
+04296D 3E 80       0186*       ld a,%10000000
+04296F             0187*       ; call multiPurposeDelay
+04296F             0188*   
+04296F             0189*   ; restore everything
+04296F 2A 35 03 04 0190*       ld hl, (uhl)
+042973 ED 4B 38 03 0191*       ld bc, (ubc)
        04          
-042931 F5          0128*       push af ; fml
-042932 E1          0129*       pop hl ; thanks, zilog
-042933 22 32 03 04 0130*       ld (uaf),hl
-042937 F5          0131*       push af ; dammit
-042938             0132*   
-042938             0133*   ; home the cursor
-042938             0134*       ; call vdu_home_cursor
-042938             0135*   
-042938             0136*   ; print each register
-042938 21 B8 02 04 0137*       ld hl,str_afu
-04293C CD 67 00 04 0138*       call printString
-042940 2A 32 03 04 0139*       ld hl,(uaf)
-042944 CD A0 00 04 0140*       call printHex24
-042948 CD 7C 00 04 0141*       call printNewLine
-04294C             0142*   
-04294C 21 BD 02 04 0143*       ld hl,str_hlu
-042950 CD 67 00 04 0144*       call printString
-042954 2A 35 03 04 0145*       ld hl,(uhl)
-042958 CD A0 00 04 0146*       call printHex24
-04295C CD 7C 00 04 0147*       call printNewLine
-042960             0148*   
-042960 21 C2 02 04 0149*       ld hl,str_bcu
-042964 CD 67 00 04 0150*       call printString
-042968 2A 38 03 04 0151*       ld hl,(ubc)
-04296C CD A0 00 04 0152*       call printHex24
-042970 CD 7C 00 04 0153*       call printNewLine
-042974             0154*   
-042974 21 C7 02 04 0155*       ld hl,str_deu
-042978 CD 67 00 04 0156*       call printString
-04297C 2A 3B 03 04 0157*       ld hl,(ude)
-042980 CD A0 00 04 0158*       call printHex24
-042984 CD 7C 00 04 0159*       call printNewLine
-042988             0160*   
-042988 21 CC 02 04 0161*       ld hl,str_ixu
-04298C CD 67 00 04 0162*       call printString
-042990 2A 3E 03 04 0163*       ld hl,(uix)
-042994 CD A0 00 04 0164*       call printHex24
-042998 CD 7C 00 04 0165*       call printNewLine
-04299C             0166*   
-04299C 21 D1 02 04 0167*       ld hl,str_iyu
-0429A0 CD 67 00 04 0168*       call printString
-0429A4 2A 41 03 04 0169*       ld hl,(uiy)
-0429A8 CD A0 00 04 0170*       call printHex24
-0429AC CD 7C 00 04 0171*       call printNewLine
-0429B0             0172*   
-0429B0             0173*       ; call vsync
-0429B0             0174*   
-0429B0 CD 7C 00 04 0175*       call printNewLine
-0429B4             0176*   
-0429B4             0177*   ; check for right shift key and quit if pressed
-0429B4             0178*       MOSCALL mos_getkbmap
-0429B4 3E 1E       0001*M1 			LD	A, function
-0429B6 5B CF       0002*M1 			RST.LIL	08h
-0429B8             0179*   @stayhere:
-0429B8             0180*   ; 7 RightShift
-0429B8 DD CB 00 76 0181*       bit 6,(ix+0)
-0429BC 20 02       0182*       jr nz,@RightShift
-0429BE 18 F8       0183*       jr @stayhere
-0429C0             0184*   @RightShift:
-0429C0 DD CB 0E 86 0185*       res 0,(ix+14) ; debounce the key (hopefully)
-0429C4 3E 80       0186*       ld a,%10000000
-0429C6             0187*       ; call multiPurposeDelay
-0429C6             0188*   
-0429C6             0189*   ; restore everything
-0429C6 2A 35 03 04 0190*       ld hl, (uhl)
-0429CA ED 4B 38 03 0191*       ld bc, (ubc)
+042978 ED 5B 3B 03 0192*       ld de, (ude)
        04          
-0429CF ED 5B 3B 03 0192*       ld de, (ude)
+04297D DD 2A 3E 03 0193*       ld ix, (uix)
        04          
-0429D4 DD 2A 3E 03 0193*       ld ix, (uix)
+042982 FD 2A 41 03 0194*       ld iy, (uiy)
        04          
-0429D9 FD 2A 41 03 0194*       ld iy, (uiy)
+042987 F1          0195*       pop af
+042988             0196*   ; all done
+042988 C9          0197*       ret
+042989             0198*   
+042989             0199*   ; print registers to screen in hexidecimal format
+042989             0200*   ; inputs: none
+042989             0201*   ; outputs: values of every register printed to screen
+042989             0202*   ;    values of each register in global scratch memory
+042989             0203*   ; destroys: nothing
+042989             0204*   dumpRegistersHex:
+042989             0205*   ; store everything in scratch
+042989 22 35 03 04 0206*       ld (uhl),hl
+04298D ED 43 38 03 0207*       ld (ubc),bc
        04          
-0429DE F1          0195*       pop af
-0429DF             0196*   ; all done
-0429DF C9          0197*       ret
-0429E0             0198*   
-0429E0             0199*   ; print registers to screen in hexidecimal format
-0429E0             0200*   ; inputs: none
-0429E0             0201*   ; outputs: values of every register printed to screen
-0429E0             0202*   ;    values of each register in global scratch memory
-0429E0             0203*   ; destroys: nothing
-0429E0             0204*   dumpRegistersHex:
-0429E0             0205*   ; store everything in scratch
-0429E0 22 35 03 04 0206*       ld (uhl),hl
-0429E4 ED 43 38 03 0207*       ld (ubc),bc
+042992 ED 53 3B 03 0208*       ld (ude),de
        04          
-0429E9 ED 53 3B 03 0208*       ld (ude),de
+042997 DD 22 3E 03 0209*       ld (uix),ix
        04          
-0429EE DD 22 3E 03 0209*       ld (uix),ix
+04299C FD 22 41 03 0210*       ld (uiy),iy
        04          
-0429F3 FD 22 41 03 0210*       ld (uiy),iy
+0429A1 F5          0211*       push af ; fml
+0429A2 E1          0212*       pop hl ; thanks, zilog
+0429A3 22 32 03 04 0213*       ld (uaf),hl
+0429A7 F5          0214*       push af ; dammit
+0429A8             0215*   
+0429A8             0216*   ; home the cursor
+0429A8             0217*       ; call vdu_home_cursor
+0429A8             0218*       ; call printNewLine
+0429A8             0219*   
+0429A8             0220*   ; print each register
+0429A8 21 B8 02 04 0221*       ld hl,str_afu
+0429AC CD 67 00 04 0222*       call printString
+0429B0 2A 32 03 04 0223*       ld hl,(uaf)
+0429B4 CD A0 00 04 0224*       call printHex24
+0429B8 CD 7C 00 04 0225*       call printNewLine
+0429BC             0226*   
+0429BC 21 BD 02 04 0227*       ld hl,str_hlu
+0429C0 CD 67 00 04 0228*       call printString
+0429C4 2A 35 03 04 0229*       ld hl,(uhl)
+0429C8 CD A0 00 04 0230*       call printHex24
+0429CC CD 7C 00 04 0231*       call printNewLine
+0429D0             0232*   
+0429D0 21 C2 02 04 0233*       ld hl,str_bcu
+0429D4 CD 67 00 04 0234*       call printString
+0429D8 2A 38 03 04 0235*       ld hl,(ubc)
+0429DC CD A0 00 04 0236*       call printHex24
+0429E0 CD 7C 00 04 0237*       call printNewLine
+0429E4             0238*   
+0429E4 21 C7 02 04 0239*       ld hl,str_deu
+0429E8 CD 67 00 04 0240*       call printString
+0429EC 2A 3B 03 04 0241*       ld hl,(ude)
+0429F0 CD A0 00 04 0242*       call printHex24
+0429F4 CD 7C 00 04 0243*       call printNewLine
+0429F8             0244*   
+0429F8 21 CC 02 04 0245*       ld hl,str_ixu
+0429FC CD 67 00 04 0246*       call printString
+042A00 2A 3E 03 04 0247*       ld hl,(uix)
+042A04 CD A0 00 04 0248*       call printHex24
+042A08 CD 7C 00 04 0249*       call printNewLine
+042A0C             0250*   
+042A0C 21 D1 02 04 0251*       ld hl,str_iyu
+042A10 CD 67 00 04 0252*       call printString
+042A14 2A 41 03 04 0253*       ld hl,(uiy)
+042A18 CD A0 00 04 0254*       call printHex24
+042A1C             0255*   
+042A1C CD 7C 00 04 0256*       call printNewLine
+042A20 CD 7C 00 04 0257*       call printNewLine
+042A24             0258*   ; restore everything
+042A24 2A 35 03 04 0259*       ld hl, (uhl)
+042A28 ED 4B 38 03 0260*       ld bc, (ubc)
        04          
-0429F8 F5          0211*       push af ; fml
-0429F9 E1          0212*       pop hl ; thanks, zilog
-0429FA 22 32 03 04 0213*       ld (uaf),hl
-0429FE F5          0214*       push af ; dammit
-0429FF             0215*   
-0429FF             0216*   ; home the cursor
-0429FF             0217*       ; call vdu_home_cursor
-0429FF             0218*       ; call printNewLine
-0429FF             0219*   
-0429FF             0220*   ; print each register
-0429FF 21 B8 02 04 0221*       ld hl,str_afu
-042A03 CD 67 00 04 0222*       call printString
-042A07 2A 32 03 04 0223*       ld hl,(uaf)
-042A0B CD A0 00 04 0224*       call printHex24
-042A0F CD 7C 00 04 0225*       call printNewLine
-042A13             0226*   
-042A13 21 BD 02 04 0227*       ld hl,str_hlu
-042A17 CD 67 00 04 0228*       call printString
-042A1B 2A 35 03 04 0229*       ld hl,(uhl)
-042A1F CD A0 00 04 0230*       call printHex24
-042A23 CD 7C 00 04 0231*       call printNewLine
-042A27             0232*   
-042A27 21 C2 02 04 0233*       ld hl,str_bcu
-042A2B CD 67 00 04 0234*       call printString
-042A2F 2A 38 03 04 0235*       ld hl,(ubc)
-042A33 CD A0 00 04 0236*       call printHex24
-042A37 CD 7C 00 04 0237*       call printNewLine
-042A3B             0238*   
-042A3B 21 C7 02 04 0239*       ld hl,str_deu
-042A3F CD 67 00 04 0240*       call printString
-042A43 2A 3B 03 04 0241*       ld hl,(ude)
-042A47 CD A0 00 04 0242*       call printHex24
-042A4B CD 7C 00 04 0243*       call printNewLine
-042A4F             0244*   
-042A4F 21 CC 02 04 0245*       ld hl,str_ixu
-042A53 CD 67 00 04 0246*       call printString
-042A57 2A 3E 03 04 0247*       ld hl,(uix)
-042A5B CD A0 00 04 0248*       call printHex24
-042A5F CD 7C 00 04 0249*       call printNewLine
-042A63             0250*   
-042A63 21 D1 02 04 0251*       ld hl,str_iyu
-042A67 CD 67 00 04 0252*       call printString
-042A6B 2A 41 03 04 0253*       ld hl,(uiy)
-042A6F CD A0 00 04 0254*       call printHex24
-042A73             0255*   
-042A73 CD 7C 00 04 0256*       call printNewLine
-042A77 CD 7C 00 04 0257*       call printNewLine
-042A7B             0258*   ; restore everything
-042A7B 2A 35 03 04 0259*       ld hl, (uhl)
-042A7F ED 4B 38 03 0260*       ld bc, (ubc)
+042A2D ED 5B 3B 03 0261*       ld de, (ude)
        04          
-042A84 ED 5B 3B 03 0261*       ld de, (ude)
+042A32 DD 2A 3E 03 0262*       ld ix, (uix)
        04          
-042A89 DD 2A 3E 03 0262*       ld ix, (uix)
+042A37 FD 2A 41 03 0263*       ld iy, (uiy)
        04          
-042A8E FD 2A 41 03 0263*       ld iy, (uiy)
+042A3C F1          0264*       pop af
+042A3D             0265*   ; all done
+042A3D C9          0266*       ret
+042A3E             0267*   
+042A3E             0268*   dumpRegistersHexPrime:
+042A3E D9          0269*       exx
+042A3F 08          0270*       ex af,af'
+042A40 CD 89 29 04 0271*       call dumpRegistersHex
+042A44 08          0272*       ex af,af'
+042A45 D9          0273*       exx
+042A46 C9          0274*       ret
+042A47             0275*   
+042A47             0276*   ; additionally dump prime registers
+042A47             0277*   ; inputs: none
+042A47             0278*   ; outputs: values of every register printed to screen
+042A47             0279*   ; destroys: nothing
+042A47             0280*   dumpRegistersHexAll:
+042A47 CD 89 29 04 0281*       call dumpRegistersHex
+042A4B 08          0282*       ex af,af'
+042A4C D9          0283*       exx
+042A4D CD 89 29 04 0284*       call dumpRegistersHex
+042A51 08          0285*       ex af,af'
+042A52 D9          0286*       exx
+042A53 C9          0287*       ret
+042A54             0288*   
+042A54             0289*   ; print hlu to screen in hexidecimal format
+042A54             0290*   ; inputs: none
+042A54             0291*   ; destroys: nothing
+042A54             0292*   print_hex_hl:
+042A54 F5          0293*       push af
+042A55 E5          0294*       push hl
+042A56 21 BD 02 04 0295*       ld hl,str_hlu
+042A5A CD 67 00 04 0296*       call printString
+042A5E E1          0297*       pop hl
+042A5F E5          0298*       push hl
+042A60 CD A0 00 04 0299*       call printHex24
+042A64 3E 20       0300*       ld a,' '
+042A66 5B D7       0301*       rst.lil 10h
+042A68 E1          0302*       pop hl
+042A69 F1          0303*       pop af
+042A6A C9          0304*       ret
+042A6B             0305*   
+042A6B             0306*   ; print bcu to screen in hexidecimal format
+042A6B             0307*   ; inputs: none
+042A6B             0308*   ; destroys: nothing
+042A6B             0309*   print_hex_bc:
+042A6B F5          0310*       push af
+042A6C E5          0311*       push hl
+042A6D C5          0312*       push bc
+042A6E 21 C2 02 04 0313*       ld hl,str_bcu
+042A72 CD 67 00 04 0314*       call printString
+042A76 E1          0315*       pop hl
+042A77 E5          0316*       push hl
+042A78 CD A0 00 04 0317*       call printHex24
+042A7C 3E 20       0318*       ld a,' '
+042A7E 5B D7       0319*       rst.lil 10h
+042A80 C1          0320*       pop bc
+042A81 E1          0321*       pop hl
+042A82 F1          0322*       pop af
+042A83 C9          0323*       ret
+042A84             0324*   
+042A84             0325*   ; print deu to screen in hexidecimal format
+042A84             0326*   ; inputs: none
+042A84             0327*   ; destroys: nothing
+042A84             0328*   print_hex_de:
+042A84 F5          0329*       push af
+042A85 E5          0330*       push hl
+042A86 D5          0331*       push de
+042A87 21 C7 02 04 0332*       ld hl,str_deu
+042A8B CD 67 00 04 0333*       call printString
+042A8F E1          0334*       pop hl
+042A90 E5          0335*       push hl
+042A91 CD A0 00 04 0336*       call printHex24
+042A95 3E 20       0337*       ld a,' '
+042A97 5B D7       0338*       rst.lil 10h
+042A99 D1          0339*       pop de
+042A9A E1          0340*       pop hl
+042A9B F1          0341*       pop af
+042A9C C9          0342*       ret
+042A9D             0343*   
+042A9D             0344*   
+042A9D             0345*   ; inputs: whatever is in the flags register
+042A9D             0346*   ; outputs: binary representation of flags
+042A9D             0347*   ;          with a header so we know which is what
+042A9D             0348*   ; destroys: nothing
+042A9D             0349*   ; preserves: everything
+042A9D             0350*   dumpFlags:
+042A9D             0351*   ; first we curse zilog for not giving direct access to flags
+042A9D F5          0352*       push af ; this is so we can send it back unharmed
+042A9E F5          0353*       push af ; this is so we can pop it to hl
+042A9F             0354*   ; store everything in scratch
+042A9F 22 35 03 04 0355*       ld (uhl),hl
+042AA3 ED 43 38 03 0356*       ld (ubc),bc
        04          
-042A93 F1          0264*       pop af
-042A94             0265*   ; all done
-042A94 C9          0266*       ret
-042A95             0267*   
-042A95             0268*   dumpRegistersHexPrime:
-042A95 D9          0269*       exx
-042A96 08          0270*       ex af,af'
-042A97 CD E0 29 04 0271*       call dumpRegistersHex
-042A9B 08          0272*       ex af,af'
-042A9C D9          0273*       exx
-042A9D C9          0274*       ret
-042A9E             0275*   
-042A9E             0276*   ; additionally dump prime registers
-042A9E             0277*   ; inputs: none
-042A9E             0278*   ; outputs: values of every register printed to screen
-042A9E             0279*   ; destroys: nothing
-042A9E             0280*   dumpRegistersHexAll:
-042A9E CD E0 29 04 0281*       call dumpRegistersHex
-042AA2 08          0282*       ex af,af'
-042AA3 D9          0283*       exx
-042AA4 CD E0 29 04 0284*       call dumpRegistersHex
-042AA8 08          0285*       ex af,af'
-042AA9 D9          0286*       exx
-042AAA C9          0287*       ret
-042AAB             0288*   
-042AAB             0289*   ; print hlu to screen in hexidecimal format
-042AAB             0290*   ; inputs: none
-042AAB             0291*   ; destroys: nothing
-042AAB             0292*   print_hex_hl:
-042AAB F5          0293*       push af
-042AAC E5          0294*       push hl
-042AAD 21 BD 02 04 0295*       ld hl,str_hlu
-042AB1 CD 67 00 04 0296*       call printString
-042AB5 E1          0297*       pop hl
-042AB6 E5          0298*       push hl
-042AB7 CD A0 00 04 0299*       call printHex24
-042ABB 3E 20       0300*       ld a,' '
-042ABD 5B D7       0301*       rst.lil 10h
-042ABF E1          0302*       pop hl
-042AC0 F1          0303*       pop af
-042AC1 C9          0304*       ret
-042AC2             0305*   
-042AC2             0306*   ; print bcu to screen in hexidecimal format
-042AC2             0307*   ; inputs: none
-042AC2             0308*   ; destroys: nothing
-042AC2             0309*   print_hex_bc:
-042AC2 F5          0310*       push af
-042AC3 E5          0311*       push hl
-042AC4 C5          0312*       push bc
-042AC5 21 C2 02 04 0313*       ld hl,str_bcu
-042AC9 CD 67 00 04 0314*       call printString
-042ACD E1          0315*       pop hl
-042ACE E5          0316*       push hl
-042ACF CD A0 00 04 0317*       call printHex24
-042AD3 3E 20       0318*       ld a,' '
-042AD5 5B D7       0319*       rst.lil 10h
-042AD7 C1          0320*       pop bc
-042AD8 E1          0321*       pop hl
-042AD9 F1          0322*       pop af
-042ADA C9          0323*       ret
-042ADB             0324*   
-042ADB             0325*   ; print deu to screen in hexidecimal format
-042ADB             0326*   ; inputs: none
-042ADB             0327*   ; destroys: nothing
-042ADB             0328*   print_hex_de:
-042ADB F5          0329*       push af
-042ADC E5          0330*       push hl
-042ADD D5          0331*       push de
-042ADE 21 C7 02 04 0332*       ld hl,str_deu
-042AE2 CD 67 00 04 0333*       call printString
-042AE6 E1          0334*       pop hl
-042AE7 E5          0335*       push hl
-042AE8 CD A0 00 04 0336*       call printHex24
-042AEC 3E 20       0337*       ld a,' '
-042AEE 5B D7       0338*       rst.lil 10h
-042AF0 D1          0339*       pop de
-042AF1 E1          0340*       pop hl
-042AF2 F1          0341*       pop af
-042AF3 C9          0342*       ret
-042AF4             0343*   
-042AF4             0344*   
-042AF4             0345*   ; inputs: whatever is in the flags register
-042AF4             0346*   ; outputs: binary representation of flags
-042AF4             0347*   ;          with a header so we know which is what
-042AF4             0348*   ; destroys: nothing
-042AF4             0349*   ; preserves: everything
-042AF4             0350*   dumpFlags:
-042AF4             0351*   ; first we curse zilog for not giving direct access to flags
-042AF4 F5          0352*       push af ; this is so we can send it back unharmed
-042AF5 F5          0353*       push af ; this is so we can pop it to hl
-042AF6             0354*   ; store everything in scratch
-042AF6 22 35 03 04 0355*       ld (uhl),hl
-042AFA ED 43 38 03 0356*       ld (ubc),bc
+042AA8 ED 53 3B 03 0357*       ld (ude),de
        04          
-042AFF ED 53 3B 03 0357*       ld (ude),de
+042AAD DD 22 3E 03 0358*       ld (uix),ix
        04          
-042B04 DD 22 3E 03 0358*       ld (uix),ix
+042AB2 FD 22 41 03 0359*       ld (uiy),iy
        04          
-042B09 FD 22 41 03 0359*       ld (uiy),iy
+042AB7             0360*   ; next we print the header
+042AB7 21 E3 2A 04 0361*       ld hl,@header
+042ABB CD 67 00 04 0362*       call printString
+042ABF E1          0363*       pop hl ; flags are now in l
+042AC0 7D          0364*       ld a,l ; flags are now in a
+042AC1 CD 6E 02 04 0365*       call printBin8
+042AC5 CD 7C 00 04 0366*       call printNewLine
+042AC9             0367*   ; restore everything
+042AC9 2A 35 03 04 0368*       ld hl, (uhl)
+042ACD ED 4B 38 03 0369*       ld bc, (ubc)
        04          
-042B0E             0360*   ; next we print the header
-042B0E 21 3A 2B 04 0361*       ld hl,@header
-042B12 CD 67 00 04 0362*       call printString
-042B16 E1          0363*       pop hl ; flags are now in l
-042B17 7D          0364*       ld a,l ; flags are now in a
-042B18 CD 6E 02 04 0365*       call printBin8
-042B1C CD 7C 00 04 0366*       call printNewLine
-042B20             0367*   ; restore everything
-042B20 2A 35 03 04 0368*       ld hl, (uhl)
-042B24 ED 4B 38 03 0369*       ld bc, (ubc)
+042AD2 ED 5B 3B 03 0370*       ld de, (ude)
        04          
-042B29 ED 5B 3B 03 0370*       ld de, (ude)
+042AD7 DD 2A 3E 03 0371*       ld ix, (uix)
        04          
-042B2E DD 2A 3E 03 0371*       ld ix, (uix)
+042ADC FD 2A 41 03 0372*       ld iy, (uiy)
        04          
-042B33 FD 2A 41 03 0372*       ld iy, (uiy)
-       04          
-042B38 F1          0373*       pop af ; send her home the way she came
-042B39 C9          0374*       ret
-042B3A             0375*   ; Bit 7 (S): Sign flag
-042B3A             0376*   ; Bit 6 (Z): Zero flag
-042B3A             0377*   ; Bit 5 (5): Reserved (copy of bit 5 of the result)
-042B3A             0378*   ; Bit 4 (H): Half Carry flag
-042B3A             0379*   ; Bit 3 (3): Reserved (copy of bit 3 of the result)
-042B3A             0380*   ; Bit 2 (PV): Parity/Overflow flag
-042B3A             0381*   ; Bit 1 (N): Subtract flag
-042B3A             0382*   ; Bit 0 (C): Carry flag
-042B3A 53 5A 78 48 0383*   @header: db "SZxHxPNC\r\n",0 ; cr/lf and 0 terminator
+042AE1 F1          0373*       pop af ; send her home the way she came
+042AE2 C9          0374*       ret
+042AE3             0375*   ; Bit 7 (S): Sign flag
+042AE3             0376*   ; Bit 6 (Z): Zero flag
+042AE3             0377*   ; Bit 5 (5): Reserved (copy of bit 5 of the result)
+042AE3             0378*   ; Bit 4 (H): Half Carry flag
+042AE3             0379*   ; Bit 3 (3): Reserved (copy of bit 3 of the result)
+042AE3             0380*   ; Bit 2 (PV): Parity/Overflow flag
+042AE3             0381*   ; Bit 1 (N): Subtract flag
+042AE3             0382*   ; Bit 0 (C): Carry flag
+042AE3 53 5A 78 48 0383*   @header: db "SZxHxPNC\r\n",0 ; cr/lf and 0 terminator
        78 50 4E 43 
        0D 0A 00    
-042B45             0384*   
-042B45             0385*   
-042B45             0386*   ; print bytes from an address to the screen in hexidecimal format
-042B45             0387*   ; inputs: hl = address of first byte to print, a = number of bytes to print
-042B45             0388*   ; outputs: values of each byte printed to screen separated by spaces
-042B45             0389*   ; destroys: nothing
-042B45             0390*   dumpMemoryHex:
-042B45             0391*   ; save registers to the stack
-042B45 C5          0392*       push bc
-042B46 E5          0393*       push hl
-042B47 F5          0394*       push af
-042B48             0395*   
-042B48             0396*   ; print the address and separator
-042B48 CD A0 00 04 0397*       call printHex24
-042B4C 3E 3A       0398*       ld a,':'
-042B4E 5B D7       0399*       rst.lil 10h
-042B50 3E 20       0400*       ld a,' '
-042B52 5B D7       0401*       rst.lil 10h
-042B54             0402*   
-042B54             0403*   ; set b to be our loop counter
-042B54 F1          0404*       pop af
-042B55 47          0405*       ld b,a
-042B56 E1          0406*       pop hl
-042B57 E5          0407*       push hl
-042B58 F5          0408*       push af
-042B59             0409*   @loop:
-042B59             0410*   ; print the byte
-042B59 7E          0411*       ld a,(hl)
-042B5A CD AE 00 04 0412*       call printHex8
-042B5E             0413*   ; print a space
-042B5E 3E 20       0414*       ld a,' '
-042B60 5B D7       0415*       rst.lil 10h
-042B62 23          0416*       inc hl
-042B63 10 F4       0417*       djnz @loop
-042B65 CD 7C 00 04 0418*       call printNewLine
-042B69             0419*   
-042B69             0420*   ; restore everything
-042B69 F1          0421*       pop af
-042B6A E1          0422*       pop hl
-042B6B C1          0423*       pop bc
-042B6C             0424*   
-042B6C             0425*   ; all done
-042B6C C9          0426*       ret
-042B6D             0427*   
-042B6D             0428*   
-042B6D             0429*   ; print bytes from an address to the screen in binary format
-042B6D             0430*   ; inputs: hl = address of first byte to print, a = number of bytes to print
-042B6D             0431*   ; outputs: values of each byte printed to screen separated by spaces
-042B6D             0432*   ; destroys: nothing
-042B6D             0433*   dumpMemoryBin:
-042B6D             0434*   ; save all registers to the stack
-042B6D F5          0435*       push af
-042B6E C5          0436*       push bc
-042B6F D5          0437*       push de
-042B70 E5          0438*       push hl
-042B71 DD E5       0439*       push ix
-042B73 FD E5       0440*       push iy
-042B75             0441*   
-042B75             0442*   ; set b to be our loop counter
-042B75 47          0443*       ld b,a
-042B76             0444*   @loop:
-042B76             0445*   ; print the byte
-042B76 7E          0446*       ld a,(hl)
-042B77 E5          0447*       push hl
-042B78 C5          0448*       push bc
-042B79 CD 6E 02 04 0449*       call printBin8
-042B7D C1          0450*       pop bc
-042B7E             0451*   ; print a space
-042B7E 3E 20       0452*       ld a,' '
-042B80 5B D7       0453*       rst.lil 10h
-042B82 E1          0454*       pop hl
-042B83 23          0455*       inc hl
-042B84 10 F0       0456*       djnz @loop
-042B86 CD 7C 00 04 0457*       call printNewLine
-042B8A             0458*   
-042B8A             0459*   ; restore everything
-042B8A FD E1       0460*       pop iy
-042B8C DD E1       0461*       pop ix
-042B8E E1          0462*       pop hl
-042B8F D1          0463*       pop de
-042B90 C1          0464*       pop bc
-042B91 F1          0465*       pop af
-042B92             0466*   ; all done
-042B92 C9          0467*       ret
-042B93             0468*   
-042B93             0469*   ; print bytes from an address to the screen in binary format
-042B93             0470*   ; with the bits of each byte in reverse order (lsb first)
-042B93             0471*   ; inputs: hl = address of first byte to print, a = number of bytes to print
-042B93             0472*   ; outputs: values of each byte printed to screen separated by spaces
-042B93             0473*   ; destroys: nothing
-042B93             0474*   dumpMemoryBinRev:
-042B93             0475*   ; save all registers to the stack
-042B93 F5          0476*       push af
-042B94 C5          0477*       push bc
-042B95 D5          0478*       push de
-042B96 E5          0479*       push hl
-042B97 DD E5       0480*       push ix
-042B99 FD E5       0481*       push iy
-042B9B             0482*   
-042B9B             0483*   ; set b to be our loop counter
-042B9B 47          0484*       ld b,a
-042B9C             0485*   @loop:
-042B9C             0486*   ; print the byte
-042B9C 7E          0487*       ld a,(hl)
-042B9D E5          0488*       push hl
-042B9E C5          0489*       push bc
-042B9F CD 93 02 04 0490*       call printBin8Rev
-042BA3 C1          0491*       pop bc
-042BA4             0492*   ; print a space
-042BA4 3E 20       0493*       ld a,' '
-042BA6 5B D7       0494*       rst.lil 10h
-042BA8 E1          0495*       pop hl
-042BA9 23          0496*       inc hl
-042BAA 10 F0       0497*       djnz @loop
-042BAC CD 7C 00 04 0498*       call printNewLine
-042BB0             0499*   
-042BB0             0500*   ; restore everything
-042BB0 FD E1       0501*       pop iy
-042BB2 DD E1       0502*       pop ix
-042BB4 E1          0503*       pop hl
-042BB5 D1          0504*       pop de
-042BB6 C1          0505*       pop bc
-042BB7 F1          0506*       pop af
-042BB8             0507*   ; all done
-042BB8 C9          0508*       ret
-042BB9             0509*   
-042BB9             0510*   DEBUG_PRINT:
-042BB9             0511*       PUSH_ALL
-042BB9 08          0001*M1     ex af,af'
-042BBA D9          0002*M1     exx
-042BBB F5          0003*M1     push af
-042BBC E5          0004*M1     push hl
-042BBD C5          0005*M1     push bc
-042BBE D5          0006*M1     push de
-042BBF             0007*M1 
-042BBF 08          0008*M1     ex af,af'
-042BC0 D9          0009*M1     exx
-042BC1 F5          0010*M1     push af
-042BC2 E5          0011*M1     push hl
-042BC3 C5          0012*M1     push bc
-042BC4 D5          0013*M1     push de
-042BC5 DD E5       0014*M1     push ix
-042BC7 FD E5       0015*M1     push iy
-042BC9             0512*       ; ld c,0 ; X
-042BC9             0513*       ; ld b,0 ; Y
-042BC9             0514*       ; call vdu_move_cursor
-042BC9 CD 7C 00 04 0515*       call printNewLine
-042BCD             0516*       POP_ALL
-042BCD FD E1       0001*M1     pop iy
-042BCF DD E1       0002*M1     pop ix
-042BD1 D1          0003*M1     pop de
-042BD2 C1          0004*M1     pop bc
-042BD3 E1          0005*M1     pop hl
-042BD4 F1          0006*M1     pop af
-042BD5 08          0007*M1     ex af,af'
-042BD6 D9          0008*M1     exx
-042BD7             0009*M1 
-042BD7 D1          0010*M1     pop de
-042BD8 C1          0011*M1     pop bc
-042BD9 E1          0012*M1     pop hl
-042BDA F1          0013*M1     pop af
-042BDB 08          0014*M1     ex af,af'
-042BDC D9          0015*M1     exx
-042BDD             0517*       PUSH_ALL
-042BDD 08          0001*M1     ex af,af'
-042BDE D9          0002*M1     exx
-042BDF F5          0003*M1     push af
-042BE0 E5          0004*M1     push hl
-042BE1 C5          0005*M1     push bc
-042BE2 D5          0006*M1     push de
-042BE3             0007*M1 
-042BE3 08          0008*M1     ex af,af'
-042BE4 D9          0009*M1     exx
-042BE5 F5          0010*M1     push af
-042BE6 E5          0011*M1     push hl
-042BE7 C5          0012*M1     push bc
-042BE8 D5          0013*M1     push de
-042BE9 DD E5       0014*M1     push ix
-042BEB FD E5       0015*M1     push iy
-042BED CD F4 2A 04 0518*       call dumpFlags
-042BF1             0519*       POP_ALL
-042BF1 FD E1       0001*M1     pop iy
-042BF3 DD E1       0002*M1     pop ix
-042BF5 D1          0003*M1     pop de
-042BF6 C1          0004*M1     pop bc
-042BF7 E1          0005*M1     pop hl
-042BF8 F1          0006*M1     pop af
-042BF9 08          0007*M1     ex af,af'
-042BFA D9          0008*M1     exx
-042BFB             0009*M1 
-042BFB D1          0010*M1     pop de
-042BFC C1          0011*M1     pop bc
-042BFD E1          0012*M1     pop hl
-042BFE F1          0013*M1     pop af
-042BFF 08          0014*M1     ex af,af'
-042C00 D9          0015*M1     exx
-042C01             0520*       PUSH_ALL
-042C01 08          0001*M1     ex af,af'
-042C02 D9          0002*M1     exx
-042C03 F5          0003*M1     push af
-042C04 E5          0004*M1     push hl
-042C05 C5          0005*M1     push bc
-042C06 D5          0006*M1     push de
-042C07             0007*M1 
-042C07 08          0008*M1     ex af,af'
-042C08 D9          0009*M1     exx
-042C09 F5          0010*M1     push af
-042C0A E5          0011*M1     push hl
-042C0B C5          0012*M1     push bc
-042C0C D5          0013*M1     push de
-042C0D DD E5       0014*M1     push ix
-042C0F FD E5       0015*M1     push iy
-042C11 CD E0 29 04 0521*       call dumpRegistersHex
-042C15             0522*       ; call waitKeypress
-042C15 CD 7C 00 04 0523*       call printNewLine
-042C19             0524*       POP_ALL
-042C19 FD E1       0001*M1     pop iy
-042C1B DD E1       0002*M1     pop ix
-042C1D D1          0003*M1     pop de
-042C1E C1          0004*M1     pop bc
-042C1F E1          0005*M1     pop hl
-042C20 F1          0006*M1     pop af
-042C21 08          0007*M1     ex af,af'
-042C22 D9          0008*M1     exx
-042C23             0009*M1 
-042C23 D1          0010*M1     pop de
-042C24 C1          0011*M1     pop bc
-042C25 E1          0012*M1     pop hl
-042C26 F1          0013*M1     pop af
-042C27 08          0014*M1     ex af,af'
-042C28 D9          0015*M1     exx
-042C29 C9          0525*       ret
-042C2A             0526*   DEBUG_WAITKEYPRESS:
-042C2A             0527*       PUSH_ALL
-042C2A 08          0001*M1     ex af,af'
-042C2B D9          0002*M1     exx
-042C2C F5          0003*M1     push af
-042C2D E5          0004*M1     push hl
-042C2E C5          0005*M1     push bc
-042C2F D5          0006*M1     push de
-042C30             0007*M1 
-042C30 08          0008*M1     ex af,af'
-042C31 D9          0009*M1     exx
-042C32 F5          0010*M1     push af
-042C33 E5          0011*M1     push hl
-042C34 C5          0012*M1     push bc
-042C35 D5          0013*M1     push de
-042C36 DD E5       0014*M1     push ix
-042C38 FD E5       0015*M1     push iy
-042C3A CD 5A 03 04 0528*       call waitKeypress
-042C3E             0529*       POP_ALL
-042C3E FD E1       0001*M1     pop iy
-042C40 DD E1       0002*M1     pop ix
-042C42 D1          0003*M1     pop de
-042C43 C1          0004*M1     pop bc
-042C44 E1          0005*M1     pop hl
-042C45 F1          0006*M1     pop af
-042C46 08          0007*M1     ex af,af'
-042C47 D9          0008*M1     exx
-042C48             0009*M1 
-042C48 D1          0010*M1     pop de
-042C49 C1          0011*M1     pop bc
-042C4A E1          0012*M1     pop hl
-042C4B F1          0013*M1     pop af
-042C4C 08          0014*M1     ex af,af'
-042C4D D9          0015*M1     exx
-042C4E C9          0530*       RET
-042C4F             0531*   
-042C4F             0532*   dumpVduCmdStr:
-042C4F             0533*       PUSH_ALL
-042C4F 08          0001*M1     ex af,af'
-042C50 D9          0002*M1     exx
-042C51 F5          0003*M1     push af
-042C52 E5          0004*M1     push hl
-042C53 C5          0005*M1     push bc
-042C54 D5          0006*M1     push de
-042C55             0007*M1 
-042C55 08          0008*M1     ex af,af'
-042C56 D9          0009*M1     exx
-042C57 F5          0010*M1     push af
-042C58 E5          0011*M1     push hl
-042C59 C5          0012*M1     push bc
-042C5A D5          0013*M1     push de
-042C5B DD E5       0014*M1     push ix
-042C5D FD E5       0015*M1     push iy
-042C5F 79          0534*       ld a,c
-042C60 CD 45 2B 04 0535*       call dumpMemoryHex
-042C64 CD 5A 03 04 0536*       call waitKeypress
-042C68             0537*       POP_ALL
-042C68 FD E1       0001*M1     pop iy
-042C6A DD E1       0002*M1     pop ix
-042C6C D1          0003*M1     pop de
-042C6D C1          0004*M1     pop bc
-042C6E E1          0005*M1     pop hl
-042C6F F1          0006*M1     pop af
-042C70 08          0007*M1     ex af,af'
-042C71 D9          0008*M1     exx
-042C72             0009*M1 
-042C72 D1          0010*M1     pop de
-042C73 C1          0011*M1     pop bc
-042C74 E1          0012*M1     pop hl
-042C75 F1          0013*M1     pop af
-042C76 08          0014*M1     ex af,af'
-042C77 D9          0015*M1     exx
-042C78 C9          0538*       ret
-042C79             0539*   ; end dumpVduCmdStr
-042C79             0052    
-042C79             0053    ; --- MAIN PROGRAM FILE ---
-042C79 00          0054    original_screen_mode: db 0
-042C7A             0055    
-042C7A             0056    init:
-042C7A             0057    ; change directory to music
-042C7A 21 71 2D 04 0058        ld hl,cmd_cd_music
-042C7E             0059        MOSCALL mos_oscli
-042C7E 3E 10       0001M1  			LD	A, function
-042C80 5B CF       0002M1  			RST.LIL	08h
-042C82             0060    ; call directory page listing
-042C82 CD 25 26 04 0061        call ps_get_dir
-042C86             0062    ; get current screen mode and save it so we can return to it on exit
-042C86 CD D5 17 04 0063        call vdu_get_screen_mode
-042C8A 32 79 2C 04 0064        ld (original_screen_mode),a
-042C8E             0065    ; set up display for gameplay
-042C8E 3E 14       0066        ld a,20
-042C90 CD C4 17 04 0067        call vdu_set_screen_mode
-042C94 AF          0068        xor a
-042C95 CD DD 17 04 0069        call vdu_set_scaling
-042C99             0070    ; set text background color
-042C99 3E 84       0071        ld a,c_blue_dk+128
-042C9B CD 27 17 04 0072        call vdu_colour_text
-042C9F             0073    ; set text foreground color
-042C9F 3E 0F       0074        ld a,c_white
-042CA1 CD 27 17 04 0075        call vdu_colour_text
-042CA5             0076    ; set the cursor off
-042CA5 CD BE 16 04 0077        call vdu_cursor_off
-042CA9             0078    ; clear the screen
-042CA9 CD F6 16 04 0079        call vdu_cls
-042CAD             0080    ; clear all buffers
-042CAD CD CB 1A 04 0081        call vdu_clear_all_buffers
-042CB1             0082    ; load fonts
-042CB1 CD 74 05 04 0083    	call fonts_load
-042CB5             0084    ; select font
-042CB5 21 10 FA 00 0085        ld hl,Lat2_VGA8_8x8
-042CB9 3E 01       0086        ld a,1 ; flags
-042CBB CD 3D 1B 04 0087        call vdu_font_select
-042CBF             0088    ; print ascii art splash screen
-042CBF CD F6 16 04 0089        call vdu_cls
-042CC3 0E 00       0090        ld c,0 ; x
-042CC5 06 04       0091        ld b,4 ; y
-042CC7 CD E2 16 04 0092        call vdu_move_cursor
-042CCB CD 60 00 04 0093        call printInline
-042CCF 57 65 6C 63 0094        asciz "Welcome to...\r\n"
-       6F 6D 65 20 
-       74 6F 2E 2E 
-       2E 0D 0A 00 
-042CDF 21 62 1E 04 0095        ld hl,agon_jukebox_ascii
-042CE3 CD 67 00 04 0096        call printString
-042CE7             0097    ; print out current directory path
-042CE7 CD 7C 00 04 0098        call printNewLine
-042CEB 21 9F 2D 04 0099        ld hl,str_thick_dashes
-042CEF CD 67 00 04 0100        call printString
-042CF3 CD 60 00 04 0101        call printInline
-042CF7 0D 0A 4F 75 0102        asciz "\r\nOur current directory is:\r\n"
-       72 20 63 75 
-       72 72 65 6E 
-       74 20 64 69 
-       72 65 63 74 
-       6F 72 79 20 
-       69 73 3A 0D 
-       0A 00       
-042D15 21 7B 21 04 0103        ld hl,ps_dir_path
-042D19 CD 67 00 04 0104        call printString
-042D1D CD 7C 00 04 0105        call printNewLine
-042D21 21 9F 2D 04 0106        ld hl,str_thick_dashes
-042D25 CD 67 00 04 0107        call printString
-042D29             0108    ; print instructions
-042D29 CD 60 00 04 0109        call printInline
-042D2D 0D 0A 50 72 0110        asciz "\r\nPress keys 0-9 to play a song:\r\n"
-       65 73 73 20 
-       6B 65 79 73 
-       20 30 2D 39 
-       20 74 6F 20 
-       70 6C 61 79 
-       20 61 20 73 
-       6F 6E 67 3A 
-       0D 0A 00    
-042D50 21 80 2D 04 0111        ld hl,str_dashes
-042D54 CD 67 00 04 0112        call printString
-042D58             0113    ; print first 10 files in the directory
-042D58 CD 7C 00 04 0114        call printNewLine
-042D5C CD DD 26 04 0115        call ps_print_dir_page
-042D60 21 9F 2D 04 0116        ld hl,str_thick_dashes
-042D64 CD 67 00 04 0117        call printString
-042D68 CD 7C 00 04 0118        call printNewLine
-042D6C             0119    ; initialize play sample timer interrupt handler
-042D6C CD 26 28 04 0120        call ps_prt_irq_init
-042D70 C9          0121        ret
-042D71             0122    ; end init
-042D71             0123    
-042D71 63 64 20 6D 0124    cmd_cd_music: asciz "cd music"
+042AEE             0384*   
+042AEE             0385*   
+042AEE             0386*   ; print bytes from an address to the screen in hexidecimal format
+042AEE             0387*   ; inputs: hl = address of first byte to print, a = number of bytes to print
+042AEE             0388*   ; outputs: values of each byte printed to screen separated by spaces
+042AEE             0389*   ; destroys: nothing
+042AEE             0390*   dumpMemoryHex:
+042AEE             0391*   ; save registers to the stack
+042AEE C5          0392*       push bc
+042AEF E5          0393*       push hl
+042AF0 F5          0394*       push af
+042AF1             0395*   
+042AF1             0396*   ; print the address and separator
+042AF1 CD A0 00 04 0397*       call printHex24
+042AF5 3E 3A       0398*       ld a,':'
+042AF7 5B D7       0399*       rst.lil 10h
+042AF9 3E 20       0400*       ld a,' '
+042AFB 5B D7       0401*       rst.lil 10h
+042AFD             0402*   
+042AFD             0403*   ; set b to be our loop counter
+042AFD F1          0404*       pop af
+042AFE 47          0405*       ld b,a
+042AFF E1          0406*       pop hl
+042B00 E5          0407*       push hl
+042B01 F5          0408*       push af
+042B02             0409*   @loop:
+042B02             0410*   ; print the byte
+042B02 7E          0411*       ld a,(hl)
+042B03 CD AE 00 04 0412*       call printHex8
+042B07             0413*   ; print a space
+042B07 3E 20       0414*       ld a,' '
+042B09 5B D7       0415*       rst.lil 10h
+042B0B 23          0416*       inc hl
+042B0C 10 F4       0417*       djnz @loop
+042B0E CD 7C 00 04 0418*       call printNewLine
+042B12             0419*   
+042B12             0420*   ; restore everything
+042B12 F1          0421*       pop af
+042B13 E1          0422*       pop hl
+042B14 C1          0423*       pop bc
+042B15             0424*   
+042B15             0425*   ; all done
+042B15 C9          0426*       ret
+042B16             0427*   
+042B16             0428*   
+042B16             0429*   ; print bytes from an address to the screen in binary format
+042B16             0430*   ; inputs: hl = address of first byte to print, a = number of bytes to print
+042B16             0431*   ; outputs: values of each byte printed to screen separated by spaces
+042B16             0432*   ; destroys: nothing
+042B16             0433*   dumpMemoryBin:
+042B16             0434*   ; save all registers to the stack
+042B16 F5          0435*       push af
+042B17 C5          0436*       push bc
+042B18 D5          0437*       push de
+042B19 E5          0438*       push hl
+042B1A DD E5       0439*       push ix
+042B1C FD E5       0440*       push iy
+042B1E             0441*   
+042B1E             0442*   ; set b to be our loop counter
+042B1E 47          0443*       ld b,a
+042B1F             0444*   @loop:
+042B1F             0445*   ; print the byte
+042B1F 7E          0446*       ld a,(hl)
+042B20 E5          0447*       push hl
+042B21 C5          0448*       push bc
+042B22 CD 6E 02 04 0449*       call printBin8
+042B26 C1          0450*       pop bc
+042B27             0451*   ; print a space
+042B27 3E 20       0452*       ld a,' '
+042B29 5B D7       0453*       rst.lil 10h
+042B2B E1          0454*       pop hl
+042B2C 23          0455*       inc hl
+042B2D 10 F0       0456*       djnz @loop
+042B2F CD 7C 00 04 0457*       call printNewLine
+042B33             0458*   
+042B33             0459*   ; restore everything
+042B33 FD E1       0460*       pop iy
+042B35 DD E1       0461*       pop ix
+042B37 E1          0462*       pop hl
+042B38 D1          0463*       pop de
+042B39 C1          0464*       pop bc
+042B3A F1          0465*       pop af
+042B3B             0466*   ; all done
+042B3B C9          0467*       ret
+042B3C             0468*   
+042B3C             0469*   ; print bytes from an address to the screen in binary format
+042B3C             0470*   ; with the bits of each byte in reverse order (lsb first)
+042B3C             0471*   ; inputs: hl = address of first byte to print, a = number of bytes to print
+042B3C             0472*   ; outputs: values of each byte printed to screen separated by spaces
+042B3C             0473*   ; destroys: nothing
+042B3C             0474*   dumpMemoryBinRev:
+042B3C             0475*   ; save all registers to the stack
+042B3C F5          0476*       push af
+042B3D C5          0477*       push bc
+042B3E D5          0478*       push de
+042B3F E5          0479*       push hl
+042B40 DD E5       0480*       push ix
+042B42 FD E5       0481*       push iy
+042B44             0482*   
+042B44             0483*   ; set b to be our loop counter
+042B44 47          0484*       ld b,a
+042B45             0485*   @loop:
+042B45             0486*   ; print the byte
+042B45 7E          0487*       ld a,(hl)
+042B46 E5          0488*       push hl
+042B47 C5          0489*       push bc
+042B48 CD 93 02 04 0490*       call printBin8Rev
+042B4C C1          0491*       pop bc
+042B4D             0492*   ; print a space
+042B4D 3E 20       0493*       ld a,' '
+042B4F 5B D7       0494*       rst.lil 10h
+042B51 E1          0495*       pop hl
+042B52 23          0496*       inc hl
+042B53 10 F0       0497*       djnz @loop
+042B55 CD 7C 00 04 0498*       call printNewLine
+042B59             0499*   
+042B59             0500*   ; restore everything
+042B59 FD E1       0501*       pop iy
+042B5B DD E1       0502*       pop ix
+042B5D E1          0503*       pop hl
+042B5E D1          0504*       pop de
+042B5F C1          0505*       pop bc
+042B60 F1          0506*       pop af
+042B61             0507*   ; all done
+042B61 C9          0508*       ret
+042B62             0509*   
+042B62             0510*   DEBUG_PRINT:
+042B62             0511*       PUSH_ALL
+042B62 08          0001*M1     ex af,af'
+042B63 D9          0002*M1     exx
+042B64 F5          0003*M1     push af
+042B65 E5          0004*M1     push hl
+042B66 C5          0005*M1     push bc
+042B67 D5          0006*M1     push de
+042B68             0007*M1 
+042B68 08          0008*M1     ex af,af'
+042B69 D9          0009*M1     exx
+042B6A F5          0010*M1     push af
+042B6B E5          0011*M1     push hl
+042B6C C5          0012*M1     push bc
+042B6D D5          0013*M1     push de
+042B6E DD E5       0014*M1     push ix
+042B70 FD E5       0015*M1     push iy
+042B72             0512*       ; ld c,0 ; X
+042B72             0513*       ; ld b,0 ; Y
+042B72             0514*       ; call vdu_move_cursor
+042B72 CD 7C 00 04 0515*       call printNewLine
+042B76             0516*       POP_ALL
+042B76 FD E1       0001*M1     pop iy
+042B78 DD E1       0002*M1     pop ix
+042B7A D1          0003*M1     pop de
+042B7B C1          0004*M1     pop bc
+042B7C E1          0005*M1     pop hl
+042B7D F1          0006*M1     pop af
+042B7E 08          0007*M1     ex af,af'
+042B7F D9          0008*M1     exx
+042B80             0009*M1 
+042B80 D1          0010*M1     pop de
+042B81 C1          0011*M1     pop bc
+042B82 E1          0012*M1     pop hl
+042B83 F1          0013*M1     pop af
+042B84 08          0014*M1     ex af,af'
+042B85 D9          0015*M1     exx
+042B86             0517*       PUSH_ALL
+042B86 08          0001*M1     ex af,af'
+042B87 D9          0002*M1     exx
+042B88 F5          0003*M1     push af
+042B89 E5          0004*M1     push hl
+042B8A C5          0005*M1     push bc
+042B8B D5          0006*M1     push de
+042B8C             0007*M1 
+042B8C 08          0008*M1     ex af,af'
+042B8D D9          0009*M1     exx
+042B8E F5          0010*M1     push af
+042B8F E5          0011*M1     push hl
+042B90 C5          0012*M1     push bc
+042B91 D5          0013*M1     push de
+042B92 DD E5       0014*M1     push ix
+042B94 FD E5       0015*M1     push iy
+042B96 CD 9D 2A 04 0518*       call dumpFlags
+042B9A             0519*       POP_ALL
+042B9A FD E1       0001*M1     pop iy
+042B9C DD E1       0002*M1     pop ix
+042B9E D1          0003*M1     pop de
+042B9F C1          0004*M1     pop bc
+042BA0 E1          0005*M1     pop hl
+042BA1 F1          0006*M1     pop af
+042BA2 08          0007*M1     ex af,af'
+042BA3 D9          0008*M1     exx
+042BA4             0009*M1 
+042BA4 D1          0010*M1     pop de
+042BA5 C1          0011*M1     pop bc
+042BA6 E1          0012*M1     pop hl
+042BA7 F1          0013*M1     pop af
+042BA8 08          0014*M1     ex af,af'
+042BA9 D9          0015*M1     exx
+042BAA             0520*       PUSH_ALL
+042BAA 08          0001*M1     ex af,af'
+042BAB D9          0002*M1     exx
+042BAC F5          0003*M1     push af
+042BAD E5          0004*M1     push hl
+042BAE C5          0005*M1     push bc
+042BAF D5          0006*M1     push de
+042BB0             0007*M1 
+042BB0 08          0008*M1     ex af,af'
+042BB1 D9          0009*M1     exx
+042BB2 F5          0010*M1     push af
+042BB3 E5          0011*M1     push hl
+042BB4 C5          0012*M1     push bc
+042BB5 D5          0013*M1     push de
+042BB6 DD E5       0014*M1     push ix
+042BB8 FD E5       0015*M1     push iy
+042BBA CD 89 29 04 0521*       call dumpRegistersHex
+042BBE             0522*       ; call waitKeypress
+042BBE CD 7C 00 04 0523*       call printNewLine
+042BC2             0524*       POP_ALL
+042BC2 FD E1       0001*M1     pop iy
+042BC4 DD E1       0002*M1     pop ix
+042BC6 D1          0003*M1     pop de
+042BC7 C1          0004*M1     pop bc
+042BC8 E1          0005*M1     pop hl
+042BC9 F1          0006*M1     pop af
+042BCA 08          0007*M1     ex af,af'
+042BCB D9          0008*M1     exx
+042BCC             0009*M1 
+042BCC D1          0010*M1     pop de
+042BCD C1          0011*M1     pop bc
+042BCE E1          0012*M1     pop hl
+042BCF F1          0013*M1     pop af
+042BD0 08          0014*M1     ex af,af'
+042BD1 D9          0015*M1     exx
+042BD2 C9          0525*       ret
+042BD3             0526*   DEBUG_WAITKEYPRESS:
+042BD3             0527*       PUSH_ALL
+042BD3 08          0001*M1     ex af,af'
+042BD4 D9          0002*M1     exx
+042BD5 F5          0003*M1     push af
+042BD6 E5          0004*M1     push hl
+042BD7 C5          0005*M1     push bc
+042BD8 D5          0006*M1     push de
+042BD9             0007*M1 
+042BD9 08          0008*M1     ex af,af'
+042BDA D9          0009*M1     exx
+042BDB F5          0010*M1     push af
+042BDC E5          0011*M1     push hl
+042BDD C5          0012*M1     push bc
+042BDE D5          0013*M1     push de
+042BDF DD E5       0014*M1     push ix
+042BE1 FD E5       0015*M1     push iy
+042BE3 CD 5A 03 04 0528*       call waitKeypress
+042BE7             0529*       POP_ALL
+042BE7 FD E1       0001*M1     pop iy
+042BE9 DD E1       0002*M1     pop ix
+042BEB D1          0003*M1     pop de
+042BEC C1          0004*M1     pop bc
+042BED E1          0005*M1     pop hl
+042BEE F1          0006*M1     pop af
+042BEF 08          0007*M1     ex af,af'
+042BF0 D9          0008*M1     exx
+042BF1             0009*M1 
+042BF1 D1          0010*M1     pop de
+042BF2 C1          0011*M1     pop bc
+042BF3 E1          0012*M1     pop hl
+042BF4 F1          0013*M1     pop af
+042BF5 08          0014*M1     ex af,af'
+042BF6 D9          0015*M1     exx
+042BF7 C9          0530*       RET
+042BF8             0531*   
+042BF8             0532*   dumpVduCmdStr:
+042BF8             0533*       PUSH_ALL
+042BF8 08          0001*M1     ex af,af'
+042BF9 D9          0002*M1     exx
+042BFA F5          0003*M1     push af
+042BFB E5          0004*M1     push hl
+042BFC C5          0005*M1     push bc
+042BFD D5          0006*M1     push de
+042BFE             0007*M1 
+042BFE 08          0008*M1     ex af,af'
+042BFF D9          0009*M1     exx
+042C00 F5          0010*M1     push af
+042C01 E5          0011*M1     push hl
+042C02 C5          0012*M1     push bc
+042C03 D5          0013*M1     push de
+042C04 DD E5       0014*M1     push ix
+042C06 FD E5       0015*M1     push iy
+042C08 79          0534*       ld a,c
+042C09 CD EE 2A 04 0535*       call dumpMemoryHex
+042C0D CD 5A 03 04 0536*       call waitKeypress
+042C11             0537*       POP_ALL
+042C11 FD E1       0001*M1     pop iy
+042C13 DD E1       0002*M1     pop ix
+042C15 D1          0003*M1     pop de
+042C16 C1          0004*M1     pop bc
+042C17 E1          0005*M1     pop hl
+042C18 F1          0006*M1     pop af
+042C19 08          0007*M1     ex af,af'
+042C1A D9          0008*M1     exx
+042C1B             0009*M1 
+042C1B D1          0010*M1     pop de
+042C1C C1          0011*M1     pop bc
+042C1D E1          0012*M1     pop hl
+042C1E F1          0013*M1     pop af
+042C1F 08          0014*M1     ex af,af'
+042C20 D9          0015*M1     exx
+042C21 C9          0538*       ret
+042C22             0539*   ; end dumpVduCmdStr
+042C22             0052    
+042C22             0053    ; --- MAIN PROGRAM FILE ---
+042C22 00          0054    original_screen_mode: db 0
+042C23             0055    
+042C23             0056    init:
+042C23 C9          0057        ret
+042C24             0058    ; end init
+042C24             0059    
+042C24 63 64 20 6D 0060    cmd_cd_music: asciz "cd music"
        75 73 69 63 
        00          
-042D7A 63 64 20 2E 0125    cmd_cd_up: asciz "cd .."
+042C2D 63 64 20 2E 0061    cmd_cd_up: asciz "cd .."
        2E 00       
-042D80 2D 2D 2D 2D 0126    str_dashes: asciz "------------------------------"
+042C33 2D 2D 2D 2D 0062    str_dashes: asciz "------------------------------"
        2D 2D 2D 2D 
        2D 2D 2D 2D 
        2D 2D 2D 2D 
@@ -7144,7 +7047,7 @@ PC     Output      Line
        2D 2D 2D 2D 
        2D 2D 2D 2D 
        2D 2D 00    
-042D9F 3D 3D 3D 3D 0127    str_thick_dashes: asciz "=============================="
+042C52 3D 3D 3D 3D 0063    str_thick_dashes: asciz "=============================="
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        3D 3D 3D 3D 
@@ -7152,49 +7055,63 @@ PC     Output      Line
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        3D 3D 00    
-042DBE             0128    
-042DBE             0129    main:
-042DBE             0130    ; call get_input to start player
-042DBE CD 33 21 04 0131        call get_input
-042DC2             0132    ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
-042DC2 CD 20 28 04 0133        call ps_prt_stop ; stop the PRT timer
-042DC6 FB          0134        ei ; interrupts were disabled by get_input
-042DC7             0135    ; restore original screen mode
-042DC7 3A 79 2C 04 0136        ld a,(original_screen_mode)
-042DCB CD C4 17 04 0137        call vdu_set_screen_mode
-042DCF CD BF 17 04 0138        call vdu_reset_viewports
-042DD3 CD F6 16 04 0139        call vdu_cls
-042DD7             0140    ; change back to directory containing the program
-042DD7 21 7A 2D 04 0141        ld hl,cmd_cd_up
-042DDB             0142        MOSCALL mos_oscli
-042DDB 3E 10       0001M1  			LD	A, function
-042DDD 5B CF       0002M1  			RST.LIL	08h
-042DDF             0143    ; print thanks for playing message
-042DDF CD 60 00 04 0144        call printInline
-042DE3 54 68 61 6E 0145        asciz "Thank you for using\r\n"
-       6B 20 79 6F 
-       75 20 66 6F 
-       72 20 75 73 
-       69 6E 67 0D 
-       0A 00       
-042DF9 21 62 1E 04 0146        ld hl,agon_jukebox_ascii
-042DFD CD 67 00 04 0147        call printString
-042E01 CD B0 16 04 0148        call vdu_cursor_on
-042E05 C9          0149        ret ; back to MOS
-042E06             0150    ; end main
-042E06             0151    
-042E06             0152    ; must be final include in program so file data does not stomp on program code or other data
-042E06             0153        include "files.inc"
-042E06             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
-042E06             0002*   
-042E06             0003*   ; buffer for loading files unrelated to audio
-042E06             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
-042E06             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
-042E06             0006*   
-042E06             0007*   ;     align 256 ; make things nice for indexing into especially ps_dir_fil_list
-042E06             0008*   ; ; buffer for sound data
-042E06             0009*   ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
-042E06             0010*   
-042E06             0011*   ; this list can grow as large as necessary to hold all the files in the directory
-042E06             0012*   ; each entry will be 256 bytes long, the max filename size MOS/FFS supports
-042E06             0013*   ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k
+042C71             0064    
+042C71             0065    main:
+042C71 21 96 01 00 0066        ld hl,406
+042C75 11 0A 00 00 0067        ld de,10
+042C79 E5          0068        push hl
+042C7A D5          0069        push de
+042C7B CD EA 04 04 0070        call hlu_floor
+042C7F CD CC 00 04 0071        call printDec
+042C83 CD 7C 00 04 0072        call printNewLine
+042C87             0073    
+042C87 D1          0074        pop de
+042C88 E1          0075        pop hl
+042C89 CD F5 04 04 0076        call hlu_ceiling
+042C8D CD CC 00 04 0077        call printDec
+042C91 CD 7C 00 04 0078        call printNewLine
+042C95             0079    
+042C95 C9          0080        ret ; back to MOS
+042C96             0081    ; end main
+042C96             0082    
+042C96             0083    ; must be final include in program so file data does not stomp on program code or other data
+042C96             0084        include "files.inc"
+042C96             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+042C96             0002*   
+042C96             0003*   ; buffer for loading files unrelated to audio
+042C96             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
+042C96             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
+042C96             0006*   
+042C96 FF FF FF FF 0007*       align 256 ; make things nice for indexing into especially ps_dir_fil_list
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF       
+042D00             0008*   ; buffer for sound data
+042D00             0009*   ps_wav_data_start:    equ $   ; Start of audio data
+042D00             0010*   
+042D00             0011*   ; this list can grow as large as necessary to hold all the files in the directory
+042D00             0012*   ; each entry will be 256 bytes long, the max filename size MOS/FFS supports
+042D00             0013*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k

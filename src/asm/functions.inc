@@ -13,6 +13,8 @@ printInline:
 ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
 ; Print a zero-terminated string
 ; HL: Pointer to string
+; returns: hl pointed to character after string terminator
+; destroys: af, hl
 printString:
     PUSH BC
     LD BC,0
@@ -30,7 +32,7 @@ sendVDUsequence:
     POP BC
     RET
 ; Print Newline sequence to VDP
-; destroys bc
+; destroys: nothing
 printNewLine:
     push af ; for some reason rst.lil 10h sets carry flag
     LD A, '\r'
