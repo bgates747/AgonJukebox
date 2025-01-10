@@ -124,12 +124,14 @@ ps_close_file:
 ; queue a random song to play next
 ps_play_random:
     call rand_8 ; a = 0-255
-    ld de,0 ; clear deu and d
-    ld e,a
-    ld hl,(ps_dir_num_files)
+    ld hl,0 ; clear hlu and h
+    ld l,a
+    ld de,(ps_dir_num_files)
     call udiv24 ; hl = mod(hl,num_files)
+    ld de,256 ; 256 bytes per filename record
+    call umul24 ; hl = index into the filename table
     ld de,ps_dir_fil_list
-    add hl,de ; hl points to the filename index
+    add hl,de ; hl points to the filename
     ex de,hl ; setting up cp hl,de
     ld hl,(current_song) ; don't play the same song twice in a row
     or a ; clear carry
