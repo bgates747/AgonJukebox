@@ -7,13 +7,18 @@ get_input:
 ; app control commands
     cp '\e' ; escape
     ret z ; returns to main, which re-enables interrupts and exits app
+; directory page navigation
+    cp 0x15 ; right arrow
+    jp z,ps_dir_next_page
+    cp 0x08 ; left arrow
+    jp z,ps_dir_prev_page
 ; song playing commands
     cp 'r' ; random song
     jp z,ps_play_random
     cp '0'
-    jp c,@other ; not a song command
+    jp c,@no_cmd ; not a song command
     cp '9'+1
-    jp nc,@other ; not a song command
+    jp nc,@no_cmd ; not a song command
 ; new song requested so stop playing current one
     push af ; preserve keypress
     call ps_close_file
@@ -22,7 +27,7 @@ get_input:
     sub '0' ; a = index into filename lut
     call ps_get_song_fn_from_pg_idx ; carry set indicates success
     jp c,play_song ; re-enables interrupts and jp's to get_input when finished
-@other: ; TODO: other commands
+@no_cmd: ; no valid commands so loop
     ei ; reenable interrupts
-    jp @loop ; no valid commmand so loop
+    jp @loop
 ; end get_input

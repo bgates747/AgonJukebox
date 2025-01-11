@@ -43,6 +43,7 @@ exit:
     include "vdu_sound.inc"
 
 ; APPLICATION INCLUDES
+    include "layout.inc"
     include "ascii.inc"
     include "input_dir.inc"
     include "play_dir.inc"
@@ -63,6 +64,15 @@ str_dashes: asciz "------------------------------"
 str_thick_dashes: asciz "=============================="
 
 main:
+; test keypress
+    call waitKeypress
+    cp '\e' ; escape key
+    ret z ; exit if escape key pressed
+    call printHexA
+    call printNewLine
+    jp main
+
+
 ; change directory to music
     ld hl,cmd_cd_music
     MOSCALL mos_oscli
@@ -78,23 +88,23 @@ main:
     call ps_fill_page_fn_ptrs
     call ps_print_dir_page
 
-; get random songs
-    call printNewLine
-    ld b,40 ; loop counter
-@loop:
-    push bc ; save loop counter
-; get a song from an index
-    call rand_8
-    ld h,a
-    ld l,10 ; modulo 10
-    call udiv8
-    call printHexA
-    ld (ps_song_idx_cur),a
-    call ps_get_song_fn_from_pg_idx
-    call printString
-    call printNewLine
-    pop bc ; restore loop counter
-    djnz @loop
+; ; get random songs
+;     call printNewLine
+;     ld b,40 ; loop counter
+; @loop:
+;     push bc ; save loop counter
+; ; get a song from an index
+;     call rand_8
+;     ld h,a
+;     ld l,10 ; modulo 10
+;     call udiv8
+;     call printHexA
+;     ld (ps_song_idx_cur),a
+;     call ps_get_song_fn_from_pg_idx
+;     call printString
+;     call printNewLine
+;     pop bc ; restore loop counter
+;     djnz @loop
 
 ; ; list the second page of the directory
 ;     call printInline

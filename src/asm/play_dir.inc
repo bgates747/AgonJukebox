@@ -19,7 +19,7 @@ ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
 ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
 ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 ps_page_cur: dl 0 ; current directory page number
-ps_song_idx_cur: dl 0 ; current song index in the directory page
+ps_song_idx_cur: db 0 ; current song index in the directory page
 ps_song_fn_cur: dl 0 ; pointer to current song filename
 ps_page_fn_ptrs: blkw 10*3,0 ; list of filename pointers in the current directory page
 
@@ -78,11 +78,7 @@ play_song:
 ; stop the PRT timer
     call ps_prt_stop
 ; tell the user what they've won
-    ld c,0 ; left
-    ld d,0 ; top
-    ld e,62 ; right
-    ld b,1; bottom
-    call vdu_set_txt_viewport
+    call vp_now_playing
     call vdu_cls
     ld hl,(ps_song_fn_cur)
     call printInline
@@ -90,11 +86,7 @@ play_song:
     ld hl,(ps_song_fn_cur)
     call printString ; print the song filename
 ; reset text viewport for playing breadcrumbs
-    ld c,0 ; left
-    ld d,1 ; top
-    ld e,62 ; right
-    ld b,1; bottom
-    call vdu_set_txt_viewport
+    call vp_breadcrumbs
 ; open the file in read mode
 ; Open a file
 ; HLU: Filename
@@ -230,8 +222,9 @@ ps_get_dir:
     ld (ps_dir_num_pages),de ; save the number of pages
     ld (ps_pagelast_num_files),hl ; save the number of files on the last page
 ; reset the song index and page to zero and populate the page filename pointers
+    xor a
+    ld (ps_song_idx_cur),a
     ld hl,0 
-    ld (ps_song_idx_cur),hl
     ld (ps_page_cur),hl
     call ps_fill_page_fn_ptrs
 ; close the directory
@@ -277,6 +270,10 @@ ps_get_page_num_files:
 ; end ps_get_page_num_files
 
 ps_print_dir_page:
+; set text viewport for directory listing
+    call vp_dir
+    call vdu_cls
+; loop through the filename pointer table and print out the filenames
     call ps_get_page_num_files ; b = loop counter
     xor a ; song index
     ld ix,ps_page_fn_ptrs
@@ -292,6 +289,7 @@ ps_print_dir_page:
     inc a ; increment the song index
     pop bc ; restore loop counter
     djnz @loop
+    call print_dir_border_bottom
     ret
 ; end ps_print_dir_page
 
@@ -316,6 +314,43 @@ ps_print_dir:
     pop hl ; dummy pop to balance stack
     ret
 ; end ps_print_dir
+
+ps_dir_next_page:
+; advance the page number
+    ld hl,(ps_page_cur) ; get the current page number
+    inc hl ; increment the page number
+    ld de,(ps_dir_num_pages) ; get the number of pages
+    call udiv24 ; hl = mod(ps_page_cur+1,ps_dir_num_pages)
+    ld (ps_page_cur),hl ; save the new page number
+; populate the page filename pointers
+    call ps_fill_page_fn_ptrs
+; print the new page and reset text viewport to now playing breadcrumbs
+    call ps_print_dir_page
+    call vp_breadcrumbs
+; enable interrupts and jump back to the user input loop
+    ei
+    jp get_input
+; end ps_dir_next_page
+
+ps_dir_prev_page:
+; decrement the page number
+    ld hl,(ps_page_cur) ; get the current page number
+    dec hl ; decrement the page number
+    SIGN_HLU ; check for zero
+    jp p,@F ; >= 0 so we're good
+    ld hl,(ps_dir_num_pages) ; get the number of pages
+    dec hl ; zero-based
+@@:
+    ld (ps_page_cur),hl ; save the new page number
+; populate the page filename pointers
+    call ps_fill_page_fn_ptrs
+; print the new page and reset text viewport to now playing breadcrumbs
+    call ps_print_dir_page
+    call vp_breadcrumbs
+; enable interrupts and jump back to the user input loop
+    ei
+    jp get_input
+; end ps_dir_prev_page
 
 ; get the filename of the song at the current index
 ; inputs: a = song index
