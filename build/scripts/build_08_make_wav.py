@@ -121,6 +121,7 @@ def create_tar_gz(src_dir, output_dir, sample_rate):
 if __name__ == '__main__':
     sample_rate = 32768
     sample_rate = 44100
+    sample_rate = 16384
     src_dir = 'assets/sound/music/staging'
     tgt_dir = 'tgt/music'
 
