@@ -1,10 +1,10 @@
-ps_prt_reload: equ [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
+ps_prt_reload: dl [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
 
 ; start PRT timer
 ps_prt_start:
     ld hl,0
     ld (ps_prt_irq_counter),hl
-    ld hl,ps_prt_reload
+    ld hl,(ps_prt_reload)
     out0 (TMR1_CTL+TMR_RES_LOW),l
 	out0 (TMR1_CTL+TMR_RES_HIGH),h
 ; disable timer (in effect, reset it)
