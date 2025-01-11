@@ -63,6 +63,22 @@ str_dashes: asciz "------------------------------"
 str_thick_dashes: asciz "=============================="
 
 main:
+    ld b,25 ; loop counter
+@loop:
+    push bc
+    call rand_8
+    call printHexA
+    ld h,a
+    ld l,10 ; modulo 10
+    call udiv8 ; h = quotient, a = remainder, l = divisor
+    call printHexHL
+    call printHexA
+    call printNewLine
+    pop bc
+    djnz @loop
+    ret
+
+
     ld hl,406
     ld de,10
     push hl

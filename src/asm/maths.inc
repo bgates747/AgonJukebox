@@ -240,3 +240,21 @@ prng24:
     ret
 seed1: dl 0
 seed2: dl 0
+
+
+; https://map.grauw.nl/sources/external/z80bits.html#2.1
+; 2.1 Restoring 8-bit / 8-bit Unsigned
+; Input: H = Dividend, L = Divisor, A = 0
+; Output: H = Quotient, A = Remainder, L = Divisor (unchanged)
+udiv8:
+    xor a
+    ld b,8
+@loop:
+    sla h
+    rla
+    cp l
+    jr c,$+4
+    sub l
+    inc h
+    djnz @loop
+    ret

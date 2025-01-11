@@ -78,21 +78,39 @@ main:
     call ps_fill_page_fn_ptrs
     call ps_print_dir_page
 
-; list the second page of the directory
-    call printInline
-    asciz "\r\nPage 1\r\n"
-    ld hl,1
-    ld (ps_page_cur),hl
-    call ps_fill_page_fn_ptrs
-    call ps_print_dir_page
+; get random songs
+    call printNewLine
+    ld b,40 ; loop counter
+@loop:
+    push bc ; save loop counter
+; get a song from an index
+    call rand_8
+    ld h,a
+    ld l,10 ; modulo 10
+    call udiv8
+    call printHexA
+    ld (ps_song_idx_cur),a
+    call ps_get_song_fn_from_pg_idx
+    call printString
+    call printNewLine
+    pop bc ; restore loop counter
+    djnz @loop
 
-; list the third page of the directory
-    call printInline
-    asciz "\r\nPage 2\r\n"
-    ld hl,2
-    ld (ps_page_cur),hl
-    call ps_fill_page_fn_ptrs
-    call ps_print_dir_page
+; ; list the second page of the directory
+;     call printInline
+;     asciz "\r\nPage 1\r\n"
+;     ld hl,1
+;     ld (ps_page_cur),hl
+;     call ps_fill_page_fn_ptrs
+;     call ps_print_dir_page
+
+; ; list the third page of the directory
+;     call printInline
+;     asciz "\r\nPage 2\r\n"
+;     ld hl,2
+;     ld (ps_page_cur),hl
+;     call ps_fill_page_fn_ptrs
+;     call ps_print_dir_page
 
 ; change back to directory containing the program
     ld hl,cmd_cd_up

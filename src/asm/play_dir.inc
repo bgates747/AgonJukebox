@@ -262,18 +262,22 @@ ps_fill_page_fn_ptrs:
     ret
 ; end ps_fill_page_fn_ptrs
 
-ps_print_dir_page:
+ps_get_page_num_files:
 ; check whether we're at last page
     ld hl,(ps_page_cur)
     ld de,(ps_dir_num_pages)
     dec de ; zero-based
     or a ; clear carry
     sbc hl,de
-    ld b,10 ; default number of files per page
-    jp nz,@F ; not last page so skip ahead
+    ld b,10 ; b = default number of files per page
+    ret nz ; not the last page
     ld a,(ps_pagelast_num_files) ; get the number of files on the last page
-    ld b,a ; loop counter
-@@: ; print the current directory page
+    ld b,a ; b = number of files on the last page
+    ret
+; end ps_get_page_num_files
+
+ps_print_dir_page:
+    call ps_get_page_num_files ; b = loop counter
     xor a ; song index
     ld ix,ps_page_fn_ptrs
 @loop:
@@ -313,30 +317,47 @@ ps_print_dir:
     ret
 ; end ps_print_dir
 
+; get the filename of the song at the current index
+; inputs: a = song index
 ps_get_song_fn_from_pg_idx:
-    ld hl,0 ; clear hlu and h
-    ld l,a
-    ld de,(ps_page_num_files)
-    call udiv24 ; hl = mod(hl,num_files)
-    ld de,256 ; 256 bytes per filename record
-    call umul24 ; hl = index into the filename table
-    ld de,ps_dir_fil_list
-    add hl,de ; hl points to the filename
+    push af ; save song index
+    call ps_get_page_num_files ; b = number of files on the page
+    pop af ; restore song index
+    cp b ; compare song index to number of files on the page
+    ld hl,(ps_song_fn_cur) ; get the current song filename
+    ret nc ; requested song index is out of range so return current filename and no carry
+    ld (ps_song_idx_cur),a ; save the song index
+    ld hl,ps_page_fn_ptrs ; get the address of the page filename pointer table
+    ld b,a ; song index
+    ld c,3 ; 3 bytes per filename pointer
+    mlt bc ; index into the filename pointer table
+    add hl,bc ; hl points to the filename pointer
+    ld hl,(hl) ; hl points to the filename
+    ld (ps_song_fn_cur),hl ; save the new song filename
+    scf ; set carry to indicate success
     ret
 ; end ps_get_song_fn_from_pg_idx
 
-; queue a random song to play next
+; queue a random song on the current page to play next
 ps_play_random:
+; back up current song index
+    ld hl,(ps_song_fn_cur)
+    ld (@songFn),hl
+; get a random song index
     call rand_8 ; a = 0-255
+    ld h,a
+    ld l,10 ; modulo 10
+    call udiv8 ; a = mod(a,10)
     call ps_get_song_fn_from_pg_idx
     ex de,hl ; setting up cp hl,de
-    ld hl,(ps_song_fn_cur) ; don't play the same song twice in a row
+    ld hl,(@songFn) ; don't play the same song twice in a row
     or a ; clear carry
     sbc hl,de
     jp z,ps_play_random ; same song, try again
     ex de,hl ; pointer back to hl
     call play_song ; hit it
     ret
+@songFn: dl 0
 ; end ps_play_random
 
 ps_read_wav_header:
