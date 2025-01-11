@@ -112,6 +112,8 @@ init:
     ld hl,str_dashes
     call printString
 ; print first 10 files in the directory
+    xor a ; song index to 0
+    ld (ps_song_idx_cur),a
     call printNewLine
     call ps_print_dir_page
     ; call print_dir_border_bottom
@@ -122,8 +124,8 @@ init:
 
 cmd_cd_music: asciz "cd music"
 cmd_cd_up: asciz "cd .."
-str_dashes: asciz "------------------------------"
-str_thick_dashes: asciz "=============================="
+str_dashes: asciz "---------------------------------------------------------------"
+str_thick_dashes: asciz "==============================================================="
 
 main:
 ; call get_input to start player
