@@ -2,18 +2,18 @@ import subprocess
 import json
 
 
-def get_sample_rate(file_path):
+def get_metadata(file_path):
     """
-    Extracts and prints the sample rate of the audio file from `ffprobe` metadata.
+    Extracts and prints all metadata of the audio file from `ffprobe`.
     """
-    print(f"Getting sample rate for: {file_path}")
+    print(f"Getting metadata for: {file_path}")
     try:
         result = subprocess.run(
             [
                 'ffprobe',
                 '-v', 'error',             # Suppress non-error messages
-                '-select_streams', 'a:0',  # Focus on the first audio stream
-                '-show_entries', 'stream=sample_rate',  # Get sample_rate field
+                '-show_format',            # Show format metadata
+                '-show_streams',           # Show streams metadata
                 '-of', 'json',             # Output in JSON format
                 file_path
             ],
@@ -23,14 +23,13 @@ def get_sample_rate(file_path):
             check=True
         )
         metadata = json.loads(result.stdout)
-        sample_rate = metadata['streams'][0]['sample_rate']
-        print(f"Sample rate: {sample_rate} Hz")
-        return int(sample_rate)
+        print(json.dumps(metadata, indent=4))
+        return metadata
     except subprocess.CalledProcessError as e:
         print(f"Error running ffprobe: {e.stderr}")
-    except (KeyError, IndexError):
-        print("Sample rate not found in ffprobe output.")
+    except json.JSONDecodeError:
+        print("Error decoding ffprobe output.")
 
 if __name__ == "__main__":
-    file_name = 'assets/sound/music/staging/Africa.mp3'
-    get_sample_rate(file_name)
+    file_name = 'assets/sound/music/boston/1 - Boston - More Than a Feeling (Official HD Video).mp3'
+    get_metadata(file_name)

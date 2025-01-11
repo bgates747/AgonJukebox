@@ -75,11 +75,12 @@ if __name__ == "__main__":
         # {"title": "Abbey Road", "artist": "The Beatles", "url": "https://youtu.be/VpV53LqcuhU"},
         # {"title": "Rumours", "artist": "Fleetwood Mac", "url": "https://youtu.be/lrltGatijXc"},
         # {"title": "Physical Graffiti", "artist": "Led Zeppelin", "url": "https://youtu.be/D2HC0G4T74Y"},
-        {"title": "Led Zeppelin I", "artist": "Led Zeppelin", "url": "https://youtu.be/LKbDC3lNVPQ"},
-        {"title": "Led Zeppelin II", "artist": "Led Zeppelin", "url": "https://youtu.be/W2bxOJX-E3M"},
+        # {"title": "Led Zeppelin I", "artist": "Led Zeppelin", "url": "https://youtu.be/LKbDC3lNVPQ"},
+        # {"title": "Led Zeppelin II", "artist": "Led Zeppelin", "url": "https://youtu.be/W2bxOJX-E3M"},
+        {"title": "Owner of a Lonely Heart", "artist": "Yes", "url": "https://youtu.be/AY7ktU1Db2A"}
     ]
 
-    output_directory = "assets/sound/music"
+    output_directory = "assets/sound/music/staging"
 
     for song in songs:
         try:
@@ -88,16 +89,3 @@ if __name__ == "__main__":
             print(f"MP3 file saved at: {mp3_path}")
         except Exception as e:
             print(f"An error occurred while downloading {song['title']} by {song['artist']}: {e}")
-
-
-    # Example usage
-    # youtube_url = "https://youtu.be/0xGPi-Al3zQ" # Rhiannon by Fleetwood Mac
-    # youtube_url = "https://youtu.be/Epj84QVw2rc" # Come Undone by Duran Duran
-    # youtube_url = "https://youtu.be/Kb7lAMjFuA0" # Africa by Toto
-    # youtube_url = "https://youtu.be/6cucosmPj-A"  # Every Breath You Take by The Police
-    # youtube_url = "https://youtu.be/GUBOgWYMBwo"  # Take a Ride by Don Felder
-    # youtube_url = "https://youtu.be/VdOkQ6THDVw"  # Barracuda by Heart
-    # youtube_url = "https://youtu.be/88T131rQCUc"  # Anytime by Journey
-    # youtube_url = "https://youtu.be/bLxApTwMLJI" # Wildflower by The Cult
-    # youtube_url = "https://youtu.be/W_TOsFvnmeQ" # Jukebox Hero by Foreigner
-    # youtube_url = "https://youtu.be/Jtb10ZwbReY" # Won't Get Fooled Again by The Who
