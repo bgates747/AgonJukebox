@@ -4,6 +4,7 @@ import subprocess
 import re
 from tempfile import NamedTemporaryFile
 import tarfile
+import json
 
 def copy_to_temp(file_path):
     """
@@ -12,21 +13,6 @@ def copy_to_temp(file_path):
     temp_file = NamedTemporaryFile(delete=False, suffix=os.path.splitext(file_path)[1])
     shutil.copy(file_path, temp_file.name)
     return temp_file.name
-
-def convert_to_unsigned_pcm_wav(src_path, tgt_path, sample_rate):
-    """
-    Converts an audio file directly to an 8-bit unsigned PCM `.wav` file.
-    Ensures the sample rate and mono output are explicitly set.
-    """
-    subprocess.run([
-        'ffmpeg',
-        '-y',                      # Overwrite output file if it exists
-        '-i', src_path,            # Input file
-        '-ac', '1',                # Ensure mono output
-        '-ar', str(sample_rate),   # Explicitly set the sample rate
-        '-acodec', 'pcm_u8',       # Audio codec: unsigned 8-bit PCM
-        tgt_path                   # Output file (8-bit unsigned PCM `.wav`)
-    ], check=True)
 
 def compress_dynamic_range(input_path, output_path):
     """
@@ -54,10 +40,50 @@ def normalize_audio(input_path, output_path):
         output_path                            # Output file
     ], check=True)
 
+def get_sample_rate(file_path):
+    """
+    Retrieves the sample rate of the audio file using `ffprobe`.
+    Returns the sample rate as an integer.
+    """
+    result = subprocess.run(
+        [
+            'ffprobe',
+            '-v', 'error',          # Suppress non-error messages
+            '-select_streams', 'a:0',  # Focus on the first audio stream
+            '-show_entries', 'stream=sample_rate',  # Get sample rate
+            '-of', 'json',          # Output as JSON for easier parsing
+            file_path
+        ],
+        stdout=subprocess.PIPE,
+        check=True,
+        text=True
+    )
+    metadata = json.loads(result.stdout)
+    return int(metadata['streams'][0]['sample_rate'])
+
+def convert_to_unsigned_pcm_wav(src_path, tgt_path, sample_rate):
+    """
+    Converts an audio file directly to an 8-bit unsigned PCM `.wav` file.
+    Ensures the sample rate and mono output are explicitly set.
+    """
+    if sample_rate == -1:
+        sample_rate = get_sample_rate(src_path)
+    subprocess.run([
+        'ffmpeg',
+        '-y',                      # Overwrite output file if it exists
+        '-i', src_path,            # Input file
+        '-ac', '1',                # Ensure mono output
+        '-ar', str(sample_rate),   # Explicitly set the sample rate
+        '-acodec', 'pcm_u8',       # Audio codec: unsigned 8-bit PCM
+        tgt_path                   # Output file (8-bit unsigned PCM `.wav`)
+    ], check=True)
+
 def resample_wav(input_path, output_path, sample_rate):
     """
     Resamples the audio file to the specified sample rate.
     """
+    if sample_rate == -1:
+        sample_rate = get_sample_rate(input_path)
     subprocess.run([
         'ffmpeg',
         '-y',                      # Overwrite output file
@@ -119,9 +145,11 @@ def create_tar_gz(src_dir, output_dir, sample_rate):
     print(f"Archive created: {archive_name}")
 
 if __name__ == '__main__':
-    sample_rate = 32768
-    sample_rate = 44100
-    sample_rate = 16384
+    # sample_rate = 44100 # Typical CD quality
+    # sample_rate = 32768 # 2x 'native' rate
+    # sample_rate = 16384 # 'native' rate
+    # sample_rate = 15360 # (256*60)
+    sample_rate = -1 # Use the source file's sample rate
     src_dir = 'assets/sound/music/staging'
     tgt_dir = 'tgt/music'
 
