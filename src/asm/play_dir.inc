@@ -85,6 +85,8 @@ play_song:
     asciz "Playing song: "
     ld hl,(ps_song_fn_cur)
     call printString ; print the song filename
+; highlight the song being played
+    call ps_highlight_song
 ; reset text viewport for playing breadcrumbs
     call vp_breadcrumbs
 ; open the file in read mode
@@ -289,6 +291,7 @@ ps_print_dir_page:
     inc a ; increment the song index
     pop bc ; restore loop counter
     djnz @loop
+; print the bottom border
     call print_dir_border_bottom
     ret
 ; end ps_print_dir_page
@@ -314,6 +317,38 @@ ps_print_dir:
     pop hl ; dummy pop to balance stack
     ret
 ; end ps_print_dir
+
+ps_highlight_song:
+; refresh the directory listing
+    call ps_print_dir_page
+; highlight the song being played in the directory listing
+    ld a,(ps_song_idx_cur)
+    ld d,vp_dir_top
+    add a,d
+    ld c,vp_dir_left
+    ld d,a
+    ld e,vp_dir_right
+    ld b,a
+    call vdu_set_txt_viewport
+; set text background color
+    ld a,c_white+128
+    call vdu_colour_text
+; set text foreground color
+    ld a,c_blue_dk
+    call vdu_colour_text
+; print the index and song filename
+    ld a,(ps_song_idx_cur)
+    call printHexA
+    ld hl,(ps_song_fn_cur)
+    call printString
+; set text background color
+    ld a,c_blue_dk+128
+    call vdu_colour_text
+; set text foreground color
+    ld a,c_white
+    call vdu_colour_text
+    ret
+; end ps_highlight_song
 
 ps_dir_next_page:
 ; advance the page number
