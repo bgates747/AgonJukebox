@@ -319,6 +319,9 @@ ps_print_dir:
 
 ; get the filename of the song at the current index
 ; inputs: a = song index
+; returns: carry set if song index in range, new filemame in hl and ps_song_idx_cur, ps_song_fn_cur set to new index
+;          carry reset if song index out of range, current filename in hl, ps_song_idx_cur, ps_song_fn_cur unchanged
+; destroys: af, bc, de
 ps_get_song_fn_from_pg_idx:
     push af ; save song index
     call ps_get_page_num_files ; b = number of files on the page
@@ -343,6 +346,8 @@ ps_play_random:
 ; back up current song index
     ld hl,(ps_song_fn_cur)
     ld (@songFn),hl
+; get the number of songs in the current directory
+    call ps_get_page_num_files
 ; get a random song index
     call rand_8 ; a = 0-255
     ld h,a
