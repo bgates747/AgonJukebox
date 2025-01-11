@@ -43,6 +43,7 @@ exit:
     include "vdu_sound.inc"
 
 ; APPLICATION INCLUDES
+    include "layout.inc"
     include "ascii.inc"
     include "input_dir.inc"
     include "play_dir.inc"
@@ -113,9 +114,7 @@ init:
 ; print first 10 files in the directory
     call printNewLine
     call ps_print_dir_page
-    ld hl,str_thick_dashes
-    call printString
-    call printNewLine
+    ; call print_dir_border_bottom
 ; initialize play sample timer interrupt handler
     call ps_prt_irq_init
     ret
