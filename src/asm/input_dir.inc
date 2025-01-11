@@ -7,6 +7,27 @@ get_input:
 ; app control commands
     cp '\e' ; escape
     ret z ; returns to main, which re-enables interrupts and exits app
+; prt time tweaking
+    cp '[' ; decrease PRT timer reload value
+    jp nz,@F
+    ld hl,(ps_prt_reload)
+    ld de,-720 ; 10 ms
+    add hl,de
+    ld (ps_prt_reload),hl
+    call ps_prt_start
+    ei 
+    jp @loop
+@@: 
+    cp ']' ; increase PRT timer reload value
+    jp nz,@F
+    ld hl,(ps_prt_reload)
+    ld de,720 ; 10 ms
+    add hl,de
+    ld (ps_prt_reload),hl
+    call ps_prt_start
+    ei 
+    jp @loop
+@@:
 ; directory page navigation
     cp 0x15 ; right arrow
     jp z,ps_dir_next_page
