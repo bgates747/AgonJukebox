@@ -34,7 +34,7 @@ exit:
     include "maths.inc"
     include "files.inc"
     include "fixed168.inc"
-    include "timer.inc"
+    include "timer_test.inc" ; DEBUG
     include "vdu.inc"
     include "vdu_buffered_api.inc"
     include "vdu_fonts.inc"
@@ -42,13 +42,12 @@ exit:
     include "vdu_sound.inc"
 
 ; APPLICATION INCLUDES
-    include "timer_jukebox.inc"
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
 init:
 ; initialize play sample timer interrupt handler
-    call ps_prt_irq_init
+    call prt_irq_init
     call printNewLine
     ret
 ; end init
@@ -60,12 +59,12 @@ main:
     push bc
 ; synchronise MOS timer with VBLANK
     call vdu_vblank
-; set a MOS timer for 10 seconds
+; set a MOS timer
     ld iy,tmr_test
-    ld hl,[120*10] ; 120 ticks per second
+    ld hl,[120*1] ; 120 ticks per second
     call tmr_set
 ; start the PRT timer
-    call ps_prt_start
+    call prt_start
 @loop:
 ; check MOS timer
     call tmr_get
@@ -73,9 +72,9 @@ main:
     jp m,@F
     jp @loop
 @@: ; stop the PRT timer
-    call ps_prt_stop
+    call prt_stop
 ; display the interrupt count
-    ld hl,(ps_prt_irq_counter)
+    ld hl,(prt_irq_counter)
     call printDec
     call printNewLine
 ; decrement the loop counter
