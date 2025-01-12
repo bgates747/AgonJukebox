@@ -55,3 +55,20 @@ print_dir_border_bottom:
     call printString
     ret
 ; end vp_dir_border
+
+vp_prt_reload_left: equ 0
+vp_prt_reload_top: equ vp_dir_bottom+1
+vp_prt_reload_right: equ text_right
+vp_prt_reload_bottom: equ vp_prt_reload_top
+vp_prt_reload:
+    ld c,vp_prt_reload_left
+    ld d,vp_prt_reload_top
+    ld e,vp_prt_reload_right
+    ld b,vp_prt_reload_bottom
+    call vdu_set_txt_viewport
+    call vdu_cls
+    call printInline
+    asciz "PRT reload: "
+    ld hl,(ps_prt_reload)
+    call printDec
+    ret

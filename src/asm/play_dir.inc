@@ -8,8 +8,14 @@ ch1_buffer: equ 0x3001
 cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
 
+; ps_mode bitmasks
+ps_mode_playing: equ %00000001 ; 0 = paused 1 = playing, p key toggles
+ps_mode_loop:    equ 000000010 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
+ps_mode_shuffle: equ %00000100 ; 0 = shuffle off 1 = on, s key toggles
+
 ; play_song state variables
 ; current active channel and bufferId's
+ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
@@ -103,6 +109,9 @@ play_song:
     call ps_read_wav_header
 ; read the first block of data
     call ps_read_file
+; set ps_mode_playing
+    ld hl,ps_mode
+    set ps_mode_playing,(hl)
 ; enable interrupts and start the PRT timer
     ei
     call ps_prt_start
