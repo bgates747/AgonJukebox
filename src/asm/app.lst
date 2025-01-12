@@ -2,7 +2,8 @@ PC     Output      Line
 040000             0001        assume adl=1
 040000             0002        org 0x040000
 040000 C3 45 00 04 0003        jp start
-040004 FF FF FF FF 0004        align 64
+040004             0004        align 64
+       FF FF FF FF 
        FF FF FF FF 
        FF FF FF FF 
        FF FF FF FF 
@@ -507,6 +508,7 @@ PC     Output      Line
 0400A0             0069*   ; HLU: Number to print
 0400A0             0070*   printHex24:
 0400A0             0071*       HLU_TO_A
+                       M1 Args: none
 0400A0 3B          0001*M1     dec sp ; 1 cycle
 0400A1 E5          0002*M1     push hl ; 4 cycles
 0400A2 33          0003*M1     inc sp ; 1 cycle
@@ -683,6 +685,7 @@ PC     Output      Line
 040167 E5          0237*       push hl ; Save HL (we’ll need the fractional part later)
 040168             0238*       ; call hlu_udiv256 ; Shift to get integer portion in HL
 040168             0239*       SRL_UHL ; Shift to get integer portion in HL
+                       M1 Args: none
 040168 3B          0001*M1     dec sp ; 1 cycle
 040169 E5          0002*M1     push hl ; 4 cycles
 04016A 33          0003*M1     inc sp ; 1 cycle
@@ -1015,6 +1018,7 @@ PC     Output      Line
 04035A             0542*   ; destroys: af,ix
 04035A             0543*   waitKeypress:
 04035A             0544*       MOSCALL mos_getkey
+                       M1 Args: function=mos_getkey 
 04035A 3E 00       0001*M1 			LD	A, function
 04035C 5B CF       0002*M1 			RST.LIL	08h
 04035E C9          0545*       ret
@@ -1387,6 +1391,7 @@ PC     Output      Line
 0404BC AF          0078*       xor a ; assume hl is positive
 0404BD 22 D3 04 04 0079*       ld (@buffer),hl
 0404C1             0080*       SIGN_HLU
+                       M1 Args: none
 0404C1 19          0001*M1     add hl,de ; 1 cycle
 0404C2 B7          0002*M1     or a ; clear flags ; 1 cycle
 0404C3 ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -1433,6 +1438,7 @@ PC     Output      Line
 0404F5 D5          0118*       push de ; save n
 0404F6 CD 80 03 04 0119*       call udiv24 ; de = quotient, hl = remainder
 0404FA             0120*       SIGN_HLU ; test remaider for zero
+                       M1 Args: none
 0404FA 19          0001*M1     add hl,de ; 1 cycle
 0404FB B7          0002*M1     or a ; clear flags ; 1 cycle
 0404FC ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -2144,6 +2150,7 @@ PC     Output      Line
 040B47             0165*   @div256:
 040B47             0166*   ; multiply remainder by 256
 040B47             0167*       hlu_mul256
+                       M1 Args: none
 040B47 29          0001*M1     add hl,hl ; * 2
 040B48 29          0002*M1     add hl,hl ; * 4
 040B49 29          0003*M1     add hl,hl ; * 8
@@ -2154,6 +2161,7 @@ PC     Output      Line
 040B4E 29          0008*M1     add hl,hl ; * 256
 040B4F             0168*   ; skip fractional computation if remainder is zero
 040B4F             0169*       SIGN_HLU
+                       M1 Args: none
 040B4F 19          0001*M1     add hl,de ; 1 cycle
 040B50 B7          0002*M1     or a ; clear flags ; 1 cycle
 040B51 ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -2414,6 +2422,7 @@ PC     Output      Line
 040C93 CD 70 04 04 0402*       call hlu_abs
 040C97             0403*       ; call hlu_udiv256 ; make integer to avoid overflow
 040C97             0404*       SRL_UHL ; make integer to avoid overflow
+                       M1 Args: none
 040C97 3B          0001*M1     dec sp ; 1 cycle
 040C98 E5          0002*M1     push hl ; 4 cycles
 040C99 33          0003*M1     inc sp ; 1 cycle
@@ -2430,6 +2439,7 @@ PC     Output      Line
 040CA9 CD 70 04 04 0411*       call hlu_abs
 040CAD             0412*       ; call hlu_udiv256 ; make integer to avoid overflow
 040CAD             0413*       SRL_UHL ; make integer to avoid overflow
+                       M1 Args: none
 040CAD 3B          0001*M1     dec sp ; 1 cycle
 040CAE E5          0002*M1     push hl ; 4 cycles
 040CAF 33          0003*M1     inc sp ; 1 cycle
@@ -2447,6 +2457,7 @@ PC     Output      Line
 040CBC CD BA 0D 04 0421*       call sqrt24 ; de = sqrt(dx^2 + dy^2)
 040CC0 EB          0422*       ex de,hl ; hl = distance
 040CC1             0423*       hlu_mul256 ; convert back to 16.8 fixed
+                       M1 Args: none
 040CC1 29          0001*M1     add hl,hl ; * 2
 040CC2 29          0002*M1     add hl,hl ; * 4
 040CC3 29          0003*M1     add hl,hl ; * 8
@@ -3668,6 +3679,7 @@ PC     Output      Line
 04160F             0268*   tmr_set:
 04160F FD 2F 03    0269*       ld (iy+3),hl            ; set time remaining
 041612             0270*       MOSCALL mos_sysvars     ; ix points to syvars table
+                       M1 Args: function=mos_sysvars 
 041612 3E 08       0001*M1 			LD	A, function
 041614 5B CF       0002*M1 			RST.LIL	08h
 041616 DD 27 00    0271*       ld hl,(ix+sysvar_time)  ; get current time
@@ -3680,6 +3692,7 @@ PC     Output      Line
 04161D             0278*   ;          sign flags: pos = time not expired,zero or neg = time expired
 04161D             0279*   tmr_get:
 04161D             0280*       MOSCALL mos_sysvars     ; ix points to syvars table
+                       M1 Args: function=mos_sysvars 
 04161D 3E 08       0001*M1 			LD	A, function
 04161F 5B CF       0002*M1 			RST.LIL	08h
 041621 DD 17 00    0281*       ld de,(ix+sysvar_time)  ; get current time
@@ -3712,6 +3725,7 @@ PC     Output      Line
 041645 ED 53 3A 16 0305*       ld (timestamp_old),de   ; save previous time
        04          
 04164A             0306*       MOSCALL mos_sysvars     ; ix points to syvars table
+                       M1 Args: function=mos_sysvars 
 04164A 3E 08       0001*M1 			LD	A, function
 04164C 5B CF       0002*M1 			RST.LIL	08h
 04164E DD 27 00    0307*       ld hl,(ix+sysvar_time)  ; get current time
@@ -3755,6 +3769,7 @@ PC     Output      Line
 04167A             0344*   ; destroys: hl,ix
 04167A             0345*   stopwatch_set:
 04167A             0346*       MOSCALL mos_sysvars     ; ix points to syvars table
+                       M1 Args: function=mos_sysvars 
 04167A 3E 08       0001*M1 			LD	A, function
 04167C 5B CF       0002*M1 			RST.LIL	08h
 04167E DD 27 00    0347*       ld hl,(ix+sysvar_time)  ; get current time
@@ -3766,6 +3781,7 @@ PC     Output      Line
 041686             0353*   ; destroys: af,hl,de,ix
 041686             0354*   stopwatch_get:
 041686             0355*       MOSCALL mos_sysvars     ; ix points to syvars table
+                       M1 Args: function=mos_sysvars 
 041686 3E 08       0001*M1 			LD	A, function
 041688 5B CF       0002*M1 			RST.LIL	08h
 04168A DD 27 00    0356*       ld hl,(ix+sysvar_time)  ; get current time
@@ -3979,6 +3995,7 @@ PC     Output      Line
 041778             0151*   vdu_vblank:
 041778 DD E5       0152*       PUSH 	IX
 04177A             0153*   	MOSCALL	mos_sysvars
+                       M1 Args: function=mos_sysvars 
 04177A 3E 08       0001*M1 			LD	A, function
 04177C 5B CF       0002*M1 			RST.LIL	08h
 04177E DD 7E 00    0154*   	LD	A, (IX + sysvar_time + 0)
@@ -4099,6 +4116,7 @@ PC     Output      Line
 0417E3             0263*   ; destroys: af, ix
 0417E3             0264*   vdu_get_screen_mode:
 0417E3             0265*       MOSCALL mos_sysvars
+                       M1 Args: function=mos_sysvars 
 0417E3 3E 08       0001*M1 			LD	A, function
 0417E5 5B CF       0002*M1 			RST.LIL	08h
 0417E7 DD 7E 27    0266*       ld a,(IX+sysvar_scrMode)
@@ -4324,6 +4342,7 @@ PC     Output      Line
 04191C E1          0480*   	pop hl
 04191D 0E 01       0481*   	ld c,fa_read
 04191F             0482*       MOSCALL mos_fopen
+                       M1 Args: function=mos_fopen 
 04191F 3E 0A       0001*M1 			LD	A, function
 041921 5B CF       0002*M1 			RST.LIL	08h
 041923 32 5E 19 04 0483*       ld (@filehandle),a
@@ -4340,6 +4359,7 @@ PC     Output      Line
 04192C 21 00 E0 B7 0494*       ld hl,filedata
 041930 11 00 20 00 0495*       ld de,8192 ; max we can read into onboard sram at one time
 041934             0496*       MOSCALL mos_fread
+                       M1 Args: function=mos_fread 
 041934 3E 1A       0001*M1 			LD	A, function
 041936 5B CF       0002*M1 			RST.LIL	08h
 041938             0497*   
@@ -4364,6 +4384,7 @@ PC     Output      Line
 041955             0516*   @close_file:
 041955 3A 5E 19 04 0517*       ld a,(@filehandle)
 041959             0518*       MOSCALL mos_fclose
+                       M1 Args: function=mos_fclose 
 041959 3E 0B       0001*M1 			LD	A, function
 04195B 5B CF       0002*M1 			RST.LIL	08h
 04195D C9          0519*       ret ; vdu_load_buffer_from_file
@@ -5590,6 +5611,7 @@ PC     Output      Line
 0421A7             0002*   @loop:
 0421A7             0003*   ; wait for the user to push a button
 0421A7             0004*       MOSCALL mos_getkey ; a = ascii code of key pressed
+                       M1 Args: function=mos_getkey 
 0421A7 3E 00       0001*M1 			LD	A, function
 0421A9 5B CF       0002*M1 			RST.LIL	08h
 0421AB F3          0005*       di ; disable interrupts
@@ -5999,6 +6021,7 @@ PC     Output      Line
 04267F 2A 84 24 04 0104*       ld hl,(ps_song_fn_cur)
 042683 0E 01       0105*   	ld c,fa_read
 042685             0106*       MOSCALL mos_fopen
+                       M1 Args: function=mos_fopen 
 042685 3E 0A       0001*M1 			LD	A, function
 042687 5B CF       0002*M1 			RST.LIL	08h
 042689 32 E2 24 04 0107*       ld (ps_filehandle_cur),a
@@ -6038,6 +6061,7 @@ PC     Output      Line
 0426B2 ED 5B 14 26 0141*       ld de,(ps_wav_sample_rate)
        04          
 0426B7             0142*       MOSCALL mos_fread
+                       M1 Args: function=mos_fread 
 0426B7 3E 1A       0001*M1 			LD	A, function
 0426B9 5B CF       0002*M1 			RST.LIL	08h
 0426BB             0143*   ; test de for zero bytes read
@@ -6087,6 +6111,7 @@ PC     Output      Line
 042709 CD DD 29 04 0187*       call ps_prt_stop ; stop the PRT timer
 04270D 3A E2 24 04 0188*       ld a,(ps_filehandle_cur)
 042711             0189*       MOSCALL mos_fclose
+                       M1 Args: function=mos_fclose 
 042711 3E 0B       0001*M1 			LD	A, function
 042713 5B CF       0002*M1 			RST.LIL	08h
 042715 C9          0190*       ret
@@ -6100,18 +6125,21 @@ PC     Output      Line
 04271E 21 74 22 04 0198*       ld hl,ps_dir_path  ; where to store result
 042722 01 FF 00 00 0199*       ld bc,255          ; max length
 042726             0200*       MOSCALL ffs_getcwd ; MOS api get current working directory
+                       M1 Args: function=ffs_getcwd 
 042726 3E 9E       0001*M1 			LD	A, function
 042728 5B CF       0002*M1 			RST.LIL	08h
 04272A             0201*   ; now get dir info
 04272A 21 C3 24 04 0202*       ld hl,ps_dir_struct ; define where to store directory info
 04272E 11 74 22 04 0203*       ld de,ps_dir_path   ; this is pointer to the path to the directory
 042732             0204*       MOSCALL ffs_dopen   ; open dir
+                       M1 Args: function=ffs_dopen 
 042732 3E 91       0001*M1 			LD	A, function
 042734 5B CF       0002*M1 			RST.LIL	08h
 042736             0205*   @readFileInfo:               ; we will loop here until all files have been processed
 042736 21 C3 24 04 0206*       ld hl,ps_dir_struct      ; HL is where to get directory info
 04273A 11 E6 24 04 0207*       ld de,ps_filinfo_struct  ; define where to store current file info
 04273E             0208*       MOSCALL ffs_dread        ; read next item from dir
+                       M1 Args: function=ffs_dread 
 04273E 3E 93       0001*M1 			LD	A, function
 042740 5B CF       0002*M1 			RST.LIL	08h
 042742 3A FC 24 04 0209*       ld a,(ps_filinfo_fname)  ; get first char of file name
@@ -6137,6 +6165,7 @@ PC     Output      Line
 042775 11 0A 00 00 0227*       ld de,10 ; max files per page
 042779 CD 80 03 04 0228*       call udiv24 ; de = hl/10, hl = mod(hl,10)
 04277D             0229*       SIGN_HLU ; check remainder for zero
+                       M1 Args: none
 04277D 19          0001*M1     add hl,de ; 1 cycle
 04277E B7          0002*M1     or a ; clear flags ; 1 cycle
 04277F ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -6156,6 +6185,7 @@ PC     Output      Line
 0427A0             0241*   ; close the directory
 0427A0 21 C3 24 04 0242*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
 0427A4             0243*       MOSCALL ffs_dclose       ; close dir
+                       M1 Args: function=ffs_dclose 
 0427A4 3E 92       0001*M1 			LD	A, function
 0427A6 5B CF       0002*M1 			RST.LIL	08h
 0427A8 C9          0244*       ret
@@ -6243,6 +6273,7 @@ PC     Output      Line
 042834 2B          0322*       dec hl ; decrement the loop counter
 042835 E5          0323*       push hl ; save loop counter
 042836             0324*       SIGN_HLU ; check for zero
+                       M1 Args: none
 042836 19          0001*M1     add hl,de ; 1 cycle
 042837 B7          0002*M1     or a ; clear flags ; 1 cycle
 042838 ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -6307,6 +6338,7 @@ PC     Output      Line
 04289F 2A 80 24 04 0381*       ld hl,(ps_page_cur) ; get the current page number
 0428A3 2B          0382*       dec hl ; decrement the page number
 0428A4             0383*       SIGN_HLU ; check for zero
+                       M1 Args: none
 0428A4 19          0001*M1     add hl,de ; 1 cycle
 0428A5 B7          0002*M1     or a ; clear flags ; 1 cycle
 0428A6 ED 52       0003*M1     sbc hl,de ; 2 cycles
@@ -6386,6 +6418,7 @@ PC     Output      Line
 04291D 21 FC 25 04 0456*       ld hl,ps_wav_header
 042921 11 4C 00 00 0457*       ld de,wav_header_size
 042925             0458*       MOSCALL mos_fread
+                       M1 Args: function=mos_fread 
 042925 3E 1A       0001*M1 			LD	A, function
 042927 5B CF       0002*M1 			RST.LIL	08h
 042929             0459*   ; test de for zero bytes read
@@ -6483,7 +6516,7 @@ PC     Output      Line
 0429BD             0551*   ps_cmd1_end:
 0429BD             0552*   ; end ps_load_command_buffers
 0429BD             0050        include "timer_jukebox.inc"
-0429BD A1 8C 00    0001*   ps_prt_reload: dl [72000/2]+1 ; 36001 = 2 ticks per second at 18.432 MHz with a 256 clock divider
+0429BD A0 8C 00    0001*   ps_prt_reload: dl [72000/2] ; 36000 = 2 ticks per second at 18.432 MHz with a 256 clock divider
 0429C0             0002*   
 0429C0             0003*   ; start PRT timer
 0429C0             0004*   ps_prt_start:
@@ -6542,6 +6575,7 @@ PC     Output      Line
 042A02 D9          0057*       exx
 042A03             0058*   ; clear sysvar_keyascii
 042A03             0059*   	MOSCALL mos_sysvars
+                       M1 Args: function=mos_sysvars 
 042A03 3E 08       0001*M1 			LD	A, function
 042A05 5B CF       0002*M1 			RST.LIL	08h
 042A07 AF          0060*   	xor a
@@ -6781,6 +6815,7 @@ PC     Output      Line
 042B7B             0176*   
 042B7B             0177*   ; check for right shift key and quit if pressed
 042B7B             0178*       MOSCALL mos_getkbmap
+                       M1 Args: function=mos_getkbmap 
 042B7B 3E 1E       0001*M1 			LD	A, function
 042B7D 5B CF       0002*M1 			RST.LIL	08h
 042B7F             0179*   @stayhere:
@@ -7138,6 +7173,7 @@ PC     Output      Line
 042D80             0509*   
 042D80             0510*   DEBUG_PRINT:
 042D80             0511*       PUSH_ALL
+                       M1 Args: none
 042D80 08          0001*M1     ex af,af'
 042D81 D9          0002*M1     exx
 042D82 F5          0003*M1     push af
@@ -7158,6 +7194,7 @@ PC     Output      Line
 042D90             0514*       ; call vdu_move_cursor
 042D90 CD 7C 00 04 0515*       call printNewLine
 042D94             0516*       POP_ALL
+                       M1 Args: none
 042D94 FD E1       0001*M1     pop iy
 042D96 DD E1       0002*M1     pop ix
 042D98 D1          0003*M1     pop de
@@ -7174,6 +7211,7 @@ PC     Output      Line
 042DA2 08          0014*M1     ex af,af'
 042DA3 D9          0015*M1     exx
 042DA4             0517*       PUSH_ALL
+                       M1 Args: none
 042DA4 08          0001*M1     ex af,af'
 042DA5 D9          0002*M1     exx
 042DA6 F5          0003*M1     push af
@@ -7191,6 +7229,7 @@ PC     Output      Line
 042DB2 FD E5       0015*M1     push iy
 042DB4 CD BB 2C 04 0518*       call dumpFlags
 042DB8             0519*       POP_ALL
+                       M1 Args: none
 042DB8 FD E1       0001*M1     pop iy
 042DBA DD E1       0002*M1     pop ix
 042DBC D1          0003*M1     pop de
@@ -7207,6 +7246,7 @@ PC     Output      Line
 042DC6 08          0014*M1     ex af,af'
 042DC7 D9          0015*M1     exx
 042DC8             0520*       PUSH_ALL
+                       M1 Args: none
 042DC8 08          0001*M1     ex af,af'
 042DC9 D9          0002*M1     exx
 042DCA F5          0003*M1     push af
@@ -7226,6 +7266,7 @@ PC     Output      Line
 042DDC             0522*       ; call waitKeypress
 042DDC CD 7C 00 04 0523*       call printNewLine
 042DE0             0524*       POP_ALL
+                       M1 Args: none
 042DE0 FD E1       0001*M1     pop iy
 042DE2 DD E1       0002*M1     pop ix
 042DE4 D1          0003*M1     pop de
@@ -7244,6 +7285,7 @@ PC     Output      Line
 042DF0 C9          0525*       ret
 042DF1             0526*   DEBUG_WAITKEYPRESS:
 042DF1             0527*       PUSH_ALL
+                       M1 Args: none
 042DF1 08          0001*M1     ex af,af'
 042DF2 D9          0002*M1     exx
 042DF3 F5          0003*M1     push af
@@ -7261,6 +7303,7 @@ PC     Output      Line
 042DFF FD E5       0015*M1     push iy
 042E01 CD 5A 03 04 0528*       call waitKeypress
 042E05             0529*       POP_ALL
+                       M1 Args: none
 042E05 FD E1       0001*M1     pop iy
 042E07 DD E1       0002*M1     pop ix
 042E09 D1          0003*M1     pop de
@@ -7280,6 +7323,7 @@ PC     Output      Line
 042E16             0531*   
 042E16             0532*   dumpVduCmdStr:
 042E16             0533*       PUSH_ALL
+                       M1 Args: none
 042E16 08          0001*M1     ex af,af'
 042E17 D9          0002*M1     exx
 042E18 F5          0003*M1     push af
@@ -7299,6 +7343,7 @@ PC     Output      Line
 042E27 CD 0C 2D 04 0535*       call dumpMemoryHex
 042E2B CD 5A 03 04 0536*       call waitKeypress
 042E2F             0537*       POP_ALL
+                       M1 Args: none
 042E2F FD E1       0001*M1     pop iy
 042E31 DD E1       0002*M1     pop ix
 042E33 D1          0003*M1     pop de
@@ -7324,6 +7369,7 @@ PC     Output      Line
 042E41             0058    ; change directory to music
 042E41 21 31 2F 04 0059        ld hl,cmd_cd_music
 042E45             0060        MOSCALL mos_oscli
+                       M1 Args: function=mos_oscli 
 042E45 3E 10       0001M1  			LD	A, function
 042E47 5B CF       0002M1  			RST.LIL	08h
 042E49             0061    ; call directory page listing
@@ -7460,6 +7506,7 @@ PC     Output      Line
 042FD9             0141    ; change back to directory containing the program
 042FD9 21 3A 2F 04 0142        ld hl,cmd_cd_up
 042FDD             0143        MOSCALL mos_oscli
+                       M1 Args: function=mos_oscli 
 042FDD 3E 10       0001M1  			LD	A, function
 042FDF 5B CF       0002M1  			RST.LIL	08h
 042FE1             0144    ; print thanks for playing message
