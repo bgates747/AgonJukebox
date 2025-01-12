@@ -88,7 +88,13 @@ if __name__ == "__main__":
         # {"title": "Adagio for Strings", "artist": "Samuel Barber", "url": "https://youtu.be/WAoLJ8GbA4Y"},
         # {"title": "Spiegel im Spiegel", "artist": "Arvo Pärt", "url": "https://youtu.be/TJ6Mzvh3XCc"},
         # {"title": "Quartet No. 15 in A Minor, Op. 132, 3rd Mov. (Molto Adagio)", "artist": "Ludwig van Beethoven", "url": "https://youtu.be/gumi5pEpOaA"}
-        {"title": "Fantasia on a Theme", "artist": "Ralph Vaughan Williams", "url": "https://youtu.be/ihx5LCF1yJY"}
+        # {"title": "Fantasia on a Theme", "artist": "Ralph Vaughan Williams", "url": "https://youtu.be/ihx5LCF1yJY"},
+        # {"title": "Moonlight Sonata", "artist": "Ludwig van Beethoven", "url": "https://youtu.be/4Tr0otuiQuU"}
+        # {"title": "Canon in D", "artist": "Johann Pachelbel", "url": "https://youtu.be/NlprozGcs80"},
+        # {"title": "String Quintet in E Major, Op. 11, No. 5: Minuet", "artist": "Luigi Boccherini", "url": "https://youtu.be/5fLPBIBOE5U"},
+        # {"title": "Concerto Grosso in G Minor, Op. 6, No. 8 (Christmas Concerto)", "artist": "Arcangelo Corelli", "url": "https://youtu.be/RydMnTCwJvQ"},
+        # {"title": "Passacalle (Passacaglia) from String Quintet in C Major, G. 324", "artist": "Luigi Boccherini", "url": "https://youtu.be/EvEePDXL1AE"},
+        {"title": "Bach - Complete Cello Suites", "artist": "Massimiliano Martinelli", "url": "https://youtu.be/32FpqysC1PY"}
     ]
 
     output_directory = "assets/sound/music/staging"
