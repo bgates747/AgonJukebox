@@ -11,9 +11,11 @@ get_input:
     cp '[' ; decrease PRT timer reload value
     jp nz,@F
     ld hl,(ps_prt_reload)
-    ld de,-720 ; 10 ms
+    ld de,-72 ; 1 ms
     add hl,de
     ld (ps_prt_reload),hl
+    call vp_prt_reload
+    call vp_breadcrumbs
     call ps_prt_start
     ei 
     jp @loop
@@ -21,26 +23,59 @@ get_input:
     cp ']' ; increase PRT timer reload value
     jp nz,@F
     ld hl,(ps_prt_reload)
-    ld de,720 ; 10 ms
+    ld de,72 ; 1 ms
     add hl,de
     ld (ps_prt_reload),hl
+    call vp_prt_reload
+    call vp_breadcrumbs
     call ps_prt_start
     ei 
     jp @loop
+; DIRECTORY PAGING
 @@:
-; directory page navigation
     cp 0x15 ; right arrow
     jp z,ps_dir_next_page
     cp 0x08 ; left arrow
     jp z,ps_dir_prev_page
-; song playing commands
-    cp 'r' ; random song
-    jp z,ps_play_random
+; SONG PLAYING COMMANDS
+; toggle pause playback
+    cp 'p'
+    jp nz,@F
+    ld a,ps_mode_playing
+    ld hl,ps_mode
+    xor a,(hl)
+    ld (hl),a
+    jp @loop
+; toggle loop play
+    cp 'l'
+    jp nz,@F
+    ld a,ps_mode_loop
+    ld hl,ps_mode
+    xor a,(hl)
+    ld (hl),a
+    jp @loop
+; toggle shuffle play
+    cp 's'
+    jp nz,@F
+    ld a,ps_mode_shuffle
+    ld hl,ps_mode
+    xor a,(hl)
+    ld (hl),a
+    jp @loop
+; play random song
+    cp 'r'
+    jp nz,@F
+    ld a,ps_mode_shuffle
+    ld hl,ps_mode
+    or a,(hl)
+    ld (hl),a
+    jp ps_play_random
+; 0-9 play song keys
+@@: 
     cp '0'
     jp c,@no_cmd ; not a song command
     cp '9'+1
     jp nc,@no_cmd ; not a song command
-; new song requested so stop playing current one
     push af ; preserve keypress
     call ps_close_file
     pop af ; restore keypress

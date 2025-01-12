@@ -1,4 +1,4 @@
-ps_prt_reload: dl [72000/2]+1 ; 2 ticks per second at 18.432 MHz with a 256 clock divider
+ps_prt_reload: dl [72000/2]+1 ; 36001 = 2 ticks per second at 18.432 MHz with a 256 clock divider
 
 ; start PRT timer
 ps_prt_start:
@@ -66,7 +66,11 @@ ps_prt_irq_handler:
     and 1 ; modulo 2
     ld (ps_prt_irq_counter),a
 ; if counter zero, play the next sample
-    call z,ps_play_sample
+    jp nz,@F
+    ld hl,ps_mode
+    bit ps_mode_playing,(hl)
+    call nz,ps_play_sample
+@@:
     exx
     ex af,af'
     ei
