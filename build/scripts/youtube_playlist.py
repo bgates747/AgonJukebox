@@ -31,7 +31,7 @@ def download_youtube_playlist(playlist_url, output_dir):
         raise
 
 if __name__ == "__main__":
-    playlist_url = "https://www.youtube.com/playlist?list=OLAK5uy_nIa5hnaHDjHpT76qUwvQaAgxpeu8XoSkk"
+    playlist_url = "https://www.youtube.com/playlist?list=PLxzSZG7g8c8xUj1KGNhO1eOWLeghdJCt9"
     output_directory = "assets/sound/music/boston"
     try:
         download_youtube_playlist(playlist_url, output_directory)

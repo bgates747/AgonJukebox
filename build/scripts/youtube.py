@@ -77,7 +77,18 @@ if __name__ == "__main__":
         # {"title": "Physical Graffiti", "artist": "Led Zeppelin", "url": "https://youtu.be/D2HC0G4T74Y"},
         # {"title": "Led Zeppelin I", "artist": "Led Zeppelin", "url": "https://youtu.be/LKbDC3lNVPQ"},
         # {"title": "Led Zeppelin II", "artist": "Led Zeppelin", "url": "https://youtu.be/W2bxOJX-E3M"},
-        {"title": "Owner of a Lonely Heart", "artist": "Yes", "url": "https://youtu.be/AY7ktU1Db2A"}
+        # {"title": "Owner of a Lonely Heart", "artist": "Yes", "url": "https://youtu.be/AY7ktU1Db2A"},
+        # {"title": "Don't Look Back", "artist": "Boston", "url": "https://youtu.be/XmU4Xyl00hY"},
+        # {"title": "Air on the G String", "artist": "Johann Sebastian Bach", "url": "https://youtu.be/1PkD47rNkfY"},
+        # {"title": "Mozart Adagio for Violin and Orchestra in E Major K 261", "artist": "Itzhak Perlman", "url": "https://youtu.be/XSrOwiuJ0jg"},
+        # {"title": "String Quartet No. 13 in A Minor (Rosamunde)", "artist": "Franz Schubert", "url": "https://youtu.be/HFIJMPCc8xs"},
+        # {"title": "Serenade for Strings Op. 20", "artist": "Edward Elgar", "url": "https://youtu.be/f4XK0oF88hc"},
+        # {"title": "Clair de lune (arr. for strings)", "artist": "Claude Debussy", "url": "https://www.youtube.com/watch?v=BubaEmJg4so"},
+        # {"title": "Concerto for Strings in G Minor, RV 157", "artist": "Antonio Vivaldi", "url": "https://youtu.be/OWH4ewG88_g"},
+        # {"title": "Adagio for Strings", "artist": "Samuel Barber", "url": "https://youtu.be/WAoLJ8GbA4Y"},
+        # {"title": "Spiegel im Spiegel", "artist": "Arvo Pärt", "url": "https://youtu.be/TJ6Mzvh3XCc"},
+        # {"title": "Quartet No. 15 in A Minor, Op. 132, 3rd Mov. (Molto Adagio)", "artist": "Ludwig van Beethoven", "url": "https://youtu.be/gumi5pEpOaA"}
+        {"title": "Fantasia on a Theme", "artist": "Ralph Vaughan Williams", "url": "https://youtu.be/ihx5LCF1yJY"}
     ]
 
     output_directory = "assets/sound/music/staging"
