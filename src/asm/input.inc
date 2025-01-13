@@ -7,32 +7,7 @@ get_input:
 ; app control commands
     cp '\e' ; escape
     ret z ; returns to main, which re-enables interrupts and exits app
-; prt time tweaking
-    cp '[' ; decrease PRT timer reload value
-    jp nz,@F
-    ld hl,(ps_prt_reload)
-    ld de,-72 ; 1 ms
-    add hl,de
-    ld (ps_prt_reload),hl
-    call vp_prt_reload
-    call vp_breadcrumbs
-    call ps_prt_start
-    ei 
-    jp @loop
-@@: 
-    cp ']' ; increase PRT timer reload value
-    jp nz,@F
-    ld hl,(ps_prt_reload)
-    ld de,72 ; 1 ms
-    add hl,de
-    ld (ps_prt_reload),hl
-    call vp_prt_reload
-    call vp_breadcrumbs
-    call ps_prt_start
-    ei 
-    jp @loop
 ; DIRECTORY PAGING
-@@:
     cp 0x15 ; right arrow
     jp z,ps_dir_next_page
     cp 0x08 ; left arrow
