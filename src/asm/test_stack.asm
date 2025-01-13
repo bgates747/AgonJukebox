@@ -61,8 +61,6 @@ init:
     ret
 ; end init
 
-cmd_cd_music: asciz "cd music"
-cmd_cd_up: asciz "cd .."
 str_dashes: asciz "---------------------------------------------------------------"
 str_thick_dashes: asciz "==============================================================="
 

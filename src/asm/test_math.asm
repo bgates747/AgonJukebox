@@ -43,9 +43,10 @@ exit:
     include "vdu_sound.inc"
 
 ; APPLICATION INCLUDES
+    include "layout.inc"
     include "ascii.inc"
-    include "input_dir.inc"
-    include "play_dir.inc"
+    include "input.inc"
+    include "play.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
@@ -57,8 +58,6 @@ init:
     ret
 ; end init
 
-cmd_cd_music: asciz "cd music"
-cmd_cd_up: asciz "cd .."
 str_dashes: asciz "------------------------------"
 str_thick_dashes: asciz "=============================="
 

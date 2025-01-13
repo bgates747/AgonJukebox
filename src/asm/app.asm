@@ -53,7 +53,6 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 original_screen_mode: db 0
-
 init:
 ; get current screen mode and save it so we can return to it on exit
     call vdu_get_screen_mode
@@ -93,9 +92,6 @@ init:
     asciz "Welcome to...\r\n"
     ld hl,agon_jukebox_ascii
     call printString
-; change directory to music
-    ld hl,cmd_cd_music
-    MOSCALL mos_oscli
 ; call directory page listing
     call ps_get_dir
 
@@ -149,8 +145,6 @@ init:
     ret
 ; end init
 
-cmd_cd_music: asciz "cd music"
-cmd_cd_up: asciz "cd .."
 str_dashes: asciz "---------------------------------------------------------------"
 str_thick_dashes: asciz "==============================================================="
 
@@ -165,9 +159,6 @@ main:
     call vdu_set_screen_mode
     call vdu_reset_viewports
     call vdu_cls
-; change back to directory containing the program
-    ld hl,cmd_cd_up
-    MOSCALL mos_oscli
 ; print thanks for playing message
     call printInline
     asciz "Thank you for using\r\n"
