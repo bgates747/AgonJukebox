@@ -5606,7 +5606,7 @@ PC     Output      Line
        2F 20 20 20 
        20 20 20 5C 
        5F 2F 0D 0A 
-0421A7             0048        include "input_dir.inc"
+0421A7             0048        include "input.inc"
 0421A7             0001*   get_input:
 0421A7             0002*   @loop:
 0421A7             0003*   ; wait for the user to push a button
@@ -5699,7 +5699,7 @@ PC     Output      Line
 042267 FB          0087*       ei ; reenable interrupts
 042268 C3 A7 21 04 0088*       jp @loop
 04226C             0089*   ; end get_input
-04226C             0049        include "play_dir.inc"
+04226C             0049        include "play.inc"
 04226C             0001*   ; stream a song from the SD card
 04226C             0002*   ; inputs: hl = pointer to filename
 04226C             0003*   ; requirements: the file must be 8-bit signed PCM mono

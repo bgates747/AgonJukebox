@@ -45,8 +45,8 @@ exit:
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "ascii.inc"
-    include "input_dir.inc"
-    include "play_dir.inc"
+    include "input.inc"
+    include "play.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
