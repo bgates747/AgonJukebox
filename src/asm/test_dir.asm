@@ -94,24 +94,38 @@ get_dir:
     ld hl,ps_dir_struct ; define where to store directory info
     ld de,ps_dir_path   ; this is pointer to the path to the directory
     MOSCALL ffs_dopen   ; open dir
+; set up pointers
+    ld ix,ps_dir_fil_list ; this is the pointer to the fileinfo table
 @readFileInfo:               ; we will loop here until all files have been processed
     ld hl,ps_dir_struct      ; HL is where to get directory info
-    ld de,ps_file_struct  ; define where to store current file info
+    push ix
+    pop de ; where to store current file info
     MOSCALL ffs_dread        ; read next item from dir
-    ld a,(ps_file_fname)  ; get first char of file name
+
+    ld a,(ix+filinfo_fname)  ; get first char of file name
     or a                     ; if zero then we are at the end of the listing
     jp z,@allDone
-    ld de,(ps_dir_num_files) ; get the current file counter
-    ld hl,filinfo_struct_size ; bytes per filename
-    call umul24 ; hl = offset into the fileinfo table
-    inc de                  ; increment the counter
-    ld (ps_dir_num_files),de
-    ld de,ps_dir_fil_list+filinfo_fname ; get the address of the fileinfo table plus the offset to the filename
-    add hl,de ; add the offset to the base address
-    ex de,hl ; de is the destination address to copy the filename
-    ld hl,ps_file_fname   ; this is pointer to the name of current file
-    ld bc,filinfo_struct_size ; bytes per filename
-    ldir ; copy the filename to the fileinfo table
+
+    ld a,(ix+filinfo_fattrib) ; get the file attribute
+    res 5,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
+    or a ; if zero this is a file
+    jp nz,@F ; not zero so this is some other file type
+    set 5,a ; set bit 5 (archive) so will be consistent btw emulator and hardware
+    ld (ix+filinfo_fattrib),a ; update so we don't have to do this every time downstream
+
+@@: ; skip over writing hidden and system files
+    and AM_HID ; hidden file
+    jp nz,@readFileInfo
+    and AM_SYS ; system file
+    jp nz,@readFileInfo
+
+; valid file or directory
+    ld hl,(ps_dir_num_files) ; get the current file counter
+    inc hl                  ; increment the counter
+    ld (ps_dir_num_files),hl
+    ld de,filinfo_struct_size ; length of fileinfo record
+    add ix,de ; point to next fileinfo record
+
     jp @readFileInfo         ; loop around to check next entry
 @allDone:
 ; compute page statistics
@@ -133,60 +147,72 @@ get_dir:
 ; close the directory
     ld hl,ps_dir_struct      ; load H: with address of the DIR struct
     MOSCALL ffs_dclose       ; close dir
+
+; DEBUG
+    call printNewLine
+    call printInline
+    asciz "Number of files: "
+    ld hl,(ps_dir_num_files)
+    call printHexUHL
+
+    call printNewLine
+    call printInline
+    asciz "Number of pages: "
+    ld hl,(ps_dir_num_pages)
+    call printHexUHL
+
+    call printNewLine
+    call printInline
+    asciz "Number of files on last page: "
+    ld hl,(ps_pagelast_num_files)
+    call printHexUHL
+    call printNewLine
+; END DEBUG
     ret
 ; end get_dir
 
 print_dir:
+; test whether there are any files in the directory
+    ld hl,(ps_dir_num_files)
+    SIGN_HLU
+    ret z ; if zero, no files in the directory
 ; loop through the fileinfo table and print out the filenames
     ld ix,ps_dir_fil_list
     ld hl,(ps_dir_num_files)
 @print_loop:
     push hl ; loop counter
+; branch on the file attribute
     ld a,(ix+filinfo_fattrib)
-    call printHexA
-
+; DEBUG
+    PUSH_ALL
+    call printBin8
+    ld a,' '
+    rst.lil 10h
+    POP_ALL
+; END DEBUG
+    cp AM_DIR ; if zero, is directory
+    jp nz,@print_file ; not directory so just write filename
+    call printInline
+    asciz "<DIR> "
+@print_file:
     lea ix,ix+filinfo_fname ; point to filinfo_fname
     push ix
     pop hl ; get the address of the filename
     call printString
     call printNewLine
-
     ld de,256 ; length of filename
     add ix,de ; bump pointer to next filinfo record
+@dec_loop_counter:
     pop hl 
     dec hl ; decrement the loop counter
     SIGN_HLU ; check for zero
     jp nz,@print_loop
     ret
+@skip_file:
+    ld de,filinfo_struct_size 
+    add ix,de ; bump pointer to next filinfo record
+    jp @dec_loop_counter
 ; end print_dir
-
-
-; print_dir:
-; ; loop through the fileinfo table and print out the filenames
-;     ld ix,ps_dir_fil_list+filinfo_fname ; address of the fileinfo table plus the offset to the filename
-;     ld hl,(ps_dir_num_files)   ; get the number of files 
-;     push hl ; save loop counter
-; @print_loop:
-;     ld a,(ix+filinfo_fattrib)
-;     or a ; if zero, is a directory
-;     jp nz,@F
-;     call printInline
-;     asciz "<DIR> "
-; @@:
-;     push ix
-;     pop hl ; get the address of the filename
-;     call printString
-;     call printNewLine
-;     ld de,filinfo_struct_size ; length of filename record
-;     add ix,de ; bump pointer to next filename
-;     pop hl ; get the loop counter
-;     dec hl ; decrement the loop counter
-;     push hl ; save loop counter
-;     SIGN_HLU ; check for zero
-;     jp nz,@print_loop
-;     pop hl ; dummy pop to balance stack
-;     ret
-; ; end print_dir
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"
