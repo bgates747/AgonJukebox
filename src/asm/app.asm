@@ -55,11 +55,6 @@ exit:
 original_screen_mode: db 0
 
 init:
-; change directory to music
-    ld hl,cmd_cd_music
-    MOSCALL mos_oscli
-; call directory page listing
-    call ps_get_dir
 ; get current screen mode and save it so we can return to it on exit
     call vdu_get_screen_mode
     ld (original_screen_mode),a
@@ -98,6 +93,35 @@ init:
     asciz "Welcome to...\r\n"
     ld hl,agon_jukebox_ascii
     call printString
+; change directory to music
+    ld hl,cmd_cd_music
+    MOSCALL mos_oscli
+; call directory page listing
+    call ps_get_dir
+
+; ; DEBUG
+;     call printNewLine
+;     call printInline
+;     asciz "Number of files: "
+;     ld hl,(ps_dir_num_files)
+;     call printHexUHL
+
+;     call printNewLine
+;     call printInline
+;     asciz "Number of pages: "
+;     ld hl,(ps_dir_num_pages)
+;     call printHexUHL
+
+;     call printNewLine
+;     call printInline
+;     asciz "Number of files on last page: "
+;     ld hl,(ps_pagelast_num_files)
+;     call printHexUHL
+;     call printNewLine
+
+;     call DEBUG_WAITKEYPRESS
+; ; END DEBUG
+
 ; print out current directory path
     call printNewLine
     ld hl,str_thick_dashes

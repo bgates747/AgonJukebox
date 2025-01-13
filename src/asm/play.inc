@@ -241,11 +241,13 @@ ps_get_dir:
     ld de,10 ; max files per page
     call udiv24 ; de = hl/10, hl = mod(hl,10)
     SIGN_HLU ; check remainder for zero
-    jp z,@F ; if zero then we have exactly 10 files
-    inc de ; bump the page count
+    jp nz,@F 
+    ld hl,10 ; if zero then we have exactly 10 files on the last page ...
+    dec de ; ... and we don't need an additional page for the remainder
 @@:
-    ld (ps_dir_num_pages),de ; save the number of pages
     ld (ps_pagelast_num_files),hl ; save the number of files on the last page
+    inc de ; bump the page count
+    ld (ps_dir_num_pages),de ; save the number of pages
 ; reset the song index and page to zero and populate the page filename pointers
     xor a
     ld (ps_song_idx_cur),a
@@ -320,9 +322,6 @@ ps_print_dir_page:
     call vdu_cls
 ; loop through the fileinfo pointer table and print out the filenames
     call ps_get_page_num_files ; b = loop counter
-    ; ld a,b ; test b for zero
-    ; or a
-    ; ret z ; no files to print
     xor a ; song index
     ld ix,ps_page_fn_ptrs
 @loop:
