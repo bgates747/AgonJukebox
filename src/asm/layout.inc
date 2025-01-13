@@ -69,6 +69,6 @@ vp_prt_reload:
     call vdu_cls
     call printInline
     asciz "PRT reload: "
-    ld hl,(ps_prt_reload)
+    ld hl,ps_prt_reload
     call printDec
     ret
