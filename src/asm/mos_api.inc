@@ -243,6 +243,7 @@ filinfo_ftime:		EQU	6	;   2: Modified time
 filinfo_fattrib:	EQU	8	;   1: File attribute
 filinfo_altname:	EQU	9	;  13: Alternative file name
 filinfo_fname:		EQU	22	; 256: Primary file name
+filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
 ;
 ; Macro for calling the API
 ; Parameters:

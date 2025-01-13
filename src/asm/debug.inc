@@ -415,7 +415,7 @@ dumpMemoryHex:
     rst.lil 10h
     inc hl
     djnz @loop
-    call printNewLine
+    ; call printNewLine
 
 ; restore everything
     pop af

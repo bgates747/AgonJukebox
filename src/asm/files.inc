@@ -9,5 +9,5 @@ filedata: equ 0xB7E000 ; address of onboard 8k sram
 ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
 
 ; this list can grow as large as necessary to hold all the files in the directory
-; each entry will be 256 bytes long, the max filename size MOS/FFS supports
+; each entry will be 278 bytes (filinfo_struct_size)
 ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k
