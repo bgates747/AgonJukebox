@@ -45,8 +45,8 @@ exit:
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "test_ascii.inc"
-    include "input_dir.inc"
-    include "play_dir.inc"
+    include "input.inc"
+    include "play.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
@@ -55,9 +55,6 @@ exit:
 original_screen_mode: db 0
 
 init:
-; change directory to music
-    ld hl,cmd_cd_music
-    MOSCALL mos_oscli
 ; call directory page listing
     call ps_get_dir
 ; get current screen mode and save it so we can return to it on exit
@@ -132,9 +129,6 @@ init:
     call ps_prt_irq_init
     ret
 ; end init
-
-cmd_cd_music: asciz "cd music"
-cmd_cd_up: asciz "cd .."
 str_dashes: asciz "---------------------------------------------------------------"
 str_thick_dashes: asciz "==============================================================="
 
@@ -150,9 +144,6 @@ main:
     call vdu_set_screen_mode
     call vdu_reset_viewports
     call vdu_cls
-; change back to directory containing the program
-    ld hl,cmd_cd_up
-    MOSCALL mos_oscli
 ; print thanks for playing message
     call printInline
     asciz "Thank you for using\r\n"

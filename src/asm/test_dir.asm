@@ -57,17 +57,10 @@ original_screen_mode: db 0
 init:
     ret
 ; end init
-
-cmd_cd_music: asciz "cd music"
-cmd_cd_up: asciz "cd .."
 str_dashes: asciz "------------------------------"
 str_thick_dashes: asciz "=============================="
 
 main:
-; change directory to music
-    ld hl,cmd_cd_music
-    MOSCALL mos_oscli
-
 ; initialize the current directory
     call get_dir
 
@@ -75,11 +68,6 @@ main:
     call printInline
     asciz "\r\nFiles in directory\r\n"
     call print_dir
-
-; change back to directory containing the program
-    ld hl,cmd_cd_up
-    MOSCALL mos_oscli
-    ret ; back to MOS
 ; end main
 
 get_dir:
