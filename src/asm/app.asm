@@ -78,6 +78,9 @@ init:
     call vdu_cursor_off
 ; clear the screen
     call vdu_cls
+; print loading message
+    call printInline
+    asciz "Loading fonts...\r\n"
 ; clear all buffers
     call vdu_clear_all_buffers
 ; load fonts
