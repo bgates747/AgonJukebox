@@ -42,13 +42,13 @@ ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFF
 ps_filehandle_cur: db 0 ; file handle
 ps_chunkpointer: dl 0 ; pointer to current chunk
 ; File information structure (FILINFO)
-ps_filinfo_struct:
-ps_filinfo_fsize:    blkb 4, 0   ; File size (4 bytes)
-ps_filinfo_fdate:    blkb 2, 0   ; Modified date (2 bytes)
-ps_filinfo_ftime:    blkb 2, 0   ; Modified time (2 bytes)
-ps_filinfo_fattrib:  blkb 1, 0   ; File attribute (1 byte)
-ps_filinfo_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
-ps_filinfo_fname:    blkb 256, 0 ; Primary file name (256 bytes)
+ps_file_struct:
+ps_file_fsize:    blkb 4, 0   ; File size (4 bytes)
+ps_file_fdate:    blkb 2, 0   ; Modified date (2 bytes)
+ps_file_ftime:    blkb 2, 0   ; Modified time (2 bytes)
+ps_file_fattrib:  blkb 1, 0   ; File attribute (1 byte)
+ps_file_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
+ps_file_fname:    blkb 256, 0 ; Primary file name (256 bytes)
 
 ; buffer for play_song sound data
 ps_wav_header: ; marker for top of the wav file header and song data
@@ -196,7 +196,7 @@ ps_get_dir:
     ld (ps_dir_num_files),hl
 ; initialize pointers to store directory info
     ld hl,ps_dir_path  ; where to store result
-    ld bc,255          ; max length
+    ld bc,255          ; max length (final byte is zero terminator)
     MOSCALL ffs_getcwd ; MOS api get current working directory
 ; now get dir info
     ld hl,ps_dir_struct ; define where to store directory info
@@ -204,22 +204,22 @@ ps_get_dir:
     MOSCALL ffs_dopen   ; open dir
 @readFileInfo:               ; we will loop here until all files have been processed
     ld hl,ps_dir_struct      ; HL is where to get directory info
-    ld de,ps_filinfo_struct  ; define where to store current file info
+    ld de,ps_file_struct  ; define where to store current file info
     MOSCALL ffs_dread        ; read next item from dir
-    ld a,(ps_filinfo_fname)  ; get first char of file name
-    cp 0                     ; if 0 then we are at the end of the listing
-    jr z,@allDone
+    ld a,(ps_file_fname)  ; get first char of file name
+    or a                     ; if zero then we are at the end of the listing
+    jp z,@allDone
     ld de,(ps_dir_num_files) ; get the current file counter
-    ld hl,256 ; bytes per filename
-    call umul24 ; hl = offset into the filename table
+    ld hl,filinfo_struct_size ; bytes per filename
+    call umul24 ; hl = offset into the fileinfo table
     inc de                  ; increment the counter
     ld (ps_dir_num_files),de
-    ld de,ps_dir_fil_list ; get the address of the filename table
+    ld de,ps_dir_fil_list+filinfo_fname ; get the address of the fileinfo table plus the offset to the filename
     add hl,de ; add the offset to the base address
     ex de,hl ; de is the destination address to copy the filename
-    ld hl,ps_filinfo_fname   ; this is pointer to the name of current file
-    ld bc,256 ; bytes per filename
-    ldir ; copy the filename to the filename table
+    ld hl,ps_file_fname   ; this is pointer to the name of current file
+    ld bc,filinfo_struct_size ; bytes per filename
+    ldir ; copy the filename to the fileinfo table
     jp @readFileInfo         ; loop around to check next entry
 @allDone:
 ; compute page statistics
@@ -251,12 +251,12 @@ ps_get_dir:
 ; destroys: a, hl, bc, de, ix
 ps_fill_page_fn_ptrs:
     ld hl,(ps_page_cur) ; get the current page number
-    ld de,10*256 ; records/page * 256 bytes/record
-    call umul24 ; hl = offset into the filename table
-    ld de,ps_dir_fil_list ; base address of filename table
+    ld de,10*filinfo_struct_size ; records/page * bytes/record
+    call umul24 ; hl = offset into the fileinfo table
+    ld de,ps_dir_fil_list ; base address of fileinfo table
     add hl,de ; add the offset to the base address
-    ld ix,ps_page_fn_ptrs ; get the address of the page filename pointer table
-    ld de,256 ; bytes per filename record
+    ld ix,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
+    ld de,filinfo_struct_size ; bytes per filename record
     ld b,10 ; number of files per page
 @loop:
     ld (ix),hl ; store the filename pointer
@@ -284,7 +284,7 @@ ps_print_dir_page:
 ; set text viewport for directory listing
     call vp_dir
     call vdu_cls
-; loop through the filename pointer table and print out the filenames
+; loop through the fileinfo pointer table and print out the filenames
     call ps_get_page_num_files ; b = loop counter
     xor a ; song index
     ld ix,ps_page_fn_ptrs
@@ -293,6 +293,18 @@ ps_print_dir_page:
     push af ; save song index
     call printHexA ; print the song index
     ld hl,(ix) ; get the filename pointer
+    ld bc,filinfo_fattrib
+    add hl,bc ; hl points to the file attribute
+    ld a,(hl)
+    or a ; if zero, is a directory
+    jp nz,@F
+    push hl
+    call printInline
+    asciz "<DIR> "
+    pop hl
+@@:
+    ld bc,filinfo_fname-filinfo_fattrib ; offset to the filename
+    add hl,bc ; hl points to the filename
     call printString ; print the filename
     call printNewLine
     lea ix,ix+3 ; bump the filename pointer
@@ -306,23 +318,28 @@ ps_print_dir_page:
 ; end ps_print_dir_page
 
 ps_print_dir:
-; loop through the filename table and print out the filenames
-    ld ix,ps_dir_fil_list      ; get the address of the filename table
+; loop through the fileinfo table and print out the filenames
+    ld ix,ps_dir_fil_list+filinfo_fname ; address of the fileinfo table plus the offset to the filename
     ld hl,(ps_dir_num_files)   ; get the number of files 
     push hl ; save loop counter
 @print_loop:
+    ld a,(ix+filinfo_fattrib)
+    or a ; if zero, is a directory
+    jp nz,@F
+    call printInline
+    asciz "<DIR> "
+@@:
     push ix
     pop hl ; get the address of the filename
     call printString
     call printNewLine
-    lea ix,ix+127 ; bump the pointer
-    lea ix,ix+127 ; to the next file
-    lea ix,ix+2   ; 256 bytes
+    ld de,filinfo_struct_size ; length of filename record
+    add ix,de ; bump pointer to next filename
     pop hl ; get the loop counter
     dec hl ; decrement the loop counter
     push hl ; save loop counter
     SIGN_HLU ; check for zero
-    jr nz,@print_loop
+    jp nz,@print_loop
     pop hl ; dummy pop to balance stack
     ret
 ; end ps_print_dir
@@ -409,12 +426,14 @@ ps_get_song_fn_from_pg_idx:
     ld hl,(ps_song_fn_cur) ; get the current song filename
     ret nc ; requested song index is out of range so return current filename and no carry
     ld (ps_song_idx_cur),a ; save the song index
-    ld hl,ps_page_fn_ptrs ; get the address of the page filename pointer table
+    ld hl,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
     ld b,a ; song index
     ld c,3 ; 3 bytes per filename pointer
-    mlt bc ; index into the filename pointer table
-    add hl,bc ; hl points to the filename pointer
-    ld hl,(hl) ; hl points to the filename
+    mlt bc ; index into the fileinfo pointer table
+    add hl,bc ; hl points to the fileinfo pointer
+    ld hl,(hl) ; hl points to the fileinfo
+    ld bc,filinfo_fname ; offset to the filename
+    add hl,bc ; hl points to the filename
     ld (ps_song_fn_cur),hl ; save the new song filename
     scf ; set carry to indicate success
     ret
