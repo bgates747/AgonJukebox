@@ -244,6 +244,13 @@ filinfo_fattrib:	EQU	8	;   1: File attribute
 filinfo_altname:	EQU	9	;  13: Alternative file name
 filinfo_fname:		EQU	22	; 256: Primary file name
 filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
+
+; /* File attribute bits for directory entry (FILINFO.fattrib) */
+AM_RDO: equ 0x01 ; Read only
+AM_HID: equ 0x02 ; Hidden
+AM_SYS: equ 0x04 ; System
+AM_DIR: equ 0x10 ; Directory
+AM_ARC: equ 0x20 ; Archive
 ;
 ; Macro for calling the API
 ; Parameters:
