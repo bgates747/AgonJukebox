@@ -57,8 +57,8 @@ original_screen_mode: db 0
 init:
     ret
 ; end init
-str_dashes: asciz "------------------------------"
-str_thick_dashes: asciz "=============================="
+str_dashes_thin: asciz "------------------------------"
+str_dashes_thick: asciz "=============================="
 
 main:
 ; initialize the current directory

@@ -105,19 +105,19 @@ init:
     call printString
 ; print out current directory path
     call printNewLine
-    ld hl,str_thick_dashes
+    ld hl,str_dashes_thick
     call printString
     call printInline
     asciz "\r\nOur current directory is:\r\n"
     ld hl,ps_dir_path
     call printString
     call printNewLine
-    ld hl,str_thick_dashes
+    ld hl,str_dashes_thick
     call printString
 ; print instructions
     call printInline
     asciz "\r\nPress keys 0-9 to play a song:\r\n"
-    ld hl,str_dashes
+    ld hl,str_dashes_thin
     call printString
 ; print first 10 files in the directory
     xor a ; song index to 0
@@ -129,8 +129,8 @@ init:
     call ps_prt_irq_init
     ret
 ; end init
-str_dashes: asciz "---------------------------------------------------------------"
-str_thick_dashes: asciz "==============================================================="
+str_dashes_thin: asciz "---------------------------------------------------------------"
+str_dashes_thick: asciz "==============================================================="
 
 main:
     ret ; TESTING
