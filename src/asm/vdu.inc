@@ -82,11 +82,34 @@ vdu_print_to_gfx_location:
     ret
 ; end vdu_print_at_gfx_location
 
+; VDU 8: Move cursor back one character
+vdu_cursor_back:
+    ld a,8
+    rst.lil $10  
+    ret
+; end vdu_cursor_back
+
 ; VDU 9: Move cursor forward one character
 vdu_cursor_forward:
     ld a,9
 	rst.lil $10  
 	ret
+; end vdu_cursor_forward
+
+; VDU 10: Move cursor down one line
+vdu_cursor_down:
+    ld a,10
+    rst.lil $10  
+    ret
+; end vdu_cursor_down
+
+; VDU 11: Move cursor up one line
+vdu_cursor_up:
+    ld a,11
+    rst.lil $10  
+    ret
+; end vdu_cursor_up
+
 
 ; VDU 31, x, y: Move text cursor to x, y text position (TAB(x, y))
 ; inputs: c=x, b=y 8-bit unsigned integers
@@ -196,7 +219,7 @@ vdu_gcol:
 ; MIND THE LITTLE-ENDIANESS
 ; inputs: c=left,b=bottom,e=right,d=top
 ; outputs; nothing
-; destroys: a might make it out alive
+; destroys: af, hl, bc, de
 vdu_set_txt_viewport:
     ld (@lb),bc
 	ld (@rt),de
