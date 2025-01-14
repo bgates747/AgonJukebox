@@ -1,0 +1,411 @@
+PC     Output      Line
+040000             0001       assume adl=1
+040000             0002       org 0x040000
+040000 C3 45 00 04 0003       jp start
+040004             0004       align 64
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+040040 4D 4F 53    0005       db "MOS"
+040043 00          0006       db 00h
+040044 01          0007       db 01h
+040045             0008   
+040045             0009   start:
+040045 F5          0010       push af
+040046 C5          0011       push bc
+040047 D5          0012       push de
+040048 DD E5       0013       push ix
+04004A FD E5       0014       push iy
+04004C             0015   
+04004C CD 63 00 04 0016       call init
+040050 CD E4 00 04 0017       call main
+040054             0018   
+040054             0019   exit:
+040054 FD E1       0020       pop iy
+040056 DD E1       0021       pop ix
+040058 D1          0022       pop de
+040059 C1          0023       pop bc
+04005A F1          0024       pop af
+04005B 21 00 00 00 0025       ld hl,0
+04005F             0026   
+04005F C9          0027       ret
+040060             0028   
+040060             0029   ; --- MACROS AND EQUS ---
+040060             0030   c_white: equ 15
+040060             0031   c_black: equ 0
+040060             0032   c_blue_dk: equ 4
+040060             0033   c_yellow: equ 11
+040060             0034   mos_getkey:	EQU	00h
+040060             0035   
+040060             0036   ; Macro for calling the MOS API
+040060             0037   ; Parameters:
+040060             0038   ; - function: One of the function numbers listed above
+040060             0039   ;
+040060             0040   	MACRO	MOSCALL	function
+040060             0041   			LD	A, function
+040060             0042   			RST.LIL	08h
+040060             0043   	ENDMACRO
+040060             0044   
+040060             0045   ; test the sign of HL
+040060             0046   ; inputs: HL obviously
+040060             0047   ; outputs: sign flag set if HL is negative, zero flag set if HL is zero
+040060             0048   ; destroys: flags
+040060             0049       MACRO SIGN_HLU
+040060             0050       add hl,de ; 1 cycle
+040060             0051       or a ; clear flags ; 1 cycle
+040060             0052       sbc hl,de ; 2 cycles
+040060             0053       ; 4 cycles total
+040060             0054       ENDMACRO
+040060             0055   
+040060             0056   ; --- MAIN PROGRAM ---
+040060             0057   ; contextId constants and state variables
+040060             0058   contextId_default: equ 0
+040060             0059   contextId_left: equ 1
+040060             0060   contextId_right: equ 2
+040060 00 00 00    0061   contextId_current: dl 0
+040063             0062   
+040063             0063   init:
+040063             0064   ; clear the screen
+040063 CD D2 01 04 0065       call vdu_cls
+040067             0066   
+040067             0067   ; save current context as default
+040067 21 00 00 00 0068       ld hl,contextId_default
+04006B CD 40 01 04 0069       call vdu_select_context_stack
+04006F CD 80 01 04 0070       call vdu_save_context
+040073             0071   
+040073             0072   ; define left half of screen
+040073             0073   ; ---------------------------
+040073             0074   ; select contextId
+040073 21 01 00 00 0075       ld hl,contextId_left
+040077 CD 40 01 04 0076       call vdu_select_context_stack
+04007B             0077   ; reset context
+04007B             0078   ; flags:
+04007B             0079   ; Bit	Description
+04007B             0080   ; 0	Reset graphics painting options
+04007B             0081   ; 1	Reset graphics positioning settings, including graphics viewport and coordinate system
+04007B             0082   ; 2	Reset text painting options
+04007B             0083   ; 3	Reset text cursor visual settings, including text viewport
+04007B             0084   ; 4	Reset text cursor behaviour
+04007B 3E 1F       0085       ld a,%00011111
+04007D CD 6C 01 04 0086       call vdu_reset_context
+040081             0087   ; set text colours
+040081 3E 8F       0088       ld a,c_white+128 ; text background to white
+040083 CD D7 01 04 0089       call vdu_colour_text
+040087 3E 00       0090       ld a,c_black ; text foreground to black
+040089 CD D7 01 04 0091       call vdu_colour_text
+04008D             0092   ; set a text viewport
+04008D 0E 01       0093       ld c,1 ; left
+04008F 16 01       0094       ld d,1 ; top
+040091 1E 17       0095       ld e,23 ; right
+040093 06 28       0096       ld b,40 ; bottom
+040095 CD F6 01 04 0097       call vdu_set_txt_viewport
+040099             0098   ; set cursor on (but for some reason cursor doesn't flash after switching context until a key is pressed)
+040099 CD E8 01 04 0099       call vdu_cursor_on
+04009D             0100   ; clear the screen to apply text bg colour
+04009D CD D2 01 04 0101       call vdu_cls
+0400A1             0102   ; save the context
+0400A1 CD 80 01 04 0103       call vdu_save_context
+0400A5             0104   
+0400A5             0105   ; define right half of screen
+0400A5             0106   ; ---------------------------
+0400A5             0107   ; select contextId
+0400A5 21 02 00 00 0108       ld hl,contextId_right
+0400A9 CD 40 01 04 0109       call vdu_select_context_stack
+0400AD             0110   ; reset context
+0400AD 3E 1F       0111       ld a,%00011111
+0400AF CD 6C 01 04 0112       call vdu_reset_context
+0400B3             0113   ; set text colours
+0400B3 3E 84       0114       ld a,c_blue_dk+128 ; text background to dark blue
+0400B5 CD D7 01 04 0115       call vdu_colour_text
+0400B9 3E 0B       0116       ld a,c_yellow ; text foreground to yellow
+0400BB CD D7 01 04 0117       call vdu_colour_text
+0400BF             0118   ; set a text viewport
+0400BF 0E 19       0119       ld c,25 ; left
+0400C1 16 01       0120       ld d,1 ; top
+0400C3 1E 2F       0121       ld e,47 ; right
+0400C5 06 28       0122       ld b,40 ; bottom
+0400C7 CD F6 01 04 0123       call vdu_set_txt_viewport
+0400CB             0124   ; set cursor on (but for some reason cursor doesn't flash after switching context until a key is pressed)
+0400CB CD E8 01 04 0125       call vdu_cursor_on
+0400CF             0126   ; clear the screen to apply text bg colour
+0400CF CD D2 01 04 0127       call vdu_cls
+0400D3             0128   ; save the context
+0400D3 CD 80 01 04 0129       call vdu_save_context
+0400D7             0130   
+0400D7             0131   ; set the current context to left
+0400D7 21 01 00 00 0132       ld hl,contextId_left
+0400DB 22 60 00 04 0133       ld (contextId_current),hl
+0400DF CD 40 01 04 0134       call vdu_select_context_stack
+0400E3             0135   
+0400E3 C9          0136       ret
+0400E4             0137   ; end init
+0400E4             0138   
+0400E4             0139   main:
+0400E4             0140   ; wait for user input and branch on key pressed
+0400E4 CD 25 02 04 0141       call waitKeypress ; a = ascii code of key pressed
+0400E8 FE 1B       0142       cp '\e' ; ESC key
+0400EA CA 04 01 04 0143       jp z,@main_end ; exit if ESC key pressed
+0400EE FE 09       0144       cp '\t' ; TAB key
+0400F0 CA 15 01 04 0145       jp z,switch_context
+0400F4 FE 0D       0146       cp '\r' ; ENTER key
+0400F6 C2 FE 00 04 0147       jp nz,@F
+0400FA 5B D7       0148       rst.lil 0x10 ; print the carriage return
+0400FC 3E 0A       0149       ld a,'\n' ; load newline character
+0400FE             0150   @@:
+0400FE 5B D7       0151       rst.lil 0x10 ; print the ascii code of the key pressed
+040100 C3 E4 00 04 0152       jp main
+040104             0153   
+040104             0154   @main_end:
+040104             0155   ; reset the context to default
+040104 21 00 00 00 0156       ld hl,contextId_default
+040108 CD 40 01 04 0157       call vdu_select_context_stack
+04010C             0158   ; move cursor below the text viewports
+04010C 0E 00       0159       ld c,0 ; x
+04010E 06 29       0160       ld b,41 ; y
+040110 CD 11 02 04 0161       call vdu_move_cursor
+040114             0162   
+040114 C9          0163       ret ; back to MOS
+040115             0164   ; end main
+040115             0165   
+040115             0166   switch_context:
+040115 2A 60 00 04 0167       ld hl,(contextId_current)
+040119 11 01 00 00 0168       ld de,contextId_left
+04011D B7          0169       or a ; clear carry
+04011E ED 52       0170       sbc hl,de
+040120             0171       SIGN_HLU
+                       M1 Args: none
+040120 19          0001M1     add hl,de ; 1 cycle
+040121 B7          0002M1     or a ; clear flags ; 1 cycle
+040122 ED 52       0003M1     sbc hl,de ; 2 cycles
+040124             0004M1     ; 4 cycles total
+040124 CA 30 01 04 0172       jp z,@to_right
+040128 21 01 00 00 0173       ld hl,contextId_left
+04012C C3 34 01 04 0174       jp @switch
+040130             0175   @to_right:
+040130 21 02 00 00 0176       ld hl,contextId_right
+040134             0177   @switch:
+040134 22 60 00 04 0178       ld (contextId_current),hl
+040138 CD 40 01 04 0179       call vdu_select_context_stack
+04013C             0180       ; call vdu_cursor_on ; not sure why this is needed but it is
+04013C C3 E4 00 04 0181       jp main
+040140             0182   ; end switch_context
+040140             0183   
+040140             0184   ; --- CONTEXT API FUNCTIONS ---
+040140             0185   
+040140             0186   ; https://agonconsole8.github.io/agon-docs/vdp/Context-Management-API/
+040140             0187   
+040140             0188   ; VDU 23, 0, $C8, 0, contextId: Select context stack
+040140             0189   ; inputs: hl = contextId
+040140             0190   ; outputs: nothing
+040140             0191   ; prerequisites: none
+040140             0192   ; destroys: af, bc, hl
+040140             0193   vdu_select_context_stack:
+040140 22 53 01 04 0194       ld (@contextId),hl
+040144 21 4F 01 04 0195       ld hl,@cmd
+040148 01 06 00 00 0196       ld bc,@end-@cmd
+04014C 5B DF       0197       rst.lil $18
+04014E C9          0198       ret
+04014F 17 00 C8 00 0199   @cmd: db 23, 0, $C8, 0
+040153 00 00       0200   @contextId: dw 0x0000
+040155 00          0201   @end: db 0x00 ; padding
+040156             0202   ; end vdu_select_context_stack
+040156             0203   
+040156             0204   ; VDU 23, 0, $C8, 1, contextId: Delete context stack
+040156             0205   ; inputs: hl = contextId
+040156             0206   ; outputs: nothing
+040156             0207   ; prerequisites: none
+040156             0208   ; destroys: af, bc, hl
+040156             0209   vdu_delete_context_stack:
+040156 22 69 01 04 0210       ld (@contextId),hl
+04015A 21 65 01 04 0211       ld hl,@cmd
+04015E 01 06 00 00 0212       ld bc,@end-@cmd
+040162 5B DF       0213       rst.lil $18
+040164 C9          0214       ret
+040165 17 00 C8 01 0215   @cmd: db 23, 0, $C8, 1
+040169 00 00       0216   @contextId: dw 0x0000
+04016B 00          0217   @end: db 0x00 ; padding
+04016C             0218   ; end vdu_delete_context_stack
+04016C             0219   
+04016C             0220   ; VDU 23, 0, $C8, 2, flags: Reset the current context
+04016C             0221   ; inputs: a = flags
+04016C             0222   ; outputs: nothing
+04016C             0223   ; prerequisites: vdu_select_context_stack
+04016C             0224   ; destroys: af, hl, bc
+04016C             0225   ; flags:
+04016C             0226   ; Bit	Description
+04016C             0227   ; 0	Reset graphics painting options
+04016C             0228   ; 1	Reset graphics positioning settings, including graphics viewport and coordinate system
+04016C             0229   ; 2	Reset text painting options
+04016C             0230   ; 3	Reset text cursor visual settings, including text viewport
+04016C             0231   ; 4	Reset text cursor behaviour
+04016C             0232   ; 5	Reset currently selected fonts
+04016C             0233   ; 6	Reset character to bitmap mappings
+04016C             0234   ; 7	Reserved for future use
+04016C             0235   vdu_reset_context:
+04016C 32 7F 01 04 0236       ld (@flags),a
+040170 21 7B 01 04 0237       ld hl,@cmd
+040174 01 05 00 00 0238       ld bc,@end-@cmd
+040178 5B DF       0239       rst.lil $18
+04017A C9          0240       ret
+04017B 17 00 C8 02 0241   @cmd: db 23, 0, $C8, 2
+04017F 00          0242   @flags: db 0x00
+040180             0243   @end:
+040180             0244   ; end vdu_reset_context
+040180             0245   
+040180             0246   ; VDU 23, 0, $C8, 3: Save context
+040180             0247   ; inputs: none
+040180             0248   ; outputs: nothing
+040180             0249   ; prerequisites: vdu_select_context_stack
+040180             0250   ; destroys: af, bc, hl
+040180             0251   vdu_save_context:
+040180 21 8B 01 04 0252       ld hl,@cmd
+040184 01 04 00 00 0253       ld bc,@end-@cmd
+040188 5B DF       0254       rst.lil $18
+04018A C9          0255       ret
+04018B 17 00 C8 03 0256   @cmd: db 23, 0, $C8, 3
+04018F             0257   @end:
+04018F             0258   ; end vdu_save_context
+04018F             0259   
+04018F             0260   ; VDU 23, 0, $C8, 4: Restore context
+04018F             0261   ; inputs: none
+04018F             0262   ; outputs: nothing
+04018F             0263   ; prerequisites: vdu_select_context_stack
+04018F             0264   ; destroys: af, bc, hl
+04018F             0265   vdu_restore_context:
+04018F 21 9A 01 04 0266       ld hl,@cmd
+040193 01 04 00 00 0267       ld bc,@end-@cmd
+040197 5B DF       0268       rst.lil $18
+040199 C9          0269       ret
+04019A 17 00 C8 04 0270   @cmd: db 23, 0, $C8, 4
+04019E             0271   @end:
+04019E             0272   ; end vdu_restore_context
+04019E             0273   
+04019E             0274   ; VDU 23, 0, $C8, 5, contextId: Save and select a copy of a context
+04019E             0275   ; inputs: hl = contextId
+04019E             0276   ; outputs: nothing
+04019E             0277   ; prerequisites: graphics / text context in the state to save
+04019E             0278   vdu_select_and_save_context:
+04019E 22 B1 01 04 0279       ld (@contextId),hl
+0401A2 21 AD 01 04 0280       ld hl,@cmd
+0401A6 01 06 00 00 0281       ld bc,@end-@cmd
+0401AA 5B DF       0282       rst.lil $18
+0401AC C9          0283       ret
+0401AD 17 00 C8 05 0284   @cmd: db 23, 0, $C8, 5
+0401B1 00 00       0285   @contextId: dw 0x0000
+0401B3 00          0286   @end: db 0x00 ; padding
+0401B4             0287   ; end vdu_select_and_save_context
+0401B4             0288   
+0401B4             0289   ; VDU 23, 0, $C8, 6: Restore all contexts
+0401B4             0290   ; inputs: none
+0401B4             0291   ; outputs: nothing
+0401B4             0292   ; prerequisites: none
+0401B4             0293   ; destroys: af, bc, hl
+0401B4             0294   vdu_restore_all_contexts:
+0401B4 21 BF 01 04 0295       ld hl,@cmd
+0401B8 01 04 00 00 0296       ld bc,@end-@cmd
+0401BC 5B DF       0297       rst.lil $18
+0401BE C9          0298       ret
+0401BF 17 00 C8 06 0299   @cmd: db 23, 0, $C8, 6
+0401C3             0300   @end:
+0401C3             0301   ; end vdu_restore_all_contexts
+0401C3             0302   
+0401C3             0303   ; VDU 23, 0, $C8, 7: Clear stack
+0401C3             0304   ; inputs: none
+0401C3             0305   ; outputs: nothing
+0401C3             0306   ; prerequisites: none
+0401C3             0307   ; destroys: af, bc, hl
+0401C3             0308   vdu_clear_context_stack:
+0401C3 21 CE 01 04 0309       ld hl,@cmd
+0401C7 01 04 00 00 0310       ld bc,@end-@cmd
+0401CB 5B DF       0311       rst.lil $18
+0401CD C9          0312       ret
+0401CE 17 00 C8 07 0313   @cmd: db 23, 0, $C8, 7
+0401D2             0314   @end:
+0401D2             0315   ; end vdu_clear_context_stack
+0401D2             0316   
+0401D2             0317   ; --- HELPER FUNCTIONS ---
+0401D2             0318   
+0401D2             0319   ; VDU 12: Clear text area (CLS)
+0401D2             0320   vdu_cls:
+0401D2 3E 0C       0321       ld a,12
+0401D4 5B D7       0322   	rst.lil $10
+0401D6 C9          0323   	ret
+0401D7             0324   ; end vdu_cls
+0401D7             0325   
+0401D7             0326   ; VDU 17, colour: Define text colour (COLOUR)
+0401D7             0327   vdu_colour_text:
+0401D7 32 E7 01 04 0328   	ld (@arg),a
+0401DB 21 E6 01 04 0329   	ld hl,@cmd
+0401DF 01 02 00 00 0330   	ld bc,@end-@cmd
+0401E3 5B DF       0331   	rst.lil $18
+0401E5 C9          0332   	ret
+0401E6 11          0333   @cmd: db 17
+0401E7 00          0334   @arg: db 0
+0401E8             0335   @end:
+0401E8             0336   ; end vdu_colour_text
+0401E8             0337   
+0401E8             0338   ; VDU 23, 1, 1: Set cursor on
+0401E8             0339   vdu_cursor_on:
+0401E8 21 F3 01 04 0340   	ld hl,@cmd
+0401EC 01 03 00 00 0341   	ld bc,@end-@cmd
+0401F0 5B DF       0342   	rst.lil $18
+0401F2 C9          0343   	ret
+0401F3             0344   @cmd:
+0401F3 17 01 01    0345   	db 23,1,1
+0401F6             0346   @end:
+0401F6             0347   
+0401F6             0348   ; VDU 28, left, bottom, right, top: Set text viewport **
+0401F6             0349   ; inputs: c=left,b=bottom,e=right,d=top
+0401F6             0350   ; outputs; nothing
+0401F6             0351   ; destroys: af, hl, bc, de
+0401F6             0352   vdu_set_txt_viewport:
+0401F6 ED 43 0C 02 0353       ld (@lb),bc
+       04          
+0401FB ED 53 0E 02 0354   	ld (@rt),de
+       04          
+040200 21 0B 02 04 0355   	ld hl,@cmd
+040204 01 05 00 00 0356   	ld bc,@end-@cmd
+040208 5B DF       0357   	rst.lil $18
+04020A C9          0358   	ret
+04020B 1C          0359   @cmd:   db 28 ; set text viewport command
+04020C 00 00       0360   @lb: 	dw 0x0000 ; set by bc
+04020E 00 00       0361   @rt: 	dw 0x0000 ; set by de
+040210 00          0362   @end:   db 0x00	  ; padding
+040211             0363   ; end vdu_set_txt_viewport
+040211             0364   
+040211             0365   ; VDU 31, x, y: Move text cursor to x, y text position (TAB(x, y))
+040211             0366   ; inputs: c=x, b=y 8-bit unsigned integers
+040211             0367   vdu_move_cursor:
+040211 ED 43 22 02 0368       ld (@x0),bc
+       04          
+040216 21 21 02 04 0369   	ld hl,@cmd
+04021A 01 03 00 00 0370   	ld bc,@end-@cmd
+04021E 5B DF       0371   	rst.lil $18
+040220 C9          0372   	ret
+040221 1F          0373   @cmd: 	db 31
+040222 00          0374   @x0:	db 0
+040223 00          0375   @y0: 	db 0
+040224 00          0376   @end: 	db 0 ; padding
+040225             0377   
+040225             0378   ; wait until user presses a key
+040225             0379   ; inputs: none
+040225             0380   ; outputs: ascii code of key pressed in a
+040225             0381   ; destroys: af,ix
+040225             0382   waitKeypress:
+040225             0383       MOSCALL mos_getkey
+                       M1 Args: function=mos_getkey 
+040225 3E 00       0001M1 			LD	A, function
+040227 5B CF       0002M1 			RST.LIL	08h
+040229 C9          0384       ret
