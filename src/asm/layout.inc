@@ -76,6 +76,11 @@ ui_init:
     call vdu_reset_viewports
     call vdu_cls
 
+; set scroll protection on
+    ld h,%00000001 ; mask to change value of bit 0 (scroll protection)
+    ld l,%00000001 ; bit 0 set is scroll protection on
+    call vdu_cursor_behaviour
+
 ; tippy top border
     ld c,text_left ; x
     ld b,text_top ; y
