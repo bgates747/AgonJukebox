@@ -51,14 +51,22 @@ get_input:
     jp c,@no_cmd ; not a song command
     cp '9'+1
     jp nc,@no_cmd ; not a song command
-    push af ; preserve keypress
-    call ps_close_file
-    pop af ; restore keypress
 ; get pointer to song filename and play it
     sub '0' ; a = index into filename lut
     call ps_get_song_fn_from_pg_idx ; carry set indicates success
-    jp c,play_song ; re-enables interrupts and jp's to get_input when finished
+    jp c,ps_play_or_chg_dir ; re-enables interrupts and jp's to get_input when finished
 @no_cmd: ; no valid commands so loop
     ei ; reenable interrupts
     jp @loop
 ; end get_input
+
+; play or song or change directory when user issues a play song command
+; inputs: hl pointer to the filename, a = file attribute
+ps_play_or_chg_dir:
+    cp AM_DIR ; file attribute check for directory
+    jp nz,play_song ; not a directory so play the song
+; otherwise change to the directory
+    MOSCALL mos_cd ; change to the directory
+    call ps_get_dir ; get directory listing
+    jp ps_change_dir ; change to the directory
+; end ps_play_or_chg_dir

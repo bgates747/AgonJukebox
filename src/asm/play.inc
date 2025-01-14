@@ -80,8 +80,10 @@ ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
 ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
 ; Total Header Size: 76 bytes
 play_song:
+; save pointer to requested song file
     ld (ps_song_fn_cur),hl
-; stop the PRT timer
+; stop the PRT timer and close any currently playing file
+    call ps_close_file
     call ps_prt_stop
 ; tell the user what they've won
     call vp_now_playing
@@ -430,6 +432,22 @@ ps_highlight_song:
     ret
 ; end ps_highlight_song
 
+ps_change_dir:
+; reset the song index and page number to 0
+    xor a
+    ld (ps_song_idx_cur),a
+    ld hl,0
+    ld (ps_page_cur),hl
+; populate the page filename pointers
+    call ps_fill_page_fn_ptrs
+; print the new page and reset text viewport to now playing breadcrumbs
+    call ps_print_dir_page
+    call vp_breadcrumbs
+; enable interrupts and jump back to the user input loop
+    ei
+    jp get_input
+; end ps_change_dir
+
 ps_dir_next_page:
 ; advance the page number
     ld hl,(ps_page_cur) ; get the current page number
@@ -469,8 +487,8 @@ ps_dir_prev_page:
 
 ; get the filename of the song at the current index
 ; inputs: a = song index
-; returns: carry set if song index in range, new filemame in hl and ps_song_idx_cur, ps_song_fn_cur set to new index
-;          carry reset if song index out of range, current filename in hl, ps_song_idx_cur, ps_song_fn_cur unchanged
+; returns: carry set if song index in range, new filemame in hl and ps_song_idx_cur, ps_song_fn_cur set to new index, a = file attribute
+;          carry reset if song index out of range, current filename in hl, ps_song_idx_cur, ps_song_fn_cur unchanged, a = requested song index
 ; destroys: af, bc, de
 ps_get_song_fn_from_pg_idx:
     push af ; save song index
@@ -480,12 +498,18 @@ ps_get_song_fn_from_pg_idx:
     ld hl,(ps_song_fn_cur) ; get the current song filename
     ret nc ; requested song index is out of range so return current filename and no carry
     ld (ps_song_idx_cur),a ; save the song index
-    ld hl,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
+    ld ix,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
     ld b,a ; song index
     ld c,3 ; 3 bytes per filename pointer
     mlt bc ; index into the fileinfo pointer table
-    add hl,bc ; hl points to the fileinfo pointer
-    ld hl,(hl) ; hl points to the fileinfo
+    add ix,bc ; hl points to the fileinfo pointer
+
+    ld hl,(ix) ; hl points to the fileinfo
+    ld bc,filinfo_fattrib ; offset to the file attribute
+    add hl,bc ; hl points to the file attribute
+    ld a,(hl) ; get the file attribute for determining file vs. directory
+
+    ld hl,(ix) ; hl points to the fileinfo
     ld bc,filinfo_fname ; offset to the filename
     add hl,bc ; hl points to the filename
     ld (ps_song_fn_cur),hl ; save the new song filename
