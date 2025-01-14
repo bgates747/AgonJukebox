@@ -1,6 +1,6 @@
 get_input:
-@loop:
 ; wait for the user to push a button
+    ei ; enable interrupts
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
     ; rst.lil 10h ; print the key pressed
@@ -15,12 +15,7 @@ get_input:
 ; SONG PLAYING COMMANDS
 ; toggle pause playback
     cp 'p'
-    jp nz,@F
-    ld a,ps_mode_playing
-    ld hl,ps_mode
-    xor a,(hl)
-    ld (hl),a
-    jp @loop
+    jp z,ps_toggle_pause
 ; toggle loop play
     cp 'l'
     jp nz,@F
@@ -28,7 +23,7 @@ get_input:
     ld hl,ps_mode
     xor a,(hl)
     ld (hl),a
-    jp @loop
+    jp get_input
 ; toggle shuffle play
     cp 's'
     jp nz,@F
@@ -36,7 +31,7 @@ get_input:
     ld hl,ps_mode
     xor a,(hl)
     ld (hl),a
-    jp @loop
+    jp get_input
 ; play random song
     cp 'r'
     jp nz,@F
@@ -56,8 +51,7 @@ get_input:
     call ps_get_song_fn_from_pg_idx ; carry set indicates success
     jp c,ps_play_or_chg_dir ; re-enables interrupts and jp's to get_input when finished
 @no_cmd: ; no valid commands so loop
-    ei ; reenable interrupts
-    jp @loop
+    jp get_input
 ; end get_input
 
 ; play or song or change directory when user issues a play song command
@@ -70,3 +64,28 @@ ps_play_or_chg_dir:
     call ps_get_dir ; get directory listing
     jp ps_change_dir ; change to the directory
 ; end ps_play_or_chg_dir
+
+ps_toggle_pause:
+    call vp_now_playing
+    call vdu_cls
+
+    ld hl,ps_mode
+    bit ps_mode_playing,(hl)
+    jp nz,@playing
+
+    set ps_mode_playing,(hl)
+    call printInline
+    asciz "(P)laying "
+    jp @F
+
+@playing:
+    res ps_mode_playing,(hl)
+    call printInline
+    asciz "(P)aused  "
+
+@@:
+    ld hl,(ps_song_fn_cur)
+    call printString ; print the song filename
+
+    jp get_input
+; end ps_toggle_pause

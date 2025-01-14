@@ -9,7 +9,7 @@ cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
 
 ; ps_mode bitmasks
-ps_mode_playing: equ %00000001 ; 0 = paused 1 = playing, p key toggles
+ps_mode_playing: equ 0 ; 0 = paused 1 = playing, p key toggles
 ps_mode_loop:    equ 000000010 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
 ps_mode_shuffle: equ %00000100 ; 0 = shuffle off 1 = on, s key toggles
 
@@ -85,18 +85,6 @@ play_song:
 ; stop the PRT timer and close any currently playing file
     call ps_close_file
     call ps_prt_stop
-; tell the user what they've won
-    call vp_now_playing
-    call vdu_cls
-    ld hl,(ps_song_fn_cur)
-    call printInline
-    asciz "Playing song: "
-    ld hl,(ps_song_fn_cur)
-    call printString ; print the song filename
-; highlight the song being played
-    call ps_highlight_song
-; reset text viewport for playing breadcrumbs
-    call vp_breadcrumbs
 ; open the file in read mode
 ; Open a file
 ; HLU: Filename
@@ -114,8 +102,15 @@ play_song:
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
-; enable interrupts and start the PRT timer
-    ei
+; tell the user what they've won
+    call ps_highlight_song
+    call vp_now_playing
+    call vdu_cls
+    call printInline
+    asciz "(P)laying "
+    ld hl,(ps_song_fn_cur)
+    call printString ; print the song filename
+; start the PRT timer
     call ps_prt_start
 ; jump to user input loop:
 ; the play sample interrupt will return to there
@@ -129,6 +124,7 @@ ps_read_file:
 ; disable interrupts so load is guaranteed to complete
     di
 ; print a playing breadcrumb
+    call vp_breadcrumbs
     ld a,'.'
     rst.lil 10h
 ; Read a block of data from a file
@@ -179,8 +175,7 @@ ps_play_sample:
     call vdu_call_buffer
 ; load the next chunk of data
     call ps_read_file
-; reenable interrupts and return to the user input loop
-    ei
+; return to the user input loop
     ret
 ; end ps_play_sample
 
@@ -259,26 +254,6 @@ ps_get_dir:
 ; close the directory
     ld hl,ps_dir_struct      ; load H: with address of the DIR struct
     MOSCALL ffs_dclose       ; close dir
-; ; DEBUG
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files: "
-;     ld hl,(ps_dir_num_files)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of pages: "
-;     ld hl,(ps_dir_num_pages)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files on last page: "
-;     ld hl,(ps_pagelast_num_files)
-;     call printHexUHL
-;     call printNewLine
-; ; END DEBUG
     ret
 ; end ps_get_dir
 
@@ -353,7 +328,11 @@ ps_print_dir_page:
     pop bc ; restore loop counter
     djnz @loop
 ; print the bottom border
-    call print_dir_border_bottom
+    ld c,text_left ; x
+    ld b,10 ; y
+    call vdu_move_cursor
+    ld hl,str_dashes_thin
+    call printString
     ret
 ; end ps_print_dir_page
 
@@ -369,13 +348,6 @@ ps_print_dir:
     push hl ; loop counter
 ; branch on the file attribute
     ld a,(ix+filinfo_fattrib)
-; ; DEBUG
-;     PUSH_ALL
-;     call printBin8
-;     ld a,' '
-;     rst.lil 10h
-;     POP_ALL
-; ; END DEBUG
     cp AM_DIR ; if zero, is directory
     jp nz,@print_file ; not directory so just write filename
     call printInline
@@ -440,11 +412,9 @@ ps_change_dir:
     ld (ps_page_cur),hl
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page
     call ps_print_dir_page
-    call vp_breadcrumbs
-; enable interrupts and jump back to the user input loop
-    ei
+; jump back to the user input loop
     jp get_input
 ; end ps_change_dir
 
@@ -457,11 +427,9 @@ ps_dir_next_page:
     ld (ps_page_cur),hl ; save the new page number
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page
     call ps_print_dir_page
-    call vp_breadcrumbs
-; enable interrupts and jump back to the user input loop
-    ei
+; jump back to the user input loop
     jp get_input
 ; end ps_dir_next_page
 
@@ -477,11 +445,9 @@ ps_dir_prev_page:
     ld (ps_page_cur),hl ; save the new page number
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page 
     call ps_print_dir_page
-    call vp_breadcrumbs
-; enable interrupts and jump back to the user input loop
-    ei
+; jump back to the user input loop
     jp get_input
 ; end ps_dir_prev_page
 

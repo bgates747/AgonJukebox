@@ -4,8 +4,8 @@ text_bottom: equ 47      ; 48 rows, zero-based
 text_right: equ 63       ; 64 columns, zero-based
 
 ; set text viewport for current playing song
-vp_now_playing_left: equ 0
-vp_now_playing_top: equ 0
+vp_now_playing_left: equ text_left
+vp_now_playing_top: equ 34
 vp_now_playing_right: equ text_right
 vp_now_playing_bottom: equ vp_now_playing_top+1
 
@@ -19,8 +19,8 @@ vp_now_playing:
 ; end vp_now_playing
 
 ; set text viewport for playing breadcrumbs
-vp_breadcrumbs_left: equ 0
-vp_breadcrumbs_top: equ 35
+vp_breadcrumbs_left: equ text_left
+vp_breadcrumbs_top: equ vp_now_playing_bottom
 vp_breadcrumbs_right: equ text_right
 vp_breadcrumbs_bottom: equ vp_breadcrumbs_top
 
@@ -33,7 +33,7 @@ vp_breadcrumbs:
     ret
 ; end vp_breadcrumbs
 
-vp_dir_hdr_left: equ 0
+vp_dir_hdr_left: equ text_left
 vp_dir_hdr_top: equ 19
 vp_dir_hdr_right: equ text_right
 vp_dir_hdr_bottom: equ vp_dir_hdr_top
@@ -46,10 +46,10 @@ vp_dir_hdr:
     ret
 
 ; set text viewport for directory listing
-vp_dir_left: equ 0
+vp_dir_left: equ text_left
 vp_dir_top: equ vp_dir_hdr_top+4
 vp_dir_right: equ text_right
-vp_dir_bottom: equ vp_dir_top+10
+vp_dir_bottom: equ vp_dir_top+11
 vp_dir:
     ld c,vp_dir_left
     ld d,vp_dir_top
@@ -58,19 +58,7 @@ vp_dir:
     call vdu_set_txt_viewport
     ret
 
-; print bottom border of directory listing
-print_dir_border_bottom:
-    ld c,vp_dir_left
-    ld d,vp_dir_bottom
-    ld e,text_right
-    ld b,vp_dir_bottom
-    call vdu_set_txt_viewport
-    ld hl,str_dashes_thick
-    call printString
-    ret
-; end vp_dir_border
-
-vp_messages_left: equ 0
+vp_messages_left: equ text_left
 vp_messages_top: equ vp_dir_bottom+1
 vp_messages_right: equ text_right
 vp_messages_bottom: equ text_bottom
@@ -123,6 +111,13 @@ ui_init:
     ld hl,str_dashes_thin
     call printString
 
+; below the breadcrumbs border
+    ld c,text_left ; x
+    ld b,vp_breadcrumbs_bottom+1 ; y
+    call vdu_move_cursor
+    ld hl,str_dashes_thin
+    call printString
+
 ; print the navigation and song control instructions
     ld c,text_left ; x
     ld b,vp_breadcrumbs_bottom+2 ; y
@@ -132,20 +127,6 @@ ui_init:
     db "(S)huffle: OFF  | (L)oop: OFF\r\n"
     db "(R)andom song   | [ESC] or (Q)uit\r\n"
     db 0 ; null terminator
-
-; file list bottom border
-    ld c,text_left ; x
-    ld b,vp_dir_bottom+1 ; y
-    call vdu_move_cursor
-    ld hl,str_dashes_thin
-    call printString
-
-; below the breadcrumbs border
-    ld c,text_left ; x
-    ld b,vp_breadcrumbs_bottom+1 ; y
-    call vdu_move_cursor
-    ld hl,str_dashes_thin
-    call printString
 
 ; below the detailed instructions / status border
     ld c,text_left ; x
