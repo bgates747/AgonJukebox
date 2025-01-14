@@ -83,64 +83,20 @@ init:
     ld hl,Lat2_VGA8_8x8
     ld a,1 ; flags
     call vdu_font_select
-; print ascii art splash screen
-    call vdu_cls
-    ld c,0 ; x
-    ld b,4 ; y
-    call vdu_move_cursor
-    call printInline
-    asciz "Welcome to...\r\n"
-    ld hl,agon_jukebox_ascii
-    call printString
+
+; initialize ui
+    call ui_init
+
 ; call directory page listing
     call ps_get_dir
 
-; ; DEBUG
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files: "
-;     ld hl,(ps_dir_num_files)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of pages: "
-;     ld hl,(ps_dir_num_pages)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files on last page: "
-;     ld hl,(ps_pagelast_num_files)
-;     call printHexUHL
-;     call printNewLine
-
-;     call DEBUG_WAITKEYPRESS
-; ; END DEBUG
-
-; print out current directory path
-    call printNewLine
-    ld hl,str_thick_dashes
-    call printString
-    call printInline
-    asciz "\r\nOur current directory is:\r\n"
-    ld hl,ps_dir_path
-    call printString
-    call printNewLine
-    ld hl,str_thick_dashes
-    call printString
-; print instructions
-    call printInline
-    asciz "\r\nPress keys 0-9 to play a song:\r\n"
-    ld hl,str_dashes
-    call printString
 ; initialize play sample timer interrupt handler
     call ps_prt_irq_init
     ret
 ; end init
 
-str_dashes: asciz "---------------------------------------------------------------"
-str_thick_dashes: asciz "==============================================================="
+str_dashes_thin: asciz  "----------------------------------------------------------------"
+str_dashes_thick: asciz "================================================================"
 
 main:
 ; call the change directory routine which jp's to get_input
