@@ -134,12 +134,6 @@ init:
     asciz "\r\nPress keys 0-9 to play a song:\r\n"
     ld hl,str_dashes
     call printString
-; print first 10 files in the directory
-    xor a ; song index to 0
-    ld (ps_song_idx_cur),a
-    call printNewLine
-    call ps_print_dir_page
-    ; call print_dir_border_bottom
 ; initialize play sample timer interrupt handler
     call ps_prt_irq_init
     ret
@@ -149,8 +143,8 @@ str_dashes: asciz "-------------------------------------------------------------
 str_thick_dashes: asciz "==============================================================="
 
 main:
-; call get_input to start player
-    call get_input
+; call the change directory routine which jp's to get_input
+    call ps_change_dir
 ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
     call ps_prt_stop ; stop the PRT timer
     ei ; interrupts were disabled by get_input

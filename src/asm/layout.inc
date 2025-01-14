@@ -56,19 +56,15 @@ print_dir_border_bottom:
     ret
 ; end vp_dir_border
 
-vp_prt_reload_left: equ 0
-vp_prt_reload_top: equ vp_dir_bottom+1
-vp_prt_reload_right: equ text_right
-vp_prt_reload_bottom: equ vp_prt_reload_top
-vp_prt_reload:
-    ld c,vp_prt_reload_left
-    ld d,vp_prt_reload_top
-    ld e,vp_prt_reload_right
-    ld b,vp_prt_reload_bottom
+vp_messages_left: equ 0
+vp_messages_top: equ vp_dir_bottom+1
+vp_messages_right: equ text_right
+vp_messages_bottom: equ text_bottom
+; set text viewport for messages
+vp_messages:
+    ld c,vp_messages_left
+    ld d,vp_messages_top
+    ld e,vp_messages_right
+    ld b,vp_messages_bottom
     call vdu_set_txt_viewport
-    call vdu_cls
-    call printInline
-    asciz "PRT reload: "
-    ld hl,ps_prt_reload
-    call printDec
     ret
