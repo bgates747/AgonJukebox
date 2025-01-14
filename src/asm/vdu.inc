@@ -22,20 +22,66 @@ vdu_cursor_off:
 	db 23,1,0
 @end:
 
+; VDU 4: Write text at text cursor
+; This causes text to be written at th current text cursor position. This is the default mode for text display.
+; inputs: none
+; prerequisites: the text cursor at the intended position on screen
+; outputs: none
+; destroys: af
+vdu_text_to_text_cursor:
+    ld a,4
+    rst.lil $10   
+    ret
+; end vdu_text_to_text_cursor
+
+; set the text cursor to a specified location and print a string there
+; inputs: hl = address of string to print, c,b = x,y text coordinates
+; outputs: text
+; destroys: af, bc, hl
+; affects: moves text cursor to position after final char printed by default
+;          unless overridden by VDU 23, 16 cursor control command settings
+;          all subsequent print commands (rst.lil $10 or $18) will go to the text cursor
+vdu_print_to_text_location:
+    push hl ; preserve string pointer
+    ld a,4 ; VDU 4 char to text cursor
+    rst.lil $10   
+    call vdu_move_cursor
+    pop hl ; restore string pointer
+    call printString
+    ret
+; end vdu_print_at_text_location
+
 ; VDU 5: Write text at graphics cursor
-; inputs: a is the character to write to the screen
+; inputs: none
 ; prerequisites: the graphics cursor at the intended position on screen
-; outputs: see the name of the function
-; destroys: a, hl, bc
-vdu_char_to_gfx_cursor:
-	ld (@arg),a        
-	ld hl,@cmd         
-	ld bc,@end-@cmd    
-	rst.lil $18         
+; outputs: none
+; destroys: af
+vdu_text_to_gfx_cursor:
+    ld a,5
+	rst.lil $10   
 	ret
-@cmd: db 5
-@arg: db 0 
-@end:
+; end vdu_char_to_gfx_cursor
+
+; set the graphics cursor to a specified location and print a string there
+; inputs: hl = address of string to print, bc,de = x,y graphics coordinates
+; outputs: text
+; destroys: af, bc, de, hl
+; affects: moves graphics cursor to position after final char printed by default 
+;          unless overridden by setting bit 6 of the cursor control register (VDU 23, 16)
+;          all subsequent print commands (rst.lil $10 or $18) will go to the graphics cursor
+vdu_print_to_gfx_location:
+    push hl ; preserve string pointer
+    ld a,plot_pt+mv_abs
+    call vdu_plot ; moves the graphics cursor to the specified location
+    ld a,5 ; VDU 5 char to gfx cursor
+    rst.lil $10 
+    pop hl ; restore string pointer
+    ld bc,0
+    ld a,0
+    rst.lil $18 ; print the string
+    ret
+; end vdu_print_at_gfx_location
+
 ; VDU 9: Move cursor forward one character
 vdu_cursor_forward:
     ld a,9
@@ -54,6 +100,22 @@ vdu_move_cursor:
 @x0:	db 0
 @y0: 	db 0
 @end: 	db 0 ; padding
+
+; https://agonconsole8.github.io/agon-docs/vdp/VDU-Commands/#vdu-23-1-n-cursor-control
+; VDU 23, 16, setting, mask: Define cursor movement behaviour
+; inputs: l = setting, h = mask
+; new_setting = (current_setting AND mask) EOR setting
+; in English: mask controls which bit to turn on or off, setting is the value of the bits to set or reset
+vdu_cursor_behaviour:
+    ld (@setting),hl ; little-endian!
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd: db 23,16
+@setting: db 0
+@mask: db 0
+@end: db 0 ; padding
 
 ; VDU 12: Clear text area (CLS)
 vdu_cls:
