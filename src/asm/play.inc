@@ -8,10 +8,10 @@ ch1_buffer: equ 0x3001
 cmd0_buffer: equ 0x3002
 cmd1_buffer: equ 0x3003
 
-; ps_mode bitmasks
+; ps_mode bits
 ps_mode_playing: equ 0 ; 0 = paused 1 = playing, p key toggles
-ps_mode_loop:    equ 000000010 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
-ps_mode_shuffle: equ %00000100 ; 0 = shuffle off 1 = on, s key toggles
+ps_mode_loop:    equ 1 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
+ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
 
 ; play_song state variables
 ; current active channel and bufferId's
