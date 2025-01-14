@@ -18,28 +18,13 @@ get_input:
     jp z,ps_toggle_pause
 ; toggle loop play
     cp 'l'
-    jp nz,@F
-    ld a,ps_mode_loop
-    ld hl,ps_mode
-    xor a,(hl)
-    ld (hl),a
-    jp get_input
+    jp z,ps_toggle_loop
 ; toggle shuffle play
     cp 's'
-    jp nz,@F
-    ld a,ps_mode_shuffle
-    ld hl,ps_mode
-    xor a,(hl)
-    ld (hl),a
-    jp get_input
+    jp z,ps_toggle_shuffle
 ; play random song
     cp 'r'
-    jp nz,@F
-    ld a,ps_mode_shuffle
-    ld hl,ps_mode
-    or a,(hl)
-    ld (hl),a
-    jp ps_play_random
+    jp z,ps_play_random
 ; 0-9 play song keys
 @@: 
     cp '0'
@@ -89,3 +74,13 @@ ps_toggle_pause:
 
     jp get_input
 ; end ps_toggle_pause
+
+ps_toggle_shuffle:
+
+    jp get_input
+; end ps_toggle_shuffle
+
+ps_toggle_loop:
+
+    jp get_input
+; end ps_toggle_loop
