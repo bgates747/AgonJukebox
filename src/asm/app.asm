@@ -114,10 +114,6 @@ main:
     asciz "Thank you for using\r\n"
     ld hl,agon_jukebox_ascii
     call printString
-; put screen back to regular operation
-    ld h,%00000001 ; mask to change value of bit 0 (scroll protection)
-    ld l,%00000000 ; bit 0 reset is scroll protection off
-    call vdu_cursor_behaviour ; set scroll protection off
     call vdu_cursor_on
     ret ; back to MOS
 ; end main
