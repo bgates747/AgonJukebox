@@ -1,0 +1,359 @@
+;Copyright (c) 2006, Sean McLaughlin. All rights reserved.
+;Redistribution and use in source and binary forms, with or without modification, are
+;permitted provided that the following conditions are met:
+;
+;Redistributions of source code must retain the above copyright notice, this list of
+;conditions and the following disclaimer.
+;
+;Redistributions in binary form must reproduce the above copyright notice, this list of
+;conditions and the following disclaimer in the documentation and/or other materials
+;provided with the distribution.
+;
+;THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+;"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+;TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+;PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR
+;CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+;EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+;ROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+;PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY
+;OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+;NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+;SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+HeapSortB:
+; ### HEAPSORTB ################################################################
+; HL = Address of array start
+; BC = Size of array
+; IX = Address of callback:
+;	HL -> first
+;	DE -> second
+;	Returns CF = 1 if (HL) precedes (DE), CF = 0 if (HL) follows (DE)
+;	Can destroy A, DE, HL, IY, must preserve BC, IX
+
+	dec	hl
+
+; ### Build heap ##############################################################
+	push	bc
+
+	ld	bc, 1
+--	push	bc
+
+-	push	hl
+	sra	b
+	rr	c
+	jr	z, +
+
+	ld	d, h
+	ld	e, l
+	adc	hl, bc
+	add	hl, bc
+	ex	de, hl
+
+	add	hl, bc
+
+	push	hl
+	push	de
+	call	call_ix
+	pop	de
+	pop	hl
+	jr	c, +
+
+	ld	a, (de)
+	push	af
+	ld	a, (hl)
+	ld	(de), a
+	pop	af
+	ld	(hl), a
+	pop	hl
+
+	jr	-
++	pop	hl
+
+	pop	bc
+	inc	bc
+	ex	(sp), hl
+	ld	a, b
+	cp	h
+	jr	nz, +
+	ld	a, c
+	cp	l
++	ex	(sp), hl
+	jr	c, --
+
+	pop	bc
+
+; ### Sort ####################################################################
+	ld	d, h
+	ld	e, l
+	add	hl, bc
+	ld	b, h
+	ld	c, l
+	ld	h, d
+	ld	l, e
+
+--	inc	hl
+	ld	a, h
+	cp	b
+	jr	nz, +
+	ld	a, l
+	cp	c
++	jr	nc, +++
+	dec	hl
+
+	ld	d, h
+	ld	e, l
+	inc	de
+
+	ld	a, (bc)
+	push	af
+	ld	a, (de)
+	ld	(bc), a
+	pop	af
+	ld	(de), a
+
+	dec	bc
+
+-	push	hl
+	xor	a
+	sub	l
+	ld	l, a
+	ld	a, 0
+	sbc	a, h
+	ld	h, a
+	add	hl, de
+	add	hl, de
+
+	ld	a, h
+	cp	b
+	jr	nz, +
+	ld	a, l
+	cp	c
++	jr	z, +
+	jr	nc, ++
+
+	push	de
+	ld	d, h
+	ld	e, l
+	inc	hl
+	push	hl
+	call	call_ix
+	pop	hl
+	pop	de
+	jr	c, +
+	dec	hl
+
++	push	hl
+	push	de
+	call	call_ix
+	pop	de
+	pop	hl
+	jr	nc, ++
+
+	ld	a, (hl)
+	push	af
+	ld	a, (de)
+	ld	(hl), a
+	pop	af
+	ld	(de), a
+
+	ld	d, h
+	ld	e, l
+
+	pop	hl
+	jp	-
+
+++	pop	hl
+	jp	--
+
++++	ret
+
+
+HeapSortW:
+; ### HEAPSORTW ###############################################################
+; HL = Address of array start
+; BC = Size of array (in elements)
+; IX = Address of callback:
+;	HL -> first
+;	DE -> second
+;	Returns CF = 1 if (HL) precedes (DE), CF = 0 if (HL) follows (DE)
+;	Can destroy A, DE, HL; must preserve BC, IX
+
+	dec	hl
+	dec	hl
+
+; ### Build heap ##############################################################
+	push	bc
+
+	ld	bc, 1
+--	push	bc
+
+-	push	hl
+	sra	b
+	rr	c
+	jr	z, +
+
+	ld	d, h
+	ld	e, l
+	ld	hl, 0
+	adc	hl, bc
+	add	hl, bc
+	add	hl, hl
+	add	hl, de
+	ex	de, hl
+
+	add	hl, bc
+	add	hl, bc
+
+	push	hl
+	push	de
+	call	call_ix
+	pop	de
+	pop	hl
+	jr	c, +
+
+	ld	a, (de)
+	push	af
+	ld	a, (hl)
+	ld	(de), a
+	pop	af
+	ld	(hl), a
+	inc	hl
+	inc	de
+	ld	a, (de)
+	push	af
+	ld	a, (hl)
+	ld	(de), a
+	pop	af
+	ld	(hl), a
+
+	dec	de
+	pop	hl
+
+	jr	-
++	pop	hl
+
+	pop	bc
+	inc	bc
+	ex	(sp), hl
+	ld	a, b
+	cp	h
+	jr	nz, +
+	ld	a, c
+	cp	l
++	ex	(sp), hl
+	jr	c, --
+
+	pop	bc
+
+; ### Sort ####################################################################
+	ld	d, h
+	ld	e, l
+	add	hl, bc
+	add	hl, bc
+	ld	b, h
+	ld	c, l
+	ld	h, d
+	ld	l, e
+
+--	inc	hl
+	inc	hl
+	ld	a, h
+	cp	b
+	jr	nz, +
+	ld	a, l
+	cp	c
++	jr	nc, +++
+	dec	hl
+	dec	hl
+
+	ld	d, h
+	ld	e, l
+	inc	de
+	inc	de
+
+	ld	a, (bc)
+	push	af
+	ld	a, (de)
+	ld	(bc), a
+	pop	af
+	ld	(de), a
+	inc	de
+	inc	bc
+	ld	a, (bc)
+	push	af
+	ld	a, (de)
+	ld	(bc), a
+	pop	af
+	ld	(de), a
+	dec	de
+	dec	bc
+	dec	bc
+	dec	bc
+
+-	push	hl
+	xor	a
+	sub	l
+	ld	l, a
+	ld	a, 0
+	sbc	a, h
+	ld	h, a
+	add	hl, de
+	add	hl, de
+
+	ld	a, h
+	cp	b
+	jr	nz, +
+	ld	a, l
+	cp	c
++	jr	z, +
+	jr	nc, ++
+
+	push	de
+	ld	d, h
+	ld	e, l
+	inc	hl
+	inc	hl
+	push	hl
+	call	call_ix
+	pop	hl
+	pop	de
+	jr	c, +
+	dec	hl
+	dec	hl
+
++	push	hl
+	push	de
+	call	call_ix
+	pop	de
+	pop	hl
+	jr	nc, ++
+
+	ld	a, (hl)
+	push	af
+	ld	a, (de)
+	ld	(hl), a
+	pop	af
+	ld	(de), a
+	inc	hl
+	inc	de
+	ld	a, (hl)
+	push	af
+	ld	a, (de)
+	ld	(hl), a
+	pop	af
+	ld	(de), a
+	dec	hl
+
+	ld	d, h
+	ld	e, l
+
+	pop	hl
+	jp	-
+
+++	pop	hl
+	jp	--
+
++++	ret
+
+call_ix: jp (ix)
