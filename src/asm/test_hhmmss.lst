@@ -1,0 +1,195 @@
+PC     Output      Line
+040000             0001     assume adl=1
+040000             0002     org 0x040000
+040000 C3 45 00 04 0003     jp start
+040004             0004     align 64
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+040040 4D 4F 53    0005     db "MOS"
+040043 00          0006     db 00h
+040044 01          0007     db 01h
+040045             0008 
+040045             0009 start:
+040045 F5          0010     push af
+040046 C5          0011     push bc
+040047 D5          0012     push de
+040048 DD E5       0013     push ix
+04004A FD E5       0014     push iy
+04004C             0015 
+04004C CD 5C 00 04 0016     call main
+040050             0017 
+040050             0018 exit:
+040050 FD E1       0019     pop iy
+040052 DD E1       0020     pop ix
+040054 D1          0021     pop de
+040055 C1          0022     pop bc
+040056 F1          0023     pop af
+040057 21 00 00 00 0024     ld hl,0
+04005B             0025 
+04005B C9          0026     ret
+04005C             0027 
+04005C             0028 ; --- MAIN PROGRAM FILE ---
+04005C             0029 
+04005C             0030 main:
+04005C 21 3F 7E 05 0031     ld hl,359999 ; 99:59:59
+040060 CD 75 00 04 0032     call seconds_to_hhmmss
+040064 21 D8 00 04 0033     ld hl,hhmmss
+040068 CD FF 00 04 0034     call printString
+04006C 3E 0D       0035     ld a,'\r'
+04006E 5B D7       0036     rst.lil 10h
+040070 3E 0A       0037     ld a,'\n'
+040072 5B D7       0038     rst.lil 10h
+040074 C9          0039     ret
+040075             0040 
+040075             0041 ; Convert seconds to HH:MM:SS format.
+040075             0042 ; inputs: hl = seconds
+040075             0043 ; outputs: hl = pointer to zero-terminated string representation of HH:MM:SS
+040075             0044 ; destroys: a,bc,de
+040075             0045 seconds_to_hhmmss:
+040075             0046 ; Divide the total seconds into hours, minutes, and seconds.
+040075             0047 ; Hours = Total seconds ÷ 3600.
+040075 11 10 0E 00 0048     ld de,3600
+040079 CD 0A 01 04 0049     call udiv24 ; de = hours, hl = remaining seconds
+04007D E5          0050     push hl ; save remainder
+04007E EB          0051     ex de,hl ; hl = hours
+04007F 11 D0 00 04 0052     ld de,@bin2asc
+040083 CD E1 00 04 0053     call u8_to_ascii ; answer in @bin2asc
+040087 3A D2 00 04 0054     ld a,(@bin2asc+2)
+04008B 32 D8 00 04 0055     ld (hhmmss+0),a
+04008F 3A D3 00 04 0056     ld a,(@bin2asc+3)
+040093 32 D9 00 04 0057     ld (hhmmss+1),a
+040097             0058 ; Minutes = Remaining seconds ÷ 60.
+040097 E1          0059     pop hl ; restore remainder
+040098 11 3C 00 00 0060     ld de,60
+04009C CD 0A 01 04 0061     call udiv24 ; de = minutes, hl = remaining seconds
+0400A0 E5          0062     push hl ; save remainder
+0400A1 EB          0063     ex de,hl ; hl = minutes
+0400A2 11 D0 00 04 0064     ld de,@bin2asc
+0400A6 CD E1 00 04 0065     call u8_to_ascii ; answer in @bin2asc
+0400AA 3A D2 00 04 0066     ld a,(@bin2asc+2)
+0400AE 32 DB 00 04 0067     ld (hhmmss+3),a
+0400B2 3A D3 00 04 0068     ld a,(@bin2asc+3)
+0400B6 32 DC 00 04 0069     ld (hhmmss+4),a
+0400BA             0070 ; Seconds = Remaining seconds.
+0400BA E1          0071     pop hl ; restore remainder
+0400BB CD E1 00 04 0072     call u8_to_ascii ; answer in @bin2asc
+0400BF 3A D2 00 04 0073     ld a,(@bin2asc+2)
+0400C3 32 DE 00 04 0074     ld (hhmmss+6),a
+0400C7 3A D3 00 04 0075     ld a,(@bin2asc+3)
+0400CB 32 DF 00 04 0076     ld (hhmmss+7),a
+0400CF C9          0077     ret
+0400D0 00 00 00 00 0078 @bin2asc: blkw 4,0 ; scratch space for binary to ascii decimal conversion
+       00 00 00 00 
+0400D8 30 30 3A 30 0079 hhmmss: asciz "00:00:00" ; buffer for output string
+       30 3A 30 30 
+       00          
+0400E1             0080 ; end seconds_to_hhmmss
+0400E1             0081 
+0400E1             0082 ; following code stolen from / inspired by:
+0400E1             0083 ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
+0400E1             0084 
+0400E1             0085 ; This routine converts the unsigned 16-bit value in HL into its ASCII representation,
+0400E1             0086 ; starting to memory location pointing by DE, in decimal form and with leading zeroes
+0400E1             0087 ; so it will allways be 3 characters length
+0400E1             0088 ; HL : Value to convert to string, must be <= 999 decimal for correct representation
+0400E1             0089 ; DE : pointer to 4-byte buffer (3-digits + 0 terminator for printing)
+0400E1             0090 u8_to_ascii:
+0400E1 CD F4 00 04 0091     CALL one_digit
+0400E5 01 9C FF FF 0092     LD BC,-100
+0400E9 CD F4 00 04 0093     CALL one_digit
+0400ED 0E F6       0094     LD C,-10
+0400EF CD F4 00 04 0095     CALL one_digit
+0400F3 48          0096     LD C,B
+0400F4             0097 one_digit:
+0400F4 3E 2F       0098     LD A,'0'-1
+0400F6             0099 @divide_me:
+0400F6 3C          0100     INC A
+0400F7 09          0101     ADD HL,BC
+0400F8 38 FC       0102     JR C,@divide_me
+0400FA ED 42       0103     SBC HL,BC
+0400FC 12          0104     LD (DE),A
+0400FD 13          0105     INC DE
+0400FE C9          0106     RET
+0400FF             0107 ; end u24_to_ascii
+0400FF             0108 
+0400FF             0109 ; Print a zero-terminated string
+0400FF             0110 ; HL: Pointer to string
+0400FF             0111 ; returns: hl pointed to character after string terminator
+0400FF             0112 ; destroys: af, hl
+0400FF             0113 printString:
+0400FF C5          0114     PUSH BC
+040100 01 00 00 00 0115     LD BC,0
+040104 3E 00       0116     LD A,0
+040106 5B DF       0117     RST.LIL 18h
+040108 C1          0118     POP BC
+040109 C9          0119     RET
+04010A             0120 ; end printString
+04010A             0121 
+04010A             0122 ; following code ripped directly from:
+04010A             0123 ; https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm
+04010A             0124 ;------------------------------------------------------------------------
+04010A             0125 ;  arith24.asm
+04010A             0126 ;  24-bit ez80 arithmetic routines
+04010A             0127 ;  Copyright (c) Shawn Sijnstra 2024
+04010A             0128 ;  MIT license
+04010A             0129 ;
+04010A             0130 ;  This library was created as a tool to help make ez80
+04010A             0131 ;  24-bit native assembly routines for simple mathematical problems
+04010A             0132 ;  more widely available.
+04010A             0133 ;
+04010A             0134 ;------------------------------------------------------------------------
+04010A             0135 
+04010A             0136 ;------------------------------------------------------------------------
+04010A             0137 ; udiv24
+04010A             0138 ; Unsigned 24-bit division
+04010A             0139 ; Divides HLU by DEU. Gives result in DEU (and BC), remainder in HLU.
+04010A             0140 ;
+04010A             0141 ; Uses AF BC DE HL
+04010A             0142 ; Uses Restoring Division algorithm
+04010A             0143 ;------------------------------------------------------------------------
+04010A             0144 
+04010A             0145 udiv24:
+04010A E5          0146 	push	hl
+04010B C1          0147 	pop		bc	;move dividend to BCU
+04010C 21 00 00 00 0148 	ld		hl,0	;result
+040110 A7          0149 	and		a
+040111 ED 52       0150 	sbc		hl,de	;test for div by 0
+040113 C8          0151 	ret		z		;it's zero, carry flag is clear
+040114 19          0152 	add		hl,de	;HL is 0 again
+040115 3E 18       0153 	ld		a,24	;number of loops through.
+040117             0154 udiv1:
+040117 C5          0155 	push	bc	;complicated way of doing this because of lack of access to top bits
+040118 E3          0156 	ex		(sp),hl
+040119 37          0157 	scf
+04011A ED 6A       0158 	adc	hl,hl
+04011C E3          0159 	ex	(sp),hl
+04011D C1          0160 	pop	bc		;we now have bc = (bc * 2) + 1
+04011E             0161 
+04011E ED 6A       0162 	adc	hl,hl
+040120 A7          0163 	and	a		;is this the bug
+040121 ED 52       0164 	sbc	hl,de
+040123 30 02       0165 	jr	nc,udiv2
+040125 19          0166 	add	hl,de
+040126             0167 ;	dec	c
+040126 0B          0168 	dec	bc
+040127             0169 udiv2:
+040127 3D          0170 	dec	a
+040128 20 ED       0171 	jr	nz,udiv1
+04012A 37          0172 	scf		;flag used for div0 error
+04012B C5          0173 	push	bc
+04012C D1          0174 	pop		de	;remainder
+04012D C9          0175 	ret
+04012E             0176 ; end udiv24

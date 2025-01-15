@@ -187,21 +187,22 @@ _printDecBuffer: blkb 16,0 ; a few bytes extra just to be sure
 ; DE : pointer to buffer, at least 8 byte + 0
 u24_to_ascii:
     LD BC,-10000000
-    CALL @one_digit
+    CALL one_digit
     LD BC,-1000000
-    CALL @one_digit
+    CALL one_digit
     LD BC,-100000
-    CALL @one_digit
+    CALL one_digit
     LD BC,-10000
-    CALL @one_digit
+    CALL one_digit
     LD BC,-1000
-    CALL @one_digit
+u8_to_ascii: ; same arguments but hl <= 255, uhl and h = 0
+    CALL one_digit
     LD BC,-100
-    CALL @one_digit
+    CALL one_digit
     LD C,-10
-    CALL @one_digit
+    CALL one_digit
     LD C,B
-@one_digit:
+one_digit:
     LD A,'0'-1
 @divide_me:
     INC A
