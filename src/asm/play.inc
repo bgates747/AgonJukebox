@@ -90,13 +90,11 @@ play_song:
     call vdu_cls
     ld hl,(ps_song_fn_cur)
     call printInline
-    asciz "Playing song: "
+    asciz "(P)laying "
     ld hl,(ps_song_fn_cur)
     call printString ; print the song filename
 ; highlight the song being played
     call ps_highlight_song
-; reset text viewport for playing breadcrumbs
-    call vp_breadcrumbs
 ; open the file in read mode
 ; Open a file
 ; HLU: Filename
@@ -128,9 +126,6 @@ play_song:
 ps_read_file:
 ; disable interrupts so load is guaranteed to complete
     di
-; print a playing breadcrumb
-    ld a,'.'
-    rst.lil 10h
 ; Read a block of data from a file
 ;   C: Filehandle
 ; HLU: Pointer to where to write the data to
@@ -166,6 +161,10 @@ ps_read_file:
     pop bc ; how much data to load
     ld de,ps_wav_data_start ; pointer to data
     call vdu_load_buffer
+; print a playing breadcrumb
+    call vp_breadcrumbs
+    ld a,'.'
+    rst.lil 10h
     ret
 ; end ps_read_file
 
@@ -200,6 +199,11 @@ ps_get_dir:
     ld hl,ps_dir_path  ; where to store result
     ld bc,255          ; max length (final byte is zero terminator)
     MOSCALL ffs_getcwd ; MOS api get current working directory
+; print the directory path
+    call vp_dir_name
+    call vdu_cls
+    ld hl,ps_dir_path
+    call printString
 ; now get dir info
     ld hl,ps_dir_struct ; define where to store directory info
     ld de,ps_dir_path   ; this is pointer to the path to the directory
@@ -259,26 +263,6 @@ ps_get_dir:
 ; close the directory
     ld hl,ps_dir_struct      ; load H: with address of the DIR struct
     MOSCALL ffs_dclose       ; close dir
-; ; DEBUG
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files: "
-;     ld hl,(ps_dir_num_files)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of pages: "
-;     ld hl,(ps_dir_num_pages)
-;     call printHexUHL
-
-;     call printNewLine
-;     call printInline
-;     asciz "Number of files on last page: "
-;     ld hl,(ps_pagelast_num_files)
-;     call printHexUHL
-;     call printNewLine
-; ; END DEBUG
     ret
 ; end ps_get_dir
 
@@ -345,15 +329,15 @@ ps_print_dir_page:
     ld bc,filinfo_fname-filinfo_fattrib ; offset to the filename
     add hl,bc ; hl points to the filename
     call printString ; print the filename
-    call printNewLine
 @bump_counters:
     lea ix,ix+3 ; bump the filename pointer
     pop af ; restore song index
     inc a ; increment the song index
     pop bc ; restore loop counter
-    djnz @loop
-; print the bottom border
-    ; call print_dir_border_bottom
+    dec b
+    ret z ; if zero, we're done
+    call printNewLine
+    jp @loop
     ret
 ; end ps_print_dir_page
 
@@ -369,13 +353,6 @@ ps_print_dir:
     push hl ; loop counter
 ; branch on the file attribute
     ld a,(ix+filinfo_fattrib)
-; ; DEBUG
-;     PUSH_ALL
-;     call printBin8
-;     ld a,' '
-;     rst.lil 10h
-;     POP_ALL
-; ; END DEBUG
     cp AM_DIR ; if zero, is directory
     jp nz,@print_file ; not directory so just write filename
     call printInline
@@ -412,6 +389,7 @@ ps_highlight_song:
     ld e,vp_dir_right
     ld b,a
     call vdu_set_txt_viewport
+    call vdu_home_cursor
 ; set text background color
     ld a,c_white+128
     call vdu_colour_text
@@ -440,9 +418,8 @@ ps_change_dir:
     ld (ps_page_cur),hl
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page
     call ps_print_dir_page
-    call vp_breadcrumbs
 ; enable interrupts and jump back to the user input loop
     ei
     jp get_input
@@ -457,9 +434,8 @@ ps_dir_next_page:
     ld (ps_page_cur),hl ; save the new page number
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page
     call ps_print_dir_page
-    call vp_breadcrumbs
 ; enable interrupts and jump back to the user input loop
     ei
     jp get_input
@@ -477,9 +453,8 @@ ps_dir_prev_page:
     ld (ps_page_cur),hl ; save the new page number
 ; populate the page filename pointers
     call ps_fill_page_fn_ptrs
-; print the new page and reset text viewport to now playing breadcrumbs
+; print the new page and
     call ps_print_dir_page
-    call vp_breadcrumbs
 ; enable interrupts and jump back to the user input loop
     ei
     jp get_input
