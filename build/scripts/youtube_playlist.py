@@ -18,7 +18,8 @@ def download_youtube_playlist(playlist_url, output_dir):
         "-x",  # Extract audio
         "--audio-format", "mp3",  # Convert to MP3
         "--yes-playlist",  # Download the entire playlist
-        "--output", os.path.join(output_dir, "%(playlist_index)s - %(title)s.%(ext)s"),  # Output file template
+        "--restrict-filenames",  # Sanitize filenames
+        "--output", os.path.join(output_dir, "%(playlist_index)s_%(title)s.%(ext)s"),  # Output file template
         playlist_url,
     ]
 
@@ -31,8 +32,8 @@ def download_youtube_playlist(playlist_url, output_dir):
         raise
 
 if __name__ == "__main__":
-    playlist_url = "https://www.youtube.com/playlist?list=PLxzSZG7g8c8xUj1KGNhO1eOWLeghdJCt9"
-    output_directory = "assets/sound/music/boston"
+    playlist_url = "https://www.youtube.com/playlist?list=OLAK5uy_kdvgOD7QyQv4fP_xOckkVC_lkb3f0FeDs"
+    output_directory = "assets/sound/music/lawrence"
     try:
         download_youtube_playlist(playlist_url, output_directory)
     except Exception as e:
