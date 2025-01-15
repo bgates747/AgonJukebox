@@ -45,11 +45,23 @@ vp_dir_hdr:
     call vdu_set_txt_viewport
     ret
 
+vp_dir_name_left: equ text_left
+vp_dir_name_top: equ vp_dir_hdr_top+1
+vp_dir_name_right: equ text_right
+vp_dir_name_bottom: equ vp_dir_name_top
+vp_dir_name:
+    ld c,vp_dir_name_left
+    ld d,vp_dir_name_top
+    ld e,vp_dir_name_right
+    ld b,vp_dir_name_bottom
+    call vdu_set_txt_viewport
+    ret
+
 ; set text viewport for directory listing
 vp_dir_left: equ text_left
 vp_dir_top: equ vp_dir_hdr_top+4
 vp_dir_right: equ text_right
-vp_dir_bottom: equ vp_dir_top+11
+vp_dir_bottom: equ vp_dir_top+9
 vp_dir:
     ld c,vp_dir_left
     ld d,vp_dir_top
@@ -107,6 +119,13 @@ ui_init:
 ; file list top border
     ld c,text_left ; x
     ld b,vp_dir_top-1 ; y
+    call vdu_move_cursor
+    ld hl,str_dashes_thin
+    call printString
+
+; file list bottom border
+    ld c,text_left ; x
+    ld b,vp_dir_bottom+1 ; y
     call vdu_move_cursor
     ld hl,str_dashes_thin
     call printString
