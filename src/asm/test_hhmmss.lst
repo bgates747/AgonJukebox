@@ -47,7 +47,7 @@ PC     Output      Line
 04005C 21 3F 7E 05 0031     ld hl,359999 ; 99:59:59
 040060 CD 75 00 04 0032     call seconds_to_hhmmss
 040064 21 D8 00 04 0033     ld hl,hhmmss
-040068 CD FF 00 04 0034     call printString
+040068 CD 03 01 04 0034     call printString
 04006C 3E 0D       0035     ld a,'\r'
 04006E 5B D7       0036     rst.lil 10h
 040070 3E 0A       0037     ld a,'\n'
@@ -62,7 +62,7 @@ PC     Output      Line
 040075             0046 ; Divide the total seconds into hours, minutes, and seconds.
 040075             0047 ; Hours = Total seconds ÷ 3600.
 040075 11 10 0E 00 0048     ld de,3600
-040079 CD 0A 01 04 0049     call udiv24 ; de = hours, hl = remaining seconds
+040079 CD 0E 01 04 0049     call udiv24 ; de = hours, hl = remaining seconds
 04007D E5          0050     push hl ; save remainder
 04007E EB          0051     ex de,hl ; hl = hours
 04007F 11 D0 00 04 0052     ld de,@bin2asc
@@ -74,7 +74,7 @@ PC     Output      Line
 040097             0058 ; Minutes = Remaining seconds ÷ 60.
 040097 E1          0059     pop hl ; restore remainder
 040098 11 3C 00 00 0060     ld de,60
-04009C CD 0A 01 04 0061     call udiv24 ; de = minutes, hl = remaining seconds
+04009C CD 0E 01 04 0061     call udiv24 ; de = minutes, hl = remaining seconds
 0400A0 E5          0062     push hl ; save remainder
 0400A1 EB          0063     ex de,hl ; hl = minutes
 0400A2 11 D0 00 04 0064     ld de,@bin2asc
@@ -107,89 +107,90 @@ PC     Output      Line
 0400E1             0088 ; HL : Value to convert to string, must be <= 999 decimal for correct representation
 0400E1             0089 ; DE : pointer to 4-byte buffer (3-digits + 0 terminator for printing)
 0400E1             0090 u8_to_ascii:
-0400E1 CD F4 00 04 0091     CALL one_digit
-0400E5 01 9C FF FF 0092     LD BC,-100
-0400E9 CD F4 00 04 0093     CALL one_digit
-0400ED 0E F6       0094     LD C,-10
-0400EF CD F4 00 04 0095     CALL one_digit
-0400F3 48          0096     LD C,B
-0400F4             0097 one_digit:
-0400F4 3E 2F       0098     LD A,'0'-1
-0400F6             0099 @divide_me:
-0400F6 3C          0100     INC A
-0400F7 09          0101     ADD HL,BC
-0400F8 38 FC       0102     JR C,@divide_me
-0400FA ED 42       0103     SBC HL,BC
-0400FC 12          0104     LD (DE),A
-0400FD 13          0105     INC DE
-0400FE C9          0106     RET
-0400FF             0107 ; end u24_to_ascii
-0400FF             0108 
-0400FF             0109 ; Print a zero-terminated string
-0400FF             0110 ; HL: Pointer to string
-0400FF             0111 ; returns: hl pointed to character after string terminator
-0400FF             0112 ; destroys: af, hl
-0400FF             0113 printString:
-0400FF C5          0114     PUSH BC
-040100 01 00 00 00 0115     LD BC,0
-040104 3E 00       0116     LD A,0
-040106 5B DF       0117     RST.LIL 18h
-040108 C1          0118     POP BC
-040109 C9          0119     RET
-04010A             0120 ; end printString
-04010A             0121 
-04010A             0122 ; following code ripped directly from:
-04010A             0123 ; https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm
-04010A             0124 ;------------------------------------------------------------------------
-04010A             0125 ;  arith24.asm
-04010A             0126 ;  24-bit ez80 arithmetic routines
-04010A             0127 ;  Copyright (c) Shawn Sijnstra 2024
-04010A             0128 ;  MIT license
-04010A             0129 ;
-04010A             0130 ;  This library was created as a tool to help make ez80
-04010A             0131 ;  24-bit native assembly routines for simple mathematical problems
-04010A             0132 ;  more widely available.
-04010A             0133 ;
-04010A             0134 ;------------------------------------------------------------------------
-04010A             0135 
-04010A             0136 ;------------------------------------------------------------------------
-04010A             0137 ; udiv24
-04010A             0138 ; Unsigned 24-bit division
-04010A             0139 ; Divides HLU by DEU. Gives result in DEU (and BC), remainder in HLU.
-04010A             0140 ;
-04010A             0141 ; Uses AF BC DE HL
-04010A             0142 ; Uses Restoring Division algorithm
-04010A             0143 ;------------------------------------------------------------------------
-04010A             0144 
-04010A             0145 udiv24:
-04010A E5          0146 	push	hl
-04010B C1          0147 	pop		bc	;move dividend to BCU
-04010C 21 00 00 00 0148 	ld		hl,0	;result
-040110 A7          0149 	and		a
-040111 ED 52       0150 	sbc		hl,de	;test for div by 0
-040113 C8          0151 	ret		z		;it's zero, carry flag is clear
-040114 19          0152 	add		hl,de	;HL is 0 again
-040115 3E 18       0153 	ld		a,24	;number of loops through.
-040117             0154 udiv1:
-040117 C5          0155 	push	bc	;complicated way of doing this because of lack of access to top bits
-040118 E3          0156 	ex		(sp),hl
-040119 37          0157 	scf
-04011A ED 6A       0158 	adc	hl,hl
-04011C E3          0159 	ex	(sp),hl
-04011D C1          0160 	pop	bc		;we now have bc = (bc * 2) + 1
-04011E             0161 
-04011E ED 6A       0162 	adc	hl,hl
-040120 A7          0163 	and	a		;is this the bug
-040121 ED 52       0164 	sbc	hl,de
-040123 30 02       0165 	jr	nc,udiv2
-040125 19          0166 	add	hl,de
-040126             0167 ;	dec	c
-040126 0B          0168 	dec	bc
-040127             0169 udiv2:
-040127 3D          0170 	dec	a
-040128 20 ED       0171 	jr	nz,udiv1
-04012A 37          0172 	scf		;flag used for div0 error
-04012B C5          0173 	push	bc
-04012C D1          0174 	pop		de	;remainder
-04012D C9          0175 	ret
-04012E             0176 ; end udiv24
+0400E1 01 18 FC FF 0091     LD BC,-1000
+0400E5 CD F8 00 04 0092     CALL one_digit
+0400E9 01 9C FF FF 0093     LD BC,-100
+0400ED CD F8 00 04 0094     CALL one_digit
+0400F1 0E F6       0095     LD C,-10
+0400F3 CD F8 00 04 0096     CALL one_digit
+0400F7 48          0097     LD C,B
+0400F8             0098 one_digit:
+0400F8 3E 2F       0099     LD A,'0'-1
+0400FA             0100 @divide_me:
+0400FA 3C          0101     INC A
+0400FB 09          0102     ADD HL,BC
+0400FC 38 FC       0103     JR C,@divide_me
+0400FE ED 42       0104     SBC HL,BC
+040100 12          0105     LD (DE),A
+040101 13          0106     INC DE
+040102 C9          0107     RET
+040103             0108 ; end u24_to_ascii
+040103             0109 
+040103             0110 ; Print a zero-terminated string
+040103             0111 ; HL: Pointer to string
+040103             0112 ; returns: hl pointed to character after string terminator
+040103             0113 ; destroys: af, hl
+040103             0114 printString:
+040103 C5          0115     PUSH BC
+040104 01 00 00 00 0116     LD BC,0
+040108 3E 00       0117     LD A,0
+04010A 5B DF       0118     RST.LIL 18h
+04010C C1          0119     POP BC
+04010D C9          0120     RET
+04010E             0121 ; end printString
+04010E             0122 
+04010E             0123 ; following code ripped directly from:
+04010E             0124 ; https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm
+04010E             0125 ;------------------------------------------------------------------------
+04010E             0126 ;  arith24.asm
+04010E             0127 ;  24-bit ez80 arithmetic routines
+04010E             0128 ;  Copyright (c) Shawn Sijnstra 2024
+04010E             0129 ;  MIT license
+04010E             0130 ;
+04010E             0131 ;  This library was created as a tool to help make ez80
+04010E             0132 ;  24-bit native assembly routines for simple mathematical problems
+04010E             0133 ;  more widely available.
+04010E             0134 ;
+04010E             0135 ;------------------------------------------------------------------------
+04010E             0136 
+04010E             0137 ;------------------------------------------------------------------------
+04010E             0138 ; udiv24
+04010E             0139 ; Unsigned 24-bit division
+04010E             0140 ; Divides HLU by DEU. Gives result in DEU (and BC), remainder in HLU.
+04010E             0141 ;
+04010E             0142 ; Uses AF BC DE HL
+04010E             0143 ; Uses Restoring Division algorithm
+04010E             0144 ;------------------------------------------------------------------------
+04010E             0145 
+04010E             0146 udiv24:
+04010E E5          0147 	push	hl
+04010F C1          0148 	pop		bc	;move dividend to BCU
+040110 21 00 00 00 0149 	ld		hl,0	;result
+040114 A7          0150 	and		a
+040115 ED 52       0151 	sbc		hl,de	;test for div by 0
+040117 C8          0152 	ret		z		;it's zero, carry flag is clear
+040118 19          0153 	add		hl,de	;HL is 0 again
+040119 3E 18       0154 	ld		a,24	;number of loops through.
+04011B             0155 udiv1:
+04011B C5          0156 	push	bc	;complicated way of doing this because of lack of access to top bits
+04011C E3          0157 	ex		(sp),hl
+04011D 37          0158 	scf
+04011E ED 6A       0159 	adc	hl,hl
+040120 E3          0160 	ex	(sp),hl
+040121 C1          0161 	pop	bc		;we now have bc = (bc * 2) + 1
+040122             0162 
+040122 ED 6A       0163 	adc	hl,hl
+040124 A7          0164 	and	a		;is this the bug
+040125 ED 52       0165 	sbc	hl,de
+040127 30 02       0166 	jr	nc,udiv2
+040129 19          0167 	add	hl,de
+04012A             0168 ;	dec	c
+04012A 0B          0169 	dec	bc
+04012B             0170 udiv2:
+04012B 3D          0171 	dec	a
+04012C 20 ED       0172 	jr	nz,udiv1
+04012E 37          0173 	scf		;flag used for div0 error
+04012F C5          0174 	push	bc
+040130 D1          0175 	pop		de	;remainder
+040131 C9          0176 	ret
+040132             0177 ; end udiv24
