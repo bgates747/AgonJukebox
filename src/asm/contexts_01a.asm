@@ -292,6 +292,23 @@ vdu_select_context_stack:
 
 ; ---------------------------------------------
 
+; VDU 23, 0, $C8, 1, contextId: Delete context stack
+; inputs: hl = contextId
+; outputs: nothing
+; prerequisites: none
+; destroys: af, bc, hl
+vdu_delete_context_stack:
+    ld (@contextId),hl
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd: db 23, 0, $C8, 1              ; just send this string of bytes
+@contextId: dw 0x0000               ; plus the ID in this word
+@end: db 0x00                       ; padding to work in ADL mode
+
+; ---------------------------------------------
+
 ; VDU 23, 0, $C8, 2, flags: Reset the current context
 ; inputs: a = flags
 ; outputs: nothing
