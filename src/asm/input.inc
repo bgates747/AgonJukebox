@@ -25,6 +25,9 @@ get_input:
 ; play random song
     cp 'r'
     jp z,ps_play_random
+; go up one directory
+    cp 'u'
+    jp z,ps_up_dir
 ; 0-9 play song keys
 @@: 
     cp '0'
@@ -49,6 +52,20 @@ ps_play_or_chg_dir:
     call ps_get_dir ; get directory listing
     jp ps_change_dir ; change to the directory
 ; end ps_play_or_chg_dir
+
+; change directory one level up
+; inputs: none
+ps_up_dir:
+; DEBUG
+    ld a,7 ; vdu 7 beep
+    rst.lil 10h 
+; END DEBUG
+    ld hl,@str_up_dir
+    MOSCALL mos_oscli
+    call ps_get_dir ; get directory listing
+    jp ps_change_dir ; change to the directory
+@str_up_dir: asciz "cd .."
+; end ps_up_dir
 
 ps_toggle_pause:
     call vp_now_playing
