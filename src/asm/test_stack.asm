@@ -37,6 +37,7 @@ exit:
     include "fonts.inc"
     include "fonts_list.inc"
     include "fixed168.inc"
+    include "time.inc"
     include "timer.inc"
     include "vdu.inc"
     include "vdu_buffered_api.inc"
@@ -47,22 +48,18 @@ exit:
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "ascii.inc"
-    include "input_dir.inc"
-    include "play_dir.inc"
+    include "input.inc"
+    include "play.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
-
 ; --- MAIN PROGRAM FILE ---
-original_screen_mode: db 0
+
 
 init:
 
     ret
 ; end init
-
-str_dashes_thin: asciz "---------------------------------------------------------------"
-str_dashes_thick: asciz "==============================================================="
 
 main:
     ld bc,0
