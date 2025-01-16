@@ -53,7 +53,6 @@ exit:
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
-original_screen_mode: db 0
 init:
     call ui_init
     call ps_get_dir

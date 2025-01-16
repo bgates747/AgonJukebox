@@ -3,6 +3,8 @@ text_left: equ 0
 text_bottom: equ 47      ; 48 rows, zero-based
 text_right: equ 63       ; 64 columns, zero-based
 
+original_screen_mode: db 0 ; screen mode when app started so we can return to it on exit
+
 str_dashes_thin: asciz  "----------------------------------------------------------------"
 str_dashes_thick: asciz "================================================================"
 

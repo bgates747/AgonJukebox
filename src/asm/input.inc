@@ -61,10 +61,10 @@ ps_up_dir:
     rst.lil 10h 
 ; END DEBUG
     ld hl,@str_up_dir
-    MOSCALL mos_oscli
+    MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
     jp ps_change_dir ; change to the directory
-@str_up_dir: asciz "cd .."
+@str_up_dir: asciz ".."
 ; end ps_up_dir
 
 ps_toggle_pause:
