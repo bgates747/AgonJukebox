@@ -56,10 +56,6 @@ ps_play_or_chg_dir:
 ; change directory one level up
 ; inputs: none
 ps_up_dir:
-; DEBUG
-    ld a,7 ; vdu 7 beep
-    rst.lil 10h 
-; END DEBUG
     ld hl,@str_up_dir
     MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
