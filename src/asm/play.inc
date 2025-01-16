@@ -19,7 +19,7 @@ ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
-ps_dir_path:   blkw 256,0 ; path of the current directory
+ps_dir_path:   blkb 256,0 ; path of the current directory
 ps_dir_num_files: dl 0 ; number of files/directories in the directory (virtually unlimited)
 ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
 ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
@@ -216,21 +216,30 @@ ps_close_file:
 ; end ps_close_file
 
 ps_get_dir:
+; set text viewport to directory name and clear it
+    call vp_dir_name
+    call vdu_cls
 ; reset filecounter
     ld hl,0
     ld (ps_dir_num_files),hl
-; initialize pointers to store directory info
+; DEBUG: clear the directory path buffer
+    ld hl,ps_dir_path ; start address to clear
+    ld bc,256 ; number of bytes
+    xor a ; value to write
+    call clear_mem
+; END DEBUG
+; initialize pointers to store directory info and print directory name
     ld hl,ps_dir_path  ; where to store result
+; note: setting bc has no apparent effect, but we leave it for consistency with docs
+; https://agonconsole8.github.io/agon-docs/MOS-API/#0x9e-ffs_getcwd
     ld bc,255          ; max length (final byte is zero terminator)
     MOSCALL ffs_getcwd ; MOS api get current working directory
-; print the directory path
-    call vp_dir_name
-    call vdu_cls
-    ld hl,ps_dir_path
+; print the directory path (ffs_getcwd preserves hl)
     call printString
 ; now get dir info
     ld hl,ps_dir_struct ; define where to store directory info
     ld de,ps_dir_path   ; this is pointer to the path to the directory
+    xor a               ; tell MOS to expect zero-terminated string
     MOSCALL ffs_dopen   ; open dir
 ; set up pointers
     ld ix,ps_dir_fil_list ; this is the pointer to the fileinfo table
