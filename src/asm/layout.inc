@@ -3,6 +3,9 @@ text_left: equ 0
 text_bottom: equ 47      ; 48 rows, zero-based
 text_right: equ 63       ; 64 columns, zero-based
 
+str_dashes_thin: asciz  "----------------------------------------------------------------"
+str_dashes_thick: asciz "================================================================"
+
 ; set text viewport for current playing song
 vp_now_playing_left: equ text_left
 vp_now_playing_top: equ 34
@@ -19,9 +22,9 @@ vp_now_playing:
 ; end vp_now_playing
 
 ; set text viewport for playing breadcrumbs
-vp_breadcrumbs_left: equ text_left
+vp_breadcrumbs_left: equ text_left+10 ; leave room for '<00:00:00>' playhead position and seek controls
 vp_breadcrumbs_top: equ vp_now_playing_bottom
-vp_breadcrumbs_right: equ text_right
+vp_breadcrumbs_right: equ text_right-9 ; DEBUG, S/B --> -8 ; leave room for '00:00:00' song duration
 vp_breadcrumbs_bottom: equ vp_breadcrumbs_top
 
 vp_breadcrumbs:
@@ -32,6 +35,34 @@ vp_breadcrumbs:
     call vdu_set_txt_viewport
     ret
 ; end vp_breadcrumbs
+
+; set text viewport for playhead position
+vp_playhead_left: equ text_left
+vp_playhead_top: equ vp_breadcrumbs_top
+vp_playhead_right: equ vp_breadcrumbs_left-1
+vp_playhead_bottom: equ vp_breadcrumbs_bottom
+vp_playhead:
+    ld c, vp_playhead_left
+    ld d, vp_playhead_top
+    ld e, vp_playhead_right
+    ld b, vp_playhead_bottom
+    call vdu_set_txt_viewport
+    ret
+; end vp_playhead
+
+; set text viewport for song duration
+vp_duration_left: equ vp_breadcrumbs_right+1
+vp_duration_top: equ vp_breadcrumbs_top
+vp_duration_right: equ text_right
+vp_duration_bottom: equ vp_breadcrumbs_bottom
+vp_duration:
+    ld c, vp_duration_left
+    ld d, vp_duration_top
+    ld e, vp_duration_right
+    ld b, vp_duration_bottom
+    call vdu_set_txt_viewport
+    ret
+; end vp_duration
 
 vp_dir_hdr_left: equ text_left
 vp_dir_hdr_top: equ 19
@@ -71,7 +102,7 @@ vp_dir:
     ret
 
 vp_messages_left: equ text_left
-vp_messages_top: equ vp_dir_bottom+1
+vp_messages_top: equ vp_breadcrumbs_bottom+6
 vp_messages_right: equ text_right
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages

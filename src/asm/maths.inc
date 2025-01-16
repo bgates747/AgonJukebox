@@ -258,3 +258,53 @@ udiv8:
     inc h
     djnz @loop
     ret
+
+; https://www.omnimaga.org/asm-language/(z80)-32-bit-by-16-bits-division-and-32-bit-square-root/msg406903/#msg406903
+; This divides HLIX by BC
+; The result is stored in HLIX, the remainder in DE
+; BC is unmodified
+; A is 0
+udiv3216:
+    ld de,0		; 10
+    ld a,32		; 7
+@loop:
+    add.s ix,ix		; 15
+    adc.s hl,hl		; 15
+    ex de,hl		; 4
+    adc.s hl,hl		; 15
+    or a			; 4
+    sbc.s hl,bc		; 15
+    inc.s ix		; 10
+    jr nc,@cansub		; 12/7
+    add.s hl,bc		; 11
+    dec.s ix		; 10
+@cansub:
+    ex de,hl		; 4
+    dec a		; 4
+    jr nz,@loop	; 12/7
+    ret			; 10
+; end udiv3216
+
+; https://discord.com/channels/1158535358624039014/1282290921815408681/1329274504022720512
+; calc84maniac's 32-bit by 23-bit division routine
+; This divides AUIX by UDE (maximum 23 bits)
+; The result is stored in AUIX, the remainder in UHL
+; UDE, C are unmodified
+; B is 0
+udiv3223:
+    or a,a         ; 1
+    sbc hl,hl      ; 2
+    ld b,32        ; 2
+@loop:
+    add ix,ix      ; 2
+    adc a,a        ; 1
+    adc hl,hl      ; 2
+    sbc hl,de      ; 2
+    inc ix         ; 2
+    jr nc,@cansub  ; 2/4
+    add hl,de      ; 1
+    dec ix         ; 2
+@cansub:
+    djnz @loop     ; 2/4
+    ret            ; 10
+; end udiv3223
