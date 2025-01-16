@@ -88,6 +88,7 @@ hhmmss: asciz "00:00:00" ; buffer for output string
 ; HL : Value to convert to string, must be <= 999 decimal for correct representation
 ; DE : pointer to 4-byte buffer (3-digits + 0 terminator for printing)
 u8_to_ascii:
+    LD BC,-1000
     CALL one_digit
     LD BC,-100
     CALL one_digit

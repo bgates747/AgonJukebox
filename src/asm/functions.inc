@@ -194,8 +194,8 @@ u24_to_ascii:
     CALL one_digit
     LD BC,-10000
     CALL one_digit
-    LD BC,-1000
 u8_to_ascii: ; same arguments but hl <= 255, uhl and h = 0
+    LD BC,-1000
     CALL one_digit
     LD BC,-100
     CALL one_digit
