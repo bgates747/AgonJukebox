@@ -32,6 +32,7 @@ exit:
     include "functions.inc"
     include "arith24.inc"
     include "maths.inc"
+    
     include "fonts.inc"
     include "fonts_list.inc"
     include "fixed168.inc"
@@ -53,45 +54,48 @@ exit:
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
-
-
+dir_up: asciz "cd .."
 init:
+    ld a,19 ; 1024  768   4     60hz
+    call vdu_set_screen_mode
+    call printNewLine
     ret
 ; end init
-
 main:
-    ld b,25 ; loop counter
-@loop:
-    push bc
-    call rand_8
-    call printHexA
-    ld h,a
-    ld l,10 ; modulo 10
-    call udiv8 ; h = quotient, a = remainder, l = divisor
-    call printHexHL
-    call printHexA
-    call printNewLine
-    pop bc
-    djnz @loop
-    ret
-
-
-    ld hl,406
-    ld de,10
-    push hl
-    push de
-    call hlu_floor
-    call printDec
+    call ps_get_dir_test
     call printNewLine
 
-    pop de
-    pop hl
-    call hlu_ceiling
-    call printDec
-    call printNewLine
+    ld hl,dir_up
+    MOSCALL mos_oscli
 
+    call ps_get_dir_test
+    
     ret ; back to MOS
 ; end main
+
+ps_get_dir_test:
+; memdump directory buffer prior to populating
+    ld hl,ps_dir_path
+    ld a,32
+    call dumpMemoryHex
+    call printNewLine
+
+; initialize pointers to store directory info and print directory name
+    ld hl,ps_dir_path  ; where to store result
+    ld bc,1          ; max length (final byte is zero terminator)
+    xor a ; zero-terminate the string
+    MOSCALL ffs_getcwd ; MOS api get current working directory
+; print the directory path (ffs_getcwd preserves hl)
+    call printString
+    call printNewLine
+    
+; memdump directory buffer after populating
+    ld hl,ps_dir_path
+    ld a,32
+    call dumpMemoryHex
+    call printNewLine
+    ret
+; end ps_get_dir_test
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

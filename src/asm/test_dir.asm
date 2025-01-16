@@ -35,6 +35,7 @@ exit:
     include "fonts.inc"
     include "fonts_list.inc"
     include "fixed168.inc"
+    include "time.inc"
     include "timer.inc"
     include "vdu.inc"
     include "vdu_buffered_api.inc"
@@ -52,13 +53,11 @@ exit:
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
-original_screen_mode: db 0
+
 
 init:
     ret
 ; end init
-str_dashes_thin: asciz "------------------------------"
-str_dashes_thick: asciz "=============================="
 
 main:
 ; initialize the current directory
