@@ -187,18 +187,15 @@ exit_here:
 ; define left half of screen
 
 defineLeftContext:
+; this step has been added since the original as it is a good practise
+    ld hl,contextId_left            ; left context id = 1
+    call vdu_delete_context_stack   ; make sure context is clear
+
+; the call to `VDU 23, 0, $C8, 2, flags: Reset the current context` in the original
+; was removed as it is redundant for this simple example
 
     ld hl,contextId_left
     call vdu_select_context_stack   ; select context by ID (left = 1)
-
-    ld a,00011111b
-    call vdu_reset_context          ; reset context
-                                    ; Bit - Description
-                                    ; 0 Reset graphics painting options
-                                    ; 1 Reset graphics positioning settings, including graphics viewport and coordinate system
-                                    ; 2 Reset text painting options
-                                    ; 3 Reset text cursor visual settings, including text viewport
-                                    ; 4 Reset text cursor behaviour
 
     TEXTBGCOLOUR c_white            ; set text background to white
     TEXTCOLOUR c_black              ; set text foreground to black
@@ -221,12 +218,15 @@ defineLeftContext:
 ; define right half of screen
 
 defineRightContext:
+; this step has been added since the original as it is a good practise
+    ld hl,contextId_right           ; right context id = 2
+    call vdu_delete_context_stack   ; make sure context is clear
+
+; the call to `VDU 23, 0, $C8, 2, flags: Reset the current context` in the original
+; was removed as it is redundant for this simple example
 
     ld hl,contextId_right
     call vdu_select_context_stack   ; select context by ID (right = 2)
-
-    ld a,%00011111 
-    call vdu_reset_context          ; reset context
 
     TEXTBGCOLOUR c_dark_blue        ; set text background to dark blue
     TEXTCOLOUR c_yellow             ; set text foreground to yellow
@@ -308,7 +308,9 @@ vdu_delete_context_stack:
 @end: db 0x00                       ; padding to work in ADL mode
 
 ; ---------------------------------------------
-
+;
+; NOTE: this function is no longer used in this example and could be remvoed
+;
 ; VDU 23, 0, $C8, 2, flags: Reset the current context
 ; inputs: a = flags
 ; outputs: nothing
