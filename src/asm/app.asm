@@ -55,43 +55,8 @@ exit:
 ; --- MAIN PROGRAM FILE ---
 original_screen_mode: db 0
 init:
-; get current screen mode and save it so we can return to it on exit
-    call vdu_get_screen_mode
-    ld (original_screen_mode),a
-; set up display for gameplay
-    ld a,20
-    call vdu_set_screen_mode
-    xor a
-    call vdu_set_scaling
-; set text background color
-    ld a,c_blue_dk+128
-    call vdu_colour_text
-; set text foreground color
-    ld a,c_white
-    call vdu_colour_text
-; set the cursor off
-    call vdu_cursor_off
-; clear the screen
-    call vdu_cls
-; print loading message
-    call printInline
-    asciz "Loading fonts...\r\n"
-; clear all buffers
-    call vdu_clear_all_buffers
-; load fonts
-	call fonts_load
-; select font
-    ld hl,Lat2_VGA8_8x8
-    ld a,1 ; flags
-    call vdu_font_select
-
-; initialize ui
     call ui_init
-
-; call directory page listing
     call ps_get_dir
-
-; initialize play sample timer interrupt handler
     call ps_prt_irq_init
     ret
 ; end init
@@ -111,7 +76,11 @@ main:
     asciz "Thank you for using\r\n"
     ld hl,agon_jukebox_ascii
     call printString
+; set cursor behaviuor
     call vdu_cursor_on
+    ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+    ld l,%00000000 ; bit 4 reset means cursor scrolls screen
+    call vdu_cursor_behaviour
     ret ; back to MOS
 ; end main
 
