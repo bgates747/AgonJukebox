@@ -44,10 +44,10 @@ PC     Output      Line
 04005C             0028 ; --- MAIN PROGRAM FILE ---
 04005C             0029 
 04005C             0030 main:
-04005C 21 3F 7E 05 0031     ld hl,359999 ; 99:59:59
+04005C 21 3E 7E 05 0031     ld hl,359998 ; 99:59:58
 040060 CD 75 00 04 0032     call seconds_to_hhmmss
-040064 21 D8 00 04 0033     ld hl,hhmmss
-040068 CD 03 01 04 0034     call printString
+040064 21 E2 00 04 0033     ld hl,hhmmss
+040068 CD 0D 01 04 0034     call printString
 04006C 3E 0D       0035     ld a,'\r'
 04006E 5B D7       0036     rst.lil 10h
 040070 3E 0A       0037     ld a,'\n'
@@ -62,135 +62,138 @@ PC     Output      Line
 040075             0046 ; Divide the total seconds into hours, minutes, and seconds.
 040075             0047 ; Hours = Total seconds ÷ 3600.
 040075 11 10 0E 00 0048     ld de,3600
-040079 CD 0E 01 04 0049     call udiv24 ; de = hours, hl = remaining seconds
+040079 CD 18 01 04 0049     call udiv24 ; de = hours, hl = remaining seconds
 04007D E5          0050     push hl ; save remainder
 04007E EB          0051     ex de,hl ; hl = hours
-04007F 11 D0 00 04 0052     ld de,@bin2asc
-040083 CD E1 00 04 0053     call u8_to_ascii ; answer in @bin2asc
-040087 3A D2 00 04 0054     ld a,(@bin2asc+2)
-04008B 32 D8 00 04 0055     ld (hhmmss+0),a
-04008F 3A D3 00 04 0056     ld a,(@bin2asc+3)
-040093 32 D9 00 04 0057     ld (hhmmss+1),a
+04007F 11 D8 00 04 0052     ld de,@bin2asc
+040083 CD EB 00 04 0053     call u8_to_ascii ; answer in @bin2asc
+040087 3A DA 00 04 0054     ld a,(@bin2asc+2)
+04008B 32 E2 00 04 0055     ld (hhmmss+0),a
+04008F 3A DB 00 04 0056     ld a,(@bin2asc+3)
+040093 32 E3 00 04 0057     ld (hhmmss+1),a
 040097             0058 ; Minutes = Remaining seconds ÷ 60.
 040097 E1          0059     pop hl ; restore remainder
 040098 11 3C 00 00 0060     ld de,60
-04009C CD 0E 01 04 0061     call udiv24 ; de = minutes, hl = remaining seconds
+04009C CD 18 01 04 0061     call udiv24 ; de = minutes, hl = remaining seconds
 0400A0 E5          0062     push hl ; save remainder
 0400A1 EB          0063     ex de,hl ; hl = minutes
-0400A2 11 D0 00 04 0064     ld de,@bin2asc
-0400A6 CD E1 00 04 0065     call u8_to_ascii ; answer in @bin2asc
-0400AA 3A D2 00 04 0066     ld a,(@bin2asc+2)
-0400AE 32 DB 00 04 0067     ld (hhmmss+3),a
-0400B2 3A D3 00 04 0068     ld a,(@bin2asc+3)
-0400B6 32 DC 00 04 0069     ld (hhmmss+4),a
+0400A2 11 D8 00 04 0064     ld de,@bin2asc
+0400A6 CD EB 00 04 0065     call u8_to_ascii ; answer in @bin2asc
+0400AA 3A DA 00 04 0066     ld a,(@bin2asc+2)
+0400AE 32 E5 00 04 0067     ld (hhmmss+3),a
+0400B2 3A DB 00 04 0068     ld a,(@bin2asc+3)
+0400B6 32 E6 00 04 0069     ld (hhmmss+4),a
 0400BA             0070 ; Seconds = Remaining seconds.
 0400BA E1          0071     pop hl ; restore remainder
-0400BB CD E1 00 04 0072     call u8_to_ascii ; answer in @bin2asc
-0400BF 3A D2 00 04 0073     ld a,(@bin2asc+2)
-0400C3 32 DE 00 04 0074     ld (hhmmss+6),a
-0400C7 3A D3 00 04 0075     ld a,(@bin2asc+3)
-0400CB 32 DF 00 04 0076     ld (hhmmss+7),a
-0400CF C9          0077     ret
-0400D0 00 00 00 00 0078 @bin2asc: blkw 4,0 ; scratch space for binary to ascii decimal conversion
+0400BB 11 D8 00 04 0072     ld de,@bin2asc
+0400BF CD EB 00 04 0073     call u8_to_ascii ; answer in @bin2asc
+0400C3 3A DA 00 04 0074     ld a,(@bin2asc+2)
+0400C7 32 E8 00 04 0075     ld (hhmmss+6),a
+0400CB 3A DB 00 04 0076     ld a,(@bin2asc+3)
+0400CF 32 E9 00 04 0077     ld (hhmmss+7),a
+0400D3 21 E2 00 04 0078     ld hl,hhmmss
+0400D7 C9          0079     ret
+0400D8 00 00 00 00 0080 @bin2asc: blkw 5,0 ; scratch space for binary to ascii decimal conversion
        00 00 00 00 
-0400D8 30 30 3A 30 0079 hhmmss: asciz "00:00:00" ; buffer for output string
+       00 00       
+0400E2 30 30 3A 30 0081 hhmmss: asciz "00:00:00" ; buffer for output string
        30 3A 30 30 
        00          
-0400E1             0080 ; end seconds_to_hhmmss
-0400E1             0081 
-0400E1             0082 ; following code stolen from / inspired by:
-0400E1             0083 ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
-0400E1             0084 
-0400E1             0085 ; This routine converts the unsigned 16-bit value in HL into its ASCII representation,
-0400E1             0086 ; starting to memory location pointing by DE, in decimal form and with leading zeroes
-0400E1             0087 ; so it will allways be 3 characters length
-0400E1             0088 ; HL : Value to convert to string, must be <= 999 decimal for correct representation
-0400E1             0089 ; DE : pointer to 4-byte buffer (3-digits + 0 terminator for printing)
-0400E1             0090 u8_to_ascii:
-0400E1 01 18 FC FF 0091     LD BC,-1000
-0400E5 CD F8 00 04 0092     CALL one_digit
-0400E9 01 9C FF FF 0093     LD BC,-100
-0400ED CD F8 00 04 0094     CALL one_digit
-0400F1 0E F6       0095     LD C,-10
-0400F3 CD F8 00 04 0096     CALL one_digit
-0400F7 48          0097     LD C,B
-0400F8             0098 one_digit:
-0400F8 3E 2F       0099     LD A,'0'-1
-0400FA             0100 @divide_me:
-0400FA 3C          0101     INC A
-0400FB 09          0102     ADD HL,BC
-0400FC 38 FC       0103     JR C,@divide_me
-0400FE ED 42       0104     SBC HL,BC
-040100 12          0105     LD (DE),A
-040101 13          0106     INC DE
-040102 C9          0107     RET
-040103             0108 ; end u24_to_ascii
-040103             0109 
-040103             0110 ; Print a zero-terminated string
-040103             0111 ; HL: Pointer to string
-040103             0112 ; returns: hl pointed to character after string terminator
-040103             0113 ; destroys: af, hl
-040103             0114 printString:
-040103 C5          0115     PUSH BC
-040104 01 00 00 00 0116     LD BC,0
-040108 3E 00       0117     LD A,0
-04010A 5B DF       0118     RST.LIL 18h
-04010C C1          0119     POP BC
-04010D C9          0120     RET
-04010E             0121 ; end printString
-04010E             0122 
-04010E             0123 ; following code ripped directly from:
-04010E             0124 ; https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm
-04010E             0125 ;------------------------------------------------------------------------
-04010E             0126 ;  arith24.asm
-04010E             0127 ;  24-bit ez80 arithmetic routines
-04010E             0128 ;  Copyright (c) Shawn Sijnstra 2024
-04010E             0129 ;  MIT license
-04010E             0130 ;
-04010E             0131 ;  This library was created as a tool to help make ez80
-04010E             0132 ;  24-bit native assembly routines for simple mathematical problems
-04010E             0133 ;  more widely available.
-04010E             0134 ;
-04010E             0135 ;------------------------------------------------------------------------
-04010E             0136 
-04010E             0137 ;------------------------------------------------------------------------
-04010E             0138 ; udiv24
-04010E             0139 ; Unsigned 24-bit division
-04010E             0140 ; Divides HLU by DEU. Gives result in DEU (and BC), remainder in HLU.
-04010E             0141 ;
-04010E             0142 ; Uses AF BC DE HL
-04010E             0143 ; Uses Restoring Division algorithm
-04010E             0144 ;------------------------------------------------------------------------
-04010E             0145 
-04010E             0146 udiv24:
-04010E E5          0147 	push	hl
-04010F C1          0148 	pop		bc	;move dividend to BCU
-040110 21 00 00 00 0149 	ld		hl,0	;result
-040114 A7          0150 	and		a
-040115 ED 52       0151 	sbc		hl,de	;test for div by 0
-040117 C8          0152 	ret		z		;it's zero, carry flag is clear
-040118 19          0153 	add		hl,de	;HL is 0 again
-040119 3E 18       0154 	ld		a,24	;number of loops through.
-04011B             0155 udiv1:
-04011B C5          0156 	push	bc	;complicated way of doing this because of lack of access to top bits
-04011C E3          0157 	ex		(sp),hl
-04011D 37          0158 	scf
-04011E ED 6A       0159 	adc	hl,hl
-040120 E3          0160 	ex	(sp),hl
-040121 C1          0161 	pop	bc		;we now have bc = (bc * 2) + 1
-040122             0162 
-040122 ED 6A       0163 	adc	hl,hl
-040124 A7          0164 	and	a		;is this the bug
-040125 ED 52       0165 	sbc	hl,de
-040127 30 02       0166 	jr	nc,udiv2
-040129 19          0167 	add	hl,de
-04012A             0168 ;	dec	c
-04012A 0B          0169 	dec	bc
-04012B             0170 udiv2:
-04012B 3D          0171 	dec	a
-04012C 20 ED       0172 	jr	nz,udiv1
-04012E 37          0173 	scf		;flag used for div0 error
-04012F C5          0174 	push	bc
-040130 D1          0175 	pop		de	;remainder
-040131 C9          0176 	ret
-040132             0177 ; end udiv24
+0400EB             0082 ; end seconds_to_hhmmss
+0400EB             0083 
+0400EB             0084 ; following code stolen from / inspired by:
+0400EB             0085 ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
+0400EB             0086 
+0400EB             0087 ; This routine converts the unsigned 16-bit value in HL into its ASCII representation,
+0400EB             0088 ; starting to memory location pointing by DE, in decimal form and with leading zeroes
+0400EB             0089 ; so it will allways be 3 characters length
+0400EB             0090 ; HL : Value to convert to string, must be <= 999 decimal for correct representation
+0400EB             0091 ; DE : pointer to 4-byte buffer (3-digits + 0 terminator for printing)
+0400EB             0092 u8_to_ascii:
+0400EB 01 18 FC FF 0093     LD BC,-1000
+0400EF CD 02 01 04 0094     CALL one_digit
+0400F3 01 9C FF FF 0095     LD BC,-100
+0400F7 CD 02 01 04 0096     CALL one_digit
+0400FB 0E F6       0097     LD C,-10
+0400FD CD 02 01 04 0098     CALL one_digit
+040101 48          0099     LD C,B
+040102             0100 one_digit:
+040102 3E 2F       0101     LD A,'0'-1
+040104             0102 @divide_me:
+040104 3C          0103     INC A
+040105 09          0104     ADD HL,BC
+040106 38 FC       0105     JR C,@divide_me
+040108 ED 42       0106     SBC HL,BC
+04010A 12          0107     LD (DE),A
+04010B 13          0108     INC DE
+04010C C9          0109     RET
+04010D             0110 ; end u24_to_ascii
+04010D             0111 
+04010D             0112 ; Print a zero-terminated string
+04010D             0113 ; HL: Pointer to string
+04010D             0114 ; returns: hl pointed to character after string terminator
+04010D             0115 ; destroys: af, hl
+04010D             0116 printString:
+04010D C5          0117     PUSH BC
+04010E 01 00 00 00 0118     LD BC,0
+040112 3E 00       0119     LD A,0
+040114 5B DF       0120     RST.LIL 18h
+040116 C1          0121     POP BC
+040117 C9          0122     RET
+040118             0123 ; end printString
+040118             0124 
+040118             0125 ; following code ripped directly from:
+040118             0126 ; https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm
+040118             0127 ;------------------------------------------------------------------------
+040118             0128 ;  arith24.asm
+040118             0129 ;  24-bit ez80 arithmetic routines
+040118             0130 ;  Copyright (c) Shawn Sijnstra 2024
+040118             0131 ;  MIT license
+040118             0132 ;
+040118             0133 ;  This library was created as a tool to help make ez80
+040118             0134 ;  24-bit native assembly routines for simple mathematical problems
+040118             0135 ;  more widely available.
+040118             0136 ;
+040118             0137 ;------------------------------------------------------------------------
+040118             0138 
+040118             0139 ;------------------------------------------------------------------------
+040118             0140 ; udiv24
+040118             0141 ; Unsigned 24-bit division
+040118             0142 ; Divides HLU by DEU. Gives result in DEU (and BC), remainder in HLU.
+040118             0143 ;
+040118             0144 ; Uses AF BC DE HL
+040118             0145 ; Uses Restoring Division algorithm
+040118             0146 ;------------------------------------------------------------------------
+040118             0147 
+040118             0148 udiv24:
+040118 E5          0149 	push	hl
+040119 C1          0150 	pop		bc	;move dividend to BCU
+04011A 21 00 00 00 0151 	ld		hl,0	;result
+04011E A7          0152 	and		a
+04011F ED 52       0153 	sbc		hl,de	;test for div by 0
+040121 C8          0154 	ret		z		;it's zero, carry flag is clear
+040122 19          0155 	add		hl,de	;HL is 0 again
+040123 3E 18       0156 	ld		a,24	;number of loops through.
+040125             0157 udiv1:
+040125 C5          0158 	push	bc	;complicated way of doing this because of lack of access to top bits
+040126 E3          0159 	ex		(sp),hl
+040127 37          0160 	scf
+040128 ED 6A       0161 	adc	hl,hl
+04012A E3          0162 	ex	(sp),hl
+04012B C1          0163 	pop	bc		;we now have bc = (bc * 2) + 1
+04012C             0164 
+04012C ED 6A       0165 	adc	hl,hl
+04012E A7          0166 	and	a		;is this the bug
+04012F ED 52       0167 	sbc	hl,de
+040131 30 02       0168 	jr	nc,udiv2
+040133 19          0169 	add	hl,de
+040134             0170 ;	dec	c
+040134 0B          0171 	dec	bc
+040135             0172 udiv2:
+040135 3D          0173 	dec	a
+040136 20 ED       0174 	jr	nz,udiv1
+040138 37          0175 	scf		;flag used for div0 error
+040139 C5          0176 	push	bc
+04013A D1          0177 	pop		de	;remainder
+04013B C9          0178 	ret
+04013C             0179 ; end udiv24

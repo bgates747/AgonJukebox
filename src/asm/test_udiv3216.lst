@@ -29,8 +29,8 @@ PC     Output      Line
 040048 DD E5       0013        push ix
 04004A FD E5       0014        push iy
 04004C             0015    
-04004C CD 3E 2D 04 0016        call init
-040050 CD 9B 2D 04 0017        call main
+04004C CD 3D 2D 04 0016        call init
+040050 CD 3E 2D 04 0017        call main
 040054             0018    
 040054             0019    exit:
 040054 FD E1       0020        pop iy
@@ -7613,89 +7613,48 @@ PC     Output      Line
 042D3D             0539*   ; end dumpVduCmdStr
 042D3D             0054    
 042D3D             0055    ; --- MAIN PROGRAM FILE ---
-042D3D 00          0056    original_screen_mode: db 0
-042D3E             0057    init:
-042D3E             0058    ; get current screen mode and save it so we can return to it on exit
-042D3E CD 55 14 04 0059        call vdu_get_screen_mode
-042D42 32 3D 2D 04 0060        ld (original_screen_mode),a
-042D46             0061    ; set up display for gameplay
-042D46 3E 14       0062        ld a,20
-042D48 CD 44 14 04 0063        call vdu_set_screen_mode
-042D4C AF          0064        xor a
-042D4D CD 5D 14 04 0065        call vdu_set_scaling
-042D51             0066    ; set text background color
-042D51 3E 84       0067        ld a,c_blue_dk+128
-042D53 CD A7 13 04 0068        call vdu_colour_text
-042D57             0069    ; set text foreground color
-042D57 3E 0F       0070        ld a,c_white
-042D59 CD A7 13 04 0071        call vdu_colour_text
-042D5D             0072    ; set the cursor off
-042D5D CD FE 12 04 0073        call vdu_cursor_off
-042D61             0074    ; clear the screen
-042D61 CD 76 13 04 0075        call vdu_cls
-042D65             0076    ; print loading message
-042D65 CD 60 00 04 0077        call printInline
-042D69 4C 6F 61 64 0078        asciz "Loading fonts...\r\n"
-       69 6E 67 20 
-       66 6F 6E 74 
-       73 2E 2E 2E 
-       0D 0A 00    
-042D7C             0079    ; clear all buffers
-042D7C CD 4B 17 04 0080        call vdu_clear_all_buffers
-042D80             0081    ; load fonts
-042D80 CD BB 05 04 0082    	call fonts_load
-042D84             0083    ; select font
-042D84 21 10 FA 00 0084        ld hl,Lat2_VGA8_8x8
-042D88 3E 01       0085        ld a,1 ; flags
-042D8A CD BD 17 04 0086        call vdu_font_select
-042D8E             0087    
-042D8E             0088    ; initialize ui
-042D8E CD CC 1B 04 0089        call ui_init
-042D92             0090    
-042D92             0091    ; call directory page listing
-042D92 CD 8E 25 04 0092        call ps_get_dir
-042D96             0093    
-042D96             0094    ; initialize play sample timer interrupt handler
-042D96 CD E4 28 04 0095        call ps_prt_irq_init
-042D9A C9          0096        ret
-042D9B             0097    ; end init
-042D9B             0098    main:
-042D9B             0099    ; call the change directory routine which jp's to get_input
-042D9B CD 5D 27 04 0100        call ps_change_dir
-042D9F             0101    ; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
-042D9F CD DE 28 04 0102        call ps_prt_stop ; stop the PRT timer
-042DA3 FB          0103        ei ; interrupts were disabled by get_input
-042DA4             0104    ; restore original screen mode
-042DA4 3A 3D 2D 04 0105        ld a,(original_screen_mode)
-042DA8 CD 44 14 04 0106        call vdu_set_screen_mode
-042DAC CD 3F 14 04 0107        call vdu_reset_viewports
-042DB0 CD 76 13 04 0108        call vdu_cls
-042DB4             0109    ; print thanks for playing message
-042DB4 CD 60 00 04 0110        call printInline
-042DB8 54 68 61 6E 0111        asciz "Thank you for using\r\n"
-       6B 20 79 6F 
-       75 20 66 6F 
-       72 20 75 73 
-       69 6E 67 0D 
-       0A 00       
-042DCE 21 18 1D 04 0112        ld hl,agon_jukebox_ascii
-042DD2 CD 67 00 04 0113        call printString
-042DD6 CD F0 12 04 0114        call vdu_cursor_on
-042DDA C9          0115        ret ; back to MOS
-042DDB             0116    ; end main
-042DDB             0117    
-042DDB             0118    ; must be final include in program so file data does not stomp on program code or other data
-042DDB             0119        include "files.inc"
-042DDB             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
-042DDB             0002*   
-042DDB             0003*   ; buffer for loading files unrelated to audio
-042DDB             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
-042DDB             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
-042DDB             0006*   
-042DDB             0007*   ;     align 256 ; make things nice for indexing into especially ps_dir_fil_list
-042DDB             0008*   ; ; buffer for sound data
-042DDB             0009*   ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
-042DDB             0010*   
-042DDB             0011*   ; this list can grow as large as necessary to hold all the files in the directory
-042DDB             0012*   ; each entry will be 278 bytes (filinfo_struct_size)
-042DDB             0013*   ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k
+042D3D             0056    init:
+042D3D             0057    
+042D3D C9          0058        ret
+042D3E             0059    ; end init
+042D3E             0060    
+042D3E             0061    main:
+042D3E CD 7C 00 04 0062        call printNewLine
+042D42             0063    
+042D42             0064        ; ld a,0x00
+042D42             0065        ; ld ix,8275270
+042D42             0066        ; ld de,48000
+042D42             0067    
+042D42 3E 19       0068        ld a,0x19
+042D44 DD 21 80 C8 0069        ld ix,0xCAC880
+       CA          
+042D49 11 80 BB 00 0070        ld de,48000
+042D4D             0071    
+042D4D CD A5 05 04 0072        call udiv3223
+042D51 DD 22 AA 22 0073        ld (ps_song_duration),ix ; duration low long word
+       04          
+042D56 32 AD 22 04 0074        ld (ps_song_duration+3),a ; duration high byte
+042D5A 2A AA 22 04 0075        ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
+042D5E             0076    
+042D5E CD 62 10 04 0077        call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+042D62 CD 67 00 04 0078        call printString ; print the duration
+042D66 CD 7C 00 04 0079        call printNewLine
+042D6A C9          0080        ret
+042D6B             0081    
+042D6B             0082    ; end main
+042D6B             0083    
+042D6B             0084    ; must be final include in program so file data does not stomp on program code or other data
+042D6B             0085        include "files.inc"
+042D6B             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+042D6B             0002*   
+042D6B             0003*   ; buffer for loading files unrelated to audio
+042D6B             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
+042D6B             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
+042D6B             0006*   
+042D6B             0007*   ;     align 256 ; make things nice for indexing into especially ps_dir_fil_list
+042D6B             0008*   ; ; buffer for sound data
+042D6B             0009*   ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
+042D6B             0010*   
+042D6B             0011*   ; this list can grow as large as necessary to hold all the files in the directory
+042D6B             0012*   ; each entry will be 278 bytes (filinfo_struct_size)
+042D6B             0013*   ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k

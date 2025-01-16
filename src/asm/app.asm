@@ -35,6 +35,7 @@ exit:
     include "fonts.inc"
     include "fonts_list.inc"
     include "fixed168.inc"
+    include "time.inc"
     include "timer.inc"
     include "vdu.inc"
     include "vdu_buffered_api.inc"
@@ -94,10 +95,6 @@ init:
     call ps_prt_irq_init
     ret
 ; end init
-
-str_dashes_thin: asciz  "----------------------------------------------------------------"
-str_dashes_thick: asciz "================================================================"
-
 main:
 ; call the change directory routine which jp's to get_input
     call ps_change_dir

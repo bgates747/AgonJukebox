@@ -28,7 +28,7 @@ exit:
 ; --- MAIN PROGRAM FILE ---
 
 main:
-    ld hl,359999 ; 99:59:59
+    ld hl,359998 ; 99:59:58
     call seconds_to_hhmmss
     ld hl,hhmmss
     call printString
@@ -69,13 +69,15 @@ seconds_to_hhmmss:
     ld (hhmmss+4),a
 ; Seconds = Remaining seconds.
     pop hl ; restore remainder
+    ld de,@bin2asc
     call u8_to_ascii ; answer in @bin2asc
     ld a,(@bin2asc+2)
     ld (hhmmss+6),a
     ld a,(@bin2asc+3)
     ld (hhmmss+7),a
+    ld hl,hhmmss
     ret
-@bin2asc: blkw 4,0 ; scratch space for binary to ascii decimal conversion
+@bin2asc: blkw 5,0 ; scratch space for binary to ascii decimal conversion
 hhmmss: asciz "00:00:00" ; buffer for output string
 ; end seconds_to_hhmmss
 

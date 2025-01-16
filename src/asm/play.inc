@@ -27,6 +27,8 @@ ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 ps_page_cur: dl 0 ; current directory page number
 ps_song_idx_cur: db 0 ; current song index in the directory page
 ps_song_fn_cur: dl 0 ; pointer to current song filename
+ps_song_duration: blkw 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
+ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
 ps_page_fn_ptrs: blkw 10*3,0 ; list of filename pointers in the current directory page
 
 ; play_song directory info
@@ -107,6 +109,21 @@ play_song:
     ld (ps_filehandle_cur),a
 ; read the .wav header data and copy it to the buffer
     call ps_read_wav_header
+; compute the song duration from the file size and sample rate and print it
+; technically we should account for the .wav header, but at 76 bytes it's negligible
+    call vp_duration ; set viewport to duration window
+    ld a,(ps_wav_file_size+3) ; upper byte
+    ld ix,(ps_wav_file_size+0) ; lower word
+    ld de,(ps_wav_sample_rate)
+    call udiv3223 ; auix = duration in seconds
+    ld (ps_song_duration),ix ; duration low word
+    ld (ps_song_duration+3),a ; duration high word
+    ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
+    call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+    call printString ; print the duration
+; reset the playhead counter to zer0
+    ld hl,0
+    ld (ps_playhead),hl
 ; read the first block of data
     call ps_read_file
 ; set ps_mode_playing
@@ -161,6 +178,13 @@ ps_read_file:
     pop bc ; how much data to load
     ld de,ps_wav_data_start ; pointer to data
     call vdu_load_buffer
+; update the playhead counter and display the time elapsed
+    call vp_playhead
+    ld hl,(ps_playhead)
+    inc hl
+    ld (ps_playhead),hl
+    call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+    call printString ; print the playhead position
 ; print a playing breadcrumb
     call vp_breadcrumbs
     ld a,'.'
