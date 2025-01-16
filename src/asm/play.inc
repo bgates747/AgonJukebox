@@ -179,14 +179,14 @@ ps_read_file:
     ld de,ps_wav_data_start ; pointer to data
     call vdu_load_buffer
 ; update the playhead counter and display the time elapsed
-    call vp_playhead
+    call vp_elapsed
     ld hl,(ps_playhead)
     inc hl
     ld (ps_playhead),hl
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the playhead position
 ; print a playing breadcrumb
-    call vp_breadcrumbs
+    call vp_playhead
     ld a,'.'
     rst.lil 10h
     ret
@@ -408,9 +408,9 @@ ps_highlight_song:
     ld a,(ps_song_idx_cur)
     ld d,vp_dir_top
     add a,d
-    ld c,vp_dir_left
+    ld c,text_left
     ld d,a
-    ld e,vp_dir_right
+    ld e,text_right
     ld b,a
     call vdu_set_txt_viewport
     call vdu_home_cursor

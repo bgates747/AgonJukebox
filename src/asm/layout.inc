@@ -7,114 +7,119 @@ str_dashes_thin: asciz  "-------------------------------------------------------
 str_dashes_thick: asciz "================================================================"
 
 ; set text viewport for current playing song
-vp_now_playing_left: equ text_left
 vp_now_playing_top: equ 34
-vp_now_playing_right: equ text_right
-vp_now_playing_bottom: equ vp_now_playing_top+1
-
 vp_now_playing:
-    ld c, vp_now_playing_left
+    ld c, text_left
     ld d, vp_now_playing_top
-    ld e, vp_now_playing_right
-    ld b, vp_now_playing_bottom
+    ld e, text_right
+    ld b, vp_now_playing_top
     call vdu_set_txt_viewport
     ret
 ; end vp_now_playing
 
-; set text viewport for playing breadcrumbs
-vp_breadcrumbs_left: equ text_left+10 ; leave room for '<00:00:00>' playhead position and seek controls
-vp_breadcrumbs_top: equ vp_now_playing_bottom
-vp_breadcrumbs_right: equ text_right-9 ; DEBUG, S/B --> -8 ; leave room for '00:00:00' song duration
-vp_breadcrumbs_bottom: equ vp_breadcrumbs_top
-
-vp_breadcrumbs:
-    ld c, vp_breadcrumbs_left
-    ld d, vp_breadcrumbs_top
-    ld e, vp_breadcrumbs_right
-    ld b, vp_breadcrumbs_bottom
+; set text viewport for elapsed time
+vp_elapsed_top: equ vp_now_playing_top+1
+vp_elapsed_right: equ text_left+7 ; 8 chars for HH:MM:SS
+vp_elapsed:
+    ld c, text_left
+    ld d, vp_elapsed_top
+    ld e, vp_elapsed_right
+    ld b, vp_elapsed_top
     call vdu_set_txt_viewport
     ret
-; end vp_breadcrumbs
-
-; set text viewport for playhead position
-vp_playhead_left: equ text_left
-vp_playhead_top: equ vp_breadcrumbs_top
-vp_playhead_right: equ vp_breadcrumbs_left-1
-vp_playhead_bottom: equ vp_breadcrumbs_bottom
-vp_playhead:
-    ld c, vp_playhead_left
-    ld d, vp_playhead_top
-    ld e, vp_playhead_right
-    ld b, vp_playhead_bottom
-    call vdu_set_txt_viewport
-    ret
-; end vp_playhead
+; end vp_elapsed
 
 ; set text viewport for song duration
-vp_duration_left: equ vp_breadcrumbs_right+1
-vp_duration_top: equ vp_breadcrumbs_top
-vp_duration_right: equ text_right
-vp_duration_bottom: equ vp_breadcrumbs_bottom
+vp_duration_left: equ text_right-7 ; 8 chars for HH:MM:SS
+vp_duration_top: equ vp_now_playing_top+1
 vp_duration:
     ld c, vp_duration_left
     ld d, vp_duration_top
-    ld e, vp_duration_right
-    ld b, vp_duration_bottom
+    ld e, text_right
+    ld b, vp_duration_top
     call vdu_set_txt_viewport
     ret
 ; end vp_duration
 
-vp_dir_hdr_left: equ text_left
-vp_dir_hdr_top: equ 19
-vp_dir_hdr_right: equ text_right
-vp_dir_hdr_bottom: equ vp_dir_hdr_top
+; set text viewport for playing breadcrumbs
+vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left arrow
+vp_playhead_top: equ vp_now_playing_top+1
+vp_playhead_right: equ vp_duration_left-1 ; leave room for right arrow
+vp_playhead:
+    ld c, vp_playhead_left
+    ld d, vp_playhead_top
+    ld e, vp_playhead_right
+    ld b, vp_playhead_top
+    call vdu_set_txt_viewport
+    ret
+; end vp_playhead
+
+vp_dir_hdr_top: equ 20
 vp_dir_hdr:
-    ld c,vp_dir_hdr_left
+    ld c,text_left
     ld d,vp_dir_hdr_top
-    ld e,vp_dir_hdr_right
-    ld b,vp_dir_hdr_bottom
+    ld e,text_right
+    ld b,vp_dir_hdr_top
     call vdu_set_txt_viewport
     ret
 
-vp_dir_name_left: equ text_left
 vp_dir_name_top: equ vp_dir_hdr_top+1
-vp_dir_name_right: equ text_right
-vp_dir_name_bottom: equ vp_dir_name_top
 vp_dir_name:
-    ld c,vp_dir_name_left
+    ld c,text_left
     ld d,vp_dir_name_top
-    ld e,vp_dir_name_right
-    ld b,vp_dir_name_bottom
+    ld e,text_right
+    ld b,vp_dir_name_top
     call vdu_set_txt_viewport
     ret
 
 ; set text viewport for directory listing
-vp_dir_left: equ text_left
-vp_dir_top: equ vp_dir_hdr_top+4
-vp_dir_right: equ text_right
+vp_dir_top: equ vp_dir_hdr_top+3
 vp_dir_bottom: equ vp_dir_top+9
 vp_dir:
-    ld c,vp_dir_left
+    ld c,text_left
     ld d,vp_dir_top
-    ld e,vp_dir_right
+    ld e,text_right
     ld b,vp_dir_bottom
     call vdu_set_txt_viewport
     ret
 
-vp_messages_left: equ text_left
-vp_messages_top: equ vp_breadcrumbs_bottom+6
-vp_messages_right: equ text_right
+vp_messages_top: equ vp_playhead_top+6
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages
 vp_messages:
-    ld c,vp_messages_left
+    ld c,text_left
     ld d,vp_messages_top
-    ld e,vp_messages_right
+    ld e,text_right
     ld b,vp_messages_bottom
     call vdu_set_txt_viewport
     ret
 
 ui_init:
+; get current screen mode and save it so we can return to it on exit
+    call vdu_get_screen_mode
+    ld (original_screen_mode),a
+; set up display
+    ld a,20 ; 512x384x64 single-buffered
+    call vdu_set_screen_mode
+    xor a
+    call vdu_set_scaling
+; load fonts and select one
+    call vdu_clear_all_buffers
+	call fonts_load
+    ld hl,Lat2_VGA8_8x8
+    ld a,1
+    call vdu_font_select
+; set text background color
+    ld a,c_blue_dk+128
+    call vdu_colour_text
+; set text foreground color
+    ld a,c_white
+    call vdu_colour_text
+; set cursor behaviuor
+    call vdu_cursor_off
+    ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+    ld l,%00010000 ; bit 4 set means cursor wraps to top of screen
+    call vdu_cursor_behaviour
 ; reset text viewports and clear the screen
     call vdu_reset_viewports
     call vdu_cls
@@ -133,19 +138,19 @@ ui_init:
     ld hl,agon_jukebox_ascii
     call printString
 
+; below logo border
+    ld c,text_left ; x
+    ld b,vp_dir_hdr_top-1 ; y
+    call vdu_move_cursor
+    ld hl,str_dashes_thick
+    call printString
+
 ; print the directory header
-    ld c,vp_dir_hdr_left ; x
+    ld c,text_left ; x
     ld b,vp_dir_hdr_top ; y
     call vdu_move_cursor
     call printInline
-    asciz "Page 1 of n in directory:"
-
-; print play song instructions
-    ld c,text_left ; x
-    ld b,vp_dir_hdr_bottom+2
-    call vdu_move_cursor
-    call printInline
-    asciz "Press keys 0-9 to play a song or enter directory:"
+    asciz "Our current directory is:"
 
 ; file list top border
     ld c,text_left ; x
@@ -163,24 +168,24 @@ ui_init:
 
 ; below the breadcrumbs border
     ld c,text_left ; x
-    ld b,vp_breadcrumbs_bottom+1 ; y
+    ld b,vp_playhead_top+1 ; y
     call vdu_move_cursor
-    ld hl,str_dashes_thin
+    ld hl,str_dashes_thick
     call printString
 
 ; print the navigation and song control instructions
     ld c,text_left ; x
-    ld b,vp_breadcrumbs_bottom+2 ; y
+    ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db "Song \e",24," \e",25," space  | Page [ ]        | (D)ir up\r\n"
-    db "(S)huffle: OFF  | (L)oop: OFF\r\n"
-    db "(R)andom song   | [ESC] or (Q)uit\r\n"
+    db " Song \e",24," \e",25," or 0-9    | Page [ ]           | (U)p dir\r\n"
+    db " (R)andom song      | (S)huffle: OFF     | (L)oop: OFF\r\n"
+    db " [ESC] or (Q)uit    |                    |\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border
     ld c,text_left ; x
-    ld b,vp_breadcrumbs_bottom+5 ; y
+    ld b,vp_playhead_top+5 ; y
     call vdu_move_cursor
     ld hl,str_dashes_thick
     call printString
