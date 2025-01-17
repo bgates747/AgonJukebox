@@ -180,7 +180,7 @@ ui_init:
     ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db " Song \e",24," \e",25," or 0-9    | Page [ ]           | (U)p dir\r\n"
+    db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | (U)p dir\r\n"
     db " (R)andom song      | (S)huffle: OFF     | (L)oop: OFF\r\n"
     db " [ESC] or (Q)uit    |                    |\r\n"
     db 0 ; null terminator
