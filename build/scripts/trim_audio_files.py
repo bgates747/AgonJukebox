@@ -37,6 +37,6 @@ def trim_wav_files(src_dir, tgt_dir):
 
 
 if __name__ == '__main__':
-    src_dir = 'assets/sound/music/original'
-    tgt_dir = 'assets/sound/music/trimmed'
+    src_dir = 'assets/sound/music/staging'
+    tgt_dir = 'assets/sound/music/processed'
     trim_wav_files(src_dir, tgt_dir)
