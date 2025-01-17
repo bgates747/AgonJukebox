@@ -222,12 +222,11 @@ ps_get_dir:
 ; reset filecounter
     ld hl,0
     ld (ps_dir_num_files),hl
-; DEBUG: clear the directory path buffer
-    ld hl,ps_dir_path ; start address to clear
-    ld bc,256 ; number of bytes
-    xor a ; value to write
-    call clear_mem
-; END DEBUG
+; reset the song index and page number to 0
+    xor a
+    ld (ps_song_idx_cur),a
+    ld hl,0
+    ld (ps_page_cur),hl
 ; initialize pointers to store directory info and print directory name
     ld hl,ps_dir_path  ; where to store result
 ; note: setting bc has no apparent effect, but we leave it for consistency with docs
@@ -287,12 +286,14 @@ ps_get_dir:
     ld (ps_pagelast_num_files),hl ; save the number of files on the last page
     inc de ; bump the page count
     ld (ps_dir_num_pages),de ; save the number of pages
-; reset the song index and page to zero and populate the page filename pointers
+; reset the song index and page to zero  
     xor a
     ld (ps_song_idx_cur),a
     ld hl,0 
     ld (ps_page_cur),hl
+; and populate the page filename pointers and print the page
     call ps_fill_page_fn_ptrs
+    call ps_print_dir_page
 ; close the directory
     ld hl,ps_dir_struct      ; load H: with address of the DIR struct
     MOSCALL ffs_dclose       ; close dir
@@ -442,21 +443,6 @@ ps_highlight_song:
     call vdu_colour_text
     ret
 ; end ps_highlight_song
-
-ps_change_dir:
-; reset the song index and page number to 0
-    xor a
-    ld (ps_song_idx_cur),a
-    ld hl,0
-    ld (ps_page_cur),hl
-; populate the page filename pointers
-    call ps_fill_page_fn_ptrs
-; print the new page
-    call ps_print_dir_page
-; enable interrupts and jump back to the user input loop
-    ei
-    jp get_input
-; end ps_change_dir
 
 ps_dir_next_page:
 ; advance the page number
