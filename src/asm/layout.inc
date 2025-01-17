@@ -85,6 +85,35 @@ vp_dir:
     call vdu_set_txt_viewport
     ret
 
+vp_legend_top: equ vp_playhead_top+2
+vp_legend:
+    ld c,text_left
+    ld d,vp_legend_top
+    ld e,text_right
+    ld b,vp_legend_top+2
+    call vdu_set_txt_viewport
+    ret
+
+vp_legend_shuffle_top: equ vp_legend_top+1
+vp_legend_shuffle_left: equ text_left+33
+vp_legend_shuffle:
+    ld c,vp_legend_shuffle_left
+    ld d,vp_legend_shuffle_top
+    ld e,vp_legend_shuffle_left+2
+    ld b,vp_legend_shuffle_top
+    call vdu_set_txt_viewport
+    ret
+
+vp_legend_loop_top: equ vp_legend_top+1
+vp_legend_loop_left: equ text_left+51
+vp_legend_loop:
+    ld c,vp_legend_loop_left
+    ld d,vp_legend_loop_top
+    ld e,vp_legend_loop_left+2
+    ld b,vp_legend_loop_top
+    call vdu_set_txt_viewport
+    ret
+
 vp_messages_top: equ vp_playhead_top+6
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages
@@ -95,6 +124,26 @@ vp_messages:
     ld b,vp_messages_bottom
     call vdu_set_txt_viewport
     ret
+
+set_text_colours_normal:
+; set text background color
+    ld a,c_blue_dk+128
+    call vdu_colour_text
+; set text foreground color
+    ld a,c_white
+    call vdu_colour_text
+    ret
+; end set_text_colours_normal
+
+set_text_colours_inverse:
+; set text background color
+    ld a,c_white+128
+    call vdu_colour_text
+; set text foreground color
+    ld a,c_blue_dk
+    call vdu_colour_text
+    ret
+; end set_text_colours_inverse
 
 ui_init:
 ; get current screen mode and save it so we can return to it on exit
@@ -111,12 +160,8 @@ ui_init:
     ld hl,Lat2_VGA8_8x8
     ld a,1
     call vdu_font_select
-; set text background color
-    ld a,c_blue_dk+128
-    call vdu_colour_text
-; set text foreground color
-    ld a,c_white
-    call vdu_colour_text
+; set text fg and bg colours to normal
+    call set_text_colours_normal
 ; set cursor behaviuor
     call vdu_cursor_off
     ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
@@ -180,9 +225,9 @@ ui_init:
     ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | (U)p dir\r\n"
-    db " (R)andom song      | (S)huffle: OFF     | (L)oop: OFF\r\n"
-    db " [ESC] or (Q)uit    |                    |\r\n"
+    db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | [U]p directory\r\n"
+    db " [R]andom song      | [S]huffle: OFF     | [L]oop: OFF\r\n"
+    db " [ESC] or [Q]uit    |                    |\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border

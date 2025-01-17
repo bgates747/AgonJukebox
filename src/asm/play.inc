@@ -424,23 +424,15 @@ ps_highlight_song:
     ld b,a
     call vdu_set_txt_viewport
     call vdu_home_cursor
-; set text background color
-    ld a,c_white+128
-    call vdu_colour_text
-; set text foreground color
-    ld a,c_blue_dk
-    call vdu_colour_text
+; set text colours to inverse
+    call set_text_colours_inverse
 ; print the index and song filename
     ld a,(ps_song_idx_cur)
     call printHexA
     ld hl,(ps_song_fn_cur)
     call printString
-; set text background color
-    ld a,c_blue_dk+128
-    call vdu_colour_text
-; set text foreground color
-    ld a,c_white
-    call vdu_colour_text
+; set text colours to normal
+    call set_text_colours_normal
     ret
 ; end ps_highlight_song
 

@@ -14,21 +14,27 @@ get_input:
 ; DEBUG
 
 ; app control commands
+
+; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
-    ret z ; returns to main, which re-enables interrupts and exits app
+    ret z 
+    cp 'q' ; quit
+    ret z
+
 ; DIRECTORY PAGING
     cp 0x15 ; right arrow
     jp z,ps_dir_next_page
     cp 0x08 ; left arrow
     jp z,ps_dir_prev_page
+
 ; SONG PLAYING COMMANDS
-; toggle pause playback
+; toggle play / pause
     cp 'p'
     jp z,ps_toggle_pause
-; toggle loop play
+; toggle loop 
     cp 'l'
     jp z,ps_toggle_loop
-; toggle shuffle play
+; toggle shuffle 
     cp 's'
     jp z,ps_toggle_shuffle
 ; play random song
@@ -111,11 +117,47 @@ ps_toggle_pause:
 ; end ps_toggle_pause
 
 ps_toggle_shuffle:
+    call vp_legend_shuffle
+    call vdu_cls
 
+    ld hl,ps_mode
+    bit ps_mode_shuffle,(hl)
+    jp nz,@shuffling
+
+    call set_text_colours_inverse
+    ld hl,ps_mode
+    set ps_mode_shuffle,(hl)
+    call printInline
+    asciz "ON"
+    call set_text_colours_normal
+    jp get_input
+
+@shuffling:
+    res ps_mode_shuffle,(hl)
+    call printInline
+    asciz "OFF"
     jp get_input
 ; end ps_toggle_shuffle
 
 ps_toggle_loop:
+    call vp_legend_loop
+    call vdu_cls
 
+    ld hl,ps_mode
+    bit ps_mode_loop,(hl)
+    jp nz,@looping
+
+    call set_text_colours_inverse
+    ld hl,ps_mode
+    set ps_mode_loop,(hl)
+    call printInline
+    asciz "ON"
+    call set_text_colours_normal
+    jp get_input
+
+@looping:
+    res ps_mode_loop,(hl)
+    call printInline
+    asciz "OFF"
     jp get_input
 ; end ps_toggle_loop
