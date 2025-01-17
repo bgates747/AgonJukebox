@@ -161,7 +161,7 @@ ps_read_file:
     jp nz,@load ; we read some data
 ; no data read so close file and play a random song
     call ps_close_file
-    jp ps_play_random 
+    jp ps_song_over
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
@@ -503,6 +503,69 @@ ps_get_song_fn_from_pg_idx:
     ret
 ; end ps_get_song_fn_from_pg_idx
 
+ps_song_over:
+; get playback mode
+    ld hl,ps_mode
+
+; are we in loop mode?
+    bit ps_mode_loop,(hl)
+    jp z,@F ; no so check next mode
+    ld hl,(ps_song_fn_cur) ; get current song filename
+    jp play_song ; and play it again, Sam
+
+@@: ; are we in shuffle mode?
+    bit ps_mode_shuffle,(hl)
+    jp nz,ps_play_random ; yes so play a random song
+
+; loop and shuffle are off so play next song
+    jp ps_play_next_song
+; end ps_song_over
+
+ps_play_next_song:
+    ld a,(ps_song_idx_cur) ; get the current song index
+@next_song:
+    inc a ; increment the song index
+    ld (@songIdx),a ; save the new song index
+    call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
+    jp c,@good_file ; filename is valid
+    ld a,-1 ; invalid filename means we went past the end of the list, so reset ...
+    jp @next_song ; ... and try again
+
+@good_file:
+    cp AM_DIR ; file attribute check for directory
+    jp nz,@play_song ; not a directory so play the song
+    jp @next_song ; is a directory so try the next file
+
+@play_song:
+    ld a,(@songIdx) ; get the new song index
+    ld (ps_song_idx_cur),a ; save the new song index
+    jp play_song
+@songIdx: db 0
+; end ps_play_next_song
+
+ps_play_prev_song:
+    ld a,(ps_song_idx_cur) ; get the current song index
+@prev_song:
+    dec a ; decrement the song index
+    ld (@songIdx),a ; save the new song index
+    call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
+    jp c,@good_file ; filename is valid
+    ld a,10 ; invalid filename means we went past the beginning of the list, so reset ...
+    jp @prev_song ; ... and try again
+
+@good_file:
+    cp AM_DIR ; file attribute check for directory
+    jp nz,@play_song ; not a directory so play the song
+    jp @prev_song ; is a directory so try the previous file
+
+@play_song:
+    ld a,(@songIdx) ; get the new song index
+    ld (ps_song_idx_cur),a ; save the new song index
+    jp play_song
+
+@songIdx: db 0
+; end ps_play_prev_song
+
 ; queue a random song on the current page to play next
 ps_play_random:
 ; back up current song index
@@ -522,8 +585,7 @@ ps_play_random:
     sbc hl,de
     jp z,ps_play_random ; same song, try again
     ex de,hl ; pointer back to hl
-    call play_song ; hit it
-    ret
+    jp play_song ; hit it
 @songFn: dl 0
 ; end ps_play_random
 
