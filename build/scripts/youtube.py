@@ -38,6 +38,7 @@ def download_youtube_audio(url, output_dir, final_filename):
         "yt-dlp",
         "-x",  # Extract audio
         "--audio-format", "mp3",  # Convert to MP3
+        "--restrict-filenames",  # Sanitize filenames
         "--output", output_template,  # Define output file template
         url,
     ]
@@ -95,11 +96,12 @@ if __name__ == "__main__":
         # {"title": "Concerto Grosso in G Minor, Op. 6, No. 8 (Christmas Concerto)", "artist": "Arcangelo Corelli", "url": "https://youtu.be/RydMnTCwJvQ"},
         # {"title": "Passacalle (Passacaglia) from String Quintet in C Major, G. 324", "artist": "Luigi Boccherini", "url": "https://youtu.be/EvEePDXL1AE"},
         # {"title": "Bach - Complete Cello Suites", "artist": "Massimiliano Martinelli", "url": "https://youtu.be/32FpqysC1PY"},
-        {"title": "Lawrence of Arabia Horse Stampede", "artist": "Maurice Jarre", "url": "https://youtu.be/3_-1Sq3sXlY"},
-        {"title": "Lawrence of Arabia End Credits", "artist": "Maurice Jarre", "url": "https://youtu.be/6Czq--jKzWo"}
+        # {"title": "Lawrence of Arabia Horse Stampede", "artist": "Maurice Jarre", "url": "https://youtu.be/3_-1Sq3sXlY"},
+        # {"title": "Lawrence of Arabia End Credits", "artist": "Maurice Jarre", "url": "https://youtu.be/6Czq--jKzWo"},
+        {"title": "Brothers in Arms", "artist": "Dire Straits", "url": "https://youtu.be/beFo9WgmwXg"},
     ]
 
-    output_directory = "assets/sound/music/lawrence"
+    output_directory = "assets/sound/music/staging"
 
     for song in songs:
         try:

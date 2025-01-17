@@ -171,7 +171,7 @@ if __name__ == '__main__':
     # sample_rate = 15360 # (256*60)
     sample_rate = -1 # Use the source file's sample rate
     src_dir = 'assets/sound/music/staging'
-    tgt_dir = 'tgt/music/Lawrence'
+    tgt_dir = 'tgt/music/Albums/Dire_Straits'
 
     # Generate sound effects with intermediate steps directly in the target directory
     make_sfx(src_dir, tgt_dir, sample_rate)
