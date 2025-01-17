@@ -24,3 +24,37 @@ wav_data_marker:   EQU 68   ; 4 bytes: "data" subchunk marker
 wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
 wav_data_start:    EQU 76   ; Start of audio data
 wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
+
+; verify that the file is a .wav file
+; inputs: none
+; prerequisites: ps_read_wav_header called
+; returns: zero flag set if not a .wav file we can read
+; clobbered: af, hl, de, ix
+verify_wav:
+    ld ix,ps_wav_header
+
+    ld hl,(ix+wav_riff)
+    ld de, 0x464952  ; ascii for "RIF" in little-endian order
+    or a ; clear carry
+    sbc hl,de
+    ret nz ; not a .wav file
+
+    ld hl,(ix+wav_wave)
+    ld de, 0x564157  ; ascii for "WAV" in little-endian order
+    or a ; clear carry
+    sbc hl,de
+    ret nz ; not a .wav file
+
+    ld hl,(ix+wav_fmt_marker)
+    ld de, 0x746D66  ; ascii for "fmt" in little-endian order
+    or a ; clear carry
+    sbc hl,de
+    ret nz ; not a .wav file
+
+    ld hl,(ix+wav_audio_format)
+    ld de, 0x010001  ; PCM format, 1-channel
+    or a ; clear carry
+    sbc hl,de ; if not zero, not a .wav file we can read
+
+    ret
+; end verify_wav
