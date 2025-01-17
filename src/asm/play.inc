@@ -550,7 +550,8 @@ ps_play_prev_song:
     ld (@songIdx),a ; save the new song index
     call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
     jp c,@good_file ; filename is valid
-    ld a,10 ; invalid filename means we went past the beginning of the list, so reset ...
+    call ps_get_page_num_files ; invalid filename means we went past the beginning of the list,
+    ld a,b ;  so reset ...
     jp @prev_song ; ... and try again
 
 @good_file:
