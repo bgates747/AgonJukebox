@@ -523,20 +523,20 @@ ps_song_over:
 
 ps_play_next_song:
     ld a,(ps_song_idx_cur) ; get the current song index
-@next_song:
+@next_file:
     inc a ; increment the song index
     ld (@songIdx),a ; save the new song index
     call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
-    jp c,@good_file ; filename is valid
+    jp c,@good_fname ; filename is valid
     ld a,-1 ; invalid filename means we went past the end of the list, so reset ...
-    jp @next_song ; ... and try again
+    jp @next_file ; ... and try again
 
-@good_file:
+@good_fname:
     cp AM_DIR ; file attribute check for directory
-    jp nz,@play_song ; not a directory so play the song
-    jp @next_song ; is a directory so try the next file
+    jp nz,@is_file ; not a directory so check for valid .wav file
+    jp @next_file ; is a directory so try the next file
 
-@play_song:
+@is_file:
     ld a,(@songIdx) ; get the new song index
     ld (ps_song_idx_cur),a ; save the new song index
     jp play_song
@@ -545,21 +545,21 @@ ps_play_next_song:
 
 ps_play_prev_song:
     ld a,(ps_song_idx_cur) ; get the current song index
-@prev_song:
+@prev_file:
     dec a ; decrement the song index
     ld (@songIdx),a ; save the new song index
     call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
-    jp c,@good_file ; filename is valid
+    jp c,@good_fname ; filename is valid
     call ps_get_page_num_files ; invalid filename means we went past the beginning of the list,
     ld a,b ;  so reset ...
-    jp @prev_song ; ... and try again
+    jp @prev_file ; ... and try again
 
-@good_file:
+@good_fname:
     cp AM_DIR ; file attribute check for directory
-    jp nz,@play_song ; not a directory so play the song
-    jp @prev_song ; is a directory so try the previous file
+    jp nz,@is_file ; not a directory so check for valid .wav file
+    jp @prev_file ; is a directory so try the previous file
 
-@play_song:
+@is_file:
     ld a,(@songIdx) ; get the new song index
     ld (ps_song_idx_cur),a ; save the new song index
     jp play_song
