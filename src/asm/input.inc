@@ -26,6 +26,8 @@ get_input:
     jp z,ps_dir_next_page
     cp 0x08 ; left arrow
     jp z,ps_dir_prev_page
+    cp 'u' ; go up one directory
+    jp z,ps_up_dir
 
 ; SONG PLAYING COMMANDS
 ; toggle play / pause
@@ -40,9 +42,11 @@ get_input:
 ; play random song
     cp 'r'
     jp z,ps_play_random
-; go up one directory
-    cp 'u'
-    jp z,ps_up_dir
+; up / down arrow play song keys
+    cp 0x0B ; up arrow
+    jp z,ps_play_prev_song
+    cp 0x0A ; down arrow
+    jp z,ps_play_next_song
 ; 0-9 play song keys
 @@: 
     cp '0'
