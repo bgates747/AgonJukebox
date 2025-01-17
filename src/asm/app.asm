@@ -60,9 +60,12 @@ init:
     ret
 ; end init
 main:
-; call the change directory routine which jp's to get_input
-    call ps_change_dir
-; user pressed ESC to quit so shut down everytyhing and gracefully exit to MOS
+; call the change directory routine and jp to user input
+    call ps_get_dir
+    call get_input
+
+; we come back here when user wants to quit app
+; shut down everytyhing and gracefully exit to MOS
     call ps_prt_stop ; stop the PRT timer
     ei ; interrupts were disabled by get_input
 ; restore original screen mode

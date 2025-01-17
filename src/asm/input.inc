@@ -3,7 +3,16 @@ get_input:
     ei ; enable interrupts
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
-    ; rst.lil 10h ; print the key pressed
+
+; DEBUG
+; clear sysvar_keyascii
+    ld l,a ; store for a sec
+	MOSCALL mos_sysvars
+	xor a
+	ld (IX+sysvar_keyascii),a
+    ld a,l ; restore a
+; DEBUG
+
 ; app control commands
     cp '\e' ; escape
     ret z ; returns to main, which re-enables interrupts and exits app
@@ -50,18 +59,31 @@ ps_play_or_chg_dir:
 ; otherwise change to the directory
     MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
-    jp ps_change_dir ; change to the directory
+    call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
+    jp get_input ; back to main loop
 ; end ps_play_or_chg_dir
 
 ; change directory one level up
 ; inputs: none
 ps_up_dir:
+    call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
     ld hl,@str_up_dir
     MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
-    jp ps_change_dir ; change to the directory
+    jp get_input ; back to main loop
 @str_up_dir: asciz ".."
 ; end ps_up_dir
+
+; TEMPORARY until we have separate buffers for playback and browsing
+ps_stop:
+    ld hl,ps_mode
+    res ps_mode_playing,(hl)
+    call vp_now_playing
+    call vdu_cls
+    call printInline
+    asciz "Stopped due to directory change. Select a new song to resume."
+    ret
+; end ps_stop
 
 ps_toggle_pause:
     call vp_now_playing
