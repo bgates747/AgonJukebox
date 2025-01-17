@@ -606,8 +606,14 @@ ps_read_wav_header:
     xor a ; clear carry
     sbc hl,de ; hl = 0-chunksize
     ret z ; no data read so return zero to caller
+; test for valid .wav header
+    call verify_wav
+    jp z,@F ; valid .wav header so continue
+    xor a ; invalid .wav header so return zero to caller
+    ret
 ; data read so initialize song variables
 ; load play sample command buffers (namely the sample rate for now)
+@@:
     call ps_load_command_buffers
     ret
 ; end ps_read_wav_header
