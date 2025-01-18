@@ -156,7 +156,7 @@ ui_init:
     call vdu_set_scaling
 ; load fonts and select one
     call vdu_clear_all_buffers
-	call fonts_load
+	call font_load
     ld hl,Lat2_VGA8_8x8
     ld a,1
     call vdu_font_select
