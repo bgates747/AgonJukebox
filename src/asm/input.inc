@@ -114,7 +114,7 @@ ps_toggle_pause:
     asciz "(P)aused  "
 
 @@:
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
     call printString ; print the song filename
 
     jp get_input
