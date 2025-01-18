@@ -4,8 +4,13 @@
 ; e.g.: fonts, sprites, etc. (limited to 8k)
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
-;     align 256 ; make things nice for indexing into especially ps_dir_fil_list
-; ; buffer for sound data
+; play_song directory info
+ps_dir_struct: equ 0x044000 ; buffer for sound data
+
+ps_file_struct: equ 0x044100 ; buffer for sound data
+
+ps_wav_header: equ 0x044200 ; buffer for sound data
+
 ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
 
 ; this list can grow as large as necessary to hold all the files in the directory
