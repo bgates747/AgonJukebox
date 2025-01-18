@@ -4,15 +4,10 @@
 ; e.g.: fonts, sprites, etc. (limited to 8k)
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
-; play_song directory info
-ps_dir_struct: equ 0x044000 ; buffer for sound data
-
-ps_file_struct: equ 0x044100 ; buffer for sound data
-
-ps_wav_header: equ 0x044200 ; buffer for sound data
-
-ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
+ps_dir_struct: equ $ ; playing song directory info
+ps_wav_header: equ ps_dir_struct+dir_struct_size ; playing song .wav file header
+ps_wav_data_start: equ 0x050000 ; playing song .wav file data buffer
 
 ; this list can grow as large as necessary to hold all the files in the directory
 ; each entry will be 278 bytes (filinfo_struct_size)
-ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k
+ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
