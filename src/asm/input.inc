@@ -23,9 +23,9 @@ get_input:
 
 ; DIRECTORY PAGING
     cp 0x15 ; right arrow
-    jp z,ps_dir_next_page
+    jp z,jb_dir_next_page
     cp 0x08 ; left arrow
-    jp z,ps_dir_prev_page
+    jp z,jb_dir_prev_page
     cp 'u' ; go up one directory
     jp z,ps_up_dir
 
@@ -44,9 +44,9 @@ get_input:
     jp z,ps_play_random
 ; up / down arrow play song keys
     cp 0x0B ; up arrow
-    jp z,ps_play_prev_song
+    jp z,jb_get_prev_song
     cp 0x0A ; down arrow
-    jp z,ps_play_next_song
+    jp z,jb_get_next_song
 ; 0-9 play song keys
 @@: 
     cp '0'
@@ -114,7 +114,7 @@ ps_toggle_pause:
     asciz "(P)aused  "
 
 @@:
-    ld hl,(ps_filename)
+    ld hl,(ps_jukebox_struct+jb_filename)
     call printString ; print the song filename
 
     jp get_input

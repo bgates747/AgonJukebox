@@ -27,7 +27,7 @@ wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
 
 ; verify that the file is a .wav file
 ; inputs: none
-; prerequisites: ps_read_wav_header called
+; prerequisites: jb_read_wav_header called
 ; returns: zero flag set if not a .wav file we can read
 ; clobbered: af, hl, de, ix
 verify_wav:
