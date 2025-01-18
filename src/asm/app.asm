@@ -54,6 +54,24 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
+; initialize jukebox struct pointers
+    ld iy,bs_jukebox_struct
+    ld hl,bs_dir_struct
+    ld (iy+jb_dir_struct),hl
+    ld hl,bs_dir_fil_list
+    ld (iy+jb_dir_fil_list),hl
+    ld hl,bs_wav_header
+    ld (iy+jb_wav_header),hl
+
+    ld iy,ps_jukebox_struct
+    ld hl,ps_dir_struct
+    ld (iy+jb_dir_struct),hl
+    ld hl,ps_dir_fil_list
+    ld (iy+jb_dir_fil_list),hl
+    ld hl,ps_wav_header
+    ld (iy+jb_wav_header),hl
+
+; initialize ui
     call ui_init
     call ps_get_dir
     call ps_prt_irq_init

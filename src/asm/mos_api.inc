@@ -244,7 +244,7 @@ filinfo_ftime:		EQU	6	;   2: Modified time
 filinfo_fattrib:	EQU	8	;   1: File attribute
 filinfo_altname:	EQU	9	;  13: Alternative file name
 filinfo_fname:		EQU	22	; 256: Primary file name
-filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
+filinfo_struct_size: EQU filinfo_fname+256 ; 278 size of the FILINFO structure
 
 ; /* File attribute bits for directory entry (FILINFO.fattrib) */
 AM_RDO: equ 0x01 ; Read only
@@ -260,4 +260,15 @@ AM_ARC: equ 0x20 ; Archive
 	MACRO	MOSCALL	function
 			LD	A, function
 			RST.LIL	08h
+	ENDMACRO 	
+
+;
+; Same as above but keeps IY safe on FFS calls
+; (can be use for regular MOS calls as well)
+;
+	MACRO	FFSCALL	function
+			PUSH IY
+			LD	A, function
+			RST.LIL	08h
+			POP IY
 	ENDMACRO 	

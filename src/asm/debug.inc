@@ -100,7 +100,7 @@ printHexUIX:
     call printString
     ld hl,(uix)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
 ; restore everything
     ld hl, (uhl)
@@ -138,41 +138,41 @@ stepRegistersHex:
     call printString
     ld hl,(uaf)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_hlu
     call printString
     ld hl,(uhl)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_bcu
     call printString
     ld hl,(ubc)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_deu
     call printString
     ld hl,(ude)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_ixu
     call printString
     ld hl,(uix)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_iyu
     call printString
     ld hl,(uiy)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ; call vsync
 
-    call printNewLine
+    ; call printNewLine
 
 ; check for right shift key and quit if pressed
     MOSCALL mos_getkbmap
@@ -222,31 +222,31 @@ dumpRegistersHex:
     call printString
     ld hl,(uaf)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_hlu
     call printString
     ld hl,(uhl)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_bcu
     call printString
     ld hl,(ubc)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_deu
     call printString
     ld hl,(ude)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_ixu
     call printString
     ld hl,(uix)
     call printHex24
-    call printNewLine
+    ; call printNewLine
 
     ld hl,str_iyu
     call printString
@@ -254,7 +254,7 @@ dumpRegistersHex:
     call printHex24
     
     call printNewLine
-    call printNewLine
+    ; call printNewLine
 ; restore everything
     ld hl, (uhl)
     ld bc, (ubc)
@@ -512,15 +512,15 @@ DEBUG_PRINT:
     ; ld c,0 ; X
     ; ld b,0 ; Y
     ; call vdu_move_cursor
-    call printNewLine
-    POP_ALL
-    PUSH_ALL
-    call dumpFlags
-    POP_ALL
-    PUSH_ALL
+    ; call printNewLine
+    ; POP_ALL
+    ; PUSH_ALL
+    ; call dumpFlags
+    ; POP_ALL
+    ; PUSH_ALL
     call dumpRegistersHex
     ; call waitKeypress
-    call printNewLine
+    ; call printNewLine
     POP_ALL
     ret
 DEBUG_WAITKEYPRESS:

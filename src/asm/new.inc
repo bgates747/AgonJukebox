@@ -14,7 +14,6 @@ jb_get_dir:
     ld hl,0
     ld (iy+jb_page_cur),hl
 ; initialize pointers to store directory info and print directory name
-    ; ld hl,iy+jb_dir_path  ; where to store result
     push iy
     pop hl
     ld de,jb_dir_path
@@ -22,31 +21,28 @@ jb_get_dir:
 ; note: setting bc has no apparent effect, but we leave it for consistency with docs
 ; https://agonconsole8.github.io/agon-docs/MOS-API/#0x9e-ffs_getcwd
     ld bc,255          ; max length (final byte is zero terminator)
-    MOSCALL ffs_getcwd ; MOS api get current working directory
+    FFSCALL ffs_getcwd ; MOS api get current working directory
 ; print the directory path (ffs_getcwd preserves hl)
     call printString
 ; now get dir info
-    ; ld de,iy+jb_dir_path   ; this is pointer to the path to the directory
     push iy
     pop hl
     ld de,jb_dir_path
     add hl,de 
     ex de,hl ; de points to the directory path
-    ld hl,(iy+jb_dir_struct) ; define where to store directory info
+    ld hl,(iy+jb_dir_struct)      ; HL is where to store directory info
     xor a               ; tell MOS to expect zero-terminated string
-    MOSCALL ffs_dopen   ; open dir
+    FFSCALL ffs_dopen   ; open dir
 ; set up pointers
     ld ix,(iy+jb_dir_fil_list) ; this is the pointer to the fileinfo table
 @readFileInfo:               ; we will loop here until all files have been processed
     ld hl,(iy+jb_dir_struct)      ; HL is where to get directory info
     push ix
     pop de ; where to store current file info
-    MOSCALL ffs_dread        ; read next item from dir
-
+    FFSCALL ffs_dread        ; read next item from dir
     ld a,(ix+filinfo_fname)  ; get first char of file name
     or a                     ; if zero then we are at the end of the listing
     jp z,@allDone
-
     ld a,(ix+filinfo_fattrib) ; get the file attribute
     res 5,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
     or a ; if zero this is a file
@@ -91,7 +87,7 @@ jb_get_dir:
     call jb_print_dir_page
 ; close the directory
     ld hl,(iy+jb_dir_struct)      ; load H: with address of the DIR struct
-    MOSCALL ffs_dclose       ; close dir
+    FFSCALL ffs_dclose       ; close dir
     ret
 ; end jb_get_dir
 
@@ -101,6 +97,8 @@ jb_get_dir:
 ; outputs: a populated filename pointer list for the current page
 ; destroys: a, hl, bc, de, ix
 jb_fill_page_fn_ptrs:
+    
+
     ld hl,(iy+jb_page_cur) ; get the current page number
     ld de,10*filinfo_struct_size ; records/page * bytes/record
     call umul24 ; hl = offset into the fileinfo table
@@ -122,6 +120,8 @@ jb_fill_page_fn_ptrs:
 ps_get_page_num_files:
     ld iy,ps_jukebox_struct
 jb_get_page_num_files:
+    
+
 ; check whether we're at last page
     ld hl,(iy+jb_page_cur)
     ld de,(iy+jb_dir_num_pages)
@@ -136,6 +136,8 @@ jb_get_page_num_files:
 ; end jb_get_page_num_files
 
 jb_print_dir_page:
+    
+
 ; set text viewport for directory listing
     call vp_dir
     call vdu_cls
@@ -242,6 +244,8 @@ jb_highlight_song:
 ; end jb_highlight_song
 
 jb_dir_next_page:
+    
+
 ; advance the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     inc hl ; increment the page number
@@ -258,6 +262,8 @@ jb_dir_next_page:
 ; end jb_dir_next_page
 
 jb_dir_prev_page:
+    
+
 ; decrement the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     dec hl ; decrement the page number
@@ -286,6 +292,8 @@ ps_get_song_fn_from_pg_idx:
 ;          carry reset if song index out of range, current filename in hl, iy+jb_file_idx, iy+jb_filename unchanged, a = requested song index
 ; destroys: af, bc, de
 jb_get_song_fn_from_pg_idx:
+    
+
     push af ; save song index
     call jb_get_page_num_files ; b = number of files on the page
     pop af ; restore song index
@@ -315,6 +323,8 @@ jb_get_song_fn_from_pg_idx:
 ; end jb_get_song_fn_from_pg_idx
 
 jb_get_next_song:
+    
+
     ld a,(iy+jb_file_idx) ; get the current song index
 @next_file:
     inc a ; increment the song index
@@ -337,6 +347,8 @@ jb_get_next_song:
 ; end jb_get_next_song
 
 jb_get_prev_song:
+    
+
     ld a,(iy+jb_file_idx) ; get the current song index
 @prev_file:
     dec a ; decrement the song index
