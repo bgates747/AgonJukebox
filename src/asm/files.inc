@@ -4,7 +4,11 @@
 ; e.g.: fonts, sprites, etc. (limited to 8k)
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
-ps_dir_struct: equ $ ; playing song directory info
+bs_dir_struct: equ $ ; browsing song directory info
+bs_filinfo_struct: equ bs_dir_struct+dir_struct_size ; browsing song file info
+bs_wav_header: equ bs_filinfo_struct+filinfo_struct_size ; browsing song .wav file header
+
+ps_dir_struct: equ bs_wav_header+wav_header_size ; playing song directory info
 ps_wav_header: equ ps_dir_struct+dir_struct_size ; playing song .wav file header
 ps_wav_data_start: equ 0x050000 ; playing song .wav file data buffer
 

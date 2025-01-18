@@ -19,36 +19,37 @@ ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
+ps_chunkpointer: dl 0 ; pointer to current chunk
+ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
+ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
+
+; play_song file info
+ps_filehandle: db 0 ; file handle
+ps_file_idx: db 0 ; current song index in the directory page
+ps_filename: dl 0 ; pointer to current song filename
 ps_dir_num_files: dl 0 ; number of files/directories in the directory (virtually unlimited)
-ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
-ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
 ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 ps_page_cur: dl 0 ; current directory page number
-ps_song_idx_cur: db 0 ; current song index in the directory page
-ps_song_fn_cur: dl 0 ; pointer to current song filename
-ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
-ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
-ps_page_fn_ptrs: blkb 10*3,0 ; list of filename pointers in the current directory page
+ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
+ps_filename_ptrs: blkb 10*3,0 ; list of filename pointers in the current directory page
 ps_dir_path:   blkb 256,0 ; path of the current directory
 
 
-; play_song file info
-ps_filehandle_cur: db 0 ; file handle
-ps_chunkpointer: dl 0 ; pointer to current chunk
+
 
 play_song:
 ; save pointer to requested song file
-    ld (ps_song_fn_cur),hl
+    ld (ps_filename),hl
 ; stop the PRT timer and close any currently playing file
     call ps_close_file
     call ps_prt_stop
 ; tell the user what they've won
     call vp_now_playing
     call vdu_cls
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
     call printInline
     asciz "(P)laying "
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
     call printString ; print the song filename
 ; highlight the song being played
     call ps_highlight_song
@@ -58,10 +59,10 @@ play_song:
 ;   C: Mode
 ; Returns:
 ;   A: Filehandle, or 0 if couldn't open
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
 	ld c,fa_read
     MOSCALL mos_fopen
-    ld (ps_filehandle_cur),a
+    ld (ps_filehandle),a
 ; read the .wav header data and copy it to the buffer
     call ps_read_wav_header
 ; compute the song duration from the file size and sample rate and print it
@@ -104,7 +105,7 @@ ps_read_file:
 ; DEU: Number of bytes to read
 ; Returns:
 ; DEU: Number of bytes read
-    ld a,(ps_filehandle_cur)
+    ld a,(ps_filehandle)
     ld c,a
     ld hl,ps_wav_data_start
     ld de,(ps_wav_header+wav_sample_rate)
@@ -165,7 +166,7 @@ ps_play_sample:
 ; close the file
 ps_close_file:
     call ps_prt_stop ; stop the PRT timer
-    ld a,(ps_filehandle_cur)
+    ld a,(ps_filehandle)
     MOSCALL mos_fclose
     ret
 ; end ps_close_file
@@ -179,7 +180,7 @@ ps_get_dir:
     ld (ps_dir_num_files),hl
 ; reset the song index and page number to 0
     xor a
-    ld (ps_song_idx_cur),a
+    ld (ps_file_idx),a
     ld hl,0
     ld (ps_page_cur),hl
 ; initialize pointers to store directory info and print directory name
@@ -243,7 +244,7 @@ ps_get_dir:
     ld (ps_dir_num_pages),de ; save the number of pages
 ; reset the song index and page to zero  
     xor a
-    ld (ps_song_idx_cur),a
+    ld (ps_file_idx),a
     ld hl,0 
     ld (ps_page_cur),hl
 ; and populate the page filename pointers and print the page
@@ -266,7 +267,7 @@ ps_fill_page_fn_ptrs:
     call umul24 ; hl = offset into the fileinfo table
     ld de,ps_dir_fil_list ; base address of fileinfo table
     add hl,de ; add the offset to the base address
-    ld ix,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
+    ld ix,ps_filename_ptrs ; get the address of the page fileinfo pointer table
     ld de,filinfo_struct_size ; bytes per filename record
     ld b,10 ; number of files per page
 @loop:
@@ -298,7 +299,7 @@ ps_print_dir_page:
 ; loop through the fileinfo pointer table and print out the filenames
     call ps_get_page_num_files ; b = loop counter
     xor a ; song index
-    ld ix,ps_page_fn_ptrs
+    ld ix,ps_filename_ptrs
 @loop:
     push bc ; save loop counter
     push af ; save song index
@@ -370,7 +371,7 @@ ps_highlight_song:
 ; refresh the directory listing
     call ps_print_dir_page
 ; highlight the song being played in the directory listing
-    ld a,(ps_song_idx_cur)
+    ld a,(ps_file_idx)
     ld d,vp_dir_top
     add a,d
     ld c,text_left
@@ -382,9 +383,9 @@ ps_highlight_song:
 ; set text colours to inverse
     call set_text_colours_inverse
 ; print the index and song filename
-    ld a,(ps_song_idx_cur)
+    ld a,(ps_file_idx)
     call printHexA
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
     call printString
 ; set text colours to normal
     call set_text_colours_normal
@@ -428,18 +429,18 @@ ps_dir_prev_page:
 
 ; get the filename of the song at the current index
 ; inputs: a = song index
-; returns: carry set if song index in range, new filemame in hl and ps_song_idx_cur, ps_song_fn_cur set to new index, a = file attribute
-;          carry reset if song index out of range, current filename in hl, ps_song_idx_cur, ps_song_fn_cur unchanged, a = requested song index
+; returns: carry set if song index in range, new filemame in hl and ps_file_idx, ps_filename set to new index, a = file attribute
+;          carry reset if song index out of range, current filename in hl, ps_file_idx, ps_filename unchanged, a = requested song index
 ; destroys: af, bc, de
 ps_get_song_fn_from_pg_idx:
     push af ; save song index
     call ps_get_page_num_files ; b = number of files on the page
     pop af ; restore song index
     cp b ; compare song index to number of files on the page
-    ld hl,(ps_song_fn_cur) ; get the current song filename
+    ld hl,(ps_filename) ; get the current song filename
     ret nc ; requested song index is out of range so return current filename and no carry
-    ld (ps_song_idx_cur),a ; save the song index
-    ld ix,ps_page_fn_ptrs ; get the address of the page fileinfo pointer table
+    ld (ps_file_idx),a ; save the song index
+    ld ix,ps_filename_ptrs ; get the address of the page fileinfo pointer table
     ld b,a ; song index
     ld c,3 ; 3 bytes per filename pointer
     mlt bc ; index into the fileinfo pointer table
@@ -453,7 +454,7 @@ ps_get_song_fn_from_pg_idx:
     ld hl,(ix) ; hl points to the fileinfo
     ld bc,filinfo_fname ; offset to the filename
     add hl,bc ; hl points to the filename
-    ld (ps_song_fn_cur),hl ; save the new song filename
+    ld (ps_filename),hl ; save the new song filename
     scf ; set carry to indicate success
     ret
 ; end ps_get_song_fn_from_pg_idx
@@ -465,7 +466,7 @@ ps_song_over:
 ; are we in loop mode?
     bit ps_mode_loop,(hl)
     jp z,@F ; no so check next mode
-    ld hl,(ps_song_fn_cur) ; get current song filename
+    ld hl,(ps_filename) ; get current song filename
     jp play_song ; and play it again, Sam
 
 @@: ; are we in shuffle mode?
@@ -477,7 +478,7 @@ ps_song_over:
 ; end ps_song_over
 
 ps_play_next_song:
-    ld a,(ps_song_idx_cur) ; get the current song index
+    ld a,(ps_file_idx) ; get the current song index
 @next_file:
     inc a ; increment the song index
     ld (@songIdx),a ; save the new song index
@@ -493,13 +494,13 @@ ps_play_next_song:
 
 @is_file:
     ld a,(@songIdx) ; get the new song index
-    ld (ps_song_idx_cur),a ; save the new song index
+    ld (ps_file_idx),a ; save the new song index
     jp play_song
 @songIdx: db 0
 ; end ps_play_next_song
 
 ps_play_prev_song:
-    ld a,(ps_song_idx_cur) ; get the current song index
+    ld a,(ps_file_idx) ; get the current song index
 @prev_file:
     dec a ; decrement the song index
     ld (@songIdx),a ; save the new song index
@@ -516,7 +517,7 @@ ps_play_prev_song:
 
 @is_file:
     ld a,(@songIdx) ; get the new song index
-    ld (ps_song_idx_cur),a ; save the new song index
+    ld (ps_file_idx),a ; save the new song index
     jp play_song
 
 @songIdx: db 0
@@ -525,7 +526,7 @@ ps_play_prev_song:
 ; queue a random song on the current page to play next
 ps_play_random:
 ; back up current song index
-    ld hl,(ps_song_fn_cur)
+    ld hl,(ps_filename)
     ld (@songFn),hl
 ; get the number of songs in the current directory
     call ps_get_page_num_files
@@ -552,7 +553,7 @@ ps_read_wav_header:
 ; DEU: Number of bytes to read
 ; Returns:
 ; DEU: Number of bytes read
-    ld a,(ps_filehandle_cur)
+    ld a,(ps_filehandle)
     ld c,a
     ld hl,ps_wav_header
     ld de,wav_header_size
