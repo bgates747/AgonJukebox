@@ -42,8 +42,22 @@ PC     Output      Line
 04005F             0026    
 04005F C9          0027        ret
 040060             0028    
-040060             0029    ; API INCLUDES
-040060             0030        include "mos_api.inc"
+040060             0029    ; JukeBox Structure (JB)
+040060             0030    ;
+040060             0031    ; Indexes into JukeBox structure
+040060             0032    jb_filehandle:          EQU 0          ;   1: File handle
+040060             0033    jb_file_idx:            EQU jb_filehandle+1  ;   1: Current file index in the directory page
+040060             0034    jb_filename:            EQU jb_file_idx+1    ;   3: Pointer to current file filename
+040060             0035    jb_dir_num_files:       EQU jb_filename+3    ;   3: Number of files/directories in the directory (virtually unlimited)
+040060             0036    jb_pagelast_num_files:  EQU jb_dir_num_files+3  ;   3: Mod(jb_dir_num_files, 10)
+040060             0037    jb_page_cur:            EQU jb_pagelast_num_files+3  ;   3: Current directory page number
+040060             0038    jb_dir_num_pages:       EQU jb_page_cur+3    ;   3: Number of pages in the directory (virtually unlimited)
+040060             0039    jb_filename_ptrs:       EQU jb_dir_num_pages+3  ;  30: List of filename pointers in the current directory page (10*3)
+040060             0040    jb_dir_path:            EQU jb_filename_ptrs+30 ; 256: Path of the current directory
+040060             0041    jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
+040060             0042    
+040060             0043    ; API INCLUDES
+040060             0044        include "mos_api.inc"
 040060             0001*   ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/mos_api.inc
 040060             0002*   ; Title:	AGON MOS - API for user projects
 040060             0003*   ; Author:	Dean Belfield
@@ -307,7 +321,7 @@ PC     Output      Line
 040060             0261*   			LD	A, function
 040060             0262*   			RST.LIL	08h
 040060             0263*   	ENDMACRO
-040060             0031        include "macros.inc"
+040060             0045        include "macros.inc"
 040060             0001*   
 040060             0002*   ; test the sign of HL
 040060             0003*   ; inputs: HL obviously
@@ -445,7 +459,7 @@ PC     Output      Line
 040060             0135*       ex af,af'
 040060             0136*       exx
 040060             0137*       ENDMACRO
-040060             0032        include "functions.inc"
+040060             0046        include "functions.inc"
 040060             0001*   ; Print a zero-terminated string inline with code, e.g.:
 040060             0002*   ;
 040060             0003*   ;    call printInline
@@ -1045,7 +1059,7 @@ PC     Output      Line
 040363 13          0557*       inc de ; target address
 040364 ED B0       0558*       ldir
 040366 C9          0559*       ret
-040367             0033        include "arith24.inc"
+040367             0047        include "arith24.inc"
 040367             0001*   ;------------------------------------------------------------------------
 040367             0002*   ;  arith24.asm
 040367             0003*   ;  24-bit ez80 arithmetic routines
@@ -1319,7 +1333,7 @@ PC     Output      Line
 040468 C1          0268*   	pop 	bc ; restore
 040469 C9          0269*   	ret
 04046A             0270*   ; end shl_hlu_log2a
-04046A             0034        include "maths.inc"
+04046A             0048        include "maths.inc"
 04046A             0001*   ;------------------------------------------------------------------------
 04046A             0002*   ; Scratch area for calculations
 04046A             0003*   ;------------------------------------------------------------------------
@@ -1644,7 +1658,7 @@ PC     Output      Line
 0405B8 10 F0       0308*       djnz @loop     ; 2/4
 0405BA C9          0309*       ret            ; 10
 0405BB             0310*   ; end udiv3223
-0405BB             0035        include "font.inc"
+0405BB             0049        include "font.inc"
 0405BB             0001*   Lat2_VGA8_8x8: equ 64016
 0405BB             0002*   font_data:
 0405BB 00 00 78 0C 0003*       incbin "Lat2-VGA8_8x8.font"
@@ -2174,7 +2188,7 @@ PC     Output      Line
 040DD5 CD A0 1F 04 0016*       call vdu_font_create
 040DD9             0017*   ; all done
 040DD9 C9          0018*       ret
-040DDA             0036        include "fixed168.inc"
+040DDA             0050        include "fixed168.inc"
 040DDA             0001*   ; multiply a signed 24-bit number by an unsigned 8-bit number giving a signed 24-bit result
 040DDA             0002*   ; uses EZ80 MLT instruction for speed
 040DDA             0003*   ; operation: UHL * A --> UHL
@@ -3587,7 +3601,7 @@ PC     Output      Line
 041822 D7 1F 00    1342*       dl 0x001FD7 ; 0000FE, 44.775
 041825 EB 1F 00    1343*       dl 0x001FEB ; 0000FF, 44.888
 041828 00 20 00    1344*       dl 0x002000 ; 000100, 45.000 only needed for interpolation
-04182B             0037        include "time.inc"
+04182B             0051        include "time.inc"
 04182B             0001*   ; Convert seconds to HH:MM:SS format.
 04182B             0002*   ; inputs: hl = seconds
 04182B             0003*   ; outputs: hl = pointer to zero-terminated string representation of HH:MM:SS
@@ -3634,7 +3648,7 @@ PC     Output      Line
        30 3A 30 30 
        00          
 0418A1             0042*   ; end seconds_to_hhmmss
-0418A1             0038        include "timer.inc"
+0418A1             0052        include "timer.inc"
 0418A1             0001*   ; Table 32. Timer Control Registers
 0418A1             0002*   TMR0_CTL: equ 80h
 0418A1             0003*   TMR1_CTL: equ 83h
@@ -4083,7 +4097,7 @@ PC     Output      Line
 041AB2 C9          0405*       ret
 041AB3             0406*   
 041AB3 00          0407*   oldTimeStamp:   .db 00h
-041AB4             0039        include "vdu.inc"
+041AB4             0053        include "vdu.inc"
 041AB4             0001*   ; VDU 30: Home cursor
 041AB4             0002*   vdu_home_cursor:
 041AB4 3E 1E       0003*       ld a,30
@@ -4798,7 +4812,7 @@ PC     Output      Line
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 
-041EB6             0040        include "vdu_buffered_api.inc"
+041EB6             0054        include "vdu_buffered_api.inc"
 041EB6             0001*   ; https://agonconsole8.github.io/agon-docs/vdp/Buffered-Commands-API/
 041EB6             0002*   
 041EB6             0003*   ; Command 0: Write block to a buffer
@@ -4968,7 +4982,7 @@ PC     Output      Line
 041F85 C9          0165*       ret ; TODO: implement
 041F86             0166*   ; end vdu_call_buffer_offset
 041F86             0167*   
-041F86             0041        include "vdu_fonts.inc"
+041F86             0055        include "vdu_fonts.inc"
 041F86             0001*   ; select font
 041F86             0002*   ; inputs: hl = bufferId, a = font flags
 041F86             0003*   ; Flags:
@@ -5060,7 +5074,7 @@ PC     Output      Line
 042012 17 00 95 05 0087*   @cmd: db 23, 0, 0x95, 5
 042016 00 00       0088*   @bufferId: dw 0x0000
 042018 00          0089*   @end: db 0x00 ; padding
-042019             0042        include "vdu_plot.inc"
+042019             0056        include "vdu_plot.inc"
 042019             0001*   ; https://agonconsole8.github.io/agon-docs/VDP---PLOT-Commands.html
 042019             0002*   ; PLOT code 	(Decimal) 	Effect
 042019             0003*   ; &00-&07 	0-7 	Solid line, includes both ends
@@ -5305,7 +5319,7 @@ PC     Output      Line
 0420D5 00 00       0228*   @x1:    dw 0x0000
 0420D7 00 00       0229*   @y1:    dw 0x0000
 0420D9 00          0230*   @end:   db 0x00 ; padding
-0420DA             0043        include "vdu_sound.inc"
+0420DA             0057        include "vdu_sound.inc"
 0420DA             0001*   ; enable enough additional channels so that total enabled = max_channels
 0420DA             0002*   ; inputs: max_channels set
 0420DA             0003*   ; returns: nothing
@@ -5668,9 +5682,9 @@ PC     Output      Line
 0422A6 00 00       0355*   @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
 0422A8 00 00       0356*   @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
 0422AA 00          0357*   @end:        db 0x00 ; padding
-0422AB             0044    
-0422AB             0045    ; APPLICATION INCLUDES
-0422AB             0046        include "layout.inc"
+0422AB             0058    
+0422AB             0059    ; APPLICATION INCLUDES
+0422AB             0060        include "layout.inc"
 0422AB             0001*   text_top: equ 0
 0422AB             0002*   text_left: equ 0
 0422AB             0003*   text_bottom: equ 47      ; 48 rows, zero-based
@@ -5988,7 +6002,7 @@ PC     Output      Line
 04255A             0239*   
 04255A C9          0240*       ret
 04255B             0241*   ; end ui_init
-04255B             0047        include "ascii.inc"
+04255B             0061        include "ascii.inc"
 04255B             0001*   agon_jukebox_ascii:
 04255B 20 20 20 5F 0002*       db 32,32,32,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,95,32,95,95,95,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,13,10
        5F 5F 5F 5F 
@@ -6177,7 +6191,7 @@ PC     Output      Line
        20 20 20 5C 
        5F 2F 0D 0A 
 04282C 00          0020*       db 0 ; list terminator
-04282D             0048        include "input.inc"
+04282D             0062        include "input.inc"
 04282D             0001*   get_input:
 04282D             0002*   ; wait for the user to push a button
 04282D FB          0003*       ei ; enable interrupts
@@ -6376,7 +6390,7 @@ PC     Output      Line
 0429BF 4F 46 46 00 0165*       asciz "OFF"
 0429C3 C3 2D 28 04 0166*       jp get_input
 0429C7             0167*   ; end ps_toggle_loop
-0429C7             0049        include "play.inc"
+0429C7             0063        include "play.inc"
 0429C7             0001*   ; stream a song from the SD card
 0429C7             0002*   ; inputs: hl = pointer to filename
 0429C7             0003*   ; requirements: the file must be 8-bit signed PCM mono
@@ -6523,10 +6537,10 @@ PC     Output      Line
 042B4E             0068*   ; compute the song duration from the file size and sample rate and print it
 042B4E             0069*   ; technically we should account for the .wav header, but at 76 bytes it's negligible
 042B4E CD 48 23 04 0070*       call vp_duration ; set viewport to duration window
-042B52 3A 85 36 04 0071*       ld a,(ps_wav_header+wav_file_size+3) ; upper byte
-042B56 DD 2A 82 36 0072*       ld ix,(ps_wav_header+wav_file_size+0) ; lower word
+042B52 3A E3 38 04 0071*       ld a,(ps_wav_header+wav_file_size+3) ; upper byte
+042B56 DD 2A E0 38 0072*       ld ix,(ps_wav_header+wav_file_size+0) ; lower word
        04          
-042B5B ED 5B 96 36 0073*       ld de,(ps_wav_header+wav_sample_rate)
+042B5B ED 5B F4 38 0073*       ld de,(ps_wav_header+wav_sample_rate)
        04          
 042B60 CD A5 05 04 0074*       call udiv3223 ; auix = duration in seconds
 042B64 DD 22 D5 29 0075*       ld (ps_song_duration),ix ; duration low word
@@ -6566,7 +6580,7 @@ PC     Output      Line
 042B95 3A DA 29 04 0108*       ld a,(ps_filehandle)
 042B99 4F          0109*       ld c,a
 042B9A 21 00 00 05 0110*       ld hl,ps_wav_data_start
-042B9E ED 5B 96 36 0111*       ld de,(ps_wav_header+wav_sample_rate)
+042B9E ED 5B F4 38 0111*       ld de,(ps_wav_header+wav_sample_rate)
        04          
 042BA3             0112*       MOSCALL mos_fread
                        M1 Args: function=mos_fread 
@@ -6660,7 +6674,7 @@ PC     Output      Line
 042C48             0192*   ; print the directory path (ffs_getcwd preserves hl)
 042C48 CD 67 00 04 0193*       call printString
 042C4C             0194*   ; now get dir info
-042C4C 21 50 36 04 0195*       ld hl,ps_dir_struct ; define where to store directory info
+042C4C 21 AE 38 04 0195*       ld hl,ps_dir_struct ; define where to store directory info
 042C50 11 09 2A 04 0196*       ld de,ps_dir_path   ; this is pointer to the path to the directory
 042C54 AF          0197*       xor a               ; tell MOS to expect zero-terminated string
 042C55             0198*       MOSCALL ffs_dopen   ; open dir
@@ -6671,7 +6685,7 @@ PC     Output      Line
 042C59 DD 21 00 00 0200*       ld ix,ps_dir_fil_list ; this is the pointer to the fileinfo table
        06          
 042C5E             0201*   @readFileInfo:               ; we will loop here until all files have been processed
-042C5E 21 50 36 04 0202*       ld hl,ps_dir_struct      ; HL is where to get directory info
+042C5E 21 AE 38 04 0202*       ld hl,ps_dir_struct      ; HL is where to get directory info
 042C62 DD E5       0203*       push ix
 042C64 D1          0204*       pop de ; where to store current file info
 042C65             0205*       MOSCALL ffs_dread        ; read next item from dir
@@ -6732,7 +6746,7 @@ PC     Output      Line
 042CCF CD E0 2C 04 0251*       call ps_fill_page_fn_ptrs
 042CD3 CD 1C 2D 04 0252*       call ps_print_dir_page
 042CD7             0253*   ; close the directory
-042CD7 21 50 36 04 0254*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
+042CD7 21 AE 38 04 0254*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
 042CDB             0255*       MOSCALL ffs_dclose       ; close dir
                        M1 Args: function=ffs_dclose 
 042CDB 3E 92       0001*M1 			LD	A, function
@@ -7062,7 +7076,7 @@ PC     Output      Line
 042F0B             0555*   ; DEU: Number of bytes read
 042F0B 3A DA 29 04 0556*       ld a,(ps_filehandle)
 042F0F 4F          0557*       ld c,a
-042F10 21 7E 36 04 0558*       ld hl,ps_wav_header
+042F10 21 DC 38 04 0558*       ld hl,ps_wav_header
 042F14 11 4C 00 00 0559*       ld de,wav_header_size
 042F18             0560*       MOSCALL mos_fread
                        M1 Args: function=mos_fread 
@@ -7088,7 +7102,7 @@ PC     Output      Line
 042F33             0578*   ps_load_command_buffers:
 042F33 21 02 30 00 0579*       ld hl,cmd0_buffer
 042F37 CD F9 1E 04 0580*       call vdu_clear_buffer
-042F3B 2A 96 36 04 0581*       ld hl,(ps_wav_header+wav_sample_rate)
+042F3B 2A F4 38 04 0581*       ld hl,(ps_wav_header+wav_sample_rate)
 042F3F 22 89 2F 04 0582*       ld (ps_sr0),hl
 042F43 3E 17       0583*       ld a,23
 042F45 32 8B 2F 04 0584*       ld (ps_sr0+2),a
@@ -7099,7 +7113,7 @@ PC     Output      Line
 042F59             0589*   
 042F59 21 03 30 00 0590*       ld hl,cmd1_buffer
 042F5D CD F9 1E 04 0591*       call vdu_clear_buffer
-042F61 2A 96 36 04 0592*       ld hl,(ps_wav_header+wav_sample_rate)
+042F61 2A F4 38 04 0592*       ld hl,(ps_wav_header+wav_sample_rate)
 042F65 22 A6 2F 04 0593*       ld (ps_sr1),hl
 042F69 3E 17       0594*       ld a,23
 042F6B 32 A8 2F 04 0595*       ld (ps_sr1+2),a
@@ -7168,7 +7182,7 @@ PC     Output      Line
 042FB8 00 00       0658*       dw 0 ; duration (ms), zero means play one time in full
 042FBA             0659*   ps_cmd1_end:
 042FBA             0660*   ; end ps_load_command_buffers
-042FBA             0050        include "timer_jukebox.inc"
+042FBA             0064        include "timer_jukebox.inc"
 042FBA             0001*   ps_prt_reload: equ [72000/2] ; 36000 = 2 ticks per second at 18.432 MHz with a 256 clock divider
 042FBA             0002*   
 042FBA             0003*   ; start PRT timer
@@ -7250,7 +7264,7 @@ PC     Output      Line
 043023 FB          0076*       ei
 043024 5B ED 4D    0077*       reti.l
 043027             0078*   ; end ps_prt_irq_handler
-043027             0051        include "wav.inc"
+043027             0065        include "wav.inc"
 043027             0001*   ; WAV File Structure Offsets and Descriptions
 043027             0002*   wav_riff:          EQU 0    ; 4 bytes: "RIFF" identifier
 043027             0003*   wav_file_size:     EQU 4    ; 4 bytes: Total file size minus 8 bytes for RIFF header
@@ -7284,7 +7298,7 @@ PC     Output      Line
 043027             0031*   ; returns: zero flag set if not a .wav file we can read
 043027             0032*   ; clobbered: af, hl, de, ix
 043027             0033*   verify_wav:
-043027 DD 21 7E 36 0034*       ld ix,ps_wav_header
+043027 DD 21 DC 38 0034*       ld ix,ps_wav_header
        04          
 04302C             0035*   
 04302C DD 27 00    0036*       ld hl,(ix+wav_riff)
@@ -7312,7 +7326,7 @@ PC     Output      Line
 043057             0058*   
 043057 C9          0059*       ret
 043058             0060*   ; end verify_wav
-043058             0052        include "debug.inc"
+043058             0066        include "debug.inc"
 043058             0001*   printHexA:
 043058 F5          0002*       push af
 043059 C5          0003*       push bc
@@ -8049,62 +8063,64 @@ PC     Output      Line
 043465 D9          0015*M1     exx
 043466 C9          0538*       ret
 043467             0539*   ; end dumpVduCmdStr
-043467             0053    
-043467             0054    ; --- MAIN PROGRAM FILE ---
-043467             0055    init:
-043467 CD D7 23 04 0056        call ui_init
-04346B CD 1F 2C 04 0057        call ps_get_dir
-04346F CD DD 2F 04 0058        call ps_prt_irq_init
-043473 C9          0059        ret
-043474             0060    ; end init
-043474             0061    main:
-043474             0062    ; call the change directory routine and jp to user input
-043474 CD 1F 2C 04 0063        call ps_get_dir
-043478 CD 2D 28 04 0064        call get_input
-04347C             0065    
-04347C             0066    ; we come back here when user wants to quit app
-04347C             0067    ; shut down everytyhing and gracefully exit to MOS
-04347C CD D7 2F 04 0068        call ps_prt_stop ; stop the PRT timer
-043480 FB          0069        ei ; interrupts were disabled by get_input
-043481             0070    ; restore original screen mode
-043481 3A AB 22 04 0071        ld a,(original_screen_mode)
-043485 CD 0D 1C 04 0072        call vdu_set_screen_mode
-043489 CD 08 1C 04 0073        call vdu_reset_viewports
-04348D CD 3F 1B 04 0074        call vdu_cls
-043491             0075    ; print thanks for playing message
-043491 CD 60 00 04 0076        call printInline
-043495 54 68 61 6E 0077        asciz "Thank you for using\r\n"
+043467             0067    
+043467             0068    ; --- MAIN PROGRAM FILE ---
+043467             0069    init:
+043467 CD D7 23 04 0070        call ui_init
+04346B CD 1F 2C 04 0071        call ps_get_dir
+04346F CD DD 2F 04 0072        call ps_prt_irq_init
+043473 C9          0073        ret
+043474             0074    ; end init
+043474             0075    main:
+043474             0076    ; call the change directory routine and jp to user input
+043474 CD 1F 2C 04 0077        call ps_get_dir
+043478 CD 2D 28 04 0078        call get_input
+04347C             0079    
+04347C             0080    ; we come back here when user wants to quit app
+04347C             0081    ; shut down everytyhing and gracefully exit to MOS
+04347C CD D7 2F 04 0082        call ps_prt_stop ; stop the PRT timer
+043480 FB          0083        ei ; interrupts were disabled by get_input
+043481             0084    ; restore original screen mode
+043481 3A AB 22 04 0085        ld a,(original_screen_mode)
+043485 CD 0D 1C 04 0086        call vdu_set_screen_mode
+043489 CD 08 1C 04 0087        call vdu_reset_viewports
+04348D CD 3F 1B 04 0088        call vdu_cls
+043491             0089    ; print thanks for playing message
+043491 CD 60 00 04 0090        call printInline
+043495 54 68 61 6E 0091        asciz "Thank you for using\r\n"
        6B 20 79 6F 
        75 20 66 6F 
        72 20 75 73 
        69 6E 67 0D 
        0A 00       
-0434AB 21 5B 25 04 0078        ld hl,agon_jukebox_ascii
-0434AF CD 67 00 04 0079        call printString
-0434B3             0080    ; set cursor behaviuor
-0434B3 CD B9 1A 04 0081        call vdu_cursor_on
-0434B7 26 10       0082        ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
-0434B9 2E 00       0083        ld l,%00000000 ; bit 4 reset means cursor scrolls screen
-0434BB CD 2B 1B 04 0084        call vdu_cursor_behaviour
-0434BF C9          0085        ret ; back to MOS
-0434C0             0086    ; end main
-0434C0             0087    
-0434C0             0088    ; must be final include in program so file data does not stomp on program code or other data
-0434C0             0089        include "files.inc"
+0434AB 21 5B 25 04 0092        ld hl,agon_jukebox_ascii
+0434AF CD 67 00 04 0093        call printString
+0434B3             0094    ; set cursor behaviuor
+0434B3 CD B9 1A 04 0095        call vdu_cursor_on
+0434B7 26 10       0096        ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+0434B9 2E 00       0097        ld l,%00000000 ; bit 4 reset means cursor scrolls screen
+0434BB CD 2B 1B 04 0098        call vdu_cursor_behaviour
+0434BF C9          0099        ret ; back to MOS
+0434C0             0100    ; end main
+0434C0             0101    
+0434C0             0102    ; must be final include in program so file data does not stomp on program code or other data
+0434C0             0103        include "files.inc"
 0434C0             0001*   ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
 0434C0             0002*   
 0434C0             0003*   ; buffer for loading files unrelated to audio
 0434C0             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
 0434C0             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
 0434C0             0006*   
-0434C0             0007*   bs_dir_struct: equ $ ; browsing song directory info
-0434C0             0008*   bs_filinfo_struct: equ bs_dir_struct+dir_struct_size ; browsing song file info
-0434C0             0009*   bs_wav_header: equ bs_filinfo_struct+filinfo_struct_size ; browsing song .wav file header
-0434C0             0010*   
-0434C0             0011*   ps_dir_struct: equ bs_wav_header+wav_header_size ; playing song directory info
-0434C0             0012*   ps_wav_header: equ ps_dir_struct+dir_struct_size ; playing song .wav file header
-0434C0             0013*   ps_wav_data_start: equ 0x050000 ; playing song .wav file data buffer
-0434C0             0014*   
-0434C0             0015*   ; this list can grow as large as necessary to hold all the files in the directory
-0434C0             0016*   ; each entry will be 278 bytes (filinfo_struct_size)
-0434C0             0017*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
+0434C0             0007*   bs_jukebox_struct: equ $ ; browsing song jukebox info
+0434C0             0008*   bs_dir_struct: equ bs_jukebox_struct+jb_struct_size ; browsing song directory info
+0434C0             0009*   bs_filinfo_struct: equ bs_dir_struct+dir_struct_size ; browsing song file info
+0434C0             0010*   bs_wav_header: equ bs_filinfo_struct+filinfo_struct_size ; browsing song .wav file header
+0434C0             0011*   
+0434C0             0012*   ps_jukebox_struct: equ bs_wav_header+wav_header_size ; playing song jukebox info
+0434C0             0013*   ps_dir_struct: equ ps_jukebox_struct+jb_struct_size ; playing song directory info
+0434C0             0014*   ps_wav_header: equ ps_dir_struct+dir_struct_size ; playing song .wav file header
+0434C0             0015*   ps_wav_data_start: equ 0x050000 ; playing song .wav file data buffer
+0434C0             0016*   
+0434C0             0017*   ; this list can grow as large as necessary to hold all the files in the directory
+0434C0             0018*   ; each entry will be 278 bytes (filinfo_struct_size)
+0434C0             0019*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
