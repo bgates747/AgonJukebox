@@ -279,33 +279,34 @@ PC     Output      Line
 040060             0233*   dir_dir:		EQU	27	;  3: Pointer to the directory item in the win[]
 040060             0234*   dir_fn:			EQU	30	; 12: SFN (in/out) {body[8],ext[3],status[1]}
 040060             0235*   dir_blk_ofs:	EQU	42	;  4: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-040060             0236*   ;
-040060             0237*   ; File information structure (FILINFO)
-040060             0238*   ;
-040060             0239*   ; Indexes into FILINFO structure
-040060             0240*   filinfo_fsize:		EQU 0	;   4: File size
-040060             0241*   filinfo_fdate:		EQU	4	;   2: Modified date
-040060             0242*   filinfo_ftime:		EQU	6	;   2: Modified time
-040060             0243*   filinfo_fattrib:	EQU	8	;   1: File attribute
-040060             0244*   filinfo_altname:	EQU	9	;  13: Alternative file name
-040060             0245*   filinfo_fname:		EQU	22	; 256: Primary file name
-040060             0246*   filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
-040060             0247*   
-040060             0248*   ; /* File attribute bits for directory entry (FILINFO.fattrib) */
-040060             0249*   AM_RDO: equ 0x01 ; Read only
-040060             0250*   AM_HID: equ 0x02 ; Hidden
-040060             0251*   AM_SYS: equ 0x04 ; System
-040060             0252*   AM_DIR: equ 0x10 ; Directory
-040060             0253*   AM_ARC: equ 0x20 ; Archive
-040060             0254*   ;
-040060             0255*   ; Macro for calling the API
-040060             0256*   ; Parameters:
-040060             0257*   ; - function: One of the function numbers listed above
-040060             0258*   ;
-040060             0259*   	MACRO	MOSCALL	function
-040060             0260*   			LD	A, function
-040060             0261*   			RST.LIL	08h
-040060             0262*   	ENDMACRO
+040060             0236*   dir_struct_size:	EQU	46	;  4: Size of the object
+040060             0237*   ;
+040060             0238*   ; File information structure (FILINFO)
+040060             0239*   ;
+040060             0240*   ; Indexes into FILINFO structure
+040060             0241*   filinfo_fsize:		EQU 0	;   4: File size
+040060             0242*   filinfo_fdate:		EQU	4	;   2: Modified date
+040060             0243*   filinfo_ftime:		EQU	6	;   2: Modified time
+040060             0244*   filinfo_fattrib:	EQU	8	;   1: File attribute
+040060             0245*   filinfo_altname:	EQU	9	;  13: Alternative file name
+040060             0246*   filinfo_fname:		EQU	22	; 256: Primary file name
+040060             0247*   filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
+040060             0248*   
+040060             0249*   ; /* File attribute bits for directory entry (FILINFO.fattrib) */
+040060             0250*   AM_RDO: equ 0x01 ; Read only
+040060             0251*   AM_HID: equ 0x02 ; Hidden
+040060             0252*   AM_SYS: equ 0x04 ; System
+040060             0253*   AM_DIR: equ 0x10 ; Directory
+040060             0254*   AM_ARC: equ 0x20 ; Archive
+040060             0255*   ;
+040060             0256*   ; Macro for calling the API
+040060             0257*   ; Parameters:
+040060             0258*   ; - function: One of the function numbers listed above
+040060             0259*   ;
+040060             0260*   	MACRO	MOSCALL	function
+040060             0261*   			LD	A, function
+040060             0262*   			RST.LIL	08h
+040060             0263*   	ENDMACRO
 040060             0031        include "macros.inc"
 040060             0001*   
 040060             0002*   ; test the sign of HL
@@ -6736,10 +6737,10 @@ PC     Output      Line
 042E32             0067*   ; compute the song duration from the file size and sample rate and print it
 042E32             0068*   ; technically we should account for the .wav header, but at 76 bytes it's negligible
 042E32 CD 48 23 04 0069*       call vp_duration ; set viewport to duration window
-042E36 3A 07 42 04 0070*       ld a,(ps_wav_header+wav_file_size+3) ; upper byte
-042E3A DD 2A 04 42 0071*       ld ix,(ps_wav_header+wav_file_size+0) ; lower word
+042E36 3A D9 37 04 0070*       ld a,(ps_wav_header+wav_file_size+3) ; upper byte
+042E3A DD 2A D6 37 0071*       ld ix,(ps_wav_header+wav_file_size+0) ; lower word
        04          
-042E3F ED 5B 18 42 0072*       ld de,(ps_wav_header+wav_sample_rate)
+042E3F ED 5B EA 37 0072*       ld de,(ps_wav_header+wav_sample_rate)
        04          
 042E44 CD A5 05 04 0073*       call udiv3223 ; auix = duration in seconds
 042E48 DD 22 C3 2C 0074*       ld (ps_song_duration),ix ; duration low word
@@ -6779,7 +6780,7 @@ PC     Output      Line
 042E79 3A E9 2D 04 0107*       ld a,(ps_filehandle_cur)
 042E7D 4F          0108*       ld c,a
 042E7E 21 00 00 05 0109*       ld hl,ps_wav_data_start
-042E82 ED 5B 18 42 0110*       ld de,(ps_wav_header+wav_sample_rate)
+042E82 ED 5B EA 37 0110*       ld de,(ps_wav_header+wav_sample_rate)
        04          
 042E87             0111*       MOSCALL mos_fread
                        M1 Args: function=mos_fread 
@@ -6873,7 +6874,7 @@ PC     Output      Line
 042F2C             0191*   ; print the directory path (ffs_getcwd preserves hl)
 042F2C CD 67 00 04 0192*       call printString
 042F30             0193*   ; now get dir info
-042F30 21 00 40 04 0194*       ld hl,ps_dir_struct ; define where to store directory info
+042F30 21 A4 37 04 0194*       ld hl,ps_dir_struct ; define where to store directory info
 042F34 11 E9 2C 04 0195*       ld de,ps_dir_path   ; this is pointer to the path to the directory
 042F38 AF          0196*       xor a               ; tell MOS to expect zero-terminated string
 042F39             0197*       MOSCALL ffs_dopen   ; open dir
@@ -6884,7 +6885,7 @@ PC     Output      Line
 042F3D DD 21 00 00 0199*       ld ix,ps_dir_fil_list ; this is the pointer to the fileinfo table
        06          
 042F42             0200*   @readFileInfo:               ; we will loop here until all files have been processed
-042F42 21 00 40 04 0201*       ld hl,ps_dir_struct      ; HL is where to get directory info
+042F42 21 A4 37 04 0201*       ld hl,ps_dir_struct      ; HL is where to get directory info
 042F46 DD E5       0202*       push ix
 042F48 D1          0203*       pop de ; where to store current file info
 042F49             0204*       MOSCALL ffs_dread        ; read next item from dir
@@ -6945,7 +6946,7 @@ PC     Output      Line
 042FB3 CD C4 2F 04 0250*       call ps_fill_page_fn_ptrs
 042FB7 CD 00 30 04 0251*       call ps_print_dir_page
 042FBB             0252*   ; close the directory
-042FBB 21 00 40 04 0253*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
+042FBB 21 A4 37 04 0253*       ld hl,ps_dir_struct      ; load H: with address of the DIR struct
 042FBF             0254*       MOSCALL ffs_dclose       ; close dir
                        M1 Args: function=ffs_dclose 
 042FBF 3E 92       0001*M1 			LD	A, function
@@ -7275,7 +7276,7 @@ PC     Output      Line
 0431EF             0554*   ; DEU: Number of bytes read
 0431EF 3A E9 2D 04 0555*       ld a,(ps_filehandle_cur)
 0431F3 4F          0556*       ld c,a
-0431F4 21 00 42 04 0557*       ld hl,ps_wav_header
+0431F4 21 D2 37 04 0557*       ld hl,ps_wav_header
 0431F8 11 4C 00 00 0558*       ld de,wav_header_size
 0431FC             0559*       MOSCALL mos_fread
                        M1 Args: function=mos_fread 
@@ -7301,7 +7302,7 @@ PC     Output      Line
 043217             0577*   ps_load_command_buffers:
 043217 21 02 30 00 0578*       ld hl,cmd0_buffer
 04321B CD F9 1E 04 0579*       call vdu_clear_buffer
-04321F 2A 18 42 04 0580*       ld hl,(ps_wav_header+wav_sample_rate)
+04321F 2A EA 37 04 0580*       ld hl,(ps_wav_header+wav_sample_rate)
 043223 22 6D 32 04 0581*       ld (ps_sr0),hl
 043227 3E 17       0582*       ld a,23
 043229 32 6F 32 04 0583*       ld (ps_sr0+2),a
@@ -7312,7 +7313,7 @@ PC     Output      Line
 04323D             0588*   
 04323D 21 03 30 00 0589*       ld hl,cmd1_buffer
 043241 CD F9 1E 04 0590*       call vdu_clear_buffer
-043245 2A 18 42 04 0591*       ld hl,(ps_wav_header+wav_sample_rate)
+043245 2A EA 37 04 0591*       ld hl,(ps_wav_header+wav_sample_rate)
 043249 22 8A 32 04 0592*       ld (ps_sr1),hl
 04324D 3E 17       0593*       ld a,23
 04324F 32 8C 32 04 0594*       ld (ps_sr1+2),a
@@ -7497,7 +7498,7 @@ PC     Output      Line
 04330B             0031*   ; returns: zero flag set if not a .wav file we can read
 04330B             0032*   ; clobbered: af, hl, de, ix
 04330B             0033*   verify_wav:
-04330B DD 21 00 42 0034*       ld ix,ps_wav_header
+04330B DD 21 D2 37 0034*       ld ix,ps_wav_header
        04          
 043310             0035*   
 043310 DD 27 00    0036*       ld hl,(ix+wav_riff)
@@ -8310,15 +8311,10 @@ PC     Output      Line
 0437A4             0004*   ; e.g.: fonts, sprites, etc. (limited to 8k)
 0437A4             0005*   filedata: equ 0xB7E000 ; address of onboard 8k sram
 0437A4             0006*   
-0437A4             0007*   ; play_song directory info
-0437A4             0008*   ps_dir_struct: equ 0x044000 ; buffer for sound data
-0437A4             0009*   
-0437A4             0010*   ps_file_struct: equ 0x044100 ; buffer for sound data
-0437A4             0011*   
-0437A4             0012*   ps_wav_header: equ 0x044200 ; buffer for sound data
-0437A4             0013*   
-0437A4             0014*   ps_wav_data_start: equ 0x050000 ;    equ $   ; (042E00) Start of audio data
-0437A4             0015*   
-0437A4             0016*   ; this list can grow as large as necessary to hold all the files in the directory
-0437A4             0017*   ; each entry will be 278 bytes (filinfo_struct_size)
-0437A4             0018*   ps_dir_fil_list: equ 0x060000 ; equ ps_wav_data_start+65536 ; (052E00) max file data we can load in one chunk is 64k
+0437A4             0007*   ps_dir_struct: equ $ ; playing song directory info
+0437A4             0008*   ps_wav_header: equ ps_dir_struct+dir_struct_size ; playing song .wav file header
+0437A4             0009*   ps_wav_data_start: equ 0x050000 ; playing song .wav file data buffer
+0437A4             0010*   
+0437A4             0011*   ; this list can grow as large as necessary to hold all the files in the directory
+0437A4             0012*   ; each entry will be 278 bytes (filinfo_struct_size)
+0437A4             0013*   ps_dir_fil_list: equ ps_wav_data_start+65536 ; max file data we can load in one chunk is 64k
