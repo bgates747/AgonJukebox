@@ -19,7 +19,6 @@ ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
-ps_dir_path:   blkb 256,0 ; path of the current directory
 ps_dir_num_files: dl 0 ; number of files/directories in the directory (virtually unlimited)
 ps_dir_num_pages: dl 0 ; number of pages in the directory (virtually unlimited)
 ps_page_num_files: dl 0 ; number of files/directories in the current directory page (max 10)
@@ -27,60 +26,16 @@ ps_pagelast_num_files: dl 0 ; mod(ps_dir_num_files,10)
 ps_page_cur: dl 0 ; current directory page number
 ps_song_idx_cur: db 0 ; current song index in the directory page
 ps_song_fn_cur: dl 0 ; pointer to current song filename
-ps_song_duration: blkw 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
+ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
 ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
-ps_page_fn_ptrs: blkw 10*3,0 ; list of filename pointers in the current directory page
+ps_page_fn_ptrs: blkb 10*3,0 ; list of filename pointers in the current directory page
+ps_dir_path:   blkb 256,0 ; path of the current directory
 
-; play_song directory info
-ps_dir_struct:             
-ps_dptr:       blkb  4,0   ; Current read/write offset
-ps_clust:      blkb  4,0   ; Current cluster
-ps_sect:       blkb  4,0   ; Current sector (0:Read operation has terminated)
-ps_dir:        blkb  3,0   ; Pointer to the directory item in the win[]
-ps_fn:         blkb  12,0  ; SFN (in/out) {body[8],ext[3],status[1]}
-ps_blk_ofs:    blkb  4,0   ; Offset of current entry block being processed (0xFFFFFFFF:Invalid)
 
 ; play_song file info
 ps_filehandle_cur: db 0 ; file handle
 ps_chunkpointer: dl 0 ; pointer to current chunk
-; File information structure (FILINFO)
-ps_file_struct:
-ps_file_fsize:    blkb 4, 0   ; File size (4 bytes)
-ps_file_fdate:    blkb 2, 0   ; Modified date (2 bytes)
-ps_file_ftime:    blkb 2, 0   ; Modified time (2 bytes)
-ps_file_fattrib:  blkb 1, 0   ; File attribute (1 byte)
-ps_file_altname:  blkb 13, 0  ; Alternative file name (13 bytes)
-ps_file_fname:    blkb 256, 0 ; Primary file name (256 bytes)
 
-; buffer for play_song sound data
-ps_wav_header: ; marker for top of the wav file header and song data
-; (must be last so buffer doesn't overwrite other program code or data)
-; .wav header data
-; WAV File Structure in Memory with LIST Chunk
-ps_wav_riff:          blkb 4,0   ; 4 bytes: "RIFF" identifier
-ps_wav_file_size:     blkb 4,0   ; 4 bytes: Total file size minus 8 bytes for RIFF header
-ps_wav_wave:          blkb 4,0   ; 4 bytes: "WAVE" identifier
-ps_wav_fmt_marker:    blkb 4,0   ; 4 bytes: "fmt " subchunk marker
-ps_wav_fmt_size:      blkb 4,0   ; 4 bytes: Format chunk size (16 for PCM)
-ps_wav_audio_format:  blkb 2,0   ; 2 bytes: Audio format (1 = PCM)
-ps_wav_num_channels:  blkb 2,0   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
-ps_wav_sample_rate:   blkb 4,0   ; 4 bytes: Sample rate in Hz (e.g., 32768)
-ps_wav_byte_rate:     blkb 4,0   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
-ps_wav_block_align:   blkb 2,0   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
-ps_wav_bits_per_sample: blkb 2,0 ; 2 bytes: Bits per sample (e.g., 8 or 16)
-
-; LIST Chunk (Extra Metadata)
-ps_wav_list_marker:   blkb 4,0   ; 4 bytes: "LIST" marker
-ps_wav_list_size:     blkb 4,0   ; 4 bytes: Size of the LIST chunk (e.g., 26)
-ps_wav_info_marker:   blkb 4,0   ; 4 bytes: "INFO" marker
-ps_wav_isft_marker:   blkb 4,0   ; 4 bytes: "ISFT" marker (software identifier)
-ps_wav_isft_data:     blkb 14,0  ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
-ps_wav_isft_padding:  blkb 2,0   ; 2 bytes: Padding/NULL terminator for alignment
-
-; Data Chunk
-ps_wav_data_marker:   blkb 4,0   ; 4 bytes: "data" subchunk marker
-ps_wav_data_size:     blkb 4,0   ; 4 bytes: Size of the audio data in bytes
-; Total Header Size: 76 bytes
 play_song:
 ; save pointer to requested song file
     ld (ps_song_fn_cur),hl
@@ -112,12 +67,12 @@ play_song:
 ; compute the song duration from the file size and sample rate and print it
 ; technically we should account for the .wav header, but at 76 bytes it's negligible
     call vp_duration ; set viewport to duration window
-    ld a,(ps_wav_file_size+3) ; upper byte
-    ld ix,(ps_wav_file_size+0) ; lower word
-    ld de,(ps_wav_sample_rate)
+    ld a,(ps_wav_header+wav_file_size+3) ; upper byte
+    ld ix,(ps_wav_header+wav_file_size+0) ; lower word
+    ld de,(ps_wav_header+wav_sample_rate)
     call udiv3223 ; auix = duration in seconds
     ld (ps_song_duration),ix ; duration low word
-    ld (ps_song_duration+3),a ; duration high word
+    ld (ps_song_duration+3),a ; duration high byte
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
@@ -152,7 +107,7 @@ ps_read_file:
     ld a,(ps_filehandle_cur)
     ld c,a
     ld hl,ps_wav_data_start
-    ld de,(ps_wav_sample_rate)
+    ld de,(ps_wav_header+wav_sample_rate)
     MOSCALL mos_fread
 ; test de for zero bytes read
     ld hl,0
@@ -622,7 +577,7 @@ ps_read_wav_header:
 ps_load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
-    ld hl,(ps_wav_sample_rate)
+    ld hl,(ps_wav_header+wav_sample_rate)
     ld (ps_sr0),hl
     ld a,23
     ld (ps_sr0+2),a
@@ -633,7 +588,7 @@ ps_load_command_buffers:
 
     ld hl,cmd1_buffer
     call vdu_clear_buffer
-    ld hl,(ps_wav_sample_rate)
+    ld hl,(ps_wav_header+wav_sample_rate)
     ld (ps_sr1),hl
     ld a,23
     ld (ps_sr1+2),a
