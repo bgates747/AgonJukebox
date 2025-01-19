@@ -14,11 +14,11 @@ get_input:
 
 ; DIRECTORY PAGING
     cp 0x15 ; right arrow
-    jp z,jb_dir_next_page
+    jp z,bs_dir_next_page
     cp 0x08 ; left arrow
-    jp z,jb_dir_prev_page
+    jp z,bs_dir_prev_page
     cp 'u' ; go up one directory
-    jp z,ps_up_dir
+    jp z,bs_up_dir
 
 ; SONG PLAYING COMMANDS
 ; toggle play / pause
@@ -33,11 +33,11 @@ get_input:
 ; play random song
     cp 'r'
     jp z,ps_play_random
-; up / down arrow play song keys
+; up / down arrow select file keys
     cp 0x0B ; up arrow
-    jp z,jb_get_prev_song
+    jp z,bs_get_prev_file
     cp 0x0A ; down arrow
-    jp z,jb_get_next_song
+    jp z,bs_get_next_file
 ; 0-9 play song keys
 @@: 
     cp '0'
@@ -59,23 +59,11 @@ ps_play_or_chg_dir:
     jp nz,play_song ; not a directory so play the song
 ; otherwise change to the directory
     MOSCALL mos_cd ; change to the directory
-    call ps_get_dir ; get directory listing
+    call bs_get_dir ; get directory listing
     call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
     call ps_print_dir_page
     jp get_input ; back to main loop
 ; end ps_play_or_chg_dir
-
-; change directory one level up
-; inputs: none
-ps_up_dir:
-    call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
-    ld hl,@str_up_dir
-    MOSCALL mos_cd ; change to the directory
-    call ps_get_dir ; get directory listing
-    call ps_print_dir_page
-    jp get_input ; back to main loop
-@str_up_dir: asciz ".."
-; end ps_up_dir
 
 ; TEMPORARY until we have separate buffers for playback and browsing
 ps_stop:

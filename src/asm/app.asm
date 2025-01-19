@@ -71,10 +71,15 @@ init:
     ld hl,ps_wav_header
     ld (iy+jb_wav_header),hl
 
+    xor a ; reset dir changed flag
+    ld (jb_dir_changed),a
+
 ; initialize ui
     call ui_init
-    call ps_get_dir
-    call ps_print_dir_page
+    call bs_get_dir
+    call bs_print_dir_page
+
+; initialize play song interrupt timer
     call ps_prt_irq_init
     ret
 ; end init

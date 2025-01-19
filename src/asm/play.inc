@@ -22,13 +22,23 @@ ps_sampleId: dl 0 ; sample bufferId
 ps_chunkpointer: dl 0 ; pointer to current chunk
 ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
 ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
+jb_dir_changed: db 0 ; flag to indicate the directory has changed since the most recent song was played
 
+; inputs: hl = pointer to filename
 play_song:
-; save pointer to requested song file
-    ld (ps_jukebox_struct+jb_filename),hl
 ; stop the PRT timer and close any currently playing file
     call ps_close_file
     call ps_prt_stop
+; check whether directory has changed since the last song was played
+    push hl ; save pointer to filename
+    ld a,(jb_dir_changed)
+    or a
+    call nz,jb_copy_bs_to_ps
+    xor a ; reset dir changed flag
+    ld (jb_dir_changed),a
+    pop hl ; 
+; save pointer to requested song file
+    ld (ps_jukebox_struct+jb_filename),hl
 ; tell the user what they've won
     call vp_now_playing
     call vdu_cls
@@ -172,7 +182,7 @@ ps_song_over:
     jp nz,ps_play_random ; yes so play a random song
 
 ; loop and shuffle are off so play next song
-    jp jb_get_next_song
+    jp ps_get_next_song
 ; end ps_song_over
 
 ; queue a random song on the current page to play next

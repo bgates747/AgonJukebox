@@ -1,18 +1,8 @@
-ps_get_dir:
-    ld iy,ps_jukebox_struct
-; inputs: iy = pointer to jukebox struct
-jb_get_dir:
-; ; set text viewport to directory name and clear it
-;     call vp_dir_name
-;     call vdu_cls
+bs_get_dir:
+    ld iy,bs_jukebox_struct
 ; reset filecounter
     ld hl,0
     ld (iy+jb_dir_num_files),hl
-; ; reset the song index and page number to 0
-;     xor a
-;     ld (iy+jb_file_idx),a
-;     ld hl,0
-;     ld (iy+jb_page_cur),hl
 ; initialize pointers to store directory info and print directory name
     push iy
     pop hl
@@ -22,8 +12,6 @@ jb_get_dir:
 ; https://agonconsole8.github.io/agon-docs/MOS-API/#0x9e-ffs_getcwd
     ld bc,255          ; max length (final byte is zero terminator)
     FFSCALL ffs_getcwd ; MOS api get current working directory
-; ; print the directory path (ffs_getcwd preserves hl)
-;     call printString
 ; now get dir info
     push iy
     pop hl
@@ -83,20 +71,21 @@ jb_get_dir:
     ld hl,0 
     ld (iy+jb_page_cur),hl
 ; ; populate the page filename pointers
-;   call jb_fill_page_fn_ptrs
-;    call jb_print_dir_page
+;   call bs_fill_page_fn_ptrs
+;    call bs_print_dir_page
 ; close the directory
     ld hl,(iy+jb_dir_struct)      ; load H: with address of the DIR struct
     FFSCALL ffs_dclose       ; close dir
     ret
-; end jb_get_dir
+; end bs_get_dir
 
 ; populate the page filename pointers for the current directory page
-; inputs: iy+jb_page_cur
-; prerequisites: jb_get_dir called on a valid directory
+; inputs: none
+; prerequisites: bs_get_dir called on a valid directory
 ; outputs: a populated filename pointer list for the current page
 ; destroys: a, hl, bc, de, ix
-jb_fill_page_fn_ptrs:
+bs_fill_page_fn_ptrs:
+    ld iy,bs_jukebox_struct
     ld hl,(iy+jb_page_cur) ; get the current page number
     ld de,10*filinfo_struct_size ; records/page * bytes/record
     call umul24 ; hl = offset into the fileinfo table
@@ -113,7 +102,7 @@ jb_fill_page_fn_ptrs:
     add hl,de ; add the record size to the filename pointer
     djnz @loop
     ret
-; end jb_fill_page_fn_ptrs
+; end bs_fill_page_fn_ptrs
 
 ps_get_page_num_files:
     ld iy,ps_jukebox_struct
@@ -131,11 +120,14 @@ jb_get_page_num_files:
     ret
 ; end jb_get_page_num_files
 
+bs_print_dir_page:
+    ld iy,bs_jukebox_struct
+    jp bs_print_dir_page
 ps_print_dir_page:
     ld iy,ps_jukebox_struct
-jb_print_dir_page:
+bs_print_dir_page:
 ; populate the page filename pointers
-    call jb_fill_page_fn_ptrs
+    call bs_fill_page_fn_ptrs
 ; set text viewport for directory listing
     call vp_dir
     call vdu_cls
@@ -173,51 +165,16 @@ jb_print_dir_page:
     call printNewLine
     jp @loop
     ret
-; end jb_print_dir_page
+; end bs_print_dir_page
 
-ps_print_dir:
-    ld iy,ps_jukebox_struct
-jb_print_dir:
-; test whether there are any files in the directory
-    ld hl,(iy+jb_dir_num_files)
-    SIGN_HLU
-    ret z ; if zero, no files in the directory
-; loop through the fileinfo table and print out the filenames
-    ld ix,(iy+jb_dir_fil_list)
-    ld hl,(iy+jb_dir_num_files)
-@print_loop:
-    push hl ; loop counter
-; branch on the file attribute
-    ld a,(ix+filinfo_fattrib)
-    cp AM_DIR ; if zero, is directory
-    jp nz,@print_file ; not directory so just write filename
-    call printInline
-    asciz "<DIR> "
-@print_file:
-    lea ix,ix+filinfo_fname ; point to filinfo_fname
-    push ix
-    pop hl ; get the address of the filename
-    call printString
-    call printNewLine
-    ld de,256 ; length of filename
-    add ix,de ; bump pointer to next filinfo record
-@dec_loop_counter:
-    pop hl 
-    dec hl ; decrement the loop counter
-    SIGN_HLU ; check for zero
-    jp nz,@print_loop
-    ret
-@skip_file:
-    ld de,filinfo_struct_size 
-    add ix,de ; bump pointer to next filinfo record
-    jp @dec_loop_counter
-; end jb_print_dir
-
+bs_highlight_song:
+    ld iy,bs_jukebox_struct
+    jp jb_highlight_song
 ps_highlight_song:
     ld iy,ps_jukebox_struct
 jb_highlight_song:
 ; refresh the directory listing
-    call jb_print_dir_page
+    call bs_print_dir_page
 ; highlight the song being played in the directory listing
     ld a,(iy+jb_file_idx)
     ld d,vp_dir_top
@@ -240,7 +197,24 @@ jb_highlight_song:
     ret
 ; end jb_highlight_song
 
-jb_dir_next_page:
+; change directory one level up
+; inputs: none
+bs_up_dir:
+    ld iy,bs_jukebox_struct
+    ld a,1 ; set the directory changed flag
+    ld (jb_dir_changed),a
+    ld hl,@str_up_dir
+    MOSCALL mos_cd ; change to the directory
+    call bs_get_dir ; get directory listing
+    call bs_print_dir_page
+    jp get_input ; back to main loop
+@str_up_dir: asciz ".."
+; end ps_up_dir
+
+bs_dir_next_page:
+    ld iy,bs_jukebox_struct
+    ld a,1 ; set the directory changed flag
+    ld (jb_dir_changed),a
 ; advance the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     inc hl ; increment the page number
@@ -248,15 +222,19 @@ jb_dir_next_page:
     call udiv24 ; hl = mod(iy+jb_page_cur+1,iy+jb_dir_num_pages)
     ld (iy+jb_page_cur),hl ; save the new page number
 ; ; populate the page filename pointers
-;   call jb_fill_page_fn_ptrs
+;   call bs_fill_page_fn_ptrs
 ; print the new page
-    call jb_print_dir_page
+    call bs_print_dir_page
 ; enable interrupts and jump back to the user input loop
     ei
     jp get_input
-; end jb_dir_next_page
+; end bs_dir_next_page
 
+bs_dir_prev_page:
+    ld iy,bs_jukebox_struct
 jb_dir_prev_page:
+    ld a,1 ; set the directory changed flag
+    ld (jb_dir_changed),a
 ; decrement the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     dec hl ; decrement the page number
@@ -267,13 +245,13 @@ jb_dir_prev_page:
 @@:
     ld (iy+jb_page_cur),hl ; save the new page number
 ; ; populate the page filename pointers
-;   call jb_fill_page_fn_ptrs
+;   call bs_fill_page_fn_ptrs
 ; print the new page and
-    call jb_print_dir_page
+    call bs_print_dir_page
 ; enable interrupts and jump back to the user input loop
     ei
     jp get_input
-; end jb_dir_prev_page
+; end bs_dir_prev_page
 
 
 ps_get_song_fn_from_pg_idx:
@@ -313,51 +291,122 @@ jb_get_song_fn_from_pg_idx:
     ret
 ; end jb_get_song_fn_from_pg_idx
 
-jb_get_next_song:
+; dummy pushes to keep the ide happy
+    push bc
+bs_get_next_file:
+    ld iy,bs_jukebox_struct
     ld a,(iy+jb_file_idx) ; get the current song index
+    ld b,10 ; number of songs per page
 @next_file:
+    push bc ; save loop counter
     inc a ; increment the song index
     ld (@songIdx),a ; save the new song index
     call jb_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
     jp c,@good_fname ; filename is valid
     ld a,-1 ; invalid filename means we went past the end of the list, so reset ...
-    jp @next_file ; ... and try again
+    pop bc ; restore loop counter
+    djnz @next_file ; ... and try again
+    jp get_input ; no valid song found so return to the main loop
+@good_fname:
+    pop bc ; dummy pop to balance stack
+    ld a,(@songIdx) ; get the new song index
+    ld (iy+jb_file_idx),a ; save the new song index
+    call bs_highlight_song
+    jp get_input
+@songIdx: db 0
+; end bs_get_next_file
+
+; dummy pushes to keep the ide happy
+    push bc
+    push bc
+ps_get_next_song:
+    ld iy,ps_jukebox_struct
+    ld a,(iy+jb_file_idx) ; get the current song index
+    ld b,10 ; number of songs per page
+@next_file:
+    push bc ; save loop counter
+    inc a ; increment the song index
+    ld (@songIdx),a ; save the new song index
+    call jb_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
+    jp c,@good_fname ; filename is valid
+    ld a,-1 ; invalid filename means we went past the end of the list, so reset ...
+    pop bc ; restore loop counter
+    djnz @next_file ; ... and try again
+    jp get_input ; no valid song found so return to the main loop
 
 @good_fname:
     cp AM_DIR ; file attribute check for directory
     jp nz,@is_file ; not a directory so check for valid .wav file
-    jp @next_file ; is a directory so try the next file
-
+    pop bc ; restore loop counter
+    djnz @next_file ; is a directory so try the next file
+    jp get_input ; no valid song found so return to the main loop
 @is_file:
+    pop bc ; dummy pop to balance stack
     ld a,(@songIdx) ; get the new song index
     ld (iy+jb_file_idx),a ; save the new song index
     jp play_song
 @songIdx: db 0
-; end jb_get_next_song
+; end ps_get_next_song
 
-jb_get_prev_song:
+; dummy pushes to keep the ide happy
+    push bc
+    push bc
+ps_get_prev_song:
+    ld iy,ps_jukebox_struct
     ld a,(iy+jb_file_idx) ; get the current song index
+    ld b,10 ; number of songs per page
 @prev_file:
+    push bc ; save loop counter
     dec a ; decrement the song index
     ld (@songIdx),a ; save the new song index
     call jb_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
     jp c,@good_fname ; filename is valid
     call jb_get_page_num_files ; invalid filename means we went past the beginning of the list,
     ld a,b ;  so reset ...
-    jp @prev_file ; ... and try again
+    pop bc ; restore loop counter
+    djnz @prev_file ; ... and try again
+    jp get_input ; no valid song found so return to the main loop
 
 @good_fname:
     cp AM_DIR ; file attribute check for directory
     jp nz,@is_file ; not a directory so check for valid .wav file
-    jp @prev_file ; is a directory so try the previous file
-
+    pop bc ; restore loop counter
+    djnz @prev_file ; is a directory so try the previous file
+    jp get_input ; no valid song found so return to the main loop
 @is_file:
+    pop bc ; dummy pop to balance stack
     ld a,(@songIdx) ; get the new song index
     ld (iy+jb_file_idx),a ; save the new song index
     jp play_song
 
 @songIdx: db 0
-; end jb_get_prev_song
+; end ps_get_prev_song
+
+; dummy pushes to keep the ide happy
+    push bc
+bs_get_prev_file:
+    ld iy,bs_jukebox_struct
+    ld a,(iy+jb_file_idx) ; get the current song index
+    ld b,10 ; number of songs per page
+@prev_file:
+    push bc ; save loop counter
+    dec a ; decrement the song index
+    ld (@songIdx),a ; save the new song index
+    call jb_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
+    jp c,@good_fname ; filename is valid
+    call jb_get_page_num_files ; invalid filename means we went past the beginning of the list,
+    ld a,b ;  so reset ...
+    pop bc ; restore loop counter
+    djnz @prev_file ; ... and try again
+    jp get_input ; no valid song found so return to the main loop
+@good_fname:
+    pop bc ; dummy pop to balance stack
+    ld a,(@songIdx) ; get the new song index
+    ld (iy+jb_file_idx),a ; save the new song index
+    call bs_highlight_song
+    jp get_input
+@songIdx: db 0
+; end bs_get_prev_file
 
 ps_read_wav_header:
     ld iy,ps_jukebox_struct
@@ -389,3 +438,26 @@ jb_read_wav_header:
     call ps_load_command_buffers
     ret
 ; end jb_read_wav_header
+
+; copy the browse song super-struct to the play song super-struct
+; inputs: none
+; outputs: ps_jukebox_struct = bs_jukebox_struct
+; destroys: f, hl, bc, de
+jb_copy_bs_to_ps:
+    ld hl,bs_jukebox_struct
+    ld de,ps_jukebox_struct
+    ld bc,jb_struct_size
+    ldir
+
+    ld hl,bs_dir_struct
+    ld de,ps_dir_struct
+    ld bc,dir_struct_size
+    ldir
+
+    ld hl,bs_dir_fil_list
+    ld de,ps_dir_fil_list
+    ld bc,dir_fil_list_size
+    ldir
+
+    ret
+; end jb_copy_bs_to_ps
