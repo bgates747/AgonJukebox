@@ -2,17 +2,17 @@ ps_get_dir:
     ld iy,ps_jukebox_struct
 ; inputs: iy = pointer to jukebox struct
 jb_get_dir:
-; set text viewport to directory name and clear it
-    call vp_dir_name
-    call vdu_cls
+; ; set text viewport to directory name and clear it
+;     call vp_dir_name
+;     call vdu_cls
 ; reset filecounter
     ld hl,0
     ld (iy+jb_dir_num_files),hl
-; reset the song index and page number to 0
-    xor a
-    ld (iy+jb_file_idx),a
-    ld hl,0
-    ld (iy+jb_page_cur),hl
+; ; reset the song index and page number to 0
+;     xor a
+;     ld (iy+jb_file_idx),a
+;     ld hl,0
+;     ld (iy+jb_page_cur),hl
 ; initialize pointers to store directory info and print directory name
     push iy
     pop hl
@@ -22,8 +22,8 @@ jb_get_dir:
 ; https://agonconsole8.github.io/agon-docs/MOS-API/#0x9e-ffs_getcwd
     ld bc,255          ; max length (final byte is zero terminator)
     FFSCALL ffs_getcwd ; MOS api get current working directory
-; print the directory path (ffs_getcwd preserves hl)
-    call printString
+; ; print the directory path (ffs_getcwd preserves hl)
+;     call printString
 ; now get dir info
     push iy
     pop hl
@@ -77,14 +77,14 @@ jb_get_dir:
     ld (iy+jb_pagelast_num_files),hl ; save the number of files on the last page
     inc de ; bump the page count
     ld (iy+jb_dir_num_pages),de ; save the number of pages
-; reset the song index and page to zero  
+; reset the file index and page to zero  
     xor a
     ld (iy+jb_file_idx),a
     ld hl,0 
     ld (iy+jb_page_cur),hl
-; and populate the page filename pointers and print the page
-    call jb_fill_page_fn_ptrs
-    call jb_print_dir_page
+; ; populate the page filename pointers
+;   call jb_fill_page_fn_ptrs
+;    call jb_print_dir_page
 ; close the directory
     ld hl,(iy+jb_dir_struct)      ; load H: with address of the DIR struct
     FFSCALL ffs_dclose       ; close dir
@@ -97,8 +97,6 @@ jb_get_dir:
 ; outputs: a populated filename pointer list for the current page
 ; destroys: a, hl, bc, de, ix
 jb_fill_page_fn_ptrs:
-    
-
     ld hl,(iy+jb_page_cur) ; get the current page number
     ld de,10*filinfo_struct_size ; records/page * bytes/record
     call umul24 ; hl = offset into the fileinfo table
@@ -120,8 +118,6 @@ jb_fill_page_fn_ptrs:
 ps_get_page_num_files:
     ld iy,ps_jukebox_struct
 jb_get_page_num_files:
-    
-
 ; check whether we're at last page
     ld hl,(iy+jb_page_cur)
     ld de,(iy+jb_dir_num_pages)
@@ -135,16 +131,17 @@ jb_get_page_num_files:
     ret
 ; end jb_get_page_num_files
 
+ps_print_dir_page:
+    ld iy,ps_jukebox_struct
 jb_print_dir_page:
-    
-
+; populate the page filename pointers
+    call jb_fill_page_fn_ptrs
 ; set text viewport for directory listing
     call vp_dir
     call vdu_cls
 ; loop through the fileinfo pointer table and print out the filenames
     call jb_get_page_num_files ; b = loop counter
     xor a ; song index
-    ; ld ix,iy+jb_filename_ptrs
     ld ix,0
     lea ix,iy+jb_filename_ptrs
 @loop:
@@ -244,16 +241,14 @@ jb_highlight_song:
 ; end jb_highlight_song
 
 jb_dir_next_page:
-    
-
 ; advance the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     inc hl ; increment the page number
     ld de,(iy+jb_dir_num_pages) ; get the number of pages
     call udiv24 ; hl = mod(iy+jb_page_cur+1,iy+jb_dir_num_pages)
     ld (iy+jb_page_cur),hl ; save the new page number
-; populate the page filename pointers
-    call jb_fill_page_fn_ptrs
+; ; populate the page filename pointers
+;   call jb_fill_page_fn_ptrs
 ; print the new page
     call jb_print_dir_page
 ; enable interrupts and jump back to the user input loop
@@ -262,8 +257,6 @@ jb_dir_next_page:
 ; end jb_dir_next_page
 
 jb_dir_prev_page:
-    
-
 ; decrement the page number
     ld hl,(iy+jb_page_cur) ; get the current page number
     dec hl ; decrement the page number
@@ -273,8 +266,8 @@ jb_dir_prev_page:
     dec hl ; zero-based
 @@:
     ld (iy+jb_page_cur),hl ; save the new page number
-; populate the page filename pointers
-    call jb_fill_page_fn_ptrs
+; ; populate the page filename pointers
+;   call jb_fill_page_fn_ptrs
 ; print the new page and
     call jb_print_dir_page
 ; enable interrupts and jump back to the user input loop
@@ -292,8 +285,6 @@ ps_get_song_fn_from_pg_idx:
 ;          carry reset if song index out of range, current filename in hl, iy+jb_file_idx, iy+jb_filename unchanged, a = requested song index
 ; destroys: af, bc, de
 jb_get_song_fn_from_pg_idx:
-    
-
     push af ; save song index
     call jb_get_page_num_files ; b = number of files on the page
     pop af ; restore song index
@@ -323,8 +314,6 @@ jb_get_song_fn_from_pg_idx:
 ; end jb_get_song_fn_from_pg_idx
 
 jb_get_next_song:
-    
-
     ld a,(iy+jb_file_idx) ; get the current song index
 @next_file:
     inc a ; increment the song index
@@ -347,8 +336,6 @@ jb_get_next_song:
 ; end jb_get_next_song
 
 jb_get_prev_song:
-    
-
     ld a,(iy+jb_file_idx) ; get the current song index
 @prev_file:
     dec a ; decrement the song index

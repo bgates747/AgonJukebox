@@ -4,15 +4,6 @@ get_input:
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
 
-; DEBUG
-; clear sysvar_keyascii
-    ld l,a ; store for a sec
-	MOSCALL mos_sysvars
-	xor a
-	ld (IX+sysvar_keyascii),a
-    ld a,l ; restore a
-; DEBUG
-
 ; app control commands
 
 ; RETURN TO MAIN, which re-enables interrupts and exits app
@@ -70,6 +61,7 @@ ps_play_or_chg_dir:
     MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
     call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
+    call ps_print_dir_page
     jp get_input ; back to main loop
 ; end ps_play_or_chg_dir
 
@@ -80,6 +72,7 @@ ps_up_dir:
     ld hl,@str_up_dir
     MOSCALL mos_cd ; change to the directory
     call ps_get_dir ; get directory listing
+    call ps_print_dir_page
     jp get_input ; back to main loop
 @str_up_dir: asciz ".."
 ; end ps_up_dir

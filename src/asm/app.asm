@@ -74,6 +74,7 @@ init:
 ; initialize ui
     call ui_init
     call ps_get_dir
+    call ps_print_dir_page
     call ps_prt_irq_init
     ret
 ; end init
