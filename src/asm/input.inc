@@ -23,11 +23,11 @@ get_input:
 
 ; DIRECTORY PAGING
     cp 0x15 ; right arrow
-    jp z,ps_dir_next_page
+    jp z,bf_dir_next_page
     cp 0x08 ; left arrow
-    jp z,ps_dir_prev_page
+    jp z,bf_dir_prev_page
     cp 'u' ; go up one directory
-    jp z,ps_up_dir
+    jp z,bf_up_dir
 
 ; SONG PLAYING COMMANDS
 ; toggle play / pause
@@ -55,7 +55,7 @@ get_input:
     jp nc,@no_cmd ; not a song command
 ; get pointer to song filename and play it
     sub '0' ; a = index into filename lut
-    call ps_get_song_fn_from_pg_idx ; carry set indicates success
+    call bf_get_file_from_pg_idx ; carry set indicates success
     jp c,ps_play_or_chg_dir ; re-enables interrupts and jp's to get_input when finished
 @no_cmd: ; no valid commands so loop
     jp get_input
@@ -68,21 +68,9 @@ ps_play_or_chg_dir:
     jp nz,play_song ; not a directory so play the song
 ; otherwise change to the directory
     MOSCALL mos_cd ; change to the directory
-    call ps_get_dir ; get directory listing
-    call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
+    call bf_get_dir ; get directory listing
     jp get_input ; back to main loop
 ; end ps_play_or_chg_dir
-
-; change directory one level up
-; inputs: none
-ps_up_dir:
-    call ps_stop ; TEMPORARY until we have separate buffers for playback and browsing
-    ld hl,@str_up_dir
-    MOSCALL mos_cd ; change to the directory
-    call ps_get_dir ; get directory listing
-    jp get_input ; back to main loop
-@str_up_dir: asciz ".."
-; end ps_up_dir
 
 ; TEMPORARY until we have separate buffers for playback and browsing
 ps_stop:
@@ -114,7 +102,7 @@ ps_toggle_pause:
     asciz "(P)aused  "
 
 @@:
-    ld hl,(ps_filename)
+    ld hl,(ps_filinfo_fname)
     call printString ; print the song filename
 
     jp get_input
