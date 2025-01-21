@@ -36,8 +36,8 @@ jb_dir_num_files:       EQU jb_filename+3    ;   3: Number of files/directories 
 jb_pagelast_num_files:  EQU jb_dir_num_files+3  ;   3: Mod(jb_dir_num_files, 10)
 jb_page_cur:            EQU jb_pagelast_num_files+3  ;   3: Current directory page number
 jb_dir_num_pages:       EQU jb_page_cur+3    ;   3: Number of pages in the directory (virtually unlimited)
-jb_filename_ptrs:       EQU jb_dir_num_pages+3  ;  30: List of filename pointers in the current directory page (10*3)
-jb_dir_path:            EQU jb_filename_ptrs+30 ; 256: Path of the current directory
+jb_filinfo_ptrs:       EQU jb_dir_num_pages+3  ;  30: List of filename pointers in the current directory page (10*3)
+jb_dir_path:            EQU jb_filinfo_ptrs+30 ; 256: Path of the current directory
 jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 
 ; API INCLUDES
@@ -59,6 +59,7 @@ jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "ascii.inc"
+    include "browse.inc"
     include "input.inc"
     include "play.inc"
     include "timer_jukebox.inc"
@@ -68,7 +69,6 @@ jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 ; --- MAIN PROGRAM FILE ---
 init:
     call ui_init
-    call ps_get_dir
     call ps_prt_irq_init
     ret
 ; end init

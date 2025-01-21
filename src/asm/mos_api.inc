@@ -233,7 +233,7 @@ dir_sect:		EQU	23	;  4: Current sector (0:Read operation has terminated)
 dir_dir:		EQU	27	;  3: Pointer to the directory item in the win[]
 dir_fn:			EQU	30	; 12: SFN (in/out) {body[8],ext[3],status[1]}
 dir_blk_ofs:	EQU	42	;  4: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-dir_struct_size:	EQU	46	;  4: Size of the object
+dir_struct_size:	EQU	46	;  4: Size of the struct
 ;
 ; File information structure (FILINFO)
 ;
@@ -260,4 +260,15 @@ AM_ARC: equ 0x20 ; Archive
 	MACRO	MOSCALL	function
 			LD	A, function
 			RST.LIL	08h
+	ENDMACRO 	
+
+;
+; Same as above but keeps IY safe on FFS calls
+; (can be use for regular MOS calls as well)
+;
+	MACRO	FFSCALL	function
+			PUSH IY
+			LD	A, function
+			RST.LIL	08h
+			POP IY
 	ENDMACRO 	
