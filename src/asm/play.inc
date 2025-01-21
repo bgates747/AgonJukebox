@@ -27,27 +27,24 @@ play_song:
 ; stop the PRT timer and close any currently playing file
     call ps_close_file
     call ps_prt_stop
-; tell the user what they've won
+
+; clear now playing viewport
     call vp_now_playing
     call vdu_cls
+
+; open the file and verify it's a playable .wav file
+    call open_wav
+    jp z,@F ; valid .wav file so continue
+    call printInline
+    asciz "Invalid .wav file selected, try again."
+    jp get_input ; return to user input loop
+
+@@: ; tell the user what they've won
     call printInline
     asciz "(P)laying "
     ld hl,ps_filinfo_fname
     call printString ; print the song filename
-; highlight the song being played
-    call ps_highlight_song
-; open the file in read mode
-; Open a file
-; HLU: Filename
-;   C: Mode
-; Returns:
-;   A: Filehandle, or 0 if couldn't open
-    ld hl,ps_filinfo_fname
-	ld c,fa_read
-    MOSCALL mos_fopen
-    ld (ps_filehandle),a
-; read the .wav header data and copy it to the buffer
-    call ps_read_wav_header
+
 ; compute the song duration from the file size and sample rate and print it
 ; technically we should account for the .wav header, but at 76 bytes it's negligible
     call vp_duration ; set viewport to duration window
@@ -69,9 +66,8 @@ play_song:
     ld hl,ps_mode
     set ps_mode_playing,(hl)
 ; enable interrupts and start the PRT timer
-    ei
     call ps_prt_start
-; jump to user input loop:
+; jump to user input loop (enables interrupts)
 ; the play sample interrupt will return to there
 ; and exit app will return to main from there as well
     jp get_input
@@ -82,28 +78,36 @@ play_song:
 ps_read_file:
 ; disable interrupts so load is guaranteed to complete
     di
-; Read a block of data from a file
-;   C: Filehandle
-; HLU: Pointer to where to write the data to
-; DEU: Number of bytes to read
+
+; 0x82: ffs_fread
+; Read from a file (Requires MOS 1.03 or above)
+; Parameters:
+; HL(U): Pointer to a FIL structure
+; DE(U): Pointer to a buffer to store the data in
+; BC(U): Number of bytes to read (typically the size of the buffer)
+; Preserves: HL(U), DE(U)
 ; Returns:
-; DEU: Number of bytes read
-    ld a,(ps_filehandle)
-    ld c,a
-    ld hl,ps_wav_data_start
-    ld de,(ps_wav_header+wav_sample_rate)
-    MOSCALL mos_fread
-; test de for zero bytes read
+; BC(U): Number of bytes read
+; A: FRESULT
+    ld hl,ps_fil_struct
+    ld de,ps_wav_data
+    ld bc,(ps_wav_header+wav_sample_rate)
+    FFSCALL ffs_fread
+
+; test bc for zero bytes read
     ld hl,0
     xor a ; clear carry
-    sbc hl,de ; hl = 0-chunksize
+    sbc hl,bc ; hl = 0-chunksize
     jp nz,@load ; we read some data
-; no data read so close file and play a random song
+
+; no data read so close file and play next song
     call ps_close_file
     jp ps_song_over
+
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
+    push bc ; save how much data to load
     ld a,(ps_channel)
     inc a
     and 1
@@ -113,9 +117,8 @@ ps_read_file:
     ld (ps_sampleId),hl
     call vdu_clear_buffer
     ld hl,(ps_sampleId)
-    push de ; chunksize
-    pop bc ; how much data to load
-    ld de,ps_wav_data_start ; pointer to data
+    pop bc ; restore how much data to load
+    ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
 ; update the playhead counter and display the time elapsed
     call vp_elapsed
@@ -149,8 +152,15 @@ ps_play_sample:
 ; close the file
 ps_close_file:
     call ps_prt_stop ; stop the PRT timer
-    ld a,(ps_filehandle)
-    MOSCALL mos_fclose
+; 0x81: ffs_fclose
+; Close a file (Requires MOS 1.03 or above)
+; Parameters:
+; HL(U): Pointer to a FIL structure
+; Preserves: HL(U)
+; Returns:
+; A: FRESULT
+    ld hl,ps_fil_struct
+    FFSCALL ffs_fclose
     ret
 ; end ps_close_file
 
@@ -173,114 +183,63 @@ ps_song_over:
 ; end ps_song_over
 
 ps_play_next_song:
-    ld a,(bf_file_idx) ; get the current song index
+    ld a,(bf_num_files_pg)
+    or a ; check for zero files
+    jp z,get_input ; no files to play so return to user input loop
+    ld b,a ; loop counter
 @next_file:
-    inc a ; increment the song index
-    ld (@songIdx),a ; save the new song index
-    call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
-    jp c,@good_fname ; filename is valid
-    ld a,-1 ; invalid filename means we went past the end of the list, so reset ...
-    jp @next_file ; ... and try again
-
-@good_fname:
-    cp AM_DIR ; file attribute check for directory
-    jp nz,@is_file ; not a directory so check for valid .wav file
-    jp @next_file ; is a directory so try the next file
-
-@is_file:
-    ld a,(@songIdx) ; get the new song index
-    ld (bf_file_idx),a ; save the new song index
-    jp play_song
-@songIdx: db 0
+    push bc ; save loop counter
+    call get_next_file_idx ; (bf_file_idx)++ with wraparound
+    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+    call bf_check_dir_or_file ; if zero then it's a song
+    pop bc ; restore loop counter
+    jp z,play_song ; is a file so play song
+    djnz @next_file ; try the next file
+    jp get_input ; no files in this directory so return to user input loop
 ; end ps_play_next_song
 
 ps_play_prev_song:
-    ld a,(bf_file_idx) ; get the current song index
-@prev_file:
-    dec a ; decrement the song index
-    ld (@songIdx),a ; save the new song index
-    call ps_get_song_fn_from_pg_idx ; hl points to file, carry set indicates success, a has file attribute
-    jp c,@good_fname ; filename is valid
-    call ps_get_page_num_files ; invalid filename means we went past the beginning of the list,
-    ld a,b ;  so reset ...
-    jp @prev_file ; ... and try again
-
-@good_fname:
-    cp AM_DIR ; file attribute check for directory
-    jp nz,@is_file ; not a directory so check for valid .wav file
-    jp @prev_file ; is a directory so try the previous file
-
-@is_file:
-    ld a,(@songIdx) ; get the new song index
-    ld (bf_file_idx),a ; save the new song index
-    jp play_song
-
-@songIdx: db 0
+    ld a,(bf_num_files_pg)
+    or a ; check for zero files
+    jp z,get_input ; no files to play so return to user input loop
+    ld b,a ; loop counter
+@next_file:
+    push bc ; save loop counter
+    call get_next_file_idx ; (bf_file_idx)++ with wraparound
+    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+    call bf_check_dir_or_file ; if zero then it's a song
+    pop bc ; restore loop counter
+    jp z,play_song ; is a file so play song
+    djnz @next_file ; try the next file
+    jp get_input ; no files in this directory so return to user input loop
 ; end ps_play_prev_song
 
 ; queue a random song on the current page to play next
 ps_play_random:
-; back up current song index
-    ld hl,ps_filinfo_fname
-    ld (@songFn),hl
-; get the number of songs in the current directory
-    call ps_get_page_num_files
-; get a random song index
-    call rand_8 ; a = 0-255
-    ld h,a
-    ld l,10 ; modulo 10
-    call udiv8 ; a = mod(a,10)
-    call ps_get_song_fn_from_pg_idx
-    ex de,hl ; setting up cp hl,de
-    ld hl,(@songFn) ; don't play the same song twice in a row
-    or a ; clear carry
-    sbc hl,de
-    jp z,ps_play_random ; same song, try again
-    ex de,hl ; pointer back to hl
-    jp play_song ; hit it
-@songFn: dl 0
+    ld a,(bf_num_files_pg)
+    or a ; check for zero files
+    jp z,get_input ; no files to play so return to user input loop
+    ld b,a ; loop counter
+    ld a,(bf_file_idx) ; save current song index
+    ld (@file_idx),a
+@next_file:
+    push bc ; save loop counter
+    call get_rand_file_idx ; a->(bf_file_idx)
+    ld hl,@file_idx
+    cp (hl) ; check for same song
+    jp z,@same ; same song so try again
+    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+    call bf_check_dir_or_file ; if zero then it's a song
+@bump_counter:
+    pop bc ; restore loop counter
+    jp z,play_song ; is a file so play song
+    djnz @next_file ; try the next file
+    jp get_input ; no files in this directory so return to user input loop
+@same:
+    or a,1 ; reset zero flag
+    jp @bump_counter
+@file_idx: db 0
 ; end ps_play_random
-
-ps_read_wav_header:
-    ld a,(ps_filehandle)
-    ld hl,ps_wav_header
-    call jb_read_wav_header
-    call nz,ps_load_command_buffers
-    ret
-; end ps_read_wav_header
-bf_read_wav_header:
-    ld a,(bf_filehandle)
-    ld hl,bf_wav_header
-; determine whether a file is a playable .wav file
-; inputs: a = filhandle of the file to check, hl = pointer to the file's header
-; prerequisites: file must be open for reading, and its read head at the beginning of its data
-; returns: zero flag set if not a valid .wav file (or is a directory)
-jb_read_wav_header:
-; Read a block of data from a file
-;   C: Filehandle
-; HLU: Pointer to where to write the data to
-; DEU: Number of bytes to read
-; Returns:
-; DEU: Number of bytes read
-    ld c,a
-    ld de,wav_header_size
-    MOSCALL mos_fread
-; test de for zero bytes read
-    ld hl,0
-    xor a ; clear carry
-    sbc hl,de ; hl = 0-chunksize
-    ret z ; no data read so return zero to caller
-; test for valid .wav header
-    call verify_wav
-    jp z,@F ; valid .wav header so continue
-    xor a ; invalid .wav header so return zero to caller
-    ret
-@@: ; valid .wav header
-    xor a
-    inc a ; reset zero flag indicating valid .wav file
-    ret
-; end ps_read_wav_header
-; end bf_read_wav_header
 
 ps_load_command_buffers:
     ld hl,cmd0_buffer

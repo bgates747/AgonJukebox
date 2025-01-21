@@ -33,10 +33,10 @@ jb_filehandle:          EQU 0          ;   1: File handle
 jb_file_idx:            EQU jb_filehandle+1  ;   1: Current file index in the directory page
 jb_filename:            EQU jb_file_idx+1    ;   3: Pointer to current file filename
 jb_dir_num_files:       EQU jb_filename+3    ;   3: Number of files/directories in the directory (virtually unlimited)
-jb_pagelast_num_files:  EQU jb_dir_num_files+3  ;   3: Mod(jb_dir_num_files, 10)
+jb_pagelast_num_files:  EQU jb_dir_num_files+3  ;   3: Mod(jb_dir_num_files, bf_num_files_pg)
 jb_page_cur:            EQU jb_pagelast_num_files+3  ;   3: Current directory page number
 jb_dir_num_pages:       EQU jb_page_cur+3    ;   3: Number of pages in the directory (virtually unlimited)
-jb_filinfo_ptrs:       EQU jb_dir_num_pages+3  ;  30: List of filename pointers in the current directory page (10*3)
+jb_filinfo_ptrs:       EQU jb_dir_num_pages+3  ;  30: List of filename pointers in the current directory page (bf_num_files_pg*3)
 jb_dir_path:            EQU jb_filinfo_ptrs+30 ; 256: Path of the current directory
 jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 
@@ -58,7 +58,7 @@ jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 
 ; APPLICATION INCLUDES
     include "layout.inc"
-    include "ascii.inc"
+    ; include "ascii.inc"
     include "browse.inc"
     include "input.inc"
     include "play.inc"
@@ -68,13 +68,13 @@ jb_struct_size:         EQU jb_dir_path+256  ; Total size of the JB structure
 
 ; --- MAIN PROGRAM FILE ---
 init:
+    call bf_get_dir
     call ui_init
     call ps_prt_irq_init
     ret
 ; end init
 main:
 ; call the change directory routine and jp to user input
-    call ps_get_dir
     call get_input
 
 ; we come back here when user wants to quit app

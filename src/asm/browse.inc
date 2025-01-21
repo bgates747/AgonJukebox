@@ -1,110 +1,98 @@
+bf_num_files_pg: equ 10 ; number of directories / files to display per page
 
 bf_get_dir:
-; set text viewport to directory name and clear it
-    call vp_dir_name
-    call vdu_cls
-; reset filecounter
+; initialize counters
     ld hl,0
     ld (bf_dir_num_files),hl
-; reset the song index and page number to 0
-    xor a
-    ld (bf_file_idx),a
-    ld hl,0
-    ld (bf_page_cur),hl
+
 ; initialize pointers to store directory info and print directory name
     ld hl,bf_dir_path  ; where to store result
-; note: setting bc has no apparent effect, but we leave it for consistency with docs
-; https://agonconsole8.github.io/agon-docs/MOS-API/#0x9e-ffs_getcwd
-    ld bc,255          ; max length (final byte is zero terminator)
-    MOSCALL ffs_getcwd ; MOS api get current working directory
-; print the directory path (ffs_getcwd preserves hl)
-    call printString
-; now get dir info
+    ld bc,255          ; max length (final byte is zero terminator) [has no effect]
+    FFSCALL ffs_getcwd ; MOS api get current working directory
+
+; get dir info
     ld hl,bf_dir_struct ; define where to store directory info
     ld de,bf_dir_path   ; this is pointer to the path to the directory
     xor a               ; tell MOS to expect zero-terminated string
-    MOSCALL ffs_dopen   ; open dir
+    FFSCALL ffs_dopen   ; open dir
+
 ; set up pointers
-    ld ix,bf_dir_fil_list ; this is the pointer to the fileinfo table
+    ld ix,bf_dir_fil_list ; this is the pointer to the filinfo structs
+    ld iy,bf_filinfo_ptrs ; where to store pointers to filinfo structs
+
 @readFileInfo:               ; we will loop here until all files have been processed
     ld hl,bf_dir_struct      ; HL is where to get directory info
-    push ix
-    pop de ; where to store current file info
-    MOSCALL ffs_dread        ; read next item from dir
+    lea de,ix                ; DE is where to store filinfo struct
+    FFSCALL ffs_dread        ; read next item from dir into filinfo struct
 
     ld a,(ix+filinfo_fname)  ; get first char of file name
     or a                     ; if zero then we are at the end of the listing
     jp z,@allDone
 
     ld a,(ix+filinfo_fattrib) ; get the file attribute
-    res 5,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
+    res AM_ARC,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
     or a ; if zero this is a file
     jp nz,@F ; not zero so this is some other file type
-    set 5,a ; set bit 5 (archive) so will be consistent btw emulator and hardware
+    set AM_ARC,a ; set bit 5 (archive) so will be consistent btw emulator and hardware
     ld (ix+filinfo_fattrib),a ; update so we don't have to do this every time downstream
-
+    
 @@: ; skip over writing hidden and system files
-    and AM_HID ; hidden file
+    bit AM_HID,a ; hidden file
     jp nz,@readFileInfo
-    and AM_SYS ; system file
+    bit AM_SYS,a ; system file
     jp nz,@readFileInfo
 
+; check for valid directory
+    bit AM_DIR,a ; directory
+    jp nz,@goodPath ; is directory so skip .wav file check
+
+; is file so check for valid .wav format
+    ld hl,tmp_fil_struct ; hl = pointer to fil struct
+    lea de,ix+filinfo_fname ; de = pointer to filename
+    call verify_wav
+    jp nz,@readFileInfo ; not a .wav file, so skip it
+
+@goodPath:
 ; valid file or directory
+    ; ld (iy),ix ; store pointer to filinfo struct
+; TEMPORARY
+; the above call loads (iy) with iy instead of ix on emulator so we do this until its fixed
+    push ix
+    pop hl
+    ld (iy),hl
+; END TEMPORARY
+    lea iy,iy+3 ; point to next entry in the list
     ld hl,(bf_dir_num_files) ; get the current file counter
     inc hl                  ; increment the counter
     ld (bf_dir_num_files),hl
-    ld de,filinfo_struct_size ; length of fileinfo record
-    add ix,de ; point to next fileinfo record
-
+    ld de,filinfo_struct_size ; length of filinfo record
+    add ix,de ; point to next filinfo record
     jp @readFileInfo         ; loop around to check next entry
-@allDone:
+@allDone: 
 ; compute page statistics
+    ld de,bf_num_files_pg    ; number of files per page
     ld hl,(bf_dir_num_files) ; get the number of files
-    ld de,10 ; max files per page
-    call udiv24 ; de = hl/10, hl = mod(hl,10)
+    SIGN_HLU ; check for zero
+    jp nz,@not_zero
+    ld de,0 ; number of pages, will increment by 1 later
+    ld hl,0 ; number of files on last page
+    jp @write_stats
+@not_zero:
+    call udiv24 ; de = hl/bf_num_files_pg, hl = mod(hl,bf_num_files_pg)
     SIGN_HLU ; check remainder for zero
-    jp nz,@F 
-    ld hl,10 ; if zero then we have exactly 10 files on the last page ...
+    jp nz,@write_stats
+    ld hl,bf_num_files_pg ; if zero then we have exactly bf_num_files_pg files on the last page ...
     dec de ; ... and we don't need an additional page for the remainder
-@@:
+@write_stats:
     ld (bf_dir_num_files_lp),hl ; save the number of files on the last page
     inc de ; bump the page count
     ld (bf_dir_num_pages),de ; save the number of pages
-; reset the song index and page to zero  
-    xor a
-    ld (bf_file_idx),a
-    ld hl,0 
+    ld hl,0 ; reset the page number
     ld (bf_page_cur),hl
-; and populate the page filename pointers and print the page
-    call bf_fill_page_fn_ptrs
-    call bf_print_dir_page
 ; close the directory
     ld hl,bf_dir_struct      ; load H: with address of the DIR struct
-    MOSCALL ffs_dclose       ; close dir
-    ret
-; end bf_get_dir
-
-; populate the page filename pointers for the current directory page
-; inputs: bf_page_cur
-; prerequisites: bf_get_dir called on a valid directory
-; outputs: a populated filename pointer list for the current page
-; destroys: a, hl, bc, de, ix
-bf_fill_page_fn_ptrs:
-    ld hl,(bf_page_cur) ; get the current page number
-    ld de,10*filinfo_struct_size ; records/page * bytes/record
-    call umul24 ; hl = offset into the fileinfo table
-    ld de,bf_dir_fil_list ; base address of fileinfo table
-    add hl,de ; add the offset to the base address
-    ld ix,bf_filinfo_ptrs ; get the address of the page fileinfo pointer table
-    ld de,filinfo_struct_size ; bytes per filename record
-    ld b,10 ; number of files per page
-@loop:
-    ld (ix),hl ; store the filename pointer
-    lea ix,ix+3 ; bump the index pointer
-    add hl,de ; add the record size to the filename pointer
-    djnz @loop
-    ret
-; end bf_fill_page_fn_ptrs
+    FFSCALL ffs_dclose       ; close dir
+; fall through to bf_get_page_num_files
 
 bf_get_page_num_files:
 ; check whether we're at last page
@@ -113,54 +101,58 @@ bf_get_page_num_files:
     dec de ; zero-based
     or a ; clear carry
     sbc hl,de
-    ld b,10 ; b = default number of files per page
-    ret nz ; not the last page
+    ld a,bf_num_files_pg ; a = default number of files per page
+    jp nz,@F ; not the last page
     ld a,(bf_dir_num_files_lp) ; get the number of files on the last page
-    ld b,a ; b = number of files on the last page
+@@:
+    ld (bf_dir_num_files_pg),a ; save the number of files on the page
     ret
 ; end bf_get_page_num_files
+; end bf_get_dir
 
 bf_print_dir_page:
 ; set text viewport for directory listing
     call vp_dir
     call vdu_cls
+; check for zero files in directory
+    ld hl,(bf_dir_num_files)
+    SIGN_HLU
+    ret z ; no files to display so we're done
+; set pointer to the correct index in the fileinfo pointer table
+    ld hl,(bf_page_cur) ; get the current page
+    ld de,bf_num_files_pg*3 ; number of files per page * 3 bytes per pointer
+    call umul24 ; hl = page * num_files_per_page
+    ex de,hl ; can't add ix,hl ...
+    ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+    add ix,de ; ix points to the correct index in the fileinfo pointer table
 ; loop through the fileinfo pointer table and print out the filenames
-    call bf_get_page_num_files ; b = loop counter
+    ld a,(bf_dir_num_files_pg)
+    ld b,a ; loop counter
     xor a ; song index
-    ld ix,bf_filinfo_ptrs
 @loop:
     push bc ; save loop counter
     push af ; save song index
     call printHexA ; print the song index
-; branch on the file attribute
-    ld hl,(ix) ; get the filename pointer
-    ld bc,filinfo_fattrib
-    add hl,bc ; hl points to the file attribute
-    ld a,(hl)
-    cp AM_DIR ; if zero, is directory
-    jp nz,@print_file ; not directory so just write filename
-    push hl
-    call printInline
-    asciz "<DIR> "
-    pop hl
-@print_file:
-    ld bc,filinfo_fname-filinfo_fattrib ; offset to the filename
-    add hl,bc ; hl points to the filename
-    call printString ; print the filename
+    ld iy,(ix) ; iy points to filinfo struct
+    call bf_print_dir_or_file
 @bump_counters:
     lea ix,ix+3 ; bump the filename pointer
     pop af ; restore song index
     inc a ; increment the song index
     pop bc ; restore loop counter
     dec b
-    ret z ; if zero, we're done
+    jp z,@done ; if zero, we're done
     call printNewLine
     jp @loop
+@done:
+    or a,1 ; reset zero flag indicating there were files to display
     ret
 ; end bf_print_dir_page
-bf_highlight_song:
+
+bf_highlight_file:
 ; refresh the directory listing
     call bf_print_dir_page
+    ret z ; no files to display so we're done
 ; highlight the song being played in the directory listing
     ld a,(bf_file_idx)
     ld d,vp_dir_top
@@ -170,101 +162,40 @@ bf_highlight_song:
     ld e,text_right
     ld b,a
     call vdu_set_txt_viewport
-    call vdu_home_cursor
+    call vdu_cls
 ; set text colours to inverse
     call set_text_colours_inverse
 ; print the index and song filename
     ld a,(bf_file_idx)
     call printHexA
-    ld hl,bf_filinfo_fname
-    call printString
+    call bf_get_filinfo_from_pg_idx ; iy = pointer to the filinfo struct
+    call bf_print_dir_or_file
 ; set text colours to normal
     call set_text_colours_normal
     ret
-; end bf_highlight_song
+; end bf_highlight_file
 
-; change directory one level up
-; inputs: none
-bf_up_dir:
-    ld hl,@str_up_dir
-    MOSCALL mos_cd ; change to the directory
-    call bf_get_dir ; get directory listing
-    jp get_input ; back to main loop
-@str_up_dir: asciz ".."
-; end bf_up_dir
-
-bf_dir_next_page:
-; advance the page number
-    ld hl,(bf_page_cur) ; get the current page number
-    inc hl ; increment the page number
-    ld de,(bf_dir_num_pages) ; get the number of pages
-    call udiv24 ; hl = mod(bf_page_cur+1,bf_dir_num_pages)
-    ld (bf_page_cur),hl ; save the new page number
-; populate the page filename pointers
-    call bf_fill_page_fn_ptrs
-; print the new page
-    call bf_print_dir_page
-; enable interrupts and jump back to the user input loop
-    ei
-    jp get_input
-; end bf_dir_next_page
-
-bf_dir_prev_page:
-; decrement the page number
-    ld hl,(bf_page_cur) ; get the current page number
-    dec hl ; decrement the page number
-    SIGN_HLU ; check for zero
-    jp p,@F ; >= 0 so we're good
-    ld hl,(bf_dir_num_pages) ; get the number of pages
-    dec hl ; zero-based
-@@:
-    ld (bf_page_cur),hl ; save the new page number
-; populate the page filename pointers
-    call bf_fill_page_fn_ptrs
-; print the new page and
-    call bf_print_dir_page
-; enable interrupts and jump back to the user input loop
-    ei
-    jp get_input
-; end bf_dir_prev_page
-
-; get the filename of the song at the current index
-; inputs: a = song index
-; returns: carry set if song index in range, new filemame in hl and bf_file_idx, bf_filinfo_fname set to new index, a = file attribute
-;          carry reset if song index out of range, current filename in hl, bf_file_idx, bf_filinfo_fname unchanged, a = requested song index
-; destroys: af, bc, de
-bf_get_file_from_pg_idx:
-    push af ; save song index
-    call bf_get_page_num_files ; b = number of files on the page
-    pop af ; restore song index
-    cp b ; compare song index to number of files on the page
-    ld hl,bf_filinfo_fname ; get the current song filename
-    ret nc ; requested song index is out of range so return current filename and no carry
-
-
-
-
-
-
-
-
-    
-    ld (bf_file_idx),a ; save the song index
-    ld ix,bf_filinfo_ptrs ; get the address of the page fileinfo pointer table
-    ld b,a ; song index
-    ld c,3 ; 3 bytes per filename pointer
-    mlt bc ; index into the fileinfo pointer table
-    add ix,bc ; hl points to the fileinfo pointer
-
-    ld hl,(ix) ; hl points to the fileinfo
-    ld bc,filinfo_fattrib ; offset to the file attribute
-    add hl,bc ; hl points to the file attribute
-    ld a,(hl) ; get the file attribute for determining file vs. directory
-
-    ld hl,(ix) ; hl points to the fileinfo
-    ld bc,filinfo_fname ; offset to the filename
-    add hl,bc ; hl points to the filename
-    ; ld bf_filinfo_fname,hl ; save the new song filename DEPRECATED:
-    scf ; set carry to indicate success
+bf_check_dir_or_file:
+    ld a,(iy+filinfo_fattrib)
+    bit AM_DIR,a ; if not zero, is directory
     ret
-; end bf_get_file_from_pg_idx
+; end bf_check_dir_or_file
+
+bf_print_dir_or_file:
+    call bf_check_dir_or_file
+    jp z,@print_file ; not directory so just write filename
+    call printInline
+    asciz "<DIR> "
+@print_file:
+    lea hl,iy+filinfo_fname
+    call printString ; print the filename
+    ret
+; end bf_print_dir_or_file
+
+bf_print_dir_name:
+    call vp_dir_name
+    call vdu_cls
+    ld hl,bf_dir_path
+    call printString
+    ret
+; end bf_print_dir_name

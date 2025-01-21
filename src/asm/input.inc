@@ -4,152 +4,170 @@ get_input:
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
 
-; DEBUG
-; clear sysvar_keyascii
-    ld l,a ; store for a sec
-	MOSCALL mos_sysvars
-	xor a
-	ld (IX+sysvar_keyascii),a
-    ld a,l ; restore a
-; DEBUG
-
-; app control commands
-
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
     ret z 
     cp 'q' ; quit
     ret z
 
-; DIRECTORY PAGING
+; FILE BROWSER COMMANDS
+    cp 0x0B ; up arrow
+    jp z,bf_prev_file
+    cp 0x0A ; down arrow
+    jp z,bf_next_file
     cp 0x15 ; right arrow
-    jp z,bf_dir_next_page
+    jp z,bf_next_page
     cp 0x08 ; left arrow
-    jp z,bf_dir_prev_page
+    jp z,bf_prev_page
     cp 'u' ; go up one directory
     jp z,bf_up_dir
+    cp '\r' ; ENTER key
+    jp z,bf_select_file
 
-; SONG PLAYING COMMANDS
-; toggle play / pause
-    cp 'p'
-    jp z,ps_toggle_pause
-; toggle loop 
-    cp 'l'
-    jp z,ps_toggle_loop
-; toggle shuffle 
-    cp 's'
-    jp z,ps_toggle_shuffle
-; play random song
-    cp 'r'
-    jp z,ps_play_random
-; up / down arrow play song keys
-    cp 0x0B ; up arrow
-    jp z,ps_play_prev_song
-    cp 0x0A ; down arrow
-    jp z,ps_play_next_song
-; 0-9 play song keys
-@@: 
-    cp '0'
-    jp c,@no_cmd ; not a song command
-    cp '9'+1
-    jp nc,@no_cmd ; not a song command
-; get pointer to song filename and play it
-    sub '0' ; a = index into filename lut
-    call bf_get_file_from_pg_idx ; carry set indicates success
-    jp c,ps_play_or_chg_dir ; re-enables interrupts and jp's to get_input when finished
 @no_cmd: ; no valid commands so loop
     jp get_input
 ; end get_input
 
-; play or song or change directory when user issues a play song command
-; inputs: hl pointer to the filename, a = file attribute
-ps_play_or_chg_dir:
-    cp AM_DIR ; file attribute check for directory
-    jp nz,play_song ; not a directory so play the song
-; otherwise change to the directory
+get_rand_file_idx:
+    ld a,(bf_num_files_pg)
+    or a
+    ret z ; no files on page
+    ld l,a
+    call rand_8 ; a = 0-255
+    ld h,a
+    call udiv8 ; a = mod(a,bf_num_files_pg)
+    ld (bf_file_idx),a
+    ret
+
+get_prev_file_idx:
+; get number of files on current page
+    ld a,(bf_dir_num_files_pg)
+    ld b,a
+; decrement the file index
+    ld a,(bf_file_idx)
+    dec a
+    cp b
+    jp c,@F ; check for wraparound
+    ld a,b ; get the number of files this page
+    dec a ; zero-based
+@@:
+    ld (bf_file_idx),a
+    ret
+; end get_prev_file_idx
+
+bf_prev_file:
+    call get_prev_file_idx
+    call bf_highlight_file ; highlight the file
+    jp get_input
+; end bf_prev_file
+
+get_next_file_idx:
+; get number of files on current page
+    ld a,(bf_dir_num_files_pg)
+    ld b,a
+; increment the file index
+    ld a,(bf_file_idx)
+    inc a
+    cp b
+    jp c,@F ; check for wraparound
+    xor a ; wrap around to the first file
+@@:
+    ld (bf_file_idx),a
+    ret
+; end get_next_file_idx
+
+bf_next_file:
+    call get_next_file_idx
+    call bf_highlight_file ; highlight the file
+    jp get_input
+; end bf_next_file
+
+bf_next_page:
+; advance the page number
+    ld de,(bf_page_cur) ; get the current page number
+    inc de ; increment the page number
+    ld hl,(bf_dir_num_pages) ; get the number of pages
+    dec hl ; zero-based
+    or a ; clear carry
+    sbc hl,de
+    jp p,@F ; not the last page
+    ld de,0 ; wrap around to the first page
+@@:
+; print the new page
+    ld (bf_page_cur),de
+    xor a
+    ld (bf_file_idx),a ; reset the file index
+    call bf_get_page_num_files ; get the number of files on the new page and store it
+    call bf_highlight_file ; highlight the first file    
+    jp get_input
+; end bf_next_page
+
+bf_prev_page:
+; decrement the page number
+    ld hl,(bf_page_cur) ; get the current page number
+    dec hl ; decrement the page number
+    SIGN_HLU
+    jp p,@F ; not time to wrap around
+    ld hl,(bf_dir_num_pages) ; get the number of pages
+    dec hl ; zero-based
+@@:
+; print the new page
+    ld (bf_page_cur),hl 
+    xor a
+    ld (bf_file_idx),a ; reset the file index
+    call bf_get_page_num_files ; get the number of files on the new page and store it
+    call bf_highlight_file ; highlight the first file
+    jp get_input
+; end bf_prev_page
+
+str_up_dir: asciz ".."
+; change directory one level up
+; inputs: none
+bf_up_dir:
+    ld hl,str_up_dir
+; change directory
+; inputs: hl = pointer to directory name
+bf_change_dir:
     MOSCALL mos_cd ; change to the directory
     call bf_get_dir ; get directory listing
+    ld hl,0
+    ld (bf_page_cur),hl ; reset the page number
+    xor a
+    ld (bf_file_idx),a ; reset the file index
+    call bf_highlight_file ; highlight the first file
+    call bf_print_dir_name ; print the directory name
     jp get_input ; back to main loop
-; end ps_play_or_chg_dir
+; end bf_change_dir
+; end bf_up_dir
 
-; TEMPORARY until we have separate buffers for playback and browsing
-ps_stop:
-    ld hl,ps_mode
-    res ps_mode_playing,(hl)
-    call vp_now_playing
-    call vdu_cls
-    call printInline
-    asciz "Stopped due to directory change. Select a new song to resume."
+bf_select_file:
+; set up pointers to the fileinfo struct and filename
+    ld hl,tmp_fil_struct ; hl = pointer to fil struct
+    call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
+    lea de,iy+filinfo_fname ; de = pointer to filename
+    call verify_wav
+    lea hl,iy+filinfo_fname ; hl = pointer to filename
+    jp nz,bf_change_dir ; not a .wav file, so must be a directory
+; play the .wav file
+    jp play_song
+; end bf_select_file
+
+; get a pointer to a filinfo struct from a directory page index
+; inputs: none
+; outputs: iy = pointer to the filinfo struct
+bf_get_filinfo_from_pg_idx:
+; get the fileinfo pointer from the fileinfo pointer table
+    ld hl,(bf_page_cur) ; get the current page number
+    ld de,bf_num_files_pg*3 ; number of files per page * 3 bytes per pointer
+    call umul24 ; hl = page * num_files_per_page
+    ld a,(bf_file_idx) ; get the file index
+    ld e,a ; file index
+    ld d,3 ; 3 bytes per pointer
+    mlt de ; de = file index * 3
+    add hl,de
+    ex de,hl ; can't add iy,hl ...
+    ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+    add iy,de ; iy points to the first fileinfo pointer in the current page
+    ld iy,(iy) ; iy points to the filinfo record
     ret
-; end ps_stop
-
-ps_toggle_pause:
-    call vp_now_playing
-    call vdu_cls
-
-    ld hl,ps_mode
-    bit ps_mode_playing,(hl)
-    jp nz,@playing
-
-    set ps_mode_playing,(hl)
-    call printInline
-    asciz "(P)laying "
-    jp @F
-
-@playing:
-    res ps_mode_playing,(hl)
-    call printInline
-    asciz "(P)aused  "
-
-@@:
-    ld hl,(ps_filinfo_fname)
-    call printString ; print the song filename
-
-    jp get_input
-; end ps_toggle_pause
-
-ps_toggle_shuffle:
-    call vp_legend_shuffle
-    call vdu_cls
-
-    ld hl,ps_mode
-    bit ps_mode_shuffle,(hl)
-    jp nz,@shuffling
-
-    call set_text_colours_inverse
-    ld hl,ps_mode
-    set ps_mode_shuffle,(hl)
-    call printInline
-    asciz "ON"
-    call set_text_colours_normal
-    jp get_input
-
-@shuffling:
-    res ps_mode_shuffle,(hl)
-    call printInline
-    asciz "OFF"
-    jp get_input
-; end ps_toggle_shuffle
-
-ps_toggle_loop:
-    call vp_legend_loop
-    call vdu_cls
-
-    ld hl,ps_mode
-    bit ps_mode_loop,(hl)
-    jp nz,@looping
-
-    call set_text_colours_inverse
-    ld hl,ps_mode
-    set ps_mode_loop,(hl)
-    call printInline
-    asciz "ON"
-    call set_text_colours_normal
-    jp get_input
-
-@looping:
-    res ps_mode_loop,(hl)
-    call printInline
-    asciz "OFF"
-    jp get_input
-; end ps_toggle_loop
+; end bf_get_filinfo_from_pg_idx
