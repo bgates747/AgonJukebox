@@ -9,6 +9,10 @@ printInline:
     call printString ; HL advances to end of string
     push hl ; restore the return address = pointer to end of string
     ret
+
+; Print a zero-terminated string
+; IX: Pointer to string, A: signed offset from IX
+printStringIX:
     
 ; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/functions.s
 ; Print a zero-terminated string
@@ -548,7 +552,7 @@ waitKeypress:
 ; clear a block of memory by writing a prescribed value to each byte in the range
 ; inputs: a = value to write, hl = address of first byte, bc = number of bytes
 ; outputs: memory block is cleared
-; destroys: hl, de
+; destroys: hl, bc, de
 clear_mem:
     dec bc ; we do this because we will increment de before writing the first byte
     ld (hl),a

@@ -243,6 +243,7 @@ seed2: dl 0
 
 
 ; https://map.grauw.nl/sources/external/z80bits.html#2.1
+; h / l -> h, remain a
 ; 2.1 Restoring 8-bit / 8-bit Unsigned
 ; Input: H = Dividend, L = Divisor, A = 0
 ; Output: H = Quotient, A = Remainder, L = Divisor (unchanged)
@@ -308,3 +309,18 @@ udiv3223:
     djnz @loop     ; 2/4
     ret            ; 10
 ; end udiv3223
+
+; calc84maniac https://discord.com/channels/1158535358624039014/1282290921815408681/1330991583369101322
+; add uhl to signed integer a
+add_uhl_a_signed:
+    push de    ; 4 cycles
+    ex de, hl  ; 1 cycle  UDE = UHL
+    rlca       ; 1 cycle  CF = signbit(A)
+    sbc hl, hl ; 2 cycles UHL = -signbit(A)
+    rrca       ; 1 cycle  Restore A
+    ld l, a    ; 1 cycle  UHL = signext(A)
+    add hl, de ; 1 cycle  UHL = UDE + signext(A)
+    pop de     ; 4 cycles
+               ; 15 cycles total
+    ret
+; end hlu_add_a_signed
