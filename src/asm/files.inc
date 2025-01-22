@@ -18,8 +18,8 @@ bf_fil_dir_ptr: equ 0x04FF21 ; 3 bytes: Pointer to the directory entry in the wi
 bf_struct: equ 0x050000 ; browsing song jukebox info
 bf_file_idx: equ 0x050000 ; 1 bytes: Current file index in the directory page
 bf_dir_num_files: equ 0x050001 ; 3 bytes: Number of files/directories in the directory (virtually unlimited)
-bf_dir_num_files_pg: equ 0x050004 ; 3 bytes: Number of files/directories of the current directory page
-bf_dir_num_files_lp: equ 0x050007 ; 3 bytes: Number of files/directories of the last directory page
+bf_files_cur_pg: equ 0x050004 ; 3 bytes: Number of files/directories of the current directory page
+bf_files_last_pg: equ 0x050007 ; 3 bytes: Number of files/directories of the last directory page
 bf_page_cur: equ 0x05000A ; 3 bytes: Current directory page number
 bf_dir_num_pages: equ 0x05000D ; 3 bytes: Number of pages in the directory (virtually unlimited)
 bf_dir_path: equ 0x050010 ; 256 bytes: Path of the current directory
