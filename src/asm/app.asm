@@ -47,6 +47,7 @@ exit:
     ; include "ascii.inc"
     include "browse.inc"
     include "input.inc"
+    include "logo.inc"
     include "play.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
