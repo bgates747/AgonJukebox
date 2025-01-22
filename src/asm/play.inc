@@ -62,11 +62,12 @@ play_song:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
-; reset the playhead counter to zer0
+; reset the playhead counter to zero
     ld hl,0
     ld (ps_playhead),hl
-; read the first block of data
-    call ps_read_file
+; load the command buffers and read the first block of data
+    call ps_load_command_buffers
+    call ps_read_sample
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
@@ -80,7 +81,7 @@ play_song:
 
 ; read the next 1-second's worth of sound data from the file
 ; and upload it to the sample buffer
-ps_read_file:
+ps_read_sample:
 ; disable interrupts so load is guaranteed to complete
     di
 
@@ -137,7 +138,7 @@ ps_read_file:
     ld a,'.'
     rst.lil 10h
     ret
-; end ps_read_file
+; end ps_read_sample
 
 ; this is called by the PRT timer interrupt
 ps_play_sample:
@@ -148,7 +149,7 @@ ps_play_sample:
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
 ; load the next chunk of data
-    call ps_read_file
+    call ps_read_sample
 ; return to the interrupt handler
     ret
 ; end ps_play_sample
@@ -187,7 +188,7 @@ ps_song_over:
 ; end ps_song_over
 
 ps_play_next_song:
-    ld a,(bf_num_files_pg)
+    ld a,(bf_files_cur_pg)
     or a ; check for zero files
     jp z,get_input ; no files to play so return to user input loop
     ld b,a ; loop counter
@@ -197,13 +198,16 @@ ps_play_next_song:
     call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
     call bf_check_dir_or_file ; if zero then it's a song
     pop bc ; restore loop counter
-    jp z,play_song ; is a file so play song
+    jp z,@play_song ; is a file so play song
     djnz @next_file ; try the next file
     jp get_input ; no files in this directory so return to user input loop
+@play_song:
+    call bf_highlight_file ; highlight the selected file
+    jp play_song
 ; end ps_play_next_song
 
 ps_play_prev_song:
-    ld a,(bf_num_files_pg)
+    ld a,(bf_files_cur_pg)
     or a ; check for zero files
     jp z,get_input ; no files to play so return to user input loop
     ld b,a ; loop counter
@@ -213,14 +217,17 @@ ps_play_prev_song:
     call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
     call bf_check_dir_or_file ; if zero then it's a song
     pop bc ; restore loop counter
-    jp z,play_song ; is a file so play song
+    jp z,@play_song ; is a file so play song
     djnz @next_file ; try the next file
     jp get_input ; no files in this directory so return to user input loop
+@play_song:
+    call bf_highlight_file ; highlight the selected file
+    jp play_song
 ; end ps_play_prev_song
 
 ; queue a random song on the current page to play next
 ps_play_random:
-    ld a,(bf_num_files_pg)
+    ld a,(bf_files_cur_pg)
     or a ; check for zero files
     jp z,get_input ; no files to play so return to user input loop
     ld b,a ; loop counter
@@ -236,12 +243,15 @@ ps_play_random:
     call bf_check_dir_or_file ; if zero then it's a song
 @bump_counter:
     pop bc ; restore loop counter
-    jp z,play_song ; is a file so play song
+    jp z,@play_song ; is a file so play song
     djnz @next_file ; try the next file
     jp get_input ; no files in this directory so return to user input loop
 @same:
     or a,1 ; reset zero flag
     jp @bump_counter
+@play_song:
+    call bf_highlight_file ; highlight the selected file
+    jp play_song
 @file_idx: db 0
 ; end ps_play_random
 
