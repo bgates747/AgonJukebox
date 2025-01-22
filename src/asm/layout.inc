@@ -244,6 +244,15 @@ ui_init:
     xor a
     ld (bf_file_idx),a ; reset the file index
     call bf_highlight_file ; highlight the first file        
+
+; load logo and plot it
+    call load_ui_images
+    ld hl,BUF_UI_LOGO
+    call vdu_buff_select
+    ld bc,384 ; x
+    ld de,20 ; y
+    call vdu_plot_bmp
+
     ret
 ; end ui_init
 

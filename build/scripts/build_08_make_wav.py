@@ -169,9 +169,10 @@ if __name__ == '__main__':
     # sample_rate = 32768 # 2x 'native' rate
     # sample_rate = 16384 # 'native' rate
     # sample_rate = 15360 # (256*60)
-    sample_rate = -1 # Use the source file's sample rate
+    sample_rate = 12000 # 48000 / 4 (200 * 60)
+    # sample_rate = -1 # Use the source file's sample rate
     src_dir = 'assets/sound/music/staging'
-    tgt_dir = 'tgt/music/Albums/Dire_Straits'
+    tgt_dir = 'tgt/music'
 
     # Generate sound effects with intermediate steps directly in the target directory
     make_sfx(src_dir, tgt_dir, sample_rate)
