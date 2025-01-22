@@ -35,6 +35,7 @@ verify_wav:
     push bc
     push de
     push ix
+    push iy
 
 ; clear the .wav header buffer
     push hl
@@ -85,6 +86,7 @@ verify_wav:
 
 @done:
 ; restore registers and return
+    pop iy
     pop ix
     pop de
     pop bc
@@ -97,17 +99,6 @@ verify_wav:
 ; returns: zero flag set if a .wav file we can read
 ; destroys: af
 open_wav:
-; get filinfo and fil struct pointers to currently selected file
-    call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
-    lea de,iy+filinfo_fname ; de = pointer to filename
-    ld hl,ps_fil_struct
-
-; back up registers
-    push hl
-    push bc
-    push de
-    push ix
-
 ; clear the .wav header buffer
     push hl
     push de
@@ -116,6 +107,11 @@ open_wav:
     call clear_mem
     pop de
     pop hl
+
+; get filinfo and fil struct pointers to currently selected file
+    call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
+    lea de,iy+filinfo_fname ; de = pointer to filename
+    ld hl,ps_fil_struct
 
 ; open the file 
     ld c,fa_read
@@ -152,16 +148,11 @@ open_wav:
     or a ; clear carry
     sbc hl,de ; if not zero, not a .wav file we can read
     jp nz,@not_wav ; not a .wav file
-@return:
-; restore registers and return
-    pop ix
-    pop de
-    pop bc
-    pop hl
+; valid .wav file so return with zero flag set and file still open
     ret
 @not_wav:
 ; close the file and return to caller
     FFSCALL ffs_fclose
     or a,1 ; reset zero flag indicating invalid .wav file
-    jp @return
+    ret
 ; end open_wav
