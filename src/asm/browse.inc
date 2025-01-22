@@ -47,26 +47,21 @@ bf_get_dir:
     jp nz,@goodPath ; is directory so skip .wav file check
 
 ; is file so check for valid .wav format
-    ld hl,tmp_fil_struct ; hl = pointer to fil struct
+    ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,ix+filinfo_fname ; de = pointer to filename
     call verify_wav
     jp nz,@readFileInfo ; not a .wav file, so skip it
 
 @goodPath:
 ; valid file or directory
-    ; ld (iy),ix ; store pointer to filinfo struct
-; TEMPORARY
-; the above call loads (iy) with iy instead of ix on emulator so we do this until its fixed
-    push ix
-    pop hl
-    ld (iy),hl
-; END TEMPORARY
-    lea iy,iy+3 ; point to next entry in the list
+    ld (iy),ix ; store pointer to filinfo struct
     ld hl,(bf_dir_num_files) ; get the current file counter
     inc hl                  ; increment the counter
     ld (bf_dir_num_files),hl
+; bump pointers
+    lea iy,iy+3 
     ld de,filinfo_struct_size ; length of filinfo record
-    add ix,de ; point to next filinfo record
+    add ix,de 
     jp @readFileInfo         ; loop around to check next entry
 @allDone: 
 ; compute page statistics

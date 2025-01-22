@@ -4,15 +4,15 @@
 ; e.g.: fonts, sprites, etc. (limited to 8k)
 filedata: equ 0xB7E000 ; address of onboard 8k sram
 
-tmp_fil_struct: equ 0x04FF00 ; 
-tmp_fil_obj: equ 0x04FF00 ; 15 bytes: Object identifier
-tmp_fil_flag: equ 0x04FF0F ; 1 bytes: File status flags
-tmp_fil_err: equ 0x04FF10 ; 1 bytes: Abort flag (error code)
-tmp_fil_fptr: equ 0x04FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
-tmp_fil_clust: equ 0x04FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
-tmp_fil_sect: equ 0x04FF19 ; 4 bytes: Sector number appearing in buf[] (0
-tmp_fil_dir_sect: equ 0x04FF1D ; 4 bytes: Sector number containing the directory entry
-tmp_fil_dir_ptr: equ 0x04FF21 ; 3 bytes: Pointer to the directory entry in the win[]
+bf_fil_struct: equ 0x04FF00 ; 
+bf_fil_obj: equ 0x04FF00 ; 15 bytes: Object identifier
+bf_fil_flag: equ 0x04FF0F ; 1 bytes: File status flags
+bf_fil_err: equ 0x04FF10 ; 1 bytes: Abort flag (error code)
+bf_fil_fptr: equ 0x04FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
+bf_fil_clust: equ 0x04FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
+bf_fil_sect: equ 0x04FF19 ; 4 bytes: Sector number appearing in buf[] (0
+bf_fil_dir_sect: equ 0x04FF1D ; 4 bytes: Sector number containing the directory entry
+bf_fil_dir_ptr: equ 0x04FF21 ; 3 bytes: Pointer to the directory entry in the win[]
 
 
 bf_struct: equ 0x050000 ; browsing song jukebox info

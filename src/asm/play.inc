@@ -25,8 +25,7 @@ ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit wor
 
 play_song:
 ; stop the PRT timer and close any currently playing file
-    call ps_close_file
-    call ps_prt_stop
+    call ps_close_file ; also stops prt timer
 
 ; clear now playing viewport
     call vp_now_playing
@@ -39,7 +38,13 @@ play_song:
     asciz "Invalid .wav file selected, try again."
     jp get_input ; return to user input loop
 
-@@: ; tell the user what they've won
+@@: ; copy the directory filinfo struct to ps_filinfo_struct
+    lea hl,iy ; open_wav set iy to the directory's filinfo struct
+    ld de,ps_filinfo_struct ; destination address
+    ld bc,filinfo_struct_size
+    ldir
+
+; tell the user what they've won
     call printInline
     asciz "(P)laying "
     ld hl,ps_filinfo_fname
@@ -144,8 +149,7 @@ ps_play_sample:
     call vdu_call_buffer
 ; load the next chunk of data
     call ps_read_file
-; reenable interrupts and return to the user input loop
-    ei
+; return to the interrupt handler
     ret
 ; end ps_play_sample
 
