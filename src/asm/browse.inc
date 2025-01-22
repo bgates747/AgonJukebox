@@ -1,4 +1,4 @@
-bf_num_files_pg: equ 10 ; number of directories / files to display per page
+bf_files_per_pg: equ 10 ; number of directories / files to display per page
 
 bf_get_dir:
 ; initialize counters
@@ -65,7 +65,7 @@ bf_get_dir:
     jp @readFileInfo         ; loop around to check next entry
 @allDone: 
 ; compute page statistics
-    ld de,bf_num_files_pg    ; number of files per page
+    ld de,bf_files_per_pg    ; number of files per page
     ld hl,(bf_dir_num_files) ; get the number of files
     SIGN_HLU ; check for zero
     jp nz,@not_zero
@@ -73,13 +73,13 @@ bf_get_dir:
     ld hl,0 ; number of files on last page
     jp @write_stats
 @not_zero:
-    call udiv24 ; de = hl/bf_num_files_pg, hl = mod(hl,bf_num_files_pg)
+    call udiv24 ; de = hl/bf_files_per_pg, hl = mod(hl,bf_files_per_pg)
     SIGN_HLU ; check remainder for zero
     jp nz,@write_stats
-    ld hl,bf_num_files_pg ; if zero then we have exactly bf_num_files_pg files on the last page ...
+    ld hl,bf_files_per_pg ; if zero then we have exactly bf_files_per_pg files on the last page ...
     dec de ; ... and we don't need an additional page for the remainder
 @write_stats:
-    ld (bf_dir_num_files_lp),hl ; save the number of files on the last page
+    ld (bf_files_last_pg),hl ; save the number of files on the last page
     inc de ; bump the page count
     ld (bf_dir_num_pages),de ; save the number of pages
     ld hl,0 ; reset the page number
@@ -96,11 +96,11 @@ bf_get_page_num_files:
     dec de ; zero-based
     or a ; clear carry
     sbc hl,de
-    ld a,bf_num_files_pg ; a = default number of files per page
+    ld a,bf_files_per_pg ; a = default number of files per page
     jp nz,@F ; not the last page
-    ld a,(bf_dir_num_files_lp) ; get the number of files on the last page
+    ld a,(bf_files_last_pg) ; get the number of files on the last page
 @@:
-    ld (bf_dir_num_files_pg),a ; save the number of files on the page
+    ld (bf_files_cur_pg),a ; save the number of files on the page
     ret
 ; end bf_get_page_num_files
 ; end bf_get_dir
@@ -115,13 +115,13 @@ bf_print_dir_page:
     ret z ; no files to display so we're done
 ; set pointer to the correct index in the fileinfo pointer table
     ld hl,(bf_page_cur) ; get the current page
-    ld de,bf_num_files_pg*3 ; number of files per page * 3 bytes per pointer
+    ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
     call umul24 ; hl = page * num_files_per_page
     ex de,hl ; can't add ix,hl ...
     ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
     add ix,de ; ix points to the correct index in the fileinfo pointer table
 ; loop through the fileinfo pointer table and print out the filenames
-    ld a,(bf_dir_num_files_pg)
+    ld a,(bf_files_cur_pg)
     ld b,a ; loop counter
     xor a ; song index
 @loop:

@@ -21,27 +21,56 @@ get_input:
     jp z,bf_prev_page
     cp 'u' ; go up one directory
     jp z,bf_up_dir
+
+; SONG PLAYING COMMANDS
+; toggle play / pause
+    cp 'p'
+    jp z,ps_toggle_pause
+; toggle loop 
+    cp 'l'
+    jp z,ps_toggle_loop
+; toggle shuffle 
+    cp 's'
+    jp z,ps_toggle_shuffle
+; play random song
+    cp 'r'
+    jp z,ps_play_random
+; select song or directory
     cp '\r' ; ENTER key
     jp z,bf_select_file
+; number key selections
+    cp '0'
+    jp c,@no_cmd ; not a song command
+    cp '9'+1
+    jp nc,@no_cmd ; not a song command
+; get pointer to song filename and play it
+    sub '0' ; a = file index
+    ld (bf_file_idx),a
+    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+    call bf_check_dir_or_file ; if zero then it's a song
+    jp z,@play_song ; ... otherwise fall through to no_cmd
 
 @no_cmd: ; no valid commands so loop
     jp get_input
+@play_song:
+    call bf_highlight_file ; highlight the selected file
+    jp play_song ; play the song
 ; end get_input
 
 get_rand_file_idx:
-    ld a,(bf_num_files_pg)
+    ld a,(bf_files_cur_pg)
     or a
     ret z ; no files on page
     ld l,a
     call rand_8 ; a = 0-255
     ld h,a
-    call udiv8 ; a = mod(a,bf_num_files_pg)
+    call udiv8 ; a = mod(a,bf_files_per_pg)
     ld (bf_file_idx),a
     ret
 
 get_prev_file_idx:
 ; get number of files on current page
-    ld a,(bf_dir_num_files_pg)
+    ld a,(bf_files_cur_pg)
     ld b,a
 ; decrement the file index
     ld a,(bf_file_idx)
@@ -63,7 +92,7 @@ bf_prev_file:
 
 get_next_file_idx:
 ; get number of files on current page
-    ld a,(bf_dir_num_files_pg)
+    ld a,(bf_files_cur_pg)
     ld b,a
 ; increment the file index
     ld a,(bf_file_idx)
@@ -149,6 +178,7 @@ bf_select_file:
     lea hl,iy+filinfo_fname ; hl = pointer to filename
     jp nz,bf_change_dir ; not a .wav file, so must be a directory
 ; play the .wav file
+    call bf_highlight_file ; highlight the selected file
     jp play_song
 ; end bf_select_file
 
@@ -158,7 +188,7 @@ bf_select_file:
 bf_get_filinfo_from_pg_idx:
 ; get the fileinfo pointer from the fileinfo pointer table
     ld hl,(bf_page_cur) ; get the current page number
-    ld de,bf_num_files_pg*3 ; number of files per page * 3 bytes per pointer
+    ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
     call umul24 ; hl = page * num_files_per_page
     ld a,(bf_file_idx) ; get the file index
     ld e,a ; file index
@@ -171,3 +201,63 @@ bf_get_filinfo_from_pg_idx:
     ld iy,(iy) ; iy points to the filinfo record
     ret
 ; end bf_get_filinfo_from_pg_idx
+
+ps_toggle_pause:
+    call vp_now_playing
+    call vdu_cls
+    ld hl,ps_mode
+    bit ps_mode_playing,(hl)
+    jp nz,@playing
+    set ps_mode_playing,(hl)
+    call printInline
+    asciz "(P)laying "
+    jp @print
+@playing:
+    res ps_mode_playing,(hl)
+    call printInline
+    asciz "(P)aused  "
+@print:
+    ld hl,ps_filinfo_fname
+    call printString ; print the song filename
+    jp get_input
+; end ps_toggle_pause
+
+ps_toggle_shuffle:
+    call vp_legend_shuffle
+    call vdu_cls
+    ld hl,ps_mode
+    bit ps_mode_shuffle,(hl)
+    jp nz,@shuffling
+    call set_text_colours_inverse
+    ld hl,ps_mode
+    set ps_mode_shuffle,(hl)
+    call printInline
+    asciz "ON"
+    call set_text_colours_normal
+    jp get_input
+@shuffling:
+    res ps_mode_shuffle,(hl)
+    call printInline
+    asciz "OFF"
+    jp get_input
+; end ps_toggle_shuffle
+
+ps_toggle_loop:
+    call vp_legend_loop
+    call vdu_cls
+    ld hl,ps_mode
+    bit ps_mode_loop,(hl)
+    jp nz,@looping
+    call set_text_colours_inverse
+    ld hl,ps_mode
+    set ps_mode_loop,(hl)
+    call printInline
+    asciz "ON"
+    call set_text_colours_normal
+    jp get_input
+@looping:
+    res ps_mode_loop,(hl)
+    call printInline
+    asciz "OFF"
+    jp get_input
+; end ps_toggle_loop
