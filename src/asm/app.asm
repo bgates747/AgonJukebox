@@ -65,7 +65,7 @@ main:
 
 ; we come back here when user wants to quit app
 ; shut down everytyhing and gracefully exit to MOS
-    call ps_prt_stop ; stop the PRT timer
+    call ps_close_file ; close any playing file and stop the PRT timer
     ei ; interrupts were disabled by get_input
 ; restore original screen mode
     ld a,(original_screen_mode)
