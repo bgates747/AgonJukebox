@@ -44,9 +44,9 @@ vp_duration:
 ; end vp_duration
 
 ; set text viewport for playing breadcrumbs
-vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left arrow
+vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left bracket
 vp_playhead_top: equ vp_now_playing_top+1
-vp_playhead_right: equ vp_duration_left-1 ; leave room for right arrow
+vp_playhead_right: equ vp_duration_left-1 ; leave room for right bracket
 vp_playhead:
     ld c, vp_playhead_left
     ld d, vp_playhead_top
@@ -95,7 +95,7 @@ vp_legend:
     ret
 
 vp_legend_shuffle_top: equ vp_legend_top+1
-vp_legend_shuffle_left: equ text_left+33
+vp_legend_shuffle_left: equ text_left+34
 vp_legend_shuffle:
     ld c,vp_legend_shuffle_left
     ld d,vp_legend_shuffle_top
@@ -225,9 +225,9 @@ ui_init:
     ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | [U]p directory\r\n"
-    db " [R]andom song      | [S]huffle: OFF     | [L]oop: OFF\r\n"
-    db " [ESC] or [Q]uit    |                    | v0.9.1 beta\r\n"
+    db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27," \e",26,"          | [U]p directory\r\n"
+    db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
+    db " [ESC] or [Q]uit     |                   | v0.9.2 beta\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border
