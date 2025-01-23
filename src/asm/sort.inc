@@ -1,13 +1,12 @@
-
 ; Determines the ascending lexical order of two zero-terminated strings
-; Inputs: HL, DE = pointers to strings; B = max characters to compare (0-255, 0 = 256)
+; Inputs: HL, DE = pointers to strings
 ; Returns: 
 ;   - HL points to the lexically smaller string, DE to the larger (swapped if HL > DE).
 ; Flags: 
-;   - Z set,   S pos: Strings are equal.
-;   - Z reset, S pos: DE is lexically larger than HL.
-;   - Z reset, S neg: DE is lexically smaller than HL.
-; Destroys: A, B
+;   - Z set,   C reset: Strings are equal.
+;   - Z reset, C reset: DE is lexically larger than HL.
+;   - Z reset, C set: DE is lexically smaller than HL.
+; Destroys: A
 ; Notes: 
 ;   - Comparisons are based on ASCII values: punctuation/numbers < uppercase < lowercase.
 alpha_asc:
@@ -15,17 +14,16 @@ alpha_asc:
     push de
 @loop:
     ld a,(de)
-    cp (hl)
+    cp a,(hl)
     jr nz,@done
-    or a
-    jr z,@done
     inc de
     inc hl
-    djnz @loop
+    or a,a
+    jr nz,@loop
 @done:
     pop de
     pop hl
-    ret p
+    ret nc
     ex de,hl
     ret
 ; end alpha_asc
@@ -43,43 +41,41 @@ alpha_asc_print:
     ret
 ; end alpha_asc_print
 
-; sort a list of pointers to zero-terminated strings in ascending lexical order
-; uses the selection sort algorithm, which is in-place and stable
-; inputs: iy = pointer to list of pointers; 
-;         c = max number of chars to search (0 = 256);
-;         b = number of items in the list (0 = 256)
-; outputs: sorted list of pointers
-; destroys: everything except iy, which will be pointed at the top of the sorted list
 selection_sort_asc:
-    push iy ; save pointer to list of pointers
+    push iy                  ; Save pointer to the list of pointers
+    ld a,b                   ; Load the number of items in the list
+    dec a                    ; Outer loop runs for (b - 1) iterations
+    ld b,a                   ; Update B for the outer loop counter
 @outer_loop:
-    lea ix,iy+3
-    ld (@current_min),iy ; assume first element is minimum
-    ld a,c ; a = max number of chars to search
-    push bc ; save outer loop counter
+    lea ix,iy+3              ; IX = pointer to the next element in the list
+    ld (@current_min),iy     ; Assume the first element is the minimum
+    push bc                  ; Save the outer loop counter
+    ld c,b                   ; Inner loop runs for remaining items
 @inner_loop:
-    push bc ; save inner loop counter
-    ld hl,(@current_min) ; hl points to the current minimum string
-    ld de,(ix) ; de points to the next string to compare
-    call alpha_asc ; hl points to the lexically smaller string
-    ld (@current_min),hl ; update the current minimum string
+    push bc                  ; Save the inner loop counter
+    ld hl,(iy)               ; HL = address of the current minimum string
+    ld de,(ix)               ; DE = address of the next string to compare
+    call alpha_asc           ; Compare HL and DE
+    jr nc,@skip_update        ; If HL <= DE, skip updating the minimum pointer
+    ld (@current_min),ix     ; Update the pointer to the current minimum
+@skip_update:
+    lea ix,ix+3              ; Move to the next pointer
+    pop bc                   ; Restore the inner loop counter
+    djnz @inner_loop         ; Continue the inner loop
 
-    lea ix,ix+3 ; move to the next string
-    pop bc ; restore inner loop counter
-    ld a,c ; a = max number of chars to search
-    djnz @inner_loop
+    ; Swap pointers in the list
+    ld ix,(@current_min)     ; IX = pointer to the current minimum
+    ld hl,(ix)               ; HL = address of the minimum string
+    ld de,(iy)               ; DE = address of the current string
+    ld (iy),hl               ; Store the minimum string's address at the current position
+    ld (ix),de               ; Store the current string's address at the minimum position
 
-    ld hl,(@current_min) ; hl points to the current minimum string
-    ld de,(iy) ; de points to the first string in the list
-    call alpha_asc ; hl points to the lexically smaller string, de the larger
-    ld (iy),hl ; lexically smaller string is moved to the front of the list
-    ld (ix),de ; lexically larger string is moved to the current position
+    lea iy,iy+3              ; Move to the next pointer in the list
+    pop bc                   ; Restore the outer loop counter
+    djnz @outer_loop         ; Continue the outer loop
 
-    lea iy,iy+3 ; move to the next string
-    pop bc ; restore outer loop counter
-    djnz @outer_loop
-
-    pop iy ; restore pointer to list of pointers
+    pop iy                   ; Restore pointer to the list of pointers
     ret
-@current_min: dl 0 ; pointer to the current minimum string
+
+@current_min: dl 0           ; Pointer to the current minimum string
 ; end selection_sort_asc

@@ -76,21 +76,33 @@ init:
 
 main:
     ld iy,song_list
-    ld b,20 ; number of songs to sort
-    ld c,0  ; max chars to search (0 = 256)
-    push bc ; save number of songs to sort
-    ; call selection_sort_asc
+    ld b,160 ; number of songs to sort (0 = 256)
+    push bc  ; save number of songs to sort
+
+    call selection_sort_asc
     
     pop bc ; restore number of songs to sort
     ld iy,song_list
 @loop:
     push bc
     ld hl,(iy)
-    ; call printString
     call printHex24
+    ld a,':'
+    rst.lil 10h
+    call printString
     call printNewLine
     lea iy,iy+3
     pop bc
+    ld a,b
+    dec a
+    and a,%00011111 ; mod 32
+    jp nz,@F
+    PUSH_ALL
+    call DEBUG_WAITKEYPRESS
+    CALL vdu_cls
+    POP_ALL
+
+@@:
     djnz @loop
 
     ret ; back to MOS
@@ -356,6 +368,7 @@ song_list:
     dl 0x055C00
     dl 0x055D00
     dl 0x055E00
+    dl 0x055F00
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"
