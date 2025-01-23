@@ -69,3 +69,39 @@ selection_sort_asc:
     pop iy                   ; Restore pointer to the list of pointers
     ret
 ; end selection_sort_asc
+
+; same as selection_sort_asc, but for sorting fileinfo structs by filename
+selection_sort_asc_filinfo:
+    push iy                  ; Save pointer to the list of pointers
+    dec b                    ; We only need to do n-1 loops
+@outer_loop:
+    lea ix,iy+3              ; IX = pointer to the next string in the list
+    push bc                  ; Save the outer loop counter
+@inner_loop:
+    push bc                  ; Save the inner loop counter
+    ld hl,(iy)               ; HL = address of the current string
+    ld de,filinfo_fname      ; offset to the filename in the FILINFO struct
+    add hl,de                ; HL = address of the filename
+    push hl                  ; Save the address of the filename
+    ld hl,(ix)               ; HL = address of the next string to compare
+    add hl,de                ; HL = address of the filename
+    ex de,hl                 ; DE = address of the filename
+    pop hl                   ; HL = address of the current filename
+    call alpha_asc           ; Compare HL and DE
+    jr nc,@skip_swap         ; If HL <= DE, skip swapping the strings
+    ld bc,-filinfo_fname     ; -offset to the filename in the FILINFO struct
+    add hl,bc                ; HL = address of the FILINFO struct
+    ld (iy),hl
+    ex de,hl                 ; HL = address of the filename
+    add hl,bc                ; HL = address of the FILINFO struct
+    ld (ix),hl
+@skip_swap:
+    lea ix,ix+3              ; Move to the next pointer
+    pop bc                   ; Restore the inner loop counter
+    djnz @inner_loop         ; Continue the inner loop
+    lea iy,iy+3              ; Move to the next pointer in the list
+    pop bc                   ; Restore the outer loop counter
+    djnz @outer_loop         ; Continue the outer loop
+    pop iy                   ; Restore pointer to the list of pointers
+    ret
+; end selection_sort_asc_filinfo

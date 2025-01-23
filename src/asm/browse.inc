@@ -84,6 +84,11 @@ bf_get_dir:
     ld (bf_dir_num_pages),de ; save the number of pages
     ld hl,0 ; reset the page number
     ld (bf_page_cur),hl
+; sort the filenames
+    ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+    ld a,(bf_dir_num_files) ; get the number of files
+    ld b,a ; loop counter
+    call selection_sort_asc_filinfo ; sort the filenames
 ; close the directory
     ld hl,bf_dir_struct      ; load H: with address of the DIR struct
     FFSCALL ffs_dclose       ; close dir

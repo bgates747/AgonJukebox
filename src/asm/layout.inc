@@ -227,7 +227,7 @@ ui_init:
     call printInline
     db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | [U]p directory\r\n"
     db " [R]andom song      | [S]huffle: OFF     | [L]oop: OFF\r\n"
-    db " [ESC] or [Q]uit    |                    | v0.9.0 beta\r\n"
+    db " [ESC] or [Q]uit    |                    | v0.9.1 beta\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border
