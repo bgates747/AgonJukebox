@@ -254,7 +254,7 @@ dumpRegistersHex:
     call printHex24
     
     call printNewLine
-    call printNewLine
+    ; call printNewLine
 ; restore everything
     ld hl, (uhl)
     ld bc, (ubc)
