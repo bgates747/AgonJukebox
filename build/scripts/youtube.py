@@ -1,25 +1,10 @@
 import os
 import subprocess
 
-def get_youtube_audio(url, output_dir):
-    """
-    Downloads a YouTube video's audio as separate MP3 files for each chapter if chapters are present.
-    If no chapters are present, downloads the entire audio as a single MP3 file.
-
-    Args:
-        url (str): The URL of the YouTube video.
-        output_dir (str): Directory to save the MP3 files.
-
-    Returns:
-        list: List of paths to the saved MP3 files.
-    """
-    # Ensure output directory exists
+def get_youtube_audio_sections(url, output_dir):
     os.makedirs(output_dir, exist_ok=True)
-
-    # Define the output template
     output_template = os.path.join(output_dir, "%(title)s_%(section_title)s.%(ext)s")
 
-    # yt-dlp command to download and split by chapters
     command = [
         "yt-dlp",
         "-x",  # Extract audio
@@ -31,23 +16,28 @@ def get_youtube_audio(url, output_dir):
     ]
 
     print(f"Downloading and converting: {url}")
-    try:
-        subprocess.run(command, check=True)
+    subprocess.run(command, check=True)
 
-        # List all downloaded MP3 files
-        downloaded_files = [
-            os.path.join(output_dir, file) for file in os.listdir(output_dir) if file.endswith(".mp3")
-        ]
-        print("Downloaded files:")
-        for file in downloaded_files:
-            print(f"  - {file}")
+def get_youtube_audio_single(url, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    output_template = os.path.join(output_dir, "%(title)s.%(ext)s")
 
-        return downloaded_files
-    except subprocess.CalledProcessError as e:
-        print(f"An error occurred: {e}")
-        raise
+    command = [
+        "yt-dlp",
+        "-x",  # Extract audio
+        "--audio-format", "wav",  # Convert to wav
+        "--restrict-filenames",  # Sanitize filenames
+        "--output", output_template,  # Define output file template
+        url,
+    ]
+
+    print(f"Downloading and converting: {url}")
+    subprocess.run(command, check=True)
 
 if __name__ == "__main__":
-    youtube_url = 'https://youtu.be/VThrx5MRJXA'
+    # youtube_url = 'https://youtu.be/VThrx5MRJXA' # 10 Hours of Classical Music
+    # youtube_url = 'https://www.youtube.com/playlist?list=PL0ILEW7Puee34Winu4AFAUeLNMgAHBsAf'
+    youtube_url = 'https://youtu.be/RKexLWM33SI'
     output_directory = 'assets/sound/music/staging'
-    get_youtube_audio(youtube_url, output_directory)
+    # get_youtube_audio_sections(youtube_url, output_directory)
+    get_youtube_audio_single(youtube_url, output_directory)
