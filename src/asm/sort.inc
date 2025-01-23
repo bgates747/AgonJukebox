@@ -28,54 +28,44 @@ alpha_asc:
     ret
 ; end alpha_asc
 
-alpha_asc_print:
-    call alpha_asc
-    call DEBUG_PRINT
-    push de
-    call printString
-    call printNewLine
-    pop hl
-    call printString
-    call printNewLine
-    call printNewLine
-    ret
-; end alpha_asc_print
-
+; Sorts a list of pointers to zero-terminated strings in ascending lexical order
+; using the selection sort algorithm, which is in-place and stable.
+;
+; Inputs:
+;   - IY: Pointer to the list of string pointers.
+;   - B: Number of items in the list (0 = 256).
+;
+; Outputs:
+;   - Sorted list of pointers in ascending lexical order.
+;
+; Destroys:
+;   - A, BC, DE, HL, IX.
+;
+; Notes:
+;   - Strings are compared using an unsigned comparison (ASCII-based).
+;   - The algorithm assumes all strings are properly null-terminated.
+;   - The sorting is performed in-place by swapping pointers in the list.
 selection_sort_asc:
     push iy                  ; Save pointer to the list of pointers
-    ld a,b                   ; Load the number of items in the list
-    dec a                    ; Outer loop runs for (b - 1) iterations
-    ld b,a                   ; Update B for the outer loop counter
+    dec b                    ; We only need to do n-1 loops
 @outer_loop:
-    lea ix,iy+3              ; IX = pointer to the next element in the list
-    ld (@current_min),iy     ; Assume the first element is the minimum
+    lea ix,iy+3              ; IX = pointer to the next string in the list
     push bc                  ; Save the outer loop counter
-    ld c,b                   ; Inner loop runs for remaining items
 @inner_loop:
     push bc                  ; Save the inner loop counter
-    ld hl,(iy)               ; HL = address of the current minimum string
+    ld hl,(iy)               ; HL = address of the current string
     ld de,(ix)               ; DE = address of the next string to compare
     call alpha_asc           ; Compare HL and DE
-    jr nc,@skip_update        ; If HL <= DE, skip updating the minimum pointer
-    ld (@current_min),ix     ; Update the pointer to the current minimum
-@skip_update:
+    jr nc,@skip_swap         ; If HL <= DE, skip swapping the strings
+    ld (iy),hl
+    ld (ix),de
+@skip_swap:
     lea ix,ix+3              ; Move to the next pointer
     pop bc                   ; Restore the inner loop counter
     djnz @inner_loop         ; Continue the inner loop
-
-    ; Swap pointers in the list
-    ld ix,(@current_min)     ; IX = pointer to the current minimum
-    ld hl,(ix)               ; HL = address of the minimum string
-    ld de,(iy)               ; DE = address of the current string
-    ld (iy),hl               ; Store the minimum string's address at the current position
-    ld (ix),de               ; Store the current string's address at the minimum position
-
     lea iy,iy+3              ; Move to the next pointer in the list
     pop bc                   ; Restore the outer loop counter
     djnz @outer_loop         ; Continue the outer loop
-
     pop iy                   ; Restore pointer to the list of pointers
     ret
-
-@current_min: dl 0           ; Pointer to the current minimum string
 ; end selection_sort_asc

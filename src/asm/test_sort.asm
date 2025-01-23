@@ -61,19 +61,6 @@ init:
     ret
 ; end init
 
-; str0: asciz "AB"
-;     blkb 256,0xff
-; str1: asciz "ABC"
-;     blkb 256,0xff
-; str2: asciz "ab"
-;     blkb 256,0xff
-; str3: asciz "abc"
-;     blkb 256,0xff
-; str4: asciz "XY"
-;     blkb 256,0xff
-; str5: asciz "XYZ"
-;     blkb 256,0xff
-
 main:
     ld iy,song_list
     ld b,160 ; number of songs to sort (0 = 256)
