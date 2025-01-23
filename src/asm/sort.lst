@@ -1,0 +1,75 @@
+PC     Output      Line
+040000             0001 ; Determines the ascending lexical order of two zero-terminated strings
+040000             0002 ; Inputs: HL, DE = pointers to strings
+040000             0003 ; Returns:
+040000             0004 ;   - HL points to the lexically smaller string, DE to the larger (swapped if HL > DE).
+040000             0005 ; Flags:
+040000             0006 ;   - Z set,   C reset: Strings are equal.
+040000             0007 ;   - Z reset, C reset: DE is lexically larger than HL.
+040000             0008 ;   - Z reset, C set: DE is lexically smaller than HL.
+040000             0009 ; Destroys: A
+040000             0010 ; Notes:
+040000             0011 ;   - Comparisons are based on ASCII values: punctuation/numbers < uppercase < lowercase.
+040000             0012 alpha_asc:
+040000 E5          0013     push hl
+040001 D5          0014     push de
+040002             0015 @loop:
+040002 1A          0016     ld a,(de)
+040003 BE          0017     cp a,(hl)
+040004 20 05       0018     jr nz,@done
+040006 13          0019     inc de
+040007 23          0020     inc hl
+040008 B7          0021     or a,a
+040009 20 F7       0022     jr nz,@loop
+04000B             0023 @done:
+04000B D1          0024     pop de
+04000C E1          0025     pop hl
+04000D D0          0026     ret nc
+04000E EB          0027     ex de,hl
+04000F C9          0028     ret
+040010             0029 ; end alpha_asc
+040010             0030 
+040010             0031 ; Sorts a list of pointers to zero-terminated strings in ascending lexical order
+040010             0032 ; using the selection sort algorithm, which is in-place and stable.
+040010             0033 ;
+040010             0034 ; Inputs:
+040010             0035 ;   - IY: Pointer to the list of string pointers.
+040010             0036 ;   - B: Number of items in the list (0 = 256).
+040010             0037 ;
+040010             0038 ; Outputs:
+040010             0039 ;   - Sorted list of pointers in ascending lexical order.
+040010             0040 ;
+040010             0041 ; Destroys:
+040010             0042 ;   - A, BC, DE, HL, IX.
+040010             0043 ;
+040010             0044 ; Notes:
+040010             0045 ;   - Strings are compared using an unsigned comparison (ASCII-based).
+040010             0046 ;   - The algorithm assumes all strings are properly null-terminated.
+040010             0047 ;   - The sorting is performed in-place by swapping pointers in the list.
+040010             0048 selection_sort_asc:
+040010 FD E5       0049     push iy                  ; Save pointer to the list of pointers
+040012             0050     ; ld a,b                   ; Load the number of items in the list
+040012             0051     ; dec a                    ; Outer loop runs for (b - 1) iterations
+040012             0052     ; ld b,a                   ; Update B for the outer loop counter
+040012             0053 @outer_loop:
+040012 ED 54 03    0054     lea ix,iy+3              ; IX = pointer to the next string in the list
+040015 C5          0055     push bc                  ; Save the outer loop counter
+040016 48          0056     ld c,b                   ; Inner loop runs for remaining items
+040017             0057 @inner_loop:
+040017 C5          0058     push bc                  ; Save the inner loop counter
+040018 FD 27 00    0059     ld hl,(iy)               ; HL = address of the current string
+04001B DD 17 00    0060     ld de,(ix)               ; DE = address of the next string to compare
+04001E CD 00 00 04 0061     call alpha_asc           ; Compare HL and DE
+040022 30 06       0062     jr nc,@skip_swap         ; If HL <= DE, skip swapping the strings
+040024 FD 2F 00    0063     ld (iy),hl
+040027 DD 1F 00    0064     ld (ix),de
+04002A             0065 @skip_swap:
+04002A ED 32 03    0066     lea ix,ix+3              ; Move to the next pointer
+04002D C1          0067     pop bc                   ; Restore the inner loop counter
+04002E 10 E7       0068     djnz @inner_loop         ; Continue the inner loop
+040030 ED 33 03    0069     lea iy,iy+3              ; Move to the next pointer in the list
+040033 C1          0070     pop bc                   ; Restore the outer loop counter
+040034 10 DC       0071     djnz @outer_loop         ; Continue the outer loop
+040036 FD E1       0072     pop iy                   ; Restore pointer to the list of pointers
+040038 C9          0073     ret
+040039             0074 ; end selection_sort_asc
