@@ -44,9 +44,9 @@ vp_duration:
 ; end vp_duration
 
 ; set text viewport for playing breadcrumbs
-vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left arrow
+vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left bracket
 vp_playhead_top: equ vp_now_playing_top+1
-vp_playhead_right: equ vp_duration_left-1 ; leave room for right arrow
+vp_playhead_right: equ vp_duration_left-1 ; leave room for right bracket
 vp_playhead:
     ld c, vp_playhead_left
     ld d, vp_playhead_top
@@ -94,8 +94,28 @@ vp_legend:
     call vdu_set_txt_viewport
     ret
 
+vp_legend_page_num_top: equ vp_legend_top
+vp_legend_page_num_left: equ text_left+29
+vp_legend_page_num:
+    ld c,vp_legend_page_num_left
+    ld d,vp_legend_page_num_top
+    ld e,vp_legend_page_num_left+1
+    ld b,vp_legend_page_num_top
+    call vdu_set_txt_viewport
+    ret
+
+vp_legend_num_pages_top: equ vp_legend_top
+vp_legend_num_pages_left: equ text_left+36
+vp_legend_num_pages:
+    ld c,vp_legend_num_pages_left
+    ld d,vp_legend_num_pages_top
+    ld e,vp_legend_num_pages_left+1
+    ld b,vp_legend_num_pages_top
+    call vdu_set_txt_viewport
+    ret
+
 vp_legend_shuffle_top: equ vp_legend_top+1
-vp_legend_shuffle_left: equ text_left+33
+vp_legend_shuffle_left: equ text_left+34
 vp_legend_shuffle:
     ld c,vp_legend_shuffle_left
     ld d,vp_legend_shuffle_top
@@ -225,9 +245,9 @@ ui_init:
     ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db " Song \e",24," \e",25," or 0-9    | Page \e",27," \e",26,"           | [U]p directory\r\n"
-    db " [R]andom song      | [S]huffle: OFF     | [L]oop: OFF\r\n"
-    db " [ESC] or [Q]uit    |                    |\r\n"
+    db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
+    db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
+    db " [ESC] or [Q]uit     |                   | v0.9.2 beta\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border
@@ -244,6 +264,15 @@ ui_init:
     xor a
     ld (bf_file_idx),a ; reset the file index
     call bf_highlight_file ; highlight the first file        
+
+; load logo and plot it
+    call load_ui_images
+    ld hl,BUF_UI_LOGO
+    call vdu_buff_select
+    ld bc,384 ; x
+    ld de,20 ; y
+    call vdu_plot_bmp
+
     ret
 ; end ui_init
 

@@ -44,10 +44,11 @@ exit:
 
 ; APPLICATION INCLUDES
     include "layout.inc"
-    ; include "ascii.inc"
     include "browse.inc"
     include "input.inc"
+    include "logo.inc"
     include "play.inc"
+    include "sort.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
     include "debug.inc"
