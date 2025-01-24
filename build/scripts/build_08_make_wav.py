@@ -105,7 +105,7 @@ def make_sfx(src_dir, tgt_dir, sample_rate):
 
     # For each source file, apply all transformations
     for filename in sorted(os.listdir(src_dir)):
-        if filename.lower().endswith(('.wav', '.mp3')):
+        if filename.lower().endswith(('.wav', '.mp3', '.flac')):
             filename_base = os.path.splitext(filename)[0]
             filename_base = filename_base.replace('_', ' ')  # Replace underscores with spaces
             filename_base = re.sub(r'[^a-zA-Z0-9\s]', '', filename_base)  # Remove non-alphanumeric
@@ -169,9 +169,10 @@ if __name__ == '__main__':
     # sample_rate = 32768 # 2x 'native' rate
     # sample_rate = 16384 # 'native' rate
     # sample_rate = 15360 # (256*60)
+    # sample_rate = 12000 # 48000 / 4 (200 * 60)
     sample_rate = -1 # Use the source file's sample rate
     src_dir = 'assets/sound/music/staging'
-    tgt_dir = 'tgt/music/Albums/Dire_Straits'
+    tgt_dir = 'tgt/music/Classical'
 
     # Generate sound effects with intermediate steps directly in the target directory
     make_sfx(src_dir, tgt_dir, sample_rate)

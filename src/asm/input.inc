@@ -43,13 +43,10 @@ get_input:
     jp c,@no_cmd ; not a song command
     cp '9'+1
     jp nc,@no_cmd ; not a song command
-; get pointer to song filename and play it
+; select song or directory
     sub '0' ; a = file index
     ld (bf_file_idx),a
-    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-    call bf_check_dir_or_file ; if zero then it's a song
-    jp z,@play_song ; ... otherwise fall through to no_cmd
-
+    jp bf_select_file
 @no_cmd: ; no valid commands so loop
     jp get_input
 @play_song:
