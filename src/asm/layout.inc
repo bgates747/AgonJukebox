@@ -94,6 +94,26 @@ vp_legend:
     call vdu_set_txt_viewport
     ret
 
+vp_legend_page_num_top: equ vp_legend_top
+vp_legend_page_num_left: equ text_left+29
+vp_legend_page_num:
+    ld c,vp_legend_page_num_left
+    ld d,vp_legend_page_num_top
+    ld e,vp_legend_page_num_left+1
+    ld b,vp_legend_page_num_top
+    call vdu_set_txt_viewport
+    ret
+
+vp_legend_num_pages_top: equ vp_legend_top
+vp_legend_num_pages_left: equ text_left+36
+vp_legend_num_pages:
+    ld c,vp_legend_num_pages_left
+    ld d,vp_legend_num_pages_top
+    ld e,vp_legend_num_pages_left+1
+    ld b,vp_legend_num_pages_top
+    call vdu_set_txt_viewport
+    ret
+
 vp_legend_shuffle_top: equ vp_legend_top+1
 vp_legend_shuffle_left: equ text_left+34
 vp_legend_shuffle:
@@ -225,7 +245,7 @@ ui_init:
     ld b,vp_playhead_top+2 ; y
     call vdu_move_cursor
     call printInline
-    db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27," \e",26,"          | [U]p directory\r\n"
+    db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
     db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
     db " [ESC] or [Q]uit     |                   | v0.9.2 beta\r\n"
     db 0 ; null terminator

@@ -117,7 +117,7 @@ bf_print_dir_page:
 ; check for zero files in directory
     ld hl,(bf_dir_num_files)
     SIGN_HLU
-    ret z ; no files to display so we're done
+    jp z,@no_files ; no files to display so update ui with page stats and return
 ; set pointer to the correct index in the fileinfo pointer table
     ld hl,(bf_page_cur) ; get the current page
     ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
@@ -144,10 +144,32 @@ bf_print_dir_page:
     jp z,@done ; if zero, we're done
     call printNewLine
     jp @loop
+@no_files:
+    xor a ; reset the page number to zero
+    ld (bf_page_cur),a 
+    ld hl,1 ; an empty page is still a page
+    ld (bf_dir_num_pages),hl
+    call bf_update_pages_ui
+    xor a ; set zero flag indicating there were no files to display
+    ret
 @done:
+; update ui and return to caller
+    call bf_update_pages_ui
     or a,1 ; reset zero flag indicating there were files to display
     ret
 ; end bf_print_dir_page
+
+bf_update_pages_ui:
+; update the directory page ui widgets
+    call vp_legend_page_num
+    ld a,(bf_page_cur)
+    inc a ; pages are zero-based, users are not
+    call printHex8
+    call vp_legend_num_pages
+    ld a,(bf_dir_num_pages)
+    call printHex8
+    ret
+; end bf_update_pages_ui
 
 bf_highlight_file:
 ; refresh the directory listing
