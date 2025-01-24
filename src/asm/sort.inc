@@ -82,7 +82,7 @@ selection_sort_asc_filinfo:
 @inner_loop:
     push bc                  ; Save the inner loop counter
     ld hl,(iy)               ; HL = address of the current string
-    ld de,filinfo_fname      ; offset to the filename in the FILINFO struct
+    ld de,filinfo_fname-1      ; offset to the filename in the FILINFO struct
     add hl,de                ; HL = address of the filename
     push hl                  ; Save the address of the filename
     ld hl,(ix)               ; HL = address of the next string to compare
@@ -91,7 +91,7 @@ selection_sort_asc_filinfo:
     pop hl                   ; HL = address of the current filename
     call alpha_asc           ; Compare (HL) and (DE)
     jr nc,@skip_swap         ; If (HL) <= (DE), skip swapping the strings
-    ld bc,-filinfo_fname     ; -offset to the filename in the FILINFO struct
+    ld bc,-filinfo_fname+1     ; -offset to the filename in the FILINFO struct
     add hl,bc                ; HL = address of the FILINFO struct
     ld (iy),hl
     ex de,hl                 ; HL = address of the filename

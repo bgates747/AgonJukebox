@@ -44,14 +44,22 @@ bf_get_dir:
 
 ; check for valid directory
     bit AM_DIR,a ; directory
-    jp nz,@goodPath ; is directory so skip .wav file check
+    jp nz,@isDir ; is directory so skip .wav file check
 
 ; is file so check for valid .wav format
     ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,ix+filinfo_fname ; de = pointer to filename
     call verify_wav
     jp nz,@readFileInfo ; not a .wav file, so skip it
-
+; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
+    ld a,'1'
+    ld (ix+filinfo_fname-1),a
+    jp @goodPath
+@isDir:
+; set the last byte of filinfo_faltname to 0 to indicate this is a directory for filename sorting
+    ld a,'0'
+    ld (ix+filinfo_fname-1),a
+    ; fall through to @goodPath
 @goodPath:
 ; valid file or directory
     ld (iy),ix ; store pointer to filinfo struct
@@ -110,6 +118,10 @@ bf_get_page_num_files:
 ; end bf_get_page_num_files
 ; end bf_get_dir
 
+; print the directory listing for the current directory page
+; inputs: none
+; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
+; destroys: everything
 bf_print_dir_page:
 ; set text viewport for directory listing
     call vp_dir
@@ -158,6 +170,38 @@ bf_print_dir_page:
     or a,1 ; reset zero flag indicating there were files to display
     ret
 ; end bf_print_dir_page
+
+; print the entire directory (for debugging, not in-app use)
+; inputs: none
+; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
+; destroys: everything
+bf_print_dir:
+; set pointer to the correct index in the fileinfo pointer table
+    ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+; loop through the fileinfo pointer table and print out the filenames
+    ld a,(bf_dir_num_files)
+    ld b,a ; loop counter
+    and a ; check for zero files in the directory
+    ret z ; nothing to see here, move along
+    xor a ; song index
+@loop:
+    push bc ; save loop counter
+    push af ; save song index
+    call printHexA ; print the song index
+    ld iy,(ix) ; iy points to filinfo struct
+    call bf_print_dir_or_file
+@bump_counters:
+    lea ix,ix+3 ; bump the filename pointer
+    pop af ; restore song index
+    inc a ; increment the song index
+    pop bc ; restore loop counter
+    dec b
+    jp z,@done ; if zero, we're done
+    call printNewLine
+    jp @loop
+@done:
+    ret
+; end bf_print_dir
 
 bf_update_pages_ui:
 ; update the directory page ui widgets
