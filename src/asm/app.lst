@@ -1679,7 +1679,7 @@ PC     Output      Line
 0405C5             0035        include "font.inc"
 0405C5             0001*   Lat2_VGA8_8x8: equ 64016
 0405C5             0002*   font_data:
-0405C5 00 00 78 0C 0003*       incbin "Lat2-VGA8_8x8.font"
+0405C5 00 00 78 0C 0003*       incbin "../assets/fonts/Lat2-VGA8_8x8.font"
        7C CC 76 0F 
        3C 42 B9 A5 
        B9 A5 42 3C 
@@ -6018,7 +6018,7 @@ PC     Output      Line
        4C 5D 6F 6F 
        70 3A 20 4F 
        46 46 0D 0A 
-042542 20 5B 45 53 0250*       db " [ESC] or [Q]uit     |                   | v0.9.2 beta\r\n"
+042542 20 5B 45 53 0250*       db " [ESC] or [Q]uit     |                   | v0.9.3 beta\r\n"
        43 5D 20 6F 
        72 20 5B 51 
        5D 75 69 74 
@@ -6030,7 +6030,7 @@ PC     Output      Line
        20 20 20 20 
        20 7C 20 76 
        30 2E 39 2E 
-       32 20 62 65 
+       33 20 62 65 
        74 61 0D 0A 
 04257A 00          0251*       db 0 ; null terminator
 04257B             0252*   
@@ -6815,7 +6815,7 @@ PC     Output      Line
 042CD7 C3 58 1C 04 0019*   	jp vdu_bmp_create
 042CDB             0020*   
 042CDB             0021*   F_UI_logo:
-042CDB 00 00 00 00 0022*       incbin "../../tgt/ui/logo.rgba2"
+042CDB 00 00 00 00 0022*       incbin "../assets/images/logo.rgba2"
        00 00 00 00 
        00 00 00 00 
        00 00 00 00 

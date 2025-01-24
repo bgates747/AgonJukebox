@@ -19,5 +19,5 @@ load_ui_images:
 	jp vdu_bmp_create
 
 F_UI_logo: 
-    incbin "../../tgt/ui/logo.rgba2"
+    incbin "../assets/images/logo.rgba2"
 F_UI_logo_end:

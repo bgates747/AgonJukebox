@@ -1,6 +1,6 @@
 Lat2_VGA8_8x8: equ 64016
 font_data:
-    incbin "Lat2-VGA8_8x8.font"
+    incbin "../assets/fonts/Lat2-VGA8_8x8.font"
 font_data_end:
 font_load:
 ; load font into a buffer
