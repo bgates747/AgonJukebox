@@ -1,3 +1,4 @@
+![Image](https://github.com/bgates747/AgonJukebox/blob/dev/screenshot.png)
 # AgonJukebox
 
 ... is an EZ80 assembly language application for the Agon Light family of retro-modern microcomputers. Audio is streamed from the Agon's SD card to the Video Display Processor (VDP) in one-second chunks, resulting in fast response to selecting files for playback and keeping memory requirements on the VDP to a minimum.
