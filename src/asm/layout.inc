@@ -44,9 +44,9 @@ vp_duration:
 ; end vp_duration
 
 ; set text viewport for playing breadcrumbs
-vp_playhead_left: equ vp_elapsed_right+1 ; leave room for left bracket
+vp_playhead_left: equ vp_elapsed_right+2 ; leave room for left bracket
 vp_playhead_top: equ vp_now_playing_top+1
-vp_playhead_right: equ vp_duration_left-1 ; leave room for right bracket
+vp_playhead_right: equ vp_duration_left-2 ; leave room for right bracket
 vp_playhead:
     ld c, vp_playhead_left
     ld d, vp_playhead_top
