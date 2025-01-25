@@ -42,6 +42,9 @@ exit:
     include "vdu_plot.inc"
     include "vdu_sound.inc"
 
+    include "fpp.inc"
+    include "fpp_ext.inc"
+
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "browse.inc"
@@ -54,27 +57,89 @@ exit:
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
-init:
+str_seconds: asciz "600"
+str_sample_rate: asciz "4800"
 
+str_arg1: asciz "12"
+str_arg2: asciz "10"
+
+fpp_arg1: blkb 5,0 ; 32-bit float
+fpp_arg2: blkb 5,0 ; 32-bit float
+
+int_seconds: blkb 4,0 ; 32-bit integer
+int_sample_rate: blkb 4,0 ; 32-bit integer
+init:
     ret
 ; end init
 main:
-    ld hl,[vp_playbar_right-vp_playbar_left+1]*256
-    ld de,2*60
-    call udiv168
-    ex de,hl
-    call dumpRegistersHex
     call printNewLine
 
-    ld de,1*60
-    call umul24
-    call dumpRegistersHex
-    call printNewLine
+    ld ix,str_arg2
+    call VAL_FP
+    ld ix,fpp_arg2
+    call store_float_nor
 
-    HLU_TO_A
-    ld hl,0
-    ld l,a
-    call printDec
+    ld ix,str_arg1
+    call VAL_FP
+    ld ix,fpp_arg1
+    call store_float_nor
+
+    ld ix,fpp_arg1
+    call fetch_float_nor
+    ld ix,fpp_arg2
+    call fetch_float_alt
+    ; ld a,fmod
+    ld a,fadd
+    call FPP
+    bit 7,h
+    push af
+    call print_float_dec
+    call printNewLine
+    pop af
+    call dumpFlags
+    call printNewLine
+    
+    ; ld ix,fpp_arg1
+    ; call fetch_float_nor
+    ; call print_float_dec
+    ; call printNewLine
+
+    ; ld ix,fpp_arg2
+    ; call fetch_float_alt
+    ; CALL print_float_dec_alt
+    ; call printNewLine
+
+    ret
+
+; ; test printDec8
+;     ld a,255
+;     call printDec8
+;     call printNewLine
+;     ret
+
+; convert input parameter strings to integers
+    ld ix,str_seconds
+    call VAL_FP
+    ld ix,int_seconds
+    call store_int_nor
+
+    ld ix,str_sample_rate
+    call VAL_FP
+    ld ix,int_sample_rate
+    call store_int_nor
+
+; compute seconds * sample rate
+    ld ix,int_seconds
+    call fetch_int_nor
+    ld ix,int_sample_rate
+    call fetch_int_alt
+    ld a,fmul
+    ; ld a,imul
+    call FPP
+
+; print result
+    call print_float_dec
+    call printNewLine
 
     ret ; back to MOS
 ; end main

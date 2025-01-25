@@ -1,6 +1,7 @@
 get_input:
 ; wait for the user to push a button
     ei ; enable interrupts
+    call vdu_vblank ; 
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
 
@@ -23,6 +24,16 @@ get_input:
     jp z,bf_up_dir
 
 ; SONG PLAYING COMMANDS
+; set seek speed commands
+    cp '-' ; slow down
+    jp z,ps_seek_slow
+    cp '=' ; speed up (means +)
+    jp z,ps_seek_fast
+; seek back / forward
+    cp '['
+    jp z,ps_seek_back
+    cp ']'
+    jp z,ps_seek_fwd
 ; toggle play / pause
     cp 'p'
     jp z,ps_toggle_pause
@@ -258,3 +269,82 @@ ps_toggle_loop:
     asciz "OFF"
     jp get_input
 ; end ps_toggle_loop
+
+ps_seek_slow:
+    ld a,(ps_seek_rate_idx)
+    dec a
+    jp ps_set_seek_rate
+; end ps_seek_slow
+
+ps_seek_fast:
+    ld a,(ps_seek_rate_idx)
+    inc a
+; fall through to ps_seek_rate
+; end ps_seek_fast
+
+ps_set_seek_rate:
+    and 7 ; mod 8
+    ld (ps_seek_rate_idx),a
+    ld hl,ps_seek_rate_idx+1
+    ld de,0
+    ld e,a
+    add hl,de
+    ld a,(hl)
+    ld (ps_seek_rate),a
+    call vp_seek_rate
+    call vdu_cls
+    ld a,(ps_seek_rate)
+    call printDec8
+    jp get_input
+; end ps_set_seek_rate
+
+ps_seek_back:
+; negate seek rate
+    ld de,(ps_seek_rate)
+    ld hl,0
+    or a ; clear carry
+    sbc hl,de ; hl -seek_rate
+    jp ps_seek
+; end ps_seek_back
+
+ps_seek_fwd:
+; seek forward
+    ld hl,(ps_seek_rate)
+; fall through to ps_seek
+; end ps_seek_fwd
+
+ps_seek:
+; compute new playhead position
+    ld de,(ps_playhead)
+    add hl,de ; hl = playhead + seek_rate
+
+    ; ld de,(ps_song_duration)
+    ; call udiv24 ; hl = mod(playhead, song_duration)
+    
+    ld (ps_playhead),hl ; save new playhead position
+; multiply new playhead position by sample rate
+    ld ix,ps_wav_header+wav_sample_rate
+    call fetch_int_nor
+    ld ix,ps_playhead
+    call fetch_int_alt
+    ld a,fmul
+    call FPP ; HLH'L' = seek position from start of file in bytes
+    ld ix,@seek_pos
+    call store_int_nor
+
+; seek to new position
+    ; 0x84: ffs_flseek
+    ; Move the read/write pointer in a file (Requires MOS 1.03 or above)
+    ; Parameters:
+    ; HL(U): Pointer to a FIL structure
+    ; DE(U): Least significant 3 bytes of the offset from the start of the file
+    ; C: Most significant byte of the offset (set to 0 for files < 16MB)
+    ; Preserves: HL(U), DE(U), BC(U)
+    ld hl,ps_fil_struct
+    ld de,(@seek_pos) ; low 3 bytes of seek position
+    ld a,(@seek_pos+2) ; high byte of seek position
+    ld c,a
+    FFSCALL ffs_flseek
+    jp get_input
+@seek_pos: dw32 0 ; temp buffer for seek position
+; end ps_seek

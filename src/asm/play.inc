@@ -20,8 +20,11 @@ ps_channel: db 0 ; channel number
 ps_cmdId: dl 0 ; command bufferId
 ps_sampleId: dl 0 ; sample bufferId
 ps_chunkpointer: dl 0 ; pointer to current chunk
-ps_playhead: dl 0 ; current playhead position in the song in seconds from the start
-ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit word plus a padding byte)
+ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
+ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
+ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
+ps_seek_rate_idx: db 0 ; seek rate index
+    db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -128,6 +131,15 @@ ps_read_sample:
     call vdu_load_buffer
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
+
+; ; DEBUG
+;     call vp_messages
+;     call vdu_cls
+;     ld ix,ps_fil_fptr
+;     call fetch_int_nor
+;     call print_float_dec
+; ; END DEBUG
+
     ret
 ; end ps_read_sample
 ps_update_playbar:
@@ -145,7 +157,7 @@ ps_update_playbar:
     call vp_playbar
     call vdu_cls
 
-    ld hl,[vp_playbar_right-vp_playbar_left-1]*256 ; leave room for cursor
+    ld hl,[vp_playbar_right-vp_playbar_left]*256 ; leave room for cursor
     ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
     call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
 

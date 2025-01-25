@@ -134,6 +134,16 @@ vp_legend_loop:
     call vdu_set_txt_viewport
     ret
 
+vp_seek_rate_top: equ vp_legend_top+2
+vp_seek_rate_left: equ text_left+29
+vp_seek_rate:
+    ld c,vp_seek_rate_left
+    ld d,vp_seek_rate_top
+    ld e,vp_seek_rate_left+3
+    ld b,vp_seek_rate_top
+    call vdu_set_txt_viewport
+    ret
+
 vp_messages_top: equ vp_playbar_top+6
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages
@@ -256,7 +266,7 @@ ui_init:
     call printInline
     db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
     db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
-    db " [ESC] or [Q]uit     |                   | v0.9.3 beta\r\n"
+    db " [ESC] or [Q]uit     | Seek -   1 + sec. | v0.9.3 beta\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border

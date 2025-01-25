@@ -42,6 +42,9 @@ exit:
     include "vdu_plot.inc"
     include "vdu_sound.inc"
 
+    include "fpp.inc"
+    include "fpp_ext.inc"
+
 ; APPLICATION INCLUDES
     include "layout.inc"
     include "browse.inc"

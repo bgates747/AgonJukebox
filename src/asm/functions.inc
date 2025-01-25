@@ -184,6 +184,40 @@ printDec:
     RET
 _printDecBuffer: blkb 16,0 ; a few bytes extra just to be sure
 
+printDec8:
+; back up all the things
+    push af
+    push bc
+    push de
+    push hl
+; initialize hl to 0 and load it with a
+    ld hl,0
+    ld l,a
+; convert l to ascii
+    LD DE, _printDecBuffer
+    CALL u8_to_ascii
+; replace leading zeroes with spaces
+    LD HL, _printDecBuffer
+    ld B, 3 ; if A was 0, we want to keep the final zero 
+@loop:
+    LD A, (HL)
+    CP '0'
+    JP NZ, @done
+    LD A, ' '
+    LD (HL), A
+    INC HL
+    DJNZ @loop
+@done:
+    LD HL, _printDecBuffer
+    CALL printString
+; restore all the things
+    pop hl
+    pop de
+    pop bc
+    pop af
+    RET
+; end printDec8
+
 ; This routine converts the unsigned 24-bit value in HLU into its ASCII representation, 
 ; starting to memory location pointing by DE, in decimal form and with leading zeroes 
 ; so it will allways be 8 characters length
