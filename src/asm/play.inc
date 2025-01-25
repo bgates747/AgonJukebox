@@ -62,7 +62,7 @@ play_song:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
-; reset the playhead counter to zero
+; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
 ; load the command buffers and read the first block of data
@@ -126,19 +126,44 @@ ps_read_sample:
     pop bc ; restore how much data to load
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
-; update the playhead counter and display the time elapsed
+; update the playbar counter and display the time elapsed
+    call ps_update_playbar
+    ret
+; end ps_read_sample
+ps_update_playbar:
+; set viewport to playbar
     call vp_elapsed
+; increment the playbar counter
     ld hl,(ps_playhead)
     inc hl
     ld (ps_playhead),hl
+; convert the playbar counter to HH:MM:SS and print it
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the playhead position
+
 ; print a playing breadcrumb
-    call vp_playhead
+    call vp_playbar
+    call vdu_cls
+
+    ld hl,[vp_playbar_right-vp_playbar_left-1]*256 ; leave room for cursor
+    ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
+    call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
+
+    ld hl,(ps_playhead)
+    call umul24 ; uhl is the breadcrumb position
+    HLU_TO_A ; a = breadcrumb position
+    and a
+    jp z,@done ; if zero, we're done
+    ld b,a
+@loop:
     ld a,'.'
     rst.lil 10h
+    djnz @loop
+@done:
+    ld a,219 ; cursor
+    rst.lil 10h
     ret
-; end ps_read_sample
+; end ps_update_playbar
 
 ; this is called by the PRT timer interrupt
 ps_play_sample:

@@ -55,43 +55,29 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
-    call bf_get_dir
+
     ret
 ; end init
 main:
-    call bf_print_dir
+    ld hl,[vp_playbar_right-vp_playbar_left+1]*256
+    ld de,2*60
+    call udiv168
+    ex de,hl
+    call dumpRegistersHex
     call printNewLine
+
+    ld de,1*60
+    call umul24
+    call dumpRegistersHex
+    call printNewLine
+
+    HLU_TO_A
+    ld hl,0
+    ld l,a
+    call printDec
+
     ret ; back to MOS
 ; end main
-
-
-bf_print_dir:
-; set pointer to the correct index in the fileinfo pointer table
-    ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
-; loop through the fileinfo pointer table and print out the filenames
-    ld a,(bf_dir_num_files)
-    ld b,a ; loop counter
-    and a ; check for zero files in the directory
-    ret z ; nothing to see here, move along
-    xor a ; song index
-@loop:
-    push bc ; save loop counter
-    push af ; save song index
-    call printHexA ; print the song index
-    ld iy,(ix) ; iy points to filinfo struct
-    call bf_print_dir_or_file
-@bump_counters:
-    lea ix,ix+3 ; bump the filename pointer
-    pop af ; restore song index
-    inc a ; increment the song index
-    pop bc ; restore loop counter
-    dec b
-    jp z,@done ; if zero, we're done
-    call printNewLine
-    jp @loop
-@done:
-    ret
-; end bf_print_dir
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

@@ -44,17 +44,17 @@ vp_duration:
 ; end vp_duration
 
 ; set text viewport for playing breadcrumbs
-vp_playhead_left: equ vp_elapsed_right+2 ; leave room for left bracket
-vp_playhead_top: equ vp_now_playing_top+1
-vp_playhead_right: equ vp_duration_left-2 ; leave room for right bracket
-vp_playhead:
-    ld c, vp_playhead_left
-    ld d, vp_playhead_top
-    ld e, vp_playhead_right
-    ld b, vp_playhead_top
+vp_playbar_left: equ 10
+vp_playbar_top: equ vp_now_playing_top+1
+vp_playbar_right: equ 53 
+vp_playbar:
+    ld c, vp_playbar_left
+    ld d, vp_playbar_top
+    ld e, vp_playbar_right
+    ld b, vp_playbar_top
     call vdu_set_txt_viewport
     ret
-; end vp_playhead
+; end vp_playbar
 
 vp_dir_hdr_top: equ 20
 vp_dir_hdr:
@@ -85,7 +85,7 @@ vp_dir:
     call vdu_set_txt_viewport
     ret
 
-vp_legend_top: equ vp_playhead_top+2
+vp_legend_top: equ vp_playbar_top+2
 vp_legend:
     ld c,text_left
     ld d,vp_legend_top
@@ -134,7 +134,7 @@ vp_legend_loop:
     call vdu_set_txt_viewport
     ret
 
-vp_messages_top: equ vp_playhead_top+6
+vp_messages_top: equ vp_playbar_top+6
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages
 vp_messages:
@@ -235,14 +235,23 @@ ui_init:
 
 ; below the breadcrumbs border
     ld c,text_left ; x
-    ld b,vp_playhead_top+1 ; y
+    ld b,vp_playbar_top+1 ; y
     call vdu_move_cursor
     ld hl,str_dashes_thick
     call printString
 
+; print the playbar
+    ld c,text_left ; x
+    ld b,vp_playbar_top-1 ; y
+    call vdu_move_cursor
+    call printInline
+    db "Select a song with \e",24," \e",25," \e",237,", 0-9, or [R]andom song\r\n"
+    db "00:00:00 [............................................] 00:00:00"
+    db 0 ; null terminator
+
 ; print the navigation and song control instructions
     ld c,text_left ; x
-    ld b,vp_playhead_top+2 ; y
+    ld b,vp_playbar_top+2 ; y
     call vdu_move_cursor
     call printInline
     db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
@@ -252,7 +261,7 @@ ui_init:
 
 ; below the detailed instructions / status border
     ld c,text_left ; x
-    ld b,vp_playhead_top+5 ; y
+    ld b,vp_playbar_top+5 ; y
     call vdu_move_cursor
     ld hl,str_dashes_thick
     call printString
