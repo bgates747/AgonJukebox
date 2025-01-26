@@ -329,12 +329,12 @@ ps_seek:
 ; compute new playhead position and update the playbar
     ld de,(ps_playhead)
     add hl,de ; hl = playhead + seek_rate
-; TODO: doesn't work correctly going backward (signed integer thing)
-    ld de,(ps_song_duration) ; handle wraparound 
-    call udiv24 ; hl = mod(playhead, song_duration)
-    ld (ps_playhead),hl ; save new playhead position
+; handle wraparound 
+    ld de,(ps_song_duration)
+    call udiv24
+; save new playhead position and update the playbar
+    ld (ps_playhead),hl 
     call ps_update_playbar
-
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
@@ -349,32 +349,14 @@ ps_seek:
     call FPP ; HLH'L' = seek position from start of file in bytes
     ld ix,@seek_pos
     call store_int_nor
-
 ; seek to new position and load the next block of data
-    ; 0x84: ffs_flseek
-    ; Move the read/write pointer in a file (Requires MOS 1.03 or above)
-    ; Parameters:
-    ; HL(U): Pointer to a FIL structure
-    ; DE(U): Least significant 3 bytes of the offset from the start of the file
-    ; C: Most significant byte of the offset (set to 0 for files < 16MB)
-    ; Preserves: HL(U), DE(U), BC(U)
     ld hl,ps_fil_struct
     ld de,(@seek_pos) ; low 3 bytes of seek position
     ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
-
-; ; DEBUG
-;     PUSH_ALL
-;     call vp_messages
-;     call vdu_cls
-;     POP_ALL
-;     call dumpRegistersHex
-; ; END DEBUG
-
     FFSCALL ffs_flseek
     call ps_read_sample
-
-; start the PRT timer
+; restart the PRT timer
     call ps_prt_start ; start the PRT timer
     jp get_input ; will reenable interrupts
 @seek_pos: dw32 0 ; temp buffer for seek position

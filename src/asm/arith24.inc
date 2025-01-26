@@ -268,3 +268,34 @@ shl_hlu_log2a:
 	pop 	bc ; restore
 	ret
 ; end shl_hlu_log2a
+
+
+; UHL / UDE --> UDE (signed), remainder UHL (unsigned)
+push af ; dummy push to make IDE happy
+sdiv24:
+; make everything positive and store sign flags
+    call hlu_abs
+    push af
+    ex de,hl
+    call hlu_abs
+    ex de,hl
+    push af
+; do the division
+    call udiv24 ; de = quotient, hl = remainder
+; adjust sign of result
+    pop af ; sign de
+    jp m,@de_neg
+    pop af ; sign hl
+    ret p ; both positive, nothing to do
+@hl_neg:
+    ex de,hl ; quotient to hl for sign adjustment
+    call neg_hlu ; de pos, hl neg, result is negative
+    ex de,hl ; negated quotient to de
+    ret
+@de_neg:
+    pop af
+    ret m ; both negative, nothing to do
+    ex de,hl ; quotient to hl for sign adjustment
+    call neg_hlu ; result is negative
+    ex de,hl ; negated quotient to de
+    ret

@@ -73,49 +73,20 @@ init:
 ; end init
 main:
     call printNewLine
-
-    ld ix,str_arg1
-    call VAL_FP
-    ld ix,fpp_arg1
-    call store_float_nor
-
-    ld hl,65536
-    call hlu2float
-    ld ix,fpp_arg1
-    call fetch_float_alt
     
-    ld a,fadd
-    call FPP
-
-    call print_float_dec
-    call printNewLine
-
-    ret
-
-    ld ix,str_arg2
-    call VAL_FP
-    ld ix,fpp_arg2
-    call store_float_nor
-
-    ld ix,str_arg1
-    call VAL_FP
-    ld ix,fpp_arg1
-    call store_float_nor
-
-    ld ix,fpp_arg1
-    call fetch_float_nor
-    ld ix,fpp_arg2
-    call fetch_float_alt
-    ; ld a,fmod
-    ; ld a,fadd
-    ld a,fmul
-    call FPP
-    bit 7,h
-    push af
-    call print_float_dec
-    call printNewLine
-    pop af
-    call dumpFlags
+    ld hl,-105
+    ld de,100
+    SIGN_HLU
+    jp z,@print
+    jp p,@mod
+    add hl,de
+    jp p,@print
+    call neg_hlu
+    jp @print
+@mod:
+    call udiv24
+@print:
+    call printDec
     call printNewLine
 
     ret ; back to MOS

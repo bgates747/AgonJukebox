@@ -148,16 +148,13 @@ DisplayHexPrefix:
 ; HL : Value to print
 ; preserves all registers and flags
 printDec:
-; BEGIN MY CODE
 ; back up all the things
     push af
     push bc
     push de
     push hl
-; END MY CODE
     LD DE, _printDecBuffer
     CALL u24_to_ascii
-; BEGIN MY CODE
 ; replace leading zeroes with spaces
     LD HL, _printDecBuffer
     ld B, 7 ; if HL was 0, we want to keep the final zero 
@@ -168,21 +165,55 @@ printDec:
     LD A, ' '
     LD (HL), A
     INC HL
-    ; CALL vdu_cursor_forward
     DJNZ @loop
 @done:
-; END MY CODE
     LD HL, _printDecBuffer
     CALL printString
-; BEGIN MY CODE
 ; restore all the things
     pop hl
     pop de
     pop bc
     pop af
-; END MY CODE
     RET
 _printDecBuffer: blkb 16,0 ; a few bytes extra just to be sure
+
+; same as printDec but signed
+printDecS:
+; back up all the things
+    push af
+    push bc
+    push de
+    push hl
+    call hlu_abs ; abs(hl), sign flag set if negative
+    push af ; save sign flag
+    LD DE, _printDecBuffer
+    CALL u24_to_ascii
+; replace leading zeroes with spaces
+    LD HL, _printDecBuffer
+    ld B, 7 ; if HL was 0, we want to keep the final zero 
+    pop af ; restore sign flag
+    ld a,' ' ; assume positive
+    jp p,@print
+    ld a,'-' 
+@print:
+    rst.lil 10h
+@loop:
+    LD A, (HL)
+    CP '0'
+    JP NZ, @done
+    LD A, ' '
+    LD (HL), A
+    INC HL
+    DJNZ @loop
+@done:
+    LD HL, _printDecBuffer
+    CALL printString
+; restore all the things
+    pop hl
+    pop de
+    pop bc
+    pop af
+    RET
 
 printDec8:
 ; back up all the things
