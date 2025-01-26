@@ -26,9 +26,17 @@ ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
 ps_seek_rate_idx: db 0 ; seek rate index
     db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
 
+ps_chunks_per_second: equ 60 ; number of chunks to load per second
+ps_chunk_size: dl 0 ; size of chunks to load (sample rate / 60)
+ps_chunk_counter: db 0 ; init to chunks/sec, when hits zero play the loaded buffer
+
 play_song:
 ; stop the PRT timer and close any currently playing file
     call ps_close_file ; also stops prt timer
+
+; reset the chunk counter to chunks / second
+    ld a,ps_chunks_per_second
+    ld (ps_chunk_counter),a
 
 ; clear now playing viewport
     call vp_now_playing
@@ -65,10 +73,16 @@ play_song:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
+; compute the chunksize
+    ld hl,(ps_wav_header+wav_sample_rate)
+    ld de,ps_chunks_per_second
+    call udiv24 ; de = sample_rate / ps_chunks_per_second
+    ld (ps_chunk_size),de ; save the chunk size
 ; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
 ; load the command buffers and read the first block of data
+    call ps_flip_buffers
     call ps_load_command_buffers
     call ps_read_sample
 ; set ps_mode_playing
@@ -82,12 +96,10 @@ play_song:
     jp get_input
 ; end play_song
 
-; read the next 1-second's worth of sound data from the file
+; this is called by the PRT timer interrupt
+; read the next chunk of sound data from the file
 ; and upload it to the sample buffer
 ps_read_sample:
-; disable interrupts so load is guaranteed to complete
-    ; di
-
 ; 0x82: ffs_fread
 ; Read from a file (Requires MOS 1.03 or above)
 ; Parameters:
@@ -100,38 +112,33 @@ ps_read_sample:
 ; A: FRESULT
     ld hl,ps_fil_struct
     ld de,ps_wav_data
-    ld bc,(ps_wav_header+wav_sample_rate)
+    ; ld bc,(ps_wav_header+wav_sample_rate)
+    ld bc,(ps_chunk_size)
     FFSCALL ffs_fread
-
 ; test bc for zero bytes read
     ld hl,0
     xor a ; clear carry
     sbc hl,bc ; hl = 0-chunksize
     jp nz,@load ; we read some data
-
 ; no data read so close file and play next song
     call ps_close_file
     jp ps_song_over
-
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
-    push bc ; save how much data to load
-    ld a,(ps_channel)
-    inc a
-    and 1
-    ld (ps_channel),a
-    ld hl,ch0_buffer
-    ld l,a
-    ld (ps_sampleId),hl
-    call vdu_clear_buffer
+; load the chunk to the current sample buffer
     ld hl,(ps_sampleId)
-    pop bc ; restore how much data to load
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
-; update the playbar counter and display the time elapsed
-    call ps_update_playbar
-    ret
+; decrement the chunk counter
+    ld a,(ps_chunk_counter)
+    dec a
+    ld (ps_chunk_counter),a
+    ret nz ; not zero so not time to play the buffer
+; reset the chunk counter and play the buffer
+    ld a,ps_chunks_per_second
+    ld (ps_chunk_counter),a
+    jp ps_play_sample
 ; end ps_read_sample
 ps_update_playbar:
 ; set viewport to playbar
@@ -143,15 +150,12 @@ ps_update_playbar:
 ; convert the playbar counter to HH:MM:SS and print it
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the playhead position
-
-; print a playing breadcrumb
+; print breadcrumbs and playhead marker
     call vp_playbar
     call vdu_cls
-
     ld hl,[vp_playbar_right-vp_playbar_left]*256 ; leave room for cursor
     ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
     call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
-
     ld hl,(ps_playhead)
     call umul24 ; uhl is the breadcrumb position
     HLU_TO_A ; a = breadcrumb position
@@ -168,18 +172,28 @@ ps_update_playbar:
     ret
 ; end ps_update_playbar
 
-; this is called by the PRT timer interrupt
 ps_play_sample:
+; update the playbar counter and display the time elapsed
+    call ps_update_playbar
 ; call the command buffer to play the sound
     ld hl,(ps_sampleId)
     inc l
     inc l
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
-; load the next chunk of data
-    call ps_read_sample
-; return to the interrupt handler
+    ; fall through to ps_flip_buffers
+ps_flip_buffers:
+; flip the command and sample buffers and clear the new sample buffer
+    ld a,(ps_channel)
+    inc a
+    and 1
+    ld (ps_channel),a
+    ld hl,ch0_buffer
+    ld l,a
+    ld (ps_sampleId),hl
+    call vdu_clear_buffer
     ret
+; end ps_flip_buffers
 ; end ps_play_sample
 
 ; close the file
@@ -287,6 +301,7 @@ ps_load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
+    ; ld hl,(ps_chunk_size)
     ld (ps_sr0),hl
     ld a,23
     ld (ps_sr0+2),a
@@ -298,6 +313,7 @@ ps_load_command_buffers:
     ld hl,cmd1_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
+    ; ld hl,(ps_chunk_size)
     ld (ps_sr1),hl
     ld a,23
     ld (ps_sr1+2),a
@@ -307,8 +323,13 @@ ps_load_command_buffers:
     call vdu_write_block_to_buffer
     ret
 ps_cmd0:
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+    db 23,0,0xA0 ; vdu buffered api command header
+    dw ch0_buffer
+    db 14 ; consolidate blocks command
 ; vdu_buffer_to_sound command string
-; Command 5: Buffer to sound
+; Command 2: Buffer to sound
 ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
     db 23,0,0x85 ; vdu sound command header
     db 0x00 ; channel (ignored)
@@ -337,8 +358,13 @@ ps_sr0:
 ps_cmd0_end:
 
 ps_cmd1:
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+    db 23,0,0xA0 ; vdu buffered api command header
+    dw ch1_buffer
+    db 14 ; consolidate blocks command
 ; vdu_buffer_to_sound command string
-; Command 5: Buffer to sound
+; Command 2: Buffer to sound
 ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
     db 23,0,0x85 ; vdu sound command header
     db 0x00 ; channel (ignored)

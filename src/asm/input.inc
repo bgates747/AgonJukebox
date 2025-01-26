@@ -2,7 +2,7 @@ get_input:
 ; wait for the user to push a button
     ei ; enable interrupts
     MOSCALL mos_getkey ; a = ascii code of key pressed
-    ; di ; disable interrupts
+    di ; disable interrupts
 
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
@@ -167,7 +167,6 @@ bf_change_dir:
     MOSCALL mos_cd ; change to the directory
 ; stop the PRT timer and disable interrupts
     call ps_prt_stop ; stop the PRT timer
-    di ; disable interrupts
  ; get directory listing
     call bf_get_dir
     ld hl,0
@@ -306,8 +305,6 @@ ps_set_seek_rate:
 ps_seek_back:
 ; stop the PRT timer and disable interrupts
     call ps_prt_stop ; stop the PRT timer
-    di ; disable interrupts
-
 ; negate seek rate
     ld de,(ps_seek_rate)
     ld hl,0
@@ -319,7 +316,6 @@ ps_seek_back:
 ps_seek_fwd:
 ; stop the PRT timer and disable interrupts
     call ps_prt_stop ; stop the PRT timer
-    di ; disable interrupts
 ; seek forward
     ld hl,(ps_seek_rate)
 ; fall through to ps_seek

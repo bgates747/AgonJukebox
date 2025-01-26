@@ -1,9 +1,9 @@
-ps_prt_reload: equ [72000/2] ; 36000 = 2 ticks per second at 18.432 MHz with a 256 clock divider
+; 72000 = 1 tick per second at 18.432 MHz with a 256 clock divider
+; but since max is 65536, intervals > 65536/72000 = 0.91 seconds require an additional counter
+ps_prt_reload: equ 72000/ps_chunks_per_second
 
 ; start PRT timer
 ps_prt_start:
-    ld hl,0
-    ld (ps_prt_irq_counter),hl
     ld hl,ps_prt_reload
     out0 (TMR1_CTL+TMR_RES_LOW),l
 	out0 (TMR1_CTL+TMR_RES_HIGH),h
@@ -49,8 +49,6 @@ ps_prt_irq_init:
 ; end ps_prt_irq_init
 
 ; interrupt routine for playing the next sample
-ps_prt_irq_counter:
-	db 0
 ps_prt_irq_handler:
     di
     ex af,af'
@@ -59,17 +57,11 @@ ps_prt_irq_handler:
 	MOSCALL mos_sysvars
 	xor a
 	ld (IX+sysvar_keyascii),a
-; read the timer interrupt and bump the counter
+; read the timer interrupt and call the handler
     in0 a,(TMR1_CTL+TMR_REG_CTL)
-    ld a,(ps_prt_irq_counter)
-    inc a
-    and 1 ; modulo 2
-    ld (ps_prt_irq_counter),a
-; if counter zero, play the next sample
-    jp nz,@F
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
-    call nz,ps_play_sample
+    call nz,ps_read_sample
 @@:
     exx
     ex af,af'
