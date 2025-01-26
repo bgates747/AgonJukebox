@@ -331,7 +331,17 @@ ps_seek:
     add hl,de ; hl = playhead + seek_rate
 ; handle wraparound 
     ld de,(ps_song_duration)
+    SIGN_HLU
+    jp z,@print
+    jp p,@mod
+    or a ; clear carry for adc because
+    adc hl,de ; add doesn't set sign flag
+    jp p,@print
+    call neg_hlu
+    jp @print
+@mod:
     call udiv24
+@print:
 ; save new playhead position and update the playbar
     ld (ps_playhead),hl 
     call ps_update_playbar

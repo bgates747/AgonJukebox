@@ -73,13 +73,14 @@ init:
 ; end init
 main:
     call printNewLine
-    
-    ld hl,-105
-    ld de,100
+
+    ld hl,-30
+    ld de,270
     SIGN_HLU
     jp z,@print
     jp p,@mod
-    add hl,de
+    or a ; clear carry for adc because
+    adc hl,de ; add doesn't set sign flag
     jp p,@print
     call neg_hlu
     jp @print
@@ -91,6 +92,16 @@ main:
 
     ret ; back to MOS
 ; end main
+
+;     ld hl,-30
+;     ld de,270
+; @mod:
+;     call udiv24
+; @print:
+;     call printDec
+;     call printNewLine
+;     ret
+
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"
