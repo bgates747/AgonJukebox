@@ -86,7 +86,7 @@ play_song:
 ; and upload it to the sample buffer
 ps_read_sample:
 ; disable interrupts so load is guaranteed to complete
-    di
+    ; di
 
 ; 0x82: ffs_fread
 ; Read from a file (Requires MOS 1.03 or above)
@@ -131,15 +131,6 @@ ps_read_sample:
     call vdu_load_buffer
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
-
-; ; DEBUG
-;     call vp_messages
-;     call vdu_cls
-;     ld ix,ps_fil_fptr
-;     call fetch_int_nor
-;     call print_float_dec
-; ; END DEBUG
-
     ret
 ; end ps_read_sample
 ps_update_playbar:

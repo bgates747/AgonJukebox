@@ -1,9 +1,8 @@
 get_input:
 ; wait for the user to push a button
     ei ; enable interrupts
-    call vdu_vblank ; 
     MOSCALL mos_getkey ; a = ascii code of key pressed
-    di ; disable interrupts
+    ; di ; disable interrupts
 
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
@@ -299,6 +298,10 @@ ps_set_seek_rate:
 ; end ps_set_seek_rate
 
 ps_seek_back:
+; stop the PRT timer and disable interrupts
+    call ps_prt_stop ; stop the PRT timer
+    di ; disable interrupts
+
 ; negate seek rate
     ld de,(ps_seek_rate)
     ld hl,0
@@ -308,31 +311,40 @@ ps_seek_back:
 ; end ps_seek_back
 
 ps_seek_fwd:
+; stop the PRT timer and disable interrupts
+    call ps_prt_stop ; stop the PRT timer
+    di ; disable interrupts
 ; seek forward
     ld hl,(ps_seek_rate)
 ; fall through to ps_seek
 ; end ps_seek_fwd
 
 ps_seek:
-; compute new playhead position
+; compute new playhead position and update the playbar
     ld de,(ps_playhead)
     add hl,de ; hl = playhead + seek_rate
-
-    ; ld de,(ps_song_duration)
-    ; call udiv24 ; hl = mod(playhead, song_duration)
-    
+; TODO: doesn't work correctly going backward (signed integer thing)
+    ld de,(ps_song_duration) ; handle wraparound 
+    call udiv24 ; hl = mod(playhead, song_duration)
     ld (ps_playhead),hl ; save new playhead position
+    call ps_update_playbar
+
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
     ld ix,ps_playhead
     call fetch_int_alt
     ld a,fmul
+    call FPP ; HLH'L' = seek position from start of file in bytes less .wav header
+    call SWAP
+    ld hl,76 ; wav header size
+    call hlu2float
+    ld a,fadd
     call FPP ; HLH'L' = seek position from start of file in bytes
     ld ix,@seek_pos
     call store_int_nor
 
-; seek to new position
+; seek to new position and load the next block of data
     ; 0x84: ffs_flseek
     ; Move the read/write pointer in a file (Requires MOS 1.03 or above)
     ; Parameters:
@@ -342,9 +354,22 @@ ps_seek:
     ; Preserves: HL(U), DE(U), BC(U)
     ld hl,ps_fil_struct
     ld de,(@seek_pos) ; low 3 bytes of seek position
-    ld a,(@seek_pos+2) ; high byte of seek position
+    ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
+
+; DEBUG
+    PUSH_ALL
+    call vp_messages
+    call vdu_cls
+    POP_ALL
+    call dumpRegistersHex
+; END DEBUG
+
     FFSCALL ffs_flseek
-    jp get_input
+    call ps_read_sample
+
+; start the PRT timer
+    call ps_prt_start ; start the PRT timer
+    jp get_input ; will reenable interrupts
 @seek_pos: dw32 0 ; temp buffer for seek position
 ; end ps_seek

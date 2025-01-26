@@ -60,8 +60,8 @@ exit:
 str_seconds: asciz "600"
 str_sample_rate: asciz "4800"
 
-str_arg1: asciz "12"
-str_arg2: asciz "10"
+str_arg1: asciz "3600"
+str_arg2: asciz "48000"
 
 fpp_arg1: blkb 5,0 ; 32-bit float
 fpp_arg2: blkb 5,0 ; 32-bit float
@@ -73,6 +73,24 @@ init:
 ; end init
 main:
     call printNewLine
+
+    ld ix,str_arg1
+    call VAL_FP
+    ld ix,fpp_arg1
+    call store_float_nor
+
+    ld hl,65536
+    call hlu2float
+    ld ix,fpp_arg1
+    call fetch_float_alt
+    
+    ld a,fadd
+    call FPP
+
+    call print_float_dec
+    call printNewLine
+
+    ret
 
     ld ix,str_arg2
     call VAL_FP
@@ -89,7 +107,8 @@ main:
     ld ix,fpp_arg2
     call fetch_float_alt
     ; ld a,fmod
-    ld a,fadd
+    ; ld a,fadd
+    ld a,fmul
     call FPP
     bit 7,h
     push af
@@ -97,48 +116,6 @@ main:
     call printNewLine
     pop af
     call dumpFlags
-    call printNewLine
-    
-    ; ld ix,fpp_arg1
-    ; call fetch_float_nor
-    ; call print_float_dec
-    ; call printNewLine
-
-    ; ld ix,fpp_arg2
-    ; call fetch_float_alt
-    ; CALL print_float_dec_alt
-    ; call printNewLine
-
-    ret
-
-; ; test printDec8
-;     ld a,255
-;     call printDec8
-;     call printNewLine
-;     ret
-
-; convert input parameter strings to integers
-    ld ix,str_seconds
-    call VAL_FP
-    ld ix,int_seconds
-    call store_int_nor
-
-    ld ix,str_sample_rate
-    call VAL_FP
-    ld ix,int_sample_rate
-    call store_int_nor
-
-; compute seconds * sample rate
-    ld ix,int_seconds
-    call fetch_int_nor
-    ld ix,int_sample_rate
-    call fetch_int_alt
-    ld a,fmul
-    ; ld a,imul
-    call FPP
-
-; print result
-    call print_float_dec
     call printNewLine
 
     ret ; back to MOS
