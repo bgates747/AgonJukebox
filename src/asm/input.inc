@@ -165,14 +165,20 @@ bf_up_dir:
 ; inputs: hl = pointer to directory name
 bf_change_dir:
     MOSCALL mos_cd ; change to the directory
-    call bf_get_dir ; get directory listing
+; stop the PRT timer and disable interrupts
+    call ps_prt_stop ; stop the PRT timer
+    di ; disable interrupts
+ ; get directory listing
+    call bf_get_dir
     ld hl,0
     ld (bf_page_cur),hl ; reset the page number
     xor a
     ld (bf_file_idx),a ; reset the file index
     call bf_highlight_file ; highlight the first file
     call bf_print_dir_name ; print the directory name
-    jp get_input ; back to main loop
+; restart the PRT timer
+    call ps_prt_start ; start the PRT timer
+    jp get_input ; back to main loop (will re-enable interrupts)
 ; end bf_change_dir
 ; end bf_up_dir
 
@@ -357,13 +363,13 @@ ps_seek:
     ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
 
-; DEBUG
-    PUSH_ALL
-    call vp_messages
-    call vdu_cls
-    POP_ALL
-    call dumpRegistersHex
-; END DEBUG
+; ; DEBUG
+;     PUSH_ALL
+;     call vp_messages
+;     call vdu_cls
+;     POP_ALL
+;     call dumpRegistersHex
+; ; END DEBUG
 
     FFSCALL ffs_flseek
     call ps_read_sample
