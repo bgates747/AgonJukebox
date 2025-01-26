@@ -1,0 +1,416 @@
+PC     Output      Line
+040000             0001   	; AGON LIGHT
+040000             0002   	; Keyboard Interrupt Example
+040000             0003   	; Richard Turnnidge 2025
+040000             0004   
+040000             0005   ; ---------------------------------------------
+040000             0006   ;
+040000             0007   ;	MACROS
+040000             0008   ;
+040000             0009   ; ---------------------------------------------
+040000             0010   
+040000             0011   	macro MOSCALL function
+040000             0012   	ld a, function
+040000             0013   	rst.lil $08
+040000             0014   	endmacro
+040000             0015   
+040000             0016   ; ---------------------------------------------
+040000             0017   
+040000             0018   	macro TABTO x, y
+040000             0019   	ld a, 31
+040000             0020   	rst.lil $10
+040000             0021   	ld a, x
+040000             0022   	rst.lil $10
+040000             0023   	ld a, y
+040000             0024   	rst.lil $10
+040000             0025   	endmacro
+040000             0026   
+040000             0027   ; ---------------------------------------------
+040000             0028   
+040000             0029   	macro CLS
+040000             0030   	ld a, 12
+040000             0031   	rst.lil $10
+040000             0032   	endmacro
+040000             0033   
+040000             0034   ; ---------------------------------------------
+040000             0035   
+040000             0036   	macro MODE mode
+040000             0037   	ld a, 22
+040000             0038   	rst.lil $10
+040000             0039   	ld a, mode
+040000             0040   	rst.lil $10
+040000             0041   	endmacro
+040000             0042   
+040000             0043   ; ---------------------------------------------
+040000             0044   
+040000             0045   	macro SETCOLOUR col
+040000             0046   	ld a, 17
+040000             0047   	rst.lil $10
+040000             0048   	ld a, col
+040000             0049   	rst.lil $10
+040000             0050   	endmacro
+040000             0051   
+040000             0052   ; ---------------------------------------------
+040000             0053   
+040000             0054   	macro SETCURSOR value 		; to set cursor visible or not [0 or 1]
+040000             0055   	push af
+040000             0056   	ld a, 23
+040000             0057   	rst.lil $10
+040000             0058   	ld a, 1
+040000             0059   	rst.lil $10
+040000             0060   	ld a, value
+040000             0061   	rst.lil $10					; VDU 23,1,value [0 off, 1 on]
+040000             0062   	pop af
+040000             0063   	endmacro
+040000             0064   
+040000             0065   ; ---------------------------------------------
+040000             0066   ;
+040000             0067   ;	CONSTANTS
+040000             0068   ;
+040000             0069   ; ---------------------------------------------
+040000             0070   
+040000             0071   colour: 	equ 17
+040000             0072   white: 		equ 15
+040000             0073   grey: 		equ 7
+040000             0074   green: 		equ 10
+040000             0075   red: 		equ 1
+040000             0076   
+040000             0077   ; ---------------------------------------------
+040000             0078   ;
+040000             0079   ;	GET READY
+040000             0080   ;
+040000             0081   ; ---------------------------------------------
+040000             0082   
+040000             0083   	.assume adl=1		; big memory mode
+040000             0084   	.org $40000		; load code here
+040000             0085   
+040000 C3 45 00 04 0086   	jp start_here		; jump to start of code
+040004             0087   
+040004             0088   	.align 64		; MOS header
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+       FF FF FF FF 
+040040 4D 4F 53 00 0089   	.db "MOS",0,1
+       01          
+040045             0090   
+040045             0091   ; ---------------------------------------------
+040045             0092   ;
+040045             0093   ;	START
+040045             0094   ;
+040045             0095   ; ---------------------------------------------
+040045             0096   
+040045             0097   start_here:
+040045             0098   
+040045 F5          0099   	push af
+040046 C5          0100   	push bc
+040047 D5          0101   	push de
+040048 DD E5       0102   	push ix	 			; store everything as good practice
+04004A FD E5       0103   	push iy	 			; pop back when we return from code later
+04004C             0104   
+04004C             0105   	MODE 8  			; set display to mode 8
+                       M1 Args: mode=8 
+04004C 3E 16       0001M1 	ld a, 22
+04004E 5B D7       0002M1 	rst.lil $10
+040050 3E 08       0003M1 	ld a, mode
+040052 5B D7       0004M1 	rst.lil $10
+040054             0106   	CLS  				; clear screen
+                       M1 Args: none
+040054 3E 0C       0001M1 	ld a, 12
+040056 5B D7       0002M1 	rst.lil $10
+040058             0107   	SETCURSOR 0  			; hide cursor
+                       M1 Args: value=0 
+040058 F5          0001M1 	push af
+040059 3E 17       0002M1 	ld a, 23
+04005B 5B D7       0003M1 	rst.lil $10
+04005D 3E 01       0004M1 	ld a, 1
+04005F 5B D7       0005M1 	rst.lil $10
+040061 3E 00       0006M1 	ld a, value
+040063 5B D7       0007M1 	rst.lil $10					; VDU 23,1,value [0 off, 1 on]
+040065 F1          0008M1 	pop af
+040066             0108           SETCOLOUR white			; reset text colour to white
+                       M1 Args: col=white 
+040066 3E 11       0001M1 	ld a, 17
+040068 5B D7       0002M1 	rst.lil $10
+04006A 3E 0F       0003M1 	ld a, col
+04006C 5B D7       0004M1 	rst.lil $10
+04006E             0109   
+04006E 21 35 01 04 0110   	ld hl, title_str		; data to send
+040072 01 8E 00 00 0111   	ld bc, end_title - title_str	; length of data
+040076 5B DF       0112   	rst.lil $18  			; print screen info text
+040078             0113   
+040078 CD B7 00 04 0114   	call setup_kb_handler 		; initiate keyboard intercepter
+04007C             0115   
+04007C             0116   ; ---------------------------------------------
+04007C             0117   ;
+04007C             0118   ;	MAIN LOOP
+04007C             0119   ;
+04007C             0120   ; ---------------------------------------------
+04007C             0121   
+04007C             0122   MAIN_LOOP:
+04007C             0123   
+04007C             0124   get_key_input:
+04007C             0125   	MOSCALL $08			; get IX pointer to sysvars
+                       M1 Args: function=$08 
+04007C 3E 08       0001M1 	ld a, function
+04007E 5B CF       0002M1 	rst.lil $08
+040080 DD 7E 05    0126   	ld a, (ix + 05h)		; ix+5h is 'last key pressed'
+040083             0127   
+040083 FE 1B       0128   	cp 27				; is it ESC key?
+040085 CA 8D 00 04 0129   	jp z, exit_here			; if so exit cleanly
+040089             0130   
+040089 C3 7C 00 04 0131   	jp MAIN_LOOP
+04008D             0132   
+04008D             0133   ; ---------------------------------------------
+04008D             0134   ;
+04008D             0135   ;	EXIT CODE CLEANLY
+04008D             0136   ;
+04008D             0137   ; ---------------------------------------------
+04008D             0138   
+04008D             0139   exit_here:
+04008D             0140   
+04008D CD C2 00 04 0141           call reset_kb_handler  		; clear event handler
+040091             0142   
+040091             0143           SETCURSOR 1  			; make cursor visible again
+                       M1 Args: value=1 
+040091 F5          0001M1 	push af
+040092 3E 17       0002M1 	ld a, 23
+040094 5B D7       0003M1 	rst.lil $10
+040096 3E 01       0004M1 	ld a, 1
+040098 5B D7       0005M1 	rst.lil $10
+04009A 3E 01       0006M1 	ld a, value
+04009C 5B D7       0007M1 	rst.lil $10					; VDU 23,1,value [0 off, 1 on]
+04009E F1          0008M1 	pop af
+04009F             0144           SETCOLOUR white			; reset text colour to white
+                       M1 Args: col=white 
+04009F 3E 11       0001M1 	ld a, 17
+0400A1 5B D7       0002M1 	rst.lil $10
+0400A3 3E 0F       0003M1 	ld a, col
+0400A5 5B D7       0004M1 	rst.lil $10
+0400A7             0145   
+0400A7             0146   	CLS  				; clear screen
+                       M1 Args: none
+0400A7 3E 0C       0001M1 	ld a, 12
+0400A9 5B D7       0002M1 	rst.lil $10
+0400AB             0147   
+0400AB FD E1       0148   	pop iy
+0400AD DD E1       0149   	pop ix
+0400AF D1          0150   	pop de
+0400B0 C1          0151   	pop bc
+0400B1 F1          0152   	pop af
+0400B2 21 00 00 00 0153   	ld hl,0				; reset all values before returning to MOS
+0400B6             0154   
+0400B6 C9          0155   	ret				; return to MOS here
+0400B7             0156   
+0400B7             0157   ; ---------------------------------------------
+0400B7             0158   
+0400B7             0159   setup_kb_handler:
+0400B7 21 CD 00 04 0160           ld hl, on_keyboard_event  	; address of the routine to call
+0400BB 0E 00       0161           ld c, 0  			; address length. 0 = 24bit, 1 = 16 bit
+0400BD             0162           moscall $1D        		; mos_setkbvector
+                       M1 Args: function=$1D 
+0400BD 3E 1D       0001M1 	ld a, function
+0400BF 5B CF       0002M1 	rst.lil $08
+0400C1 C9          0163           ret
+0400C2             0164   
+0400C2             0165   ; ---------------------------------------------
+0400C2             0166   
+0400C2             0167   reset_kb_handler:
+0400C2 21 00 00 00 0168           ld hl, 0  			; nil address = clear event
+0400C6 0E 00       0169           ld c, 0  			; address length. 0 = 24bit, 1 = 16 bit
+0400C8             0170           moscall $1D        		; mos_setkbvector
+                       M1 Args: function=$1D 
+0400C8 3E 1D       0001M1 	ld a, function
+0400CA 5B CF       0002M1 	rst.lil $08
+0400CC C9          0171           ret
+0400CD             0172   
+0400CD             0173   ; ---------------------------------------------
+0400CD             0174   
+0400CD             0175   ; with each event, DE points to a structure of keyboard info
+0400CD             0176   ;        DE + 0        ; ascii code
+0400CD             0177   ;        DE + 1        ; modifier keys
+0400CD             0178   ;        DE + 2        ; fabgl vkey code
+0400CD             0179   ;        DE + 3        ; is key down?
+0400CD             0180   
+0400CD             0181   on_keyboard_event:
+0400CD C5          0182           push bc
+0400CE E5          0183           push hl
+0400CF DD E5       0184           push ix  			; backup any registers we might use
+0400D1             0185   
+0400D1 D5          0186           push de
+0400D2 DD E1       0187           pop ix  			; put DE into IX for easier reading
+0400D4             0188   
+0400D4             0189           SETCOLOUR green			; reset text colour to white
+                       M1 Args: col=green 
+0400D4 3E 11       0001M1 	ld a, 17
+0400D6 5B D7       0002M1 	rst.lil $10
+0400D8 3E 0A       0003M1 	ld a, col
+0400DA 5B D7       0004M1 	rst.lil $10
+0400DC             0190   
+0400DC             0191   	TABTO 17,6
+                       M1 Args: x=17 y=6 
+0400DC 3E 1F       0001M1 	ld a, 31
+0400DE 5B D7       0002M1 	rst.lil $10
+0400E0 3E 11       0003M1 	ld a, x
+0400E2 5B D7       0004M1 	rst.lil $10
+0400E4 3E 06       0005M1 	ld a, y
+0400E6 5B D7       0006M1 	rst.lil $10
+0400E8 DD 7E 00    0192   	ld a, (ix+0)        		; ascii code
+0400EB CD C3 01 04 0193   	call debugHex
+0400EF             0194   
+0400EF             0195   	TABTO 17, 8
+                       M1 Args: x=17 y=8 
+0400EF 3E 1F       0001M1 	ld a, 31
+0400F1 5B D7       0002M1 	rst.lil $10
+0400F3 3E 11       0003M1 	ld a, x
+0400F5 5B D7       0004M1 	rst.lil $10
+0400F7 3E 08       0005M1 	ld a, y
+0400F9 5B D7       0006M1 	rst.lil $10
+0400FB DD 7E 01    0196    	ld a, (ix+1)        		; modifier keys
+0400FE CD C3 01 04 0197   	call debugHex
+040102             0198   
+040102             0199    	TABTO 17, 10
+                       M1 Args: x=17 y=10 
+040102 3E 1F       0001M1 	ld a, 31
+040104 5B D7       0002M1 	rst.lil $10
+040106 3E 11       0003M1 	ld a, x
+040108 5B D7       0004M1 	rst.lil $10
+04010A 3E 0A       0005M1 	ld a, y
+04010C 5B D7       0006M1 	rst.lil $10
+04010E DD 7E 02    0200    	ld a, (ix+2)        		; fabgl vkey code
+040111 CD C3 01 04 0201    	call debugHex
+040115             0202   
+040115             0203    	TABTO 17, 12
+                       M1 Args: x=17 y=12 
+040115 3E 1F       0001M1 	ld a, 31
+040117 5B D7       0002M1 	rst.lil $10
+040119 3E 11       0003M1 	ld a, x
+04011B 5B D7       0004M1 	rst.lil $10
+04011D 3E 0C       0005M1 	ld a, y
+04011F 5B D7       0006M1 	rst.lil $10
+040121 DD 7E 03    0204    	ld a, (ix+3)        		; is key down?
+040124 CD C3 01 04 0205    	call debugHex
+040128             0206   
+040128             0207           SETCOLOUR white			; reset text colour to white
+                       M1 Args: col=white 
+040128 3E 11       0001M1 	ld a, 17
+04012A 5B D7       0002M1 	rst.lil $10
+04012C 3E 0F       0003M1 	ld a, col
+04012E 5B D7       0004M1 	rst.lil $10
+040130             0208   
+040130 DD E1       0209           pop ix
+040132 E1          0210           pop hl
+040133 C1          0211           pop bc  			; restore registers
+040134             0212   
+040134 C9          0213           ret
+040135             0214   
+040135             0215   ; ---------------------------------------------
+040135             0216   ;
+040135             0217   ;	TEXT AND DATA
+040135             0218   ;
+040135             0219   ; ---------------------------------------------
+040135             0220   
+040135             0221   title_str:
+040135             0222   
+040135 1F 00 00 4B 0223   	.db 31, 0,0,"Keyboard Interrupt example"	; text to show
+       65 79 62 6F 
+       61 72 64 20 
+       49 6E 74 65 
+       72 72 75 70 
+       74 20 65 78 
+       61 6D 70 6C 
+       65          
+040152 1F 00 02 56 0224   	.db 31, 0,2,"VDP packet data"			; text to show
+       44 50 20 70 
+       61 63 6B 65 
+       74 20 64 61 
+       74 61       
+040164             0225   
+040164 1F 00 06 11 0226   	.db 31, 0,6, colour, grey, "ASCII code:"	; text to show
+       07 41 53 43 
+       49 49 20 63 
+       6F 64 65 3A 
+040174 1F 00 08 4D 0227   	.db 31, 0,8, "Modifier code:"			; text to show
+       6F 64 69 66 
+       69 65 72 20 
+       63 6F 64 65 
+       3A          
+040185 1F 00 0A 46 0228   	.db 31, 0,10, "FabGL vKey code:"			; text to show
+       61 62 47 4C 
+       20 76 4B 65 
+       79 20 63 6F 
+       64 65 3A    
+040198 1F 00 0C 55 0229   	.db 31, 0,12, "Up (0) Down (1):"		; text to show
+       70 20 28 30 
+       29 20 44 6F 
+       77 6E 20 28 
+       31 29 3A    
+0401AB             0230   
+0401AB 1F 00 10 50 0231   	.db 31, 0,16, "Press ", colour, red, "ESC", colour, grey," to exit"	; text to show
+       72 65 73 73 
+       20 11 01 45 
+       53 43 11 07 
+       20 74 6F 20 
+       65 78 69 74 
+0401C3             0232   
+0401C3             0233   end_title:
+0401C3             0234   
+0401C3             0235   ; ---------------------------------------------
+0401C3             0236   ;
+0401C3             0237   ;	OTHER ROUTINES
+0401C3             0238   ;
+0401C3             0239   ; ---------------------------------------------
+0401C3             0240   
+0401C3             0241   ; debug A to screen as HEX byte pair at current position
+0401C3             0242   
+0401C3             0243   debugHex:
+0401C3 F5          0244   	push af
+0401C4 F5          0245   	push af  		; store A twice
+0401C5             0246   
+0401C5 F5          0247   	push af
+0401C6 3E 24       0248   	ld a, '$'
+0401C8 5B D7       0249   	rst.lil $10		; print the $ char
+0401CA F1          0250   	pop af
+0401CB             0251   
+0401CB E6 F0       0252   	and 11110000b		; get higher nibble
+0401CD 1F          0253   	rra
+0401CE 1F          0254   	rra
+0401CF 1F          0255   	rra
+0401D0 1F          0256   	rra			; move across to lower nibble
+0401D1 C6 30       0257   	add a,48		; increase to ascii code range 0-9
+0401D3 FE 3A       0258   	cp 58			; is A less than 10? (58+)
+0401D5 38 02       0259   	jr c, @f		; carry on if less
+0401D7 C6 07       0260   	add a, 7		; add to get 'A' char if larger than 10
+0401D9             0261   @@:
+0401D9 5B D7       0262   	rst.lil $10		; print the A char
+0401DB             0263   
+0401DB F1          0264   	pop af  		; get A back
+0401DC E6 0F       0265   	and 00001111b		; now just get lower nibble
+0401DE C6 30       0266   	add a,48		; increase to ascii code range 0-9
+0401E0 FE 3A       0267   	cp 58			; is A less than 10 (58+)
+0401E2 DA E8 01 04 0268   	jp c, @f		; carry on if less
+0401E6 C6 07       0269   	add a, 7		; add to get 'A' char if larger than 10
+0401E8             0270   @@:
+0401E8 5B D7       0271   	rst.lil $10		; print the A char
+0401EA             0272   
+0401EA F1          0273   	pop af  		; get initial A back in case needed
+0401EB C9          0274   	ret			; head back
+0401EC             0275   
+0401EC             0276   
+0401EC             0277   
+0401EC             0278   ; ---------------------------------------------
+0401EC             0279   ;
+0401EC             0280   ;	END
+0401EC             0281   ;
+0401EC             0282   ; ---------------------------------------------
