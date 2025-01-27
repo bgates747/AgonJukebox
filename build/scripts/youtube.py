@@ -37,7 +37,9 @@ def get_youtube_audio_single(url, output_dir):
 if __name__ == "__main__":
     # youtube_url = 'https://youtu.be/VThrx5MRJXA' # 10 Hours of Classical Music
     # youtube_url = 'https://www.youtube.com/playlist?list=PL0ILEW7Puee34Winu4AFAUeLNMgAHBsAf'
-    youtube_url = 'https://youtu.be/RKexLWM33SI'
+    # youtube_url = 'https://youtu.be/RKexLWM33SI'
+    # youtube_url = 'https://soundcloud.com/tonedef71/the-divided-states-of-america'
+    youtube_url = 'https://youtu.be/FEacDWPWfJU'
     output_directory = 'assets/sound/music/staging'
     # get_youtube_audio_sections(youtube_url, output_directory)
     get_youtube_audio_single(youtube_url, output_directory)
