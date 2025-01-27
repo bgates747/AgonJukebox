@@ -60,6 +60,8 @@ exit:
 init:
     call bf_get_dir
     call ui_init
+    call ps_load_command_buffers ; TODO: figure out why it is insufficient to do this here
+                                 ; (though it must be done here b/c ui_init clears all buffers)
     call ps_prt_irq_init
     ret
 ; end init

@@ -325,6 +325,7 @@ ps_seek:
 ; compute new playhead position and update the playbar
     ld de,(ps_playhead)
     add hl,de ; hl = playhead + seek_rate
+    dec hl ; to offset an inc we get further down somewhere
 ; handle wraparound 
     ld de,(ps_song_duration)
     SIGN_HLU
@@ -341,6 +342,9 @@ ps_seek:
 ; save new playhead position and update the playbar
     ld (ps_playhead),hl 
     call ps_update_playbar
+; reset the chunk counter
+    ld a,ps_chunks_per_second
+    ld (ps_chunk_counter),a
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
@@ -361,7 +365,11 @@ ps_seek:
     ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
     FFSCALL ffs_flseek
-    call ps_read_sample
+; flip the command and sample buffers and read the first block of data at the new position
+    call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
+                                 ; but if we don't do it here, only one audio buffer 
+                                 ; is loaded or/and played
+    call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
 ; restart the PRT timer
     call ps_prt_start ; start the PRT timer
     jp get_input ; will reenable interrupts

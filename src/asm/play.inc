@@ -81,10 +81,14 @@ play_song:
 ; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
-; load the command buffers and read the first block of data
-    call ps_flip_buffers
-    call ps_load_command_buffers
-    call ps_read_sample
+; reset the chunk counter
+    ld a,ps_chunks_per_second
+    ld (ps_chunk_counter),a
+; flip the command and sample buffers and read the first block of data
+    call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
+                                 ; but if we don't do it here, only one audio buffer 
+                                 ; is loaded or/and played
+    call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
@@ -139,6 +143,10 @@ ps_read_sample:
     ld a,ps_chunks_per_second
     ld (ps_chunk_counter),a
     jp ps_play_sample
+; ; DEBUG ; MAKES THE POPPING BETWEEN SAMPLES WORSE SO THAT PROBLEM IS ELSEWHERE
+;     call ps_play_sample
+;     call ps_read_sample
+; ; END DEBUG
 ; end ps_read_sample
 ps_update_playbar:
 ; set viewport to playbar
