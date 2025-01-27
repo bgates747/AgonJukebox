@@ -2,7 +2,6 @@ import os
 import shutil
 import subprocess
 import re
-import tarfile
 import json
 
 def compress_dynamic_range(input_path, output_path):
@@ -147,36 +146,16 @@ def make_sfx(src_dir, tgt_dir, sample_rate):
 
             print(f"Finished processing: {tgt_path}")
 
-def create_tar_gz(src_dir, output_dir, sample_rate):
-    """
-    Creates a compressed tar.gz archive of the processed files.
-    """
-    archive_name = os.path.join(output_dir, f"jukebox{sample_rate}.tar.gz")
-
-    # Remove existing archive if it exists
-    if os.path.exists(archive_name):
-        os.remove(archive_name)
-
-    # Create the tar.gz archive
-    with tarfile.open(archive_name, "w:gz") as tar:
-        tar.add(src_dir, arcname=os.path.basename(src_dir))
-
-    print(f"Archive created: {archive_name}")
-
 if __name__ == '__main__':
-    # sample_rate = 48000 # 48kHz is a common sample rate for audio files
+## Note: because the player streams audio data to VDP 60 times per second,
+## optimal sample rate will be even multiples of 60.
+    # sample_rate = 48000 # Typical YouTube audio quality
     # sample_rate = 44100 # Typical CD quality
-    # sample_rate = 32768 # 2x 'native' rate
     # sample_rate = 16384 # 'native' rate
     # sample_rate = 15360 # (256*60)
-    # sample_rate = 12000 # 48000 / 4 (200 * 60)
     sample_rate = -1 # Use the source file's sample rate
     src_dir = 'assets/sound/music/staging'
     tgt_dir = 'tgt/music/Classical'
 
     # Generate sound effects with intermediate steps directly in the target directory
     make_sfx(src_dir, tgt_dir, sample_rate)
-
-    # # Optionally create a compressed archive of the processed files
-    # output_dir = 'tgt'
-    # create_tar_gz(tgt_dir, output_dir, sample_rate)

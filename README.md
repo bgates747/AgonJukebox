@@ -10,7 +10,7 @@ The ability to use `.wav` files instead of headerless raw audio, as traditionall
 # Installation
 
 ## Installing a pre-assembled binary
-The application binary is located at `tgt.jukebox.bin` in this repository. It has no external file dependences and can be stored in and executed from anywhere. It can also be placed in the `bin` directory of the SD card and invoked from any directory by typing `jukebox`. At present the application does not take any command-line arguments.
+The application binary is located at `tgt/jukebox.bin` in this repository. It has no external file dependences and can be stored in and executed from anywhere. It can also be placed in the `bin` directory of the SD card and invoked from any directory by typing `jukebox`. At present the application does not take any command-line arguments.
 
 ## Assembly from source
 On any system with `ez80asm`, including the Agon itself, navigate to `src/asm` and enter `ez80asm app.asm ../../tgt/jukebox.bin` (or any other target path of your choice).
@@ -23,8 +23,7 @@ The user interface is divided into three main sections:
    - Lists the files and directories within the current directory, ten files per page, indexed by numbers `00` to `09`. Only directories or compatible `wav.` files will be shown in the listing.
 
 2. **Playback Information**:
-   - Shows the currently playing song (e.g., `(P)laying: Song 0`) when playback is active, or `(P)aused: Song 0` when playback is paused.
-   - Includes a progress bar for the playback duration (e.g., `00:00:00[........]00:00:00`).
+   - Shows the currently playing song (e.g., `(P)laying: Song 0`) when playback is active, or `(P)aused: Song 0` when playback is paused. 
 
 3. **File Browsing and Playback Controls**
 
@@ -35,12 +34,14 @@ The user interface is divided into three main sections:
 - **Right Arrow (⇒)**: Go to the next page of files in the current directory.
 - **`U`**: Go up one directory level.
 
-Note that browsing to a different directory, or page within the current directory, does not change the playback status of the current audio file. However, when the end of the file is reached, the next file to play will be taken from the current page of the current directory if there are any -- i.e. not the directory page containing the active file. 
-
-## File Selection
+## File selection
 - **Enter (↩)**: Open the highlighted directory or play the highlighted song.
 - **Number Keys (0-9)**: Immediately play the sound file, or change to the directory, corresponding to the numbered index.
 - **`R`**: Immediately play a random song from the current directory page.
+
+## **Playback controls**
+- **`[` and `]`**: move the playhead backward or foreward the number of seconds specified by the seek rate.
+- **`-` and `=` **: reduce or increase the playhead seek rate.
 
 ## **Playback Settings**
 - **`P`**: Toggle between play and pause for the currently active song.
@@ -100,7 +101,7 @@ Note: this step is optional as the script has no dependencies on any other files
    ```
 
 #### Windows
-Note: As of this writing, (Jan. 2025) the author has not tested these instructions on Windows.
+Note: As of this writing (Jan. 2025), these instructions have not been tested on Windows.
 1. **Install Python:**
    - Download and install Python from [python.org](https://www.python.org/downloads/).
    - Make sure to check **"Add Python to PATH"** during installation.
@@ -119,12 +120,12 @@ Note: this step is optional as the script has no dependencies on any other files
 ## Usage
 
 ### Running the Script
-1. Place your source audio files (e.g., `.wav`, `.mp3`, `.flac`) in the `assets/sound/music/staging` directory.
-2. Run the script:
-   ```bash
-   python3 agonjukebox.py
-   ```
-3. Processed files will be saved in the `tgt/music/Classical` directory.
+1. Set the `src_dir` parameter to specify the directory containing source audio files, and `tgt_dir` for where to write the converted files. Set pre-procesing options if desired, described below.
+2. Set the type of files for the script to convert with this line in the `make_sfx` function:
+```python
+if filename.lower().endswith(('.wav', '.mp3', '.flac')):
+```
+2. Run the script. `src_dir` will be scanned non-recursively for all files with the prescribed extensions.
 
 ### Options
 You can modify the script parameters in the `__main__` section to:
@@ -158,11 +159,7 @@ Volume normalization ensures all audio files have a consistent loudness level. T
 The script's main function is to create a compatible .wav file from source audio files. The script has been tested with `.wav`,`.flac`, and `.mp3` sources. Other formats may also work.
 
 ### 1. **Resampling**
-Resampling changes the audio's sample rate to the user's requirements, which is typically sound quality vs. storage space consideration. The target sample rate is determined by the code:
-```python
-sample_rate = 48000  # Example: 48 kHz
-```
-Specifying `sample_rate = -1` will keep the source file's original sample rate, which is a good option for preserving as much sound quality as possible.
+Resampling changes the audio's sample rate to a desired setting using the `sample_rate` parameter Specifying `sample_rate = -1` will keep the source file's original sample rate. Optimal sample rates will be evenly divisible by 60 because the application breaks each 1 second of audio into that many chunks for streaming to VDP. 48000 and 41000 Hz are common rates for high quality audio, and both being divisible by 60 make the good choices.
 
 ### 2. **Conversion to Unsigned PCM WAV**
 The audio is converted to **8-bit unsigned PCM**, as this is the only format supported by `.wav` files at 8-bit depth. This is in contrast to the Agon Light's default which expects **8-bit signed PCM** samples without the `.wav` file metadata headers. Additionally, the audio is converted to mono (`-ac 1`), as stereo is not supported on the target platform.
@@ -173,34 +170,13 @@ The audio is converted to **8-bit unsigned PCM**, as this is the only format sup
 The target `.wav` files must meet the following specifications:
 - **Bit Depth:** 8-bit (unsigned PCM).
 - **Channels:** Mono.
-- **Sample Rate:** Typically 48 kHz (or as specified).
-
-These requirements are dictated by the Agon Light family of retro-modern microcomputers.
-
----
-
-## Output Archive
-To package the processed audio files into a compressed `.tar.gz` archive, uncomment and configure the following lines in the `__main__` section:
-```python
-output_dir = 'tgt'
-create_tar_gz(tgt_dir, output_dir, sample_rate)
-```
-The archive will be saved in the `tgt` directory with a name like `jukebox48000.tar.gz`.
-
----
-
-## Customization
-- Adjust the intermediate processing parameters to shape the final sound quality.
-- Modify `src_dir` and `tgt_dir` to process audio files from different locations.
-- Experiment with different sample rates and bit depths if you're targeting a different system or use case.
+- **Sample Rate:** As desired. A rate evenly divisible by 60 is best.
 
 ---
 
 ## Troubleshooting
 1. **User Interface** 
    - **Files not visible:** The program only displays subdirectories and *compatible* `.wav` files in the current directory. Even if your `.wav` file is valid for playback on modern software, if it is not encoded in mono 8-bit unsigned PCM, it won't show up in AgonJukebox.
-   - **Sluggish UI:**  
-
 
 2. **Audio Quality:**
    - **Sounds scratchy:** assuming the source file is not at fault, scratchyness is often the byproduct of quantization error in the conversion to 8-bit PCM. This results in waveforms that are less smooth than the original and thus sound more harsh. Applying dynamic range compression may mitgate some of these effects.
@@ -214,14 +190,22 @@ AgonJukebox is licensed under the UNLICENSE. See `LICENSE` for details.
 
 ---
 
+## Contact
+
+I am @BeeGee747, most active on the [Agon & Console 8 Community](https://discord.com/channels/1158535358624039014/1282290921815408681) Discord channel, which has a [forum](https://discord.com/channels/1158535358624039014/1326253731087384727) dedicated to this project.
+
+---
+
 ## Acknowledgments
-Special thanks to these members of the Agon Light community for inspiring this project:
-- **Steve Sims (@ss7):** for his tireless efforts developing and documenting the VDP and MOS firmwares, and additionally answering questions, providing technical support and insight on Discord.
-- **Jeroen Venema (@evenomator):** for the free and open-source **ez80asm assembler** which not only runs natively on Agon, but on all three major OS's, freeing us from the tyranny of Zilog's buggy, outdated, Windows-only proprietary closed-source ZDS II. Also for providing assembly routines compatible with his assembler, some of which provide core functions of this program.
+Special thanks to these members of the Agon Light community for making this project possible:
+
+- **Steve Sims (@ss7):** for his tireless efforts developing and documenting the [VDP](https://github.com/AgonConsole8/agon-vdp) and [MOS](https://github.com/AgonConsole8/agon-mos) firmwares, and additionally answering questions, providing technical support and insight on Discord.
+- **Jeroen Venema (@evenomator):** for the free and open-source [ez80asm](https://github.com/envenomator/agon-ez80asm) assembler which not only runs natively on Agon, but on all three major OS's, freeing us from the tyranny of Zilog's buggy, outdated, Windows-only proprietary closed-source ZDS II. Also for providing assembly routines compatible with his assembler, some of which provide core functions of this program.
 - **Tom Morton (@tomm8086):** for **fab-agon-emulator**, another cross-platform, open-source program which not only brings Agon to prospective hardware owners, but much eases the development process. Also for his sample PRT interrupt timer assembly code, which is at the core of how this thing works, as well as honouring the many Bothans who died to bring some critical emulation bugs to light.
-- **Richard Turrnidge (@Richard_Turrnidge):** for his excellent Agon-specific EZ80 assembly language video tutorials on YouTube, and the attending sample programs repository paired to each episode. Also for testing the application and braving the source code on occasion.
-- **Shawn Sijnstra (@sijnstra):** for adminstering the largest and most active Agon Discord server I know of. Also for his `math24` library which gets a good workout in this program. Finally for providing user feedback and cheerleading these efforts.
+- **Richard Turrnidge (@Richard_Turrnidge):** for his excellent Agon-specific EZ80 assembly language [video tutorials](https://www.youtube.com/@AgonBits) on YouTube, and the attending [sample programs](https://github.com/richardturnnidge/lessons) repository paired to each episode. Also for testing the application and braving the source code on occasion.
+- **Shawn Sijnstra (@sijnstra):** for adminstering the largest and most active [Agon Discord server](https://discord.com/channels/1158535358624039014/1158536711148675072) I know of. Also for his [arith24](https://github.com/sijnstra/agon-projects/blob/main/calc24/arith24.asm) functions which get a good workout in this program. Finally for providing user feedback and cheerleading these efforts.
 - **@calc84maniac:** for detailed optimisations of various assembly routines, particularly the ones related to sorting filenames, and some core maths functions.
 - **@Triplefox:** for many discussions related to digital audio theory and processing, including help with one particularly challenging file that helped me refine my default processing options to their current state.
 - **@rafd_electrotux:** for user feedback, feature suggestions, and a nice list of Mexican Mariachi and Chilean folk songs for testing as well as diversifying my own collection.
+- **Dean Belfield:** for his [port](https://github.com/breakintoprogram/agon-bbc-basic-adl) of R.T. Russell's Z80 version of BBC BASIC to Agon. This application makes use of its floating point library for the 32-bit maths required to access large audio files, by way of [my own port](https://github.com/bgates747/agon-bbc-basic-adl-ez80asm) from ZDS II to ez80asm-compatible source code.
 
