@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 import os
-import math
-import wave
 import pygame
 from struct import unpack
 
@@ -127,7 +125,7 @@ def play_agm(filepath):
 
         # We'll read in "one second" increments, 60 lumps each.
         for second_idx in range(total_secs):
-            print(f"\n--- Starting second {second_idx+1}/{total_secs} ---")
+            print(f"\rElapsed time: {second_idx+1}/{total_secs}", end="")
             audio_buffer = bytearray()  # store 1 second of audio lumps
 
             for lump_i in range(lumps_per_second):
@@ -210,7 +208,7 @@ def play_agm(filepath):
 
 if __name__ == "__main__":
     # Example test
-    agm_filepath = "tgt/video/a-ha_-_Take_On_Me_Official_Video_Remastered_in_4K.agm"
-    # agm_filepath = "tgt/video/Bad_Apple_PV.agm"
+    # agm_filepath = "tgt/video/a-ha_-_Take_On_Me_Official_Video_Remastered_in_4K.agm"
+    agm_filepath = "tgt/video/Bad_Apple_PV.agm"
     # agm_filepath = "tgt/video/Michael_Jackson_-_Thriller_Official_4K_Video.agm"
     play_agm(agm_filepath)

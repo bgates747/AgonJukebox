@@ -61,6 +61,7 @@ def extract_audio_from_video(input_file, processed_directory):
         "-i", input_file,         # Input file
         "-vn",                    # Disable video
         "-c:a", "libmp3lame",     # Encode audio as MP3
+        "-y",                     # Overwrite output files without asking
         output_file,
     ]
 
@@ -152,6 +153,7 @@ def extract_and_resize_video(input_file, processed_directory, target_directory, 
         "-c:v", "libx264",
         "-crf", "28",
         "-preset", "fast",
+        "-y",                     # Overwrite output files without asking
         resized_file,
     ], check=True)
     print(f"Video resized to {resized_file}")
@@ -175,6 +177,7 @@ def extract_frames(input_file, frames_directory, target_width, target_height, fr
         "-vf", f"fps={frame_rate},scale={target_width}:{target_height}",
         "-pix_fmt", "rgba",
         "-start_number", "0",
+        "-y",                     # Overwrite output files without asking
         output_pattern,
     ], check=True)
     print("Frame extraction complete.")
@@ -493,8 +496,8 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 160
-    target_height = 120
+    target_width  = 120
+    target_height = 90
     frame_rate    = 4
     sample_rate   = 16800
 
