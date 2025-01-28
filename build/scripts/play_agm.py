@@ -114,7 +114,7 @@ def play_agm(filepath):
         print("--------------------------------")
 
         # 3) Prepare Pygame window, scaled 4× with no interpolation
-        scale_factor = 4
+        scale_factor = 3
         screen = pygame.display.set_mode((width * scale_factor, height * scale_factor))
         pygame.display.set_caption("AGM Video Player (4x nearest)")
 
@@ -210,5 +210,7 @@ def play_agm(filepath):
 
 if __name__ == "__main__":
     # Example test
-    agm_filepath = "tgt/video/a-ha_-_Take_On_Me_Official_Video_Remastered_in_4K.agm"  # or whichever file you created
+    agm_filepath = "tgt/video/a-ha_-_Take_On_Me_Official_Video_Remastered_in_4K.agm"
+    # agm_filepath = "tgt/video/Bad_Apple_PV.agm"
+    # agm_filepath = "tgt/video/Michael_Jackson_-_Thriller_Official_4K_Video.agm"
     play_agm(agm_filepath)

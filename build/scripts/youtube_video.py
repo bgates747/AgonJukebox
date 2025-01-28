@@ -493,8 +493,8 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 120
-    target_height = 90
+    target_width  = 160
+    target_height = 120
     frame_rate    = 4
     sample_rate   = 16800
 
@@ -502,7 +502,9 @@ if __name__ == "__main__":
     do_normalization = True
 
     # 1) Download from YouTube
-    youtube_url = "https://youtu.be/djV11Xbc914"  # or any link
+    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
+    # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
     # download_youtube_video(youtube_url, staging_directory)
 
     # 2) Process the downloaded videos => .agm

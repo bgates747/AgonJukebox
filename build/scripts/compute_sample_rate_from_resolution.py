@@ -51,8 +51,8 @@ def pick_audio_sample_rate(width, height, fps, max_bps, desired_rate=None):
         return proposed
 
 if __name__ == "__main__":
-    width   = 240
-    height  = 180
+    width   = 120+60
+    height  = 90+45
     fps     = 4
     max_bps = 200000
 
