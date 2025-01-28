@@ -238,8 +238,9 @@ def merge_video_audio_agm(
 ):
     """
     Creates an AGM file with:
-      - 68-byte AGM header
       - 76-byte WAV header
+      - 68-byte AGM header
+      - 144 bytes total header
       - Then data arranged in 60 lumps per second,
         each lump is (video portion + audio portion).
       - 4 fps example => each second has 4 frames => each frame is
@@ -260,6 +261,8 @@ def merge_video_audio_agm(
     # ---------------------------
     with open(wav_path, "rb") as wf:
         wav_header = wf.read(WAV_HEADER_SIZE)  # 76 bytes
+        # Modify the WAV format marker (12 byte offset) to "agm" in little-endian order
+        wav_header = wav_header[:12] + b"agm" + wav_header[15:]
         audio_data = wf.read()                 # The rest is raw PCM data
 
     audio_data_size = len(audio_data)
@@ -365,12 +368,12 @@ def merge_video_audio_agm(
     # ---------------------------
     print(f"Writing AGM to: {output_path}")
     with open(output_path, "wb") as agm_file:
-        # (a) AGN header (68 bytes)
-        agm_file.write(agm_header)
-        # (b) WAV header (76 bytes)
+        # (a) WAV header (76 bytes)
         if len(wav_header) != WAV_HEADER_SIZE:
             raise ValueError("WAV header is not 76 bytes as expected.")
         agm_file.write(wav_header)
+        # (b) AGN header (68 bytes)
+        agm_file.write(agm_header)
 
         # (c) Interleave data in lumps (60 lumps/sec)
         frame_idx = 0

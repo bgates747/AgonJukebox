@@ -63,8 +63,8 @@ verify_wav:
 
 ; verify the .wav header
     ld ix,bf_wav_header
+    
     ld hl,(ix+wav_riff)
-
     ld de,0x464952  ; ascii for "RIF" in little-endian order
     or a ; clear carry
     sbc hl,de
@@ -89,6 +89,7 @@ verify_wav:
     jr z,@is_wav ; valid .wav file
 
     ; otherwise valid .wav header, so now check for valid .agm header
+    ld hl,(ix+wav_fmt_marker)
     ld de,0x6D6761 ; ascii for "agm" in little-endian order
     or a ; clear carry
     sbc hl,de
