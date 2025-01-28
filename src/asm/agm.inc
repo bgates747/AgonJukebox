@@ -15,53 +15,42 @@ agm_header_size:   EQU 144   ; Total .agm Header size
 ; returns: zero flag set,   a = 0 if not a file we can read
 ;          zero flag reset, a = 2 if .agm file
 ; destroys: if called from verify_wav as usual it doesn't matter
-;           otherwise, af, hl, de, ix
+;           otherwise, af, hl, de, iy
 verify_agm:
-; DEBUG
-    PUSH_ALL
-    CALL vp_messages
-    CALL vdu_cls
-    POP_ALL
-; END DEBUG
-
 ; clear the .agm header buffer
     push hl
     push de
     ld bc,agm_header_size
-    ld hl,bf_agm_header
+    lea hl,iy+0 ; bf or ps agm_header
     call clear_mem
     pop de
     pop hl
 
-; open the file 
-    ld c,fa_read
-    FFSCALL ffs_fopen
+; seek back to beginning of the file
+    ld de,0
+    ld c,0
+    FFSCALL ffs_flseek
 
 ; read the header
     ld bc,agm_header_size
-    ld de,bf_agm_header
+    lea de,iy+0 ; bf or ps agm_header
     FFSCALL ffs_fread
 
-; close the file
-    FFSCALL ffs_fclose
-
 ; verify the .agm header magic number
-    ld ix,bf_agm_header
-    
-    ld hl,(ix+agm_magic)
-    ld de,0x4D4E41  ; ascii for "AGN" in little-endian order
+    ld hl,(iy+agm_magic)
+    ld de,0x4E4741 ; ascii for AGN in little-endian order
     or a ; clear carry
     sbc hl,de
     jr nz,@not_agm 
 
-    ld hl,(ix+agm_magic+3)
-    ld de,0x564F4D  ; ascii for "MOV" in little-endian order
+    ld hl,(iy+agm_magic+3)
+    ld de,0x564F4D ; ascii for MOV in little-endian order
     or a ; clear carry
     sbc hl,de
     jr nz,@not_agm 
 
 ; check the version number and reject if not 0x01
-    ld a,(ix+agm_version)
+    ld a,(iy+agm_version)
     cp 0x01
     jr nz,@not_agm
 
@@ -69,20 +58,10 @@ verify_agm:
 @is_agm:
     ld a,1
     inc a ; reset zero flag and a = 2 indicating .agm file
-
-; DEBUG
-    CALL dumpFlags
-    CALL dumpRegistersHex
-; END DEBUG
-
+    ; CALL DEBUG_PRINT ; DEBUG
     ret
 @not_agm:
     xor a ; set zero flag and a = 0 indicating unreadable file
-
-; DEBUG
-    CALL dumpFlags
-    CALL dumpRegistersHex
-; END DEBUG
-
+    ; CALL DEBUG_PRINT ; DEBUG
     ret
 ; end verify_agm

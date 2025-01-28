@@ -186,7 +186,7 @@ bf_select_file:
     call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
     ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,iy+filinfo_fname ; de = pointer to filename
-    call verify_wav
+    call bf_verify_wav
     lea hl,iy+filinfo_fname ; hl = pointer to filename
     jp z,bf_change_dir ; not a .wav file, so must be a directory
 ; play the .wav file

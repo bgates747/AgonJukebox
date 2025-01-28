@@ -509,18 +509,16 @@ dumpMemoryBinRev:
 
 DEBUG_PRINT:
     PUSH_ALL
-    ; ld c,0 ; X
-    ; ld b,0 ; Y
-    ; call vdu_move_cursor
-    call printNewLine
+    CALL vp_messages
+    CALL vdu_cls
     POP_ALL
     PUSH_ALL
     call dumpFlags
     POP_ALL
     PUSH_ALL
     call dumpRegistersHex
-    ; call waitKeypress
-    call printNewLine
+    call waitKeypress
+    ; call printNewLine
     POP_ALL
     ret
 DEBUG_WAITKEYPRESS:

@@ -25,6 +25,38 @@ wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
 wav_data_start:    EQU 76   ; Start of audio data
 wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
 
+bf_verify_wav:
+    push iy ; callers want iy back unmolested
+    ld iy,bf_wav_header
+    call verify_wav
+    push af ; save zero flag and a
+    FFSCALL ffs_fclose ; close the file
+    pop af ; restore zero flag and a for return
+    pop iy ; send her home how she came in
+    ret
+; end bf_verify_wav
+
+ps_open_wav:
+; get filinfo and fil struct pointers to currently selected file
+    call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
+    lea de,iy+filinfo_fname ; de = pointer to filename
+    ld hl,ps_fil_struct
+
+; verify valid .wav or .agm file
+    push iy
+    ld iy,ps_wav_header
+    call verify_wav
+    jp nz,@done ; is good file so return without closing
+
+; not a good file so close it and return failure
+    push af ; save zero flag and a
+    FFSCALL ffs_fclose ; close the file
+    pop af ; restore zero flag and a for return
+@done:
+    pop iy
+    ret
+; end ps_open_wav
+
 ; verify that a file is a .wav or .agm file
 ; inputs: hl = pointer to fil struct, de = pointer to filename
 ; returns: a = 0 and zero flag set if not a file we can read
@@ -34,7 +66,6 @@ verify_wav:
 ; back up registers
     push bc
     push ix
-    push iy
 
 ; we need the input registers for checking .agm files
     push hl
@@ -44,7 +75,7 @@ verify_wav:
     push hl
     push de
     ld bc,wav_header_size
-    ld hl,bf_wav_header
+    lea hl,iy+0 ; bf or ps wav_header
     call clear_mem
     pop de
     pop hl
@@ -55,41 +86,39 @@ verify_wav:
 
 ; read the header
     ld bc,wav_header_size
-    ld de,bf_wav_header
+    lea de,iy+0 ; bf or ps wav_header
     FFSCALL ffs_fread
 
-; close the file
-    FFSCALL ffs_fclose
-
 ; verify the .wav header
-    ld ix,bf_wav_header
     
-    ld hl,(ix+wav_riff)
+    ld hl,(iy+wav_riff)
     ld de,0x464952  ; ascii for "RIF" in little-endian order
     or a ; clear carry
     sbc hl,de
     jr nz,@not_wav 
 
-    ld hl,(ix+wav_wave)
+    ld hl,(iy+wav_wave)
     ld de,0x564157  ; ascii for "WAV" in little-endian order
     or a ; clear carry
     sbc hl,de
     jr nz,@not_wav 
 
-    ld hl,(ix+wav_audio_format)
+    ld hl,(iy+wav_audio_format)
     ld de,0x010001  ; PCM format, 1-channel
     or a ; clear carry
     sbc hl,de 
     jr nz,@not_wav 
 
-    ld hl,(ix+wav_fmt_marker)
+    ld hl,(iy+wav_fmt_marker)
     ld de,0x746D66  ; ascii for "fmt" in little-endian order
     or a ; clear carry
     sbc hl,de
     jr z,@is_wav ; valid .wav file
+    
+    ; JR @not_wav ; not valid .wav file ; DEBUG
 
     ; otherwise valid .wav header, so now check for valid .agm header
-    ld hl,(ix+wav_fmt_marker)
+    ld hl,(iy+wav_fmt_marker)
     ld de,0x6D6761 ; ascii for "agm" in little-endian order
     or a ; clear carry
     sbc hl,de
@@ -99,14 +128,13 @@ verify_wav:
     pop de ; restore pointer to filename
     pop hl ; restore pointer to fil struct
     push hl ; and back them up
-    push de ; again
+    push de ; again to balance stack
     call verify_agm ; a = 2, zero flag reset if .agm, otherwise zero flag set and a = 0
     ; fall through to @done
 @done:
 ; restore registers and return
     pop de
     pop hl
-    pop iy
     pop ix
     pop bc
     ret
@@ -118,67 +146,3 @@ verify_wav:
     xor a ; set zero flag and a = 0 indicating unreadable file
     jr @done
 ; end verify_wav
-
-; open a .wav file and make it ready to play
-; inputs: none
-; returns: a = 0 and zero flag set if not a file we can read
-;          zero flag reset and a = 1 if .wav file, a = 2 if .agm file
-; destroys: nothing
-open_wav:
-; clear the .wav header buffer
-    push hl
-    push de
-    ld bc,wav_header_size
-    ld hl,ps_wav_header
-    call clear_mem
-    pop de
-    pop hl
-
-; get filinfo and fil struct pointers to currently selected file
-    call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
-    lea de,iy+filinfo_fname ; de = pointer to filename
-    ld hl,ps_fil_struct
-
-; open the file 
-    ld c,fa_read
-    FFSCALL ffs_fopen
-
-; read the header
-    ld bc,wav_header_size
-    ld de,ps_wav_header
-    FFSCALL ffs_fread
-
-; verify the .wav header
-    ld ix,ps_wav_header
-    ld hl,(ix+wav_riff)
-
-    ld de,0x464952  ; ascii for "RIF" in little-endian order
-    or a ; clear carry
-    sbc hl,de
-    jr nz,@not_wav 
-
-    ld hl,(ix+wav_wave)
-    ld de,0x564157  ; ascii for "WAV" in little-endian order
-    or a ; clear carry
-    sbc hl,de
-    jr nz,@not_wav 
-
-    ld hl,(ix+wav_fmt_marker)
-    ld de,0x746D66  ; ascii for "fmt" in little-endian order
-    or a ; clear carry
-    sbc hl,de
-    jr nz,@not_wav 
-
-    ld hl,(ix+wav_audio_format)
-    ld de,0x010001  ; PCM format, 1-channel
-    or a ; clear carry
-    sbc hl,de 
-    jr nz,@not_wav 
-; valid .wav file so return with zero flag set and file still open
-    ret
-@not_wav:
-; close the file and return to caller
-    FFSCALL ffs_fclose
-    or a,1 ; reset zero flag indicating invalid .wav file
-    ret
-; end open_wav

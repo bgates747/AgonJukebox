@@ -43,14 +43,15 @@ play_song:
     call vdu_cls
 
 ; open the file and verify it's a playable .wav file
-    call open_wav
-    jp z,@F ; valid .wav file so continue
+    call ps_open_wav
+    jp nz,@F ; valid .wav file so continue 
     call printInline
     asciz "Invalid .wav file selected, try again."
     jp get_input ; return to user input loop
 
+; TODO: branch on .wav or .agm at this point
 @@: ; copy the directory filinfo struct to ps_filinfo_struct
-    lea hl,iy ; open_wav set iy to the directory's filinfo struct
+    lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
     ld de,ps_filinfo_struct ; destination address
     ld bc,filinfo_struct_size
     ldir
