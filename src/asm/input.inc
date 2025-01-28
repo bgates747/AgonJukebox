@@ -188,7 +188,7 @@ bf_select_file:
     lea de,iy+filinfo_fname ; de = pointer to filename
     call verify_wav
     lea hl,iy+filinfo_fname ; hl = pointer to filename
-    jp nz,bf_change_dir ; not a .wav file, so must be a directory
+    jp z,bf_change_dir ; not a .wav file, so must be a directory
 ; play the .wav file
     call bf_highlight_file ; highlight the selected file
     jp play_song

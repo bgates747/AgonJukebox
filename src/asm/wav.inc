@@ -2,7 +2,7 @@
 wav_riff:          EQU 0    ; 4 bytes: "RIFF" identifier
 wav_file_size:     EQU 4    ; 4 bytes: Total file size minus 8 bytes for RIFF header
 wav_wave:          EQU 8    ; 4 bytes: "WAVE" identifier
-wav_fmt_marker:    EQU 12   ; 4 bytes: "fmt " subchunk marker
+wav_fmt_marker:    EQU 12   ; 4 bytes: "fmt " subchunk marker for .wav, "agm" for .agm
 wav_fmt_size:      EQU 16   ; 4 bytes: Format chunk size (16 for PCM)
 wav_audio_format:  EQU 20   ; 2 bytes: Audio format (1 = PCM)
 wav_num_channels:  EQU 22   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
@@ -25,17 +25,20 @@ wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
 wav_data_start:    EQU 76   ; Start of audio data
 wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
 
-; verify that a file is a .wav file
+; verify that a file is a .wav or .agm file
 ; inputs: hl = pointer to fil struct, de = pointer to filename
-; returns: zero flag set if a .wav file we can read
+; returns: a = 0 and zero flag set if not a file we can read
+;          zero flag reset and a = 1 if .wav file, a = 2 if .agm file
 ; destroys: af
 verify_wav:
 ; back up registers
-    push hl
     push bc
-    push de
     push ix
     push iy
+
+; we need the input registers for checking .agm files
+    push hl
+    push de
 
 ; clear the .wav header buffer
     push hl
@@ -62,42 +65,64 @@ verify_wav:
     ld ix,bf_wav_header
     ld hl,(ix+wav_riff)
 
-    ld de, 0x464952  ; ascii for "RIF" in little-endian order
+    ld de,0x464952  ; ascii for "RIF" in little-endian order
     or a ; clear carry
     sbc hl,de
-    jp nz,@done ; not a .wav file
+    jr nz,@not_wav 
 
     ld hl,(ix+wav_wave)
-    ld de, 0x564157  ; ascii for "WAV" in little-endian order
+    ld de,0x564157  ; ascii for "WAV" in little-endian order
     or a ; clear carry
     sbc hl,de
-    jp nz,@done ; not a .wav file
-
-    ld hl,(ix+wav_fmt_marker)
-    ld de, 0x746D66  ; ascii for "fmt" in little-endian order
-    or a ; clear carry
-    sbc hl,de
-    jp nz,@done ; not a .wav file
+    jr nz,@not_wav 
 
     ld hl,(ix+wav_audio_format)
-    ld de, 0x010001  ; PCM format, 1-channel
+    ld de,0x010001  ; PCM format, 1-channel
     or a ; clear carry
-    sbc hl,de ; if not zero, not a .wav file we can read
+    sbc hl,de 
+    jr nz,@not_wav 
 
+    ld hl,(ix+wav_fmt_marker)
+    ld de,0x746D66  ; ascii for "fmt" in little-endian order
+    or a ; clear carry
+    sbc hl,de
+    jr z,@is_wav ; valid .wav file
+
+    ; otherwise valid .wav header, so now check for valid .agm header
+    ld de,0x6D6761 ; ascii for "agm" in little-endian order
+    or a ; clear carry
+    sbc hl,de
+    jr nz,@not_wav ; not valid .wav or .agm
+
+    ; so far has valid .wav header, now check for valid .agm header
+    pop de ; restore pointer to filename
+    pop hl ; restore pointer to fil struct
+    push hl ; and back them up
+    push de ; again
+    call verify_agm ; a = 2, zero flag reset if .agm, otherwise zero flag set and a = 0
+    ; fall through to @done
 @done:
 ; restore registers and return
+    pop de
+    pop hl
     pop iy
     pop ix
-    pop de
     pop bc
-    pop hl
     ret
+@is_wav:
+    xor a
+    inc a ; reset zero flag and a = 1 indicating .wav file
+    jr @done
+@not_wav:
+    xor a ; set zero flag and a = 0 indicating unreadable file
+    jr @done
 ; end verify_wav
 
 ; open a .wav file and make it ready to play
 ; inputs: none
-; returns: zero flag set if a .wav file we can read
-; destroys: af
+; returns: a = 0 and zero flag set if not a file we can read
+;          zero flag reset and a = 1 if .wav file, a = 2 if .agm file
+; destroys: nothing
 open_wav:
 ; clear the .wav header buffer
     push hl
@@ -126,28 +151,28 @@ open_wav:
     ld ix,ps_wav_header
     ld hl,(ix+wav_riff)
 
-    ld de, 0x464952  ; ascii for "RIF" in little-endian order
+    ld de,0x464952  ; ascii for "RIF" in little-endian order
     or a ; clear carry
     sbc hl,de
-    jp nz,@not_wav ; not a .wav file
+    jr nz,@not_wav 
 
     ld hl,(ix+wav_wave)
-    ld de, 0x564157  ; ascii for "WAV" in little-endian order
+    ld de,0x564157  ; ascii for "WAV" in little-endian order
     or a ; clear carry
     sbc hl,de
-    jp nz,@not_wav ; not a .wav file
+    jr nz,@not_wav 
 
     ld hl,(ix+wav_fmt_marker)
-    ld de, 0x746D66  ; ascii for "fmt" in little-endian order
+    ld de,0x746D66  ; ascii for "fmt" in little-endian order
     or a ; clear carry
     sbc hl,de
-    jp nz,@not_wav ; not a .wav file
+    jr nz,@not_wav 
 
     ld hl,(ix+wav_audio_format)
-    ld de, 0x010001  ; PCM format, 1-channel
+    ld de,0x010001  ; PCM format, 1-channel
     or a ; clear carry
-    sbc hl,de ; if not zero, not a .wav file we can read
-    jp nz,@not_wav ; not a .wav file
+    sbc hl,de 
+    jr nz,@not_wav 
 ; valid .wav file so return with zero flag set and file still open
     ret
 @not_wav:

@@ -1,4 +1,6 @@
 ; AGON Movie (.agm) Header Structure Offsets and Descriptions
+; relative to the end of the .agm file's .wav header
+agn_header_start:  EQU 76   ; wav_header_size
 agm_magic:         EQU 0    ; 6 bytes: "AGNMOV" identifier
 agm_version:       EQU 6    ; 1 byte: File format version (e.g., 0x01)
 agm_width:         EQU 7    ; 1 byte: Video width in pixels (e.g., 128)
@@ -13,3 +15,19 @@ agm_header_size:   EQU 68   ; Total AGN Header Size: 68 bytes
 agm_wav_start:     EQU agm_header_size        ; Start of WAV header
 agm_wav_size:      EQU 76                     ; Total WAV Header Size: 76 bytes
 agm_total_header_size: EQU agm_header_size + agm_wav_size ; Total Header Size: 144 bytes
+
+; verify that a file is an .agm file
+; inputs: hl = pointer to fil struct, de = pointer to filename
+; returns: zero flag set,   a = 0 if not a file we can read
+;          zero flag reset, a = 2 if .agm file
+; destroys: if called from verify_wav as usual it doesn't matter
+;           otherwise, af, hl, de, ix
+verify_agm:
+    ld a,1
+    inc a
+    ret 
+
+    xor a ; return not .agm file
+    ret
+
+; end verify_agm

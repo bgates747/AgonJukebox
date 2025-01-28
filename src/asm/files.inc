@@ -42,7 +42,7 @@ bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
 bf_dir_fil_list_size: equ 71168
 
 bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
-
+bf_agm_header: equ 0x081D00 ; 144 bytes: browsing song .agm file header
 
 ps_fil_struct: equ 0x090000 ; 
 ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
@@ -54,7 +54,6 @@ ps_fil_sect: equ 0x090019 ; 4 bytes: Sector number appearing in buf[] (0
 ps_fil_dir_sect: equ 0x09001D ; 4 bytes: Sector number containing the directory entry
 ps_fil_dir_ptr: equ 0x090021 ; 3 bytes: Pointer to the directory entry in the win[]
 
-
 ps_filinfo_struct: equ 0x090100 ; 
 ps_filinfo_fsize: equ 0x090100 ; 4 bytes: File size
 ps_filinfo_fdate: equ 0x090104 ; 2 bytes: Modified date
@@ -63,8 +62,8 @@ ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
 ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
 ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
 
-
 ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
-
-
 ps_wav_data: equ 0x090400 ; virtually unlimited bytes: 
+
+ps_agm_header: equ 0x090400 ; 144 bytes: 
+ps_agm_data: equ 0x090490 ; virtually unlimited bytes: 

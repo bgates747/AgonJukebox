@@ -50,7 +50,7 @@ bf_get_dir:
     ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,ix+filinfo_fname ; de = pointer to filename
     call verify_wav
-    jp nz,@readFileInfo ; not a .wav file, so skip it
+    jp z,@readFileInfo ; not a .wav file, so skip it
 ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
     ld a,'1'
     ld (ix+filinfo_fname-1),a

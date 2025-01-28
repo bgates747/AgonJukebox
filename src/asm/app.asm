@@ -46,6 +46,7 @@ exit:
     include "fpp_ext.inc"
 
 ; APPLICATION INCLUDES
+    include "agm.inc"
     include "layout.inc"
     include "browse.inc"
     include "input.inc"
