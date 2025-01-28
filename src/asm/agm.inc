@@ -58,10 +58,8 @@ verify_agm:
 @is_agm:
     ld a,1
     inc a ; reset zero flag and a = 2 indicating .agm file
-    ; CALL DEBUG_PRINT ; DEBUG
     ret
 @not_agm:
     xor a ; set zero flag and a = 0 indicating unreadable file
-    ; CALL DEBUG_PRINT ; DEBUG
     ret
 ; end verify_agm

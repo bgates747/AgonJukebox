@@ -5,9 +5,9 @@ from struct import unpack
 
 import agonutils as au  # for rgba2_to_img, etc.
 
-AGM_HEADER_SIZE = 68
 WAV_HEADER_SIZE = 76
-TOTAL_HEADER_SIZE = AGM_HEADER_SIZE + WAV_HEADER_SIZE
+AGM_HEADER_SIZE = 68
+TOTAL_HEADER_SIZE = AGM_HEADER_SIZE + WAV_HEADER_SIZE # 144 bytes
 
 def parse_agm_header(header_bytes):
     """
@@ -38,10 +38,24 @@ def parse_agm_header(header_bytes):
     }
 
 def parse_sample_rate_from_wav_header(wav_header_bytes):
-    """Reads sample rate from standard WAV header offset 24..27."""
-    if len(wav_header_bytes) != WAV_HEADER_SIZE:
+    """
+    Expects a 76-byte 'WAV' header (with 'agm' replacing 'fmt ' at offset 12..14).
+    Checks for 'agm' marker and then extracts the sample rate (24..27).
+    Raises ValueError if any checks fail.
+    """
+    if len(wav_header_bytes) != 76:
         raise ValueError("WAV header not 76 bytes.")
-    return int.from_bytes(wav_header_bytes[24:28], byteorder='little', signed=False)
+
+    # In a standard WAV, bytes 12..16 = b"fmt " (4 bytes).
+    # Your conversion script replaces the first 3 of those with b"agm", leaving the 4th alone.
+    # So we expect offsets [12..15) to be b"agm".
+    if wav_header_bytes[12:15] != b"agm":
+        raise ValueError("WAV header does not contain 'agm' marker at offset 12..14.")
+
+    # Sample rate is still stored at offset 24..27 (4 bytes, little-endian)
+    sample_rate = int.from_bytes(wav_header_bytes[24:28], byteorder='little', signed=False)
+    return sample_rate
+
 
 def create_1sec_wav_file(audio_data, sample_rate, filename="temp_1sec.wav"):
     """
@@ -66,8 +80,8 @@ def play_agm(filepath):
 
     with open(filepath, "rb") as f:
         # 1) Read headers
-        agm_header = f.read(AGM_HEADER_SIZE)
         wav_header = f.read(WAV_HEADER_SIZE)
+        agm_header = f.read(AGM_HEADER_SIZE)
 
         meta = parse_agm_header(agm_header)
 
@@ -208,7 +222,10 @@ def play_agm(filepath):
 
 if __name__ == "__main__":
     # Example test
-    # agm_filepath = "tgt/video/a-ha_-_Take_On_Me_Official_Video_Remastered_in_4K.agm"
-    agm_filepath = "tgt/video/Bad_Apple_PV.agm"
-    # agm_filepath = "tgt/video/Michael_Jackson_-_Thriller_Official_4K_Video.agm"
+    agm_filepath = 'tgt/video/a-ha__Take_On_Me.agm'
+    # agm_filepath = 'tgt/video/a-ha__Take_On_Me.wav'
+    # agm_filepath = 'tgt/video/Bad_Apple_PV.agm'
+    # agm_filepath = 'tgt/video/Bad_Apple_PV.wav'
+    # agm_filepath = 'tgt/video/Michael_Jackson__Thriller.agm'
+    # agm_filepath = 'tgt/video/Michael_Jackson__Thriller.wav'
     play_agm(agm_filepath)
