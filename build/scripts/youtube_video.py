@@ -5,6 +5,8 @@ import glob
 import math
 import struct
 import shutil
+import json
+from PIL import Image
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -26,69 +28,69 @@ from make_wav import (
 )
 import agonutils as au
 
+from play_agm import play_agm
+
 # ============================================================
 #              YOUTUBE DOWNLOADER
 # ============================================================
-def download_youtube_video(url, staging_directory):
-    os.makedirs(staging_directory, exist_ok=True)
-    output_template = os.path.join(staging_directory, "%(title)s.%(ext)s")
 
+def download_video():
+    os.makedirs(staging_directory, exist_ok=True)
+
+    # Define the output file path explicitly
+    output_file = os.path.join(staging_directory, f"{video_base_name}.mp4")
+
+    # Download command
     command = [
         "yt-dlp",
         "--restrict-filenames",  # Sanitize filenames
-        "--format", "mp4",
-        "--output", output_template,  # Define output file template
-        url,
+        "--format", "mp4",        # Ensure MP4 format
+        "--output", output_file,  # Use fixed filename
+        youtube_url,
     ]
 
-    print(f"Downloading full video: {url}")
+    print(f"Downloading video: {youtube_url} -> {output_file}")
     subprocess.run(command, check=True)
     print("Download completed.")
 
 # ============================================================
 #              AUDIO EXTRACTION
 # ============================================================
-def extract_audio_from_video(input_file, processed_directory):
+def extract_audio():
     """
     Extracts audio from a video file with minimal processing and saves it as MP3.
     """
     os.makedirs(processed_directory, exist_ok=True)
-    base_name = os.path.splitext(os.path.basename(input_file))[0]
-    output_file = os.path.join(processed_directory, f"{base_name}_audio.mp3")
 
     command = [
         "ffmpeg",
-        "-i", input_file,         # Input file
+        "-i", staged_video_path, # Input file
         "-vn",                    # Disable video
         "-c:a", "libmp3lame",     # Encode audio as MP3
         "-y",                     # Overwrite output files without asking
-        output_file,
+        staged_audio_path,
     ]
 
-    print(f"Extracting audio to {output_file}")
+    print(f"Extracting audio to {staged_audio_path}")
     subprocess.run(command, check=True)
     print("Audio extraction completed.")
-    return output_file  # Return the path of the extracted audio
 
 # ============================================================
 #              AUDIO CONVERSION
 # ============================================================
-def make_audio(src_path, tgt_dir, sample_rate, do_compression, do_normalization):
+def convert_audio():
     """
     Converts an audio file (e.g. MP3) into 8-bit unsigned PCM `.wav`.
     Resamples to `sample_rate` if needed, optionally compresses & normalizes.
     """
-    filename = os.path.basename(src_path)
-    base_filename = os.path.splitext(filename)[0]
-    tgt_path = os.path.join(tgt_dir, base_filename + '.wav')
-    temp_path = os.path.join(tgt_dir, "temp.wav")
+    temp_path = os.path.join(staging_directory, "temp.wav")
 
-    print(f"\nProcessing audio: {src_path}")
+    print(f"\nProcessing audio: {staged_audio_path}")
     if os.path.exists(temp_path):
         os.remove(temp_path)
 
     # 1) Get metadata
-    source_rate, codec = get_audio_metadata(src_path)
+    source_rate, codec = get_audio_metadata(staged_audio_path)
 
     if sample_rate == -1:
         target_rate = source_rate
@@ -96,114 +98,193 @@ def make_audio(src_path, tgt_dir, sample_rate, do_compression, do_normalization)
         target_rate = sample_rate
 
     # 2) Convert to WAV if not already .wav
-    if not filename.lower().endswith('.wav'):
-        convert_to_wav(src_path, temp_path, codec)
-        shutil.copy(temp_path, tgt_path)
+    if not staged_audio_path.lower().endswith('.wav'):
+        convert_to_wav(staged_audio_path, temp_path, codec)
+        shutil.copy(temp_path, target_audio_path)
         os.remove(temp_path)
     else:
-        shutil.copy(src_path, tgt_path)
+        shutil.copy(staged_audio_path, target_audio_path)
 
     # 3) Dynamic range compression (optional)
     if do_compression:
-        shutil.copy(tgt_path, temp_path)
-        compress_dynamic_range(temp_path, tgt_path, codec)
+        shutil.copy(target_audio_path, temp_path)
+        compress_dynamic_range(temp_path, target_audio_path, codec)
         os.remove(temp_path)
 
     # 4) Loudness normalization (optional)
     if do_normalization:
-        shutil.copy(tgt_path, temp_path)
-        normalize_audio(temp_path, tgt_path, codec)
+        shutil.copy(target_audio_path, temp_path)
+        normalize_audio(temp_path, target_audio_path, codec)
         os.remove(temp_path)
 
     # 5) Resample if needed
     if source_rate != target_rate:
-        shutil.copy(tgt_path, temp_path)
-        resample_wav(temp_path, tgt_path, target_rate, codec)
+        shutil.copy(target_audio_path, temp_path)
+        resample_wav(temp_path, target_audio_path, target_rate, codec)
         os.remove(temp_path)
     else:
         print("Skipping resampling: Source and target sample rates match.")
 
     # 6) Convert to 8-bit unsigned PCM
-    shutil.copy(tgt_path, temp_path)
-    convert_to_unsigned_pcm_wav(temp_path, tgt_path, target_rate)
+    shutil.copy(target_audio_path, temp_path)
+    convert_to_unsigned_pcm_wav(temp_path, target_audio_path, target_rate)
     os.remove(temp_path)
 
-    print(f"Finished audio processing: {tgt_path}")
-    return tgt_path  # Return the final .wav path
+    print(f"Finished audio processing: {target_audio_path}")
 
 # ============================================================
 #              VIDEO RESIZING & FRAME EXTRACTION
 # ============================================================
-def extract_and_resize_video(input_file, processed_directory, target_directory, target_width, target_height):
-    """
-    Resizes the video to the specified resolution, saving as MP4.
-    """
-    os.makedirs(processed_directory, exist_ok=True)
-    os.makedirs(target_directory, exist_ok=True)
 
-    base_name = os.path.splitext(os.path.basename(input_file))[0]
-    resized_file = os.path.join(processed_directory, f"{base_name}.mp4")
+def get_video_dimensions(input_file):
+    """
+    Returns (width, height) from ffprobe as integers.
+    """
+    cmd = [
+        'ffprobe',
+        '-v', 'error',
+        '-select_streams', 'v:0',
+        '-show_entries', 'stream=width,height',
+        '-of', 'json',
+        input_file
+    ]
+    proc = subprocess.run(cmd, capture_output=True, text=True)
+    if proc.returncode != 0:
+        raise RuntimeError(f"ffprobe failed on {input_file}: {proc.stderr}")
 
-    print(f"Resizing video to {target_width}x{target_height}: {input_file}")
+    info = json.loads(proc.stdout)
+    streams = info.get('streams')
+    if not streams:
+        raise ValueError("No video streams found.")
+    w = streams[0].get('width')
+    h = streams[0].get('height')
+    return int(w), int(h)
+
+def extract_video():
+    """
+    1) Probes the original video to find aspect ratio.
+    2) If original is 'wider' than target, we fix the target height & let width auto-scale.
+       If original is 'taller' (or narrower), we fix the target width & let height auto-scale.
+    3) Outputs an MP4 in the 'processed_directory' that maintains original aspect,
+       but ensures either height == target_height or width == target_width.
+    """
+
+    # -- Get original aspect --
+    orig_w, orig_h = get_video_dimensions(staged_video_path)
+    if orig_h == 0:
+        raise ValueError("Original video height is 0?")
+    orig_aspect = orig_w / orig_h
+    target_aspect = target_width / target_height
+
+    # -- Decide how to scale in FFmpeg --
+    # We'll either fix the width or fix the height, letting the other dimension auto-scale.
+    if orig_aspect > target_aspect:
+        # Original is "wider" => fix height, auto width
+        # (When aspect is bigger, we end up with something like scale=-2:target_height)
+        scale_filter = f"scale=-2:{target_height}"
+    else:
+        # Original is "taller" or basically narrower => fix width, auto height
+        scale_filter = f"scale={target_width}:-2"
+
+    print(f"Resizing video while preserving aspect: {staged_video_path}")
+    print(f"  Using filter: {scale_filter}")
+
     subprocess.run([
         "ffmpeg",
-        "-i", input_file,
-        "-an",                     # Disable audio
-        "-vf", f"scale={target_width}:{target_height}",
+        "-i", staged_video_path,
+        "-an",  # Disable audio
+        "-vf", scale_filter,
         "-c:v", "libx264",
         "-crf", "28",
         "-preset", "fast",
-        "-y",                     # Overwrite output files without asking
-        resized_file,
+        "-y",  # Overwrite output
+        processed_video_path,
     ], check=True)
-    print(f"Video resized to {resized_file}")
-    return resized_file
 
-def extract_frames(input_file, frames_directory, target_width, target_height, frame_rate):
+    print(f"Intermediate video saved to {processed_video_path}")
+
+def extract_frames():
     """
-    Extract frames from the resized MP4 at the desired FPS and resolution.
-    Saves them as PNG.
+    Extract frames from the intermediate MP4 at the desired FPS.
+    Does NOT scale further, because it's already at intermediate aspect-corrected size.
+    Saves PNG frames.
     """
-    os.makedirs(frames_directory, exist_ok=True)
     # Clear out old frames
     for f in glob.glob(f"{frames_directory}/*"):
         os.remove(f)
 
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
     print(f"Extracting frames at {frame_rate} FPS => {frames_directory}")
+
     subprocess.run([
         "ffmpeg",
-        "-i", input_file,
-        "-vf", f"fps={frame_rate},scale={target_width}:{target_height}",
+        "-i", processed_video_path,
+        "-vf", f"fps={frame_rate}",
         "-pix_fmt", "rgba",
         "-start_number", "0",
-        "-y",                     # Overwrite output files without asking
+        "-y",
         output_pattern,
     ], check=True)
     print("Frame extraction complete.")
 
 # ============================================================
-#              FRAME COLOR PROCESSING
+#              FRAME CROPPING AND COLOR PROCESSING
 # ============================================================
-def process_frames(frames_directory, palette_filepath, transparent_rgb, palette_conversion_method):
+
+def crop_frames(img, final_width, final_height):
     """
-    Converts extracted PNG frames to a palette, then .rgba2 for final use.
+    Center-crops 'img' to final_width x final_height.
+    If the image is already the same size or smaller in either dimension,
+    watch out for edge cases (we typically assume the image is at least as big).
+    """
+    width, height = img.size
+
+    # If no crop needed, just return
+    if width == final_width and height == final_height:
+        return img
+
+    left = (width - final_width) // 2
+    top = (height - final_height) // 2
+    right = left + final_width
+    bottom = top + final_height
+
+    return img.crop((left, top, right, bottom))
+
+def process_frames():
+    """
+    1) For each PNG frame, do a center crop to exactly target_width x target_height.
+    2) Convert to custom palette (in-place).
+    3) Convert to .rgba2 (8bpp).
     """
     filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
     total_frames = len(filenames)
     print(f"Found {total_frames} frames to process.")
+
     for i, pngfile in enumerate(filenames, start=1):
         pngpath = os.path.join(frames_directory, pngfile)
         base = os.path.splitext(pngfile)[0]
         rgba2_path = os.path.join(frames_directory, base + ".rgba2")
 
-        # 1) Convert to your custom palette in-place
-        au.convert_to_palette(pngpath, pngpath, palette_filepath, palette_conversion_method, transparent_rgb)
-        # 2) Then to RGBA2 (which is your 8bpp format) => .rgba2
+        # --- 1) Load the frame, center crop to final dimension ---
+        img = Image.open(pngpath)
+        cropped_img = crop_frames(img, target_width, target_height)
+        cropped_img.save(pngpath)  # Overwrite the PNG with the cropped version
+
+        # --- 2) Convert to your custom palette in-place ---
+        au.convert_to_palette(
+            pngpath,                  # src
+            pngpath,                  # overwrite the same file
+            palette_filepath,
+            palette_conversion_method,
+            transparent_rgb
+        )
+
+        # --- 3) Convert that palette-based PNG to RGBA2 (8bpp) => .rgba2
         au.img_to_rgba2(pngpath, rgba2_path)
 
         print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-    print("All frames processed to .rgba2.")
+
+    print("\nAll frames processed to .rgba2.")
 
 # ============================================================
 #              AGM HEADER CONSTANTS
@@ -227,15 +308,7 @@ agm_header_fmt = "<6sBBBBII50x"
 # ============================================================
 #          MERGE VIDEO & AUDIO INTO .AGM (60 slices/sec)
 # ============================================================
-def merge_video_audio_agm(
-    rgba_directory,      # where .rgba2 frames live
-    wav_path,            # path to final 8-bit PCM WAV
-    output_path,         # output .agm
-    width,
-    height,
-    frame_rate,
-    sample_rate
-):
+def make_agm():
     """
     Creates an AGM file with:
       - 76-byte WAV header
@@ -249,17 +322,17 @@ def merge_video_audio_agm(
     # ---------------------------
     # 1) Read frames
     # ---------------------------
-    frame_files = sorted(f for f in os.listdir(rgba_directory) if f.endswith('.rgba2'))
+    frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith('.rgba2'))
     total_frames = len(frame_files)
-    print(f"merge_video_audio_agm: Found {total_frames} frames in {rgba_directory}")
+    print(f"merge_video_audio_agm: Found {total_frames} frames in {frames_directory}")
 
     # Each frame is width*height bytes in .rgba2
-    frame_bytes_per_frame = width * height
+    frame_bytes_per_frame = target_width * target_height
 
     # ---------------------------
     # 2) Read audio
     # ---------------------------
-    with open(wav_path, "rb") as wf:
+    with open(target_audio_path, "rb") as wf:
         wav_header = wf.read(WAV_HEADER_SIZE)  # 76 bytes
         # Modify the WAV format marker (12 byte offset) to "agm" in little-endian order
         wav_header = wav_header[:12] + b"agm" + wav_header[15:]
@@ -355,8 +428,8 @@ def merge_video_audio_agm(
         agm_header_fmt,
         b"AGNMOV",            # magic (6s)
         version,              # 1 byte
-        width,                # 1 byte
-        height,               # 1 byte
+        target_width,                # 1 byte
+        target_height,               # 1 byte
         frame_rate,           # 1 byte
         total_frames,         # 4 bytes
         total_secs,           # 4 bytes: store audio seconds as int
@@ -366,8 +439,8 @@ def merge_video_audio_agm(
     # ---------------------------
     # 6) Write .agm file
     # ---------------------------
-    print(f"Writing AGM to: {output_path}")
-    with open(output_path, "wb") as agm_file:
+    print(f"Writing AGM to: {target_agm_path}")
+    with open(target_agm_path, "wb") as agm_file:
         # (a) WAV header (76 bytes)
         if len(wav_header) != WAV_HEADER_SIZE:
             raise ValueError("WAV header is not 76 bytes as expected.")
@@ -385,7 +458,7 @@ def merge_video_audio_agm(
             for fr in range(frame_rate):
                 # If we have run out of actual frames, we will use blank frames
                 if frame_idx < total_frames:
-                    frame_path = os.path.join(rgba_directory, frame_files[frame_idx])
+                    frame_path = os.path.join(frames_directory, frame_files[frame_idx])
                     with open(frame_path, "rb") as f_in:
                         frame_bytes = f_in.read()
                     if len(frame_bytes) != frame_bytes_per_frame:
@@ -423,66 +496,34 @@ def merge_video_audio_agm(
         print("AGM file creation complete.")
 
     # (Optional) Clean up frames if you like
-    for file in glob.glob(os.path.join(rgba_directory, "*.rgba2")) + glob.glob(os.path.join(rgba_directory, "*.png")):
+    for file in glob.glob(os.path.join(frames_directory, "*.rgba2")) + glob.glob(os.path.join(frames_directory, "*.png")):
         os.remove(file)
     print("Deleted all .rgba2 files in the frames directory.")
 
+def do_all_the_things():
+    if do_download_video:
+        download_video()
 
-# ============================================================
-#          MAIN PIPELINE: PROCESS ALL VIDEOS
-# ============================================================
-def process_all_videos(
-    staging_directory,
-    processed_directory,
-    frames_directory,
-    target_directory,
-    target_width,
-    target_height,
-    frame_rate,
-    palette_filepath,
-    transparent_rgb,
-    palette_conversion_method,
-    sample_rate,
-    do_compression,
-    do_normalization
-):
-    """
-    1) For each .mp4 in staging, extract audio -> MP3 -> 8-bit WAV, extract frames -> .rgba2,
-    2) Merge to .agm with your 60-lumps-per-second logic.
-    """
-    video_files = glob.glob(os.path.join(staging_directory, "*.mp4"))
-    if not video_files:
-        print("No MP4 video files found in staging.")
-        return
+    if do_extract_audio:
+        extract_audio()
 
-    os.makedirs(target_directory, exist_ok=True)
+    if do_convert_audio:
+        convert_audio()
 
-    for video_file in video_files:
-        print(f"\n=== PROCESSING: {video_file} ===")
-        base_filename = os.path.splitext(os.path.basename(video_file))[0]
+    if do_extract_video:
+        extract_video()
 
-        # Step A: Extract audio, convert to 8-bit PCM
-        audio_mp3 = extract_audio_from_video(video_file, processed_directory)
-        final_wav = make_audio(audio_mp3, target_directory, sample_rate, do_compression, do_normalization)
+    if do_extract_frames:
+        extract_frames()
 
-        # Step B: Resize video => extract frames => palette => .rgba2
-        resized_video = extract_and_resize_video(video_file, processed_directory, target_directory, target_width, target_height)
-        extract_frames(resized_video, frames_directory, target_width, target_height, frame_rate)
-        process_frames(frames_directory, palette_filepath, transparent_rgb, palette_conversion_method)
+    if do_process_frames:
+        process_frames()
 
-        # Step C: Merge
-        agm_out = os.path.join(target_directory, f"{base_filename}.agm")
-        merge_video_audio_agm(
-            rgba_directory=frames_directory,
-            wav_path=final_wav,
-            output_path=agm_out,
-            width=target_width,
-            height=target_height,
-            frame_rate=frame_rate,
-            sample_rate=sample_rate
-        )
-        print(f"Done creating: {agm_out}")
+    if do_make_agm:
+        make_agm()
 
+    if do_play_agm:
+        play_agm(target_agm_path)
 
 # ============================================================
 #              EXAMPLE USAGE
@@ -499,34 +540,57 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 120
-    target_height = 90
-    frame_rate    = 4
-    sample_rate   = 16800
+    target_width  = 240
+    target_height = 96
+    frame_rate    = 1
+    bytes_per_sec = 60000
+    sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
 
-    do_compression   = True
-    do_normalization = True
-
-    # 1) Download from YouTube
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
     # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
-    # download_youtube_video(youtube_url, staging_directory)
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
+    # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
+    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
+    
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
+    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}x{sample_rate}'
+    staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
+    processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
+    staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
+    target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
+    target_agm_path = os.path.join(target_directory, f"{video_target_name}.agm")
 
-    # 2) Process the downloaded videos => .agm
-    process_all_videos(
-        staging_directory,
-        processed_directory,
-        frames_directory,
-        target_directory,
-        target_width,
-        target_height,
-        frame_rate,
-        palette_filepath,
-        transparent_rgb,
-        palette_conversion_method,
-        sample_rate,
-        do_compression,
-        do_normalization
-    )
-    print("All done!")
+
+    do_download_video = False
+    do_extract_audio = False
+    do_convert_audio = False
+    do_compression   = False
+    do_normalization = False
+    do_extract_video = False
+    do_extract_frames = False
+    do_process_frames = False
+    do_make_agm = False
+    do_delete_frames = False
+    do_play_agm = False
+
+# ============================================================
+    # do_download_video = True
+
+    # do_extract_audio = True
+    
+    do_convert_audio = True
+    do_compression   = True
+    do_normalization = True
+    
+    do_extract_video = True
+    do_extract_frames = True
+    do_process_frames = True
+    
+    do_make_agm = True
+    do_delete_frames = True
+
+    do_play_agm = True
+
+    do_all_the_things()

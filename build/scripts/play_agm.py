@@ -57,7 +57,7 @@ def parse_sample_rate_from_wav_header(wav_header_bytes):
     return sample_rate
 
 
-def create_1sec_wav_file(audio_data, sample_rate, filename="temp_1sec.wav"):
+def create_1sec_wav_file(audio_data, sample_rate, filename):
     """
     Given 1 second of 8-bit mono audio_data (length == sample_rate),
     create a small PCM WAV file so Pygame can load & play it.
@@ -77,6 +77,8 @@ def play_agm(filepath):
     """
     pygame.init()
     clock = pygame.time.Clock()
+
+    temp_wav = "tgt/temp_audio.wav"
 
     with open(filepath, "rb") as f:
         # 1) Read headers
@@ -126,12 +128,11 @@ def play_agm(filepath):
         print("--------------------------------")
 
         # 3) Prepare Pygame window, scaled 4× with no interpolation
-        scale_factor = 3
+        scale_factor = 2
         screen = pygame.display.set_mode((width * scale_factor, height * scale_factor))
         pygame.display.set_caption("AGM Video Player (4x nearest)")
 
         total_secs = audio_secs
-        lumps_total = total_secs * lumps_per_second
 
         frame_index = 0
         lumps_in_current_frame = 0
@@ -201,7 +202,7 @@ def play_agm(filepath):
                 needed = audio_bytes_per_sec - len(audio_buffer)
                 audio_buffer += b"\x00" * needed
 
-            temp_wav = "temp_1sec.wav"
+            temp_wav = temp_wav
             create_1sec_wav_file(audio_buffer[:audio_bytes_per_sec], sample_rate, temp_wav)
 
             # Play with Pygame
@@ -216,16 +217,17 @@ def play_agm(filepath):
 
     pygame.quit()
     # remove last temp wav
-    if os.path.exists("temp_1sec.wav"):
-        os.remove("temp_1sec.wav")
+    if os.path.exists(temp_wav):
+        os.remove(temp_wav)
 
 
 if __name__ == "__main__":
     # Example test
-    agm_filepath = 'tgt/video/a-ha__Take_On_Me.agm'
+    # agm_filepath = 'tgt/a-ha__Take_On_Me.agm'
     # agm_filepath = 'tgt/video/a-ha__Take_On_Me.wav'
     # agm_filepath = 'tgt/video/Bad_Apple_PV.agm'
     # agm_filepath = 'tgt/video/Bad_Apple_PV.wav'
     # agm_filepath = 'tgt/video/Michael_Jackson__Thriller.agm'
     # agm_filepath = 'tgt/video/Michael_Jackson__Thriller.wav'
+    agm_filepath = 'tgt/4K_Star_Wars_Ep.V_-_Empire_Strikes_Back_-_The_Battle_of_Hoth_Part_1_of_2.agm'
     play_agm(agm_filepath)

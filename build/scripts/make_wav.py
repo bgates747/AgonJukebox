@@ -121,6 +121,82 @@ def convert_to_unsigned_pcm_wav(src_path, tgt_path, sample_rate):
         tgt_path
     ], check=True)
 
+def fix_wav_header_if_extensible(file_path):
+    """
+    Reads a .wav file, checks if the fmt chunk is in WAVEFORMATEXTENSIBLE form,
+    and if so, rewrites it to a standard PCM (AudioFormat=1) with a fmt chunk
+    size of 16 bytes, removing the extra extension bytes.
+
+    NOTE:
+      - This assumes 'fmt ' is the first chunk after the WAVE header.
+      - It also assumes standard ordering and no unusual chunks
+        preceding 'fmt '.
+    """
+
+    with open(file_path, 'rb') as f:
+        data = f.read()
+
+    # Minimum size for a valid WAV with standard PCM header is 44 bytes.
+    if len(data) < 44:
+        print("Not a valid or too-short WAV file:", file_path)
+        return
+
+    # Check the RIFF and WAVE headers:
+    #   - "RIFF" at offset 0
+    #   - overall file size at offset 4
+    #   - "WAVE" at offset 8
+    if data[0:4] != b'RIFF' or data[8:12] != b'WAVE':
+        print("Not a standard RIFF/WAVE file:", file_path)
+        return
+
+    # The first chunk after "WAVE" normally starts at offset 12.
+    # We expect "fmt " at data[12:16], the chunk size at data[16:20].
+    if data[12:16] != b'fmt ':
+        print("Did not find 'fmt ' chunk where expected:", file_path)
+        return
+
+    fmt_chunk_size = int.from_bytes(data[16:20], byteorder='little')
+
+    # If fmt_chunk_size == 16, it's already standard PCM — do nothing.
+    if fmt_chunk_size == 16:
+        return
+
+    # For an extensible WAV, typically fmt_chunk_size is 40 (sometimes 18 or other).
+    # We'll forcibly convert to standard PCM (chunk_size=16, wFormatTag=1).
+    # The "extended" part begins right after the first 16 bytes of the fmt structure.
+
+    # Start of the 'fmt ' data is at offset 20.
+    # The standard 16-byte WAVEFORMATEX portion covers offsets 20..35 (inclusive).
+    # Then the extension is from offset (20+16) up to (20 + fmt_chunk_size).
+
+    extension_start = 20 + 16
+    extension_end = 20 + fmt_chunk_size
+
+    # Make a mutable copy of the entire file content.
+    new_data = bytearray(data)
+
+    # 1) Force AudioFormat to 1 (PCM) in bytes 20..21:
+    new_data[20:22] = (1).to_bytes(2, byteorder='little')
+
+    # 2) Remove the extra extension bytes from the file.
+    #    That means everything in new_data[extension_start:extension_end] goes away.
+    del new_data[extension_start:extension_end]
+
+    # 3) Set the fmt chunk size to 16 in offset 16..19:
+    new_data[16:20] = (16).to_bytes(4, byteorder='little')
+
+    # 4) Update the overall RIFF chunk size at offset 4..7:
+    #    new RIFF size = total length of the file (minus 8 bytes).
+    new_riff_size = len(new_data) - 8
+    new_data[4:8] = new_riff_size.to_bytes(4, byteorder='little')
+
+    # Write the modified file back.
+    with open(file_path, 'wb') as f:
+        f.write(new_data)
+
+    print("Converted WAVEFORMATEXTENSIBLE to standard PCM for:", file_path)
+
+
 def make_sfx(src_dir, tgt_dir, sample_rate, do_compression, do_normalization):
     """
     Processes audio files from the source directory and converts them into
@@ -181,6 +257,9 @@ def make_sfx(src_dir, tgt_dir, sample_rate, do_compression, do_normalization):
             convert_to_unsigned_pcm_wav(temp_path, tgt_path, target_rate)
             os.remove(temp_path)
 
+            # Fix the WAV header if it's in WAVEFORMATEXTENSIBLE format
+            fix_wav_header_if_extensible(tgt_path)
+
             print(f"Finished processing: {tgt_path}")
 
 if __name__ == '__main__':
@@ -190,7 +269,8 @@ if __name__ == '__main__':
     # sample_rate = 44100 # Typical CD quality
     # sample_rate = 16384 # 'native' rate
     # sample_rate = 15360 # (256*60)
-    sample_rate = -1 # Use the source file's sample rate
+    # sample_rate = -1 # Use the source file's sample rate
+    sample_rate = 6000
     src_dir = 'assets/sound/music/staging'
     tgt_dir = 'tgt/music'
 
