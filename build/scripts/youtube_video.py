@@ -2,13 +2,12 @@
 import os
 import subprocess
 import glob
-import math
-import struct
 import shutil
 import json
 from PIL import Image
 import re
 import sys
+from make_agm import make_agm
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -369,218 +368,6 @@ def process_frames():
     print("\nAll frames processed to .rgba2.")
     print("")
 
-# ============================================================
-#              AGM HEADER CONSTANTS
-# ============================================================
-AGM_HEADER_SIZE = 68
-WAV_HEADER_SIZE = 76
-TOTAL_HEADER_SIZE = AGM_HEADER_SIZE + WAV_HEADER_SIZE  # 144
-
-# This format uses (example) offsets:
-#   0..5:  magic "AGNMOV"
-#   6:     version (1 byte)
-#   7:     width   (1 byte)
-#   8:     height  (1 byte)
-#   9:     framerate (1 byte)
-#   10..13: total_frames (4 bytes)
-#   14..17: total_audio_seconds (4 bytes) -- integer or float
-#   18..67: reserved (50 bytes)
-# total = 68 bytes
-agm_header_fmt = "<6sBBBBII50x"
-
-# ============================================================
-#          MERGE VIDEO & AUDIO INTO .AGM (60 slices/sec)
-# ============================================================
-def make_agm():
-    """
-    Creates an AGM file with:
-      - 76-byte WAV header
-      - 68-byte AGM header
-      - 144 bytes total header
-      - Then data arranged in 60 lumps per second,
-        each lump is (video portion + audio portion).
-      - 4 fps example => each second has 4 frames => each frame is
-        split across lumps_per_frame lumps, etc.
-    """
-    # ---------------------------
-    # 1) Read frames
-    # ---------------------------
-    frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith('.rgba2'))
-    total_frames = len(frame_files)
-
-    print("-------------------------------------------------")
-    print(f"make_agm: Found {total_frames} frames in {frames_directory}")
-
-    # Each frame is width*height bytes in .rgba2
-    frame_bytes_per_frame = target_width * target_height
-
-    # ---------------------------
-    # 2) Read audio
-    # ---------------------------
-    with open(target_audio_path, "rb") as wf:
-        wav_header = wf.read(WAV_HEADER_SIZE)  # 76 bytes
-        # Modify the WAV format marker (12 byte offset) to "agm" in little-endian order
-        wav_header = wav_header[:12] + b"agm" + wav_header[15:]
-        audio_data = wf.read()                 # The rest is raw PCM data
-
-    audio_data_size = len(audio_data)
-    # Audio duration in seconds (assuming 8-bit mono => 1 byte/sample)
-    # We'll do an integer second count. If it's not an exact match, you
-    # can enforce “no rounding,” but let's be safe to do ceiling if mismatched.
-    audio_secs_float = audio_data_size / float(target_sample_rate)
-    # ---------------------------
-    # 3) Compute total secs
-    # video_secs = total_frames / frame_rate
-    # audio_secs = audio_data_size / target_sample_rate
-    video_secs_float = total_frames / float(frame_rate)
-
-    total_secs = int(math.ceil(max(video_secs_float, audio_secs_float)))
-    print(f"Video is ~{video_secs_float:.2f}s, Audio is ~{audio_secs_float:.2f}s => merging up to {total_secs}s total")
-
-    # ---------------------------
-    # 4) 60 lumps per second
-    #    lumps_per_frame = 60 // frame_rate  (MUST be integer)
-    # ---------------------------
-    lumps_per_second = 60
-    if (lumps_per_second % frame_rate) != 0:
-        raise ValueError(
-            f"Cannot evenly split {lumps_per_second} lumps among {frame_rate} fps. They must divide exactly."
-        )
-
-    lumps_per_frame = lumps_per_second // frame_rate
-    # For example, 4 fps => lumps_per_frame=15
-
-    # -- total lumps for the entire video
-    total_lumps = total_secs * lumps_per_second
-
-    # Each second we must store:
-    #   frame_rate frames => frame_rate * frame_bytes_per_frame
-    # + target_sample_rate bytes of audio
-    # = total_bytes_per_sec
-    total_video_bytes_per_sec = frame_rate * frame_bytes_per_frame
-    total_audio_bytes_per_sec = target_sample_rate
-    total_bytes_per_sec = total_video_bytes_per_sec + total_audio_bytes_per_sec
-
-    # Each second is broken into lumps_per_second lumps => each lump is chunk_size
-    # e.g. 60 lumps => chunk_size = total_bytes_per_sec / 60
-    # Must be integer, no rounding
-    if total_bytes_per_sec % lumps_per_second != 0:
-        raise ValueError(
-            f"Cannot split {total_bytes_per_sec} bytes/sec into {lumps_per_second} lumps. Must divide evenly!"
-        )
-
-    chunk_size = total_bytes_per_sec // lumps_per_second
-    print(f" -> Each second = {total_bytes_per_sec} bytes, split into {lumps_per_second} lumps => chunk_size={chunk_size}")
-
-    # In one frame, we have frame_bytes_per_frame bytes. That frame is spread across lumps_per_frame lumps => each lump has:
-    #   frame_bytes_per_lump = frame_bytes_per_frame / lumps_per_frame
-    if frame_bytes_per_frame % lumps_per_frame != 0:
-        raise ValueError(
-            f"Frame of {frame_bytes_per_frame} bytes won't split evenly into {lumps_per_frame} lumps_per_frame."
-        )
-    frame_bytes_per_lump = frame_bytes_per_frame // lumps_per_frame
-
-    # Also, each second has target_sample_rate audio bytes => audio_bytes_per_lump = target_sample_rate / lumps_per_second
-    if target_sample_rate % lumps_per_second != 0:
-        raise ValueError(
-            f"Audio target_sample_rate={target_sample_rate} doesn't split evenly into lumps_per_second={lumps_per_second}."
-        )
-    audio_bytes_per_lump = target_sample_rate // lumps_per_second
-
-    print(f" -> Each frame is {frame_bytes_per_frame} bytes => {frame_bytes_per_lump} per lump")
-    print(f" -> Audio is {target_sample_rate} bytes/sec => {audio_bytes_per_lump} per lump")
-
-    # Summation check:
-    #   chunk_size = frame_bytes_per_lump + audio_bytes_per_lump
-    # must hold. If you want e.g. 720 + 280 = 1000, it should match:
-    if (frame_bytes_per_lump + audio_bytes_per_lump) != chunk_size:
-        raise ValueError("Mismatch: frame+audio lumps do not add up to chunk_size.")
-
-    # ---------------------------
-    # 5) Build 68-byte AGN header
-    # ---------------------------
-    # For your offsets:
-    # 0..5: 'AGNMOV'
-    # 6:    version=1
-    # 7:    width (1 byte)
-    # 8:    height (1 byte)
-    # 9:    frame_rate (1 byte)
-    # 10..13: total_frames
-    # 14..17: total_audio_seconds (int)
-    # 18..67: reserved
-    version = 1
-    agm_header = struct.pack(
-        agm_header_fmt,
-        b"AGNMOV",            # magic (6s)
-        version,              # 1 byte
-        target_width,                # 1 byte
-        target_height,               # 1 byte
-        frame_rate,           # 1 byte
-        total_frames,         # 4 bytes
-        total_secs,           # 4 bytes: store audio seconds as int
-        # plus 50x reserved
-    )
-
-    # ---------------------------
-    # 6) Write .agm file
-    # ---------------------------
-    print(f"Writing AGM to: {target_agm_path}")
-    with open(target_agm_path, "wb") as agm_file:
-        # (a) WAV header (76 bytes)
-        if len(wav_header) != WAV_HEADER_SIZE:
-            raise ValueError("WAV header is not 76 bytes as expected.")
-        agm_file.write(wav_header)
-        # (b) AGN header (68 bytes)
-        agm_file.write(agm_header)
-
-        # (c) Interleave data in lumps (60 lumps/sec)
-        frame_idx = 0
-        audio_idx = 0
-        # We will read .rgba2 for each frame from disk as we go.
-
-        # To remain consistent, we can proceed second by second:
-        for sec in range(total_secs):
-            for fr in range(frame_rate):
-                # If we have run out of actual frames, we will use blank frames
-                if frame_idx < total_frames:
-                    frame_path = os.path.join(frames_directory, frame_files[frame_idx])
-                    with open(frame_path, "rb") as f_in:
-                        frame_bytes = f_in.read()
-                    if len(frame_bytes) != frame_bytes_per_frame:
-                        raise ValueError(f"Frame {frame_idx} has unexpected size {len(frame_bytes)}")
-                else:
-                    # blank frame if no more frames
-                    frame_bytes = b"\x00" * frame_bytes_per_frame
-
-                frame_idx += 1
-
-                # Now we slice this frame into lumps_per_frame lumps
-                # Each lump includes:
-                #   first frame_bytes_per_lump from our frame,
-                #   plus audio_bytes_per_lump from the audio data
-                offset_in_frame = 0
-                for _lump in range(lumps_per_frame):
-                    # 1) slice of video
-                    video_chunk = frame_bytes[offset_in_frame : offset_in_frame + frame_bytes_per_lump]
-                    offset_in_frame += frame_bytes_per_lump
-
-                    # 2) slice of audio
-                    start_audio = audio_idx
-                    end_audio   = audio_idx + audio_bytes_per_lump
-                    audio_chunk = audio_data[start_audio:end_audio]
-                    audio_idx  += audio_bytes_per_lump
-
-                    # If audio_chunk is short (past end), pad with zeros
-                    if len(audio_chunk) < audio_bytes_per_lump:
-                        audio_chunk += b"\x00" * (audio_bytes_per_lump - len(audio_chunk))
-
-                    # 3) write them out as a single lump
-                    agm_file.write(video_chunk)
-                    agm_file.write(audio_chunk)
-
-        print("AGM file creation complete.")
-        print("")
-
 def delete_frames():
     print("-------------------------------------------------")
     print("delete_frames working...")
@@ -630,7 +417,7 @@ def do_all_the_things():
         process_frames()
 
     if do_make_agm:
-        make_agm()
+        make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate)
 
     if do_delete_frames:
         delete_frames()
@@ -656,19 +443,21 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 90
-    target_height = 36
-    frame_rate    = 15
+    target_width  = 120
+    target_height = 90
+    frame_rate    = 4
     bytes_per_sec = 60000
     target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
 
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
     # video_base_name = f'a_ha__Take_On_Me'
 
-    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    video_base_name = f'Star_Wars__Battle_of_Yavin'
+    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    # video_base_name = f'Star_Wars__Battle_of_Yavin'
 
-    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
+    youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
+    video_base_name = f'Bad_Apple'
+
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
 
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
@@ -703,17 +492,17 @@ if __name__ == "__main__":
     # do_compression   = True
     # do_normalization = True
 
-    do_convert_audio = True
+    # do_convert_audio = True
 
-    do_extract_video = True
+    # do_extract_video = True
 
-    do_extract_frames = True
+    # do_extract_frames = True
 
-    do_process_frames = True
+    # do_process_frames = True
     
-    do_make_agm = True
+    # do_make_agm = True
 
-    do_delete_frames = True
+    # do_delete_frames = True
 
     # do_delete_processed_files = True
 
