@@ -115,8 +115,6 @@ verify_wav:
     sbc hl,de
     jr z,@is_wav ; valid .wav file
     
-    ; JR @not_wav ; not valid .wav file ; DEBUG
-
     ; otherwise valid .wav header, so now check for valid .agm header
     ld hl,(iy+wav_fmt_marker)
     ld de,0x6D6761 ; ascii for "agm" in little-endian order

@@ -27,8 +27,17 @@ ps_seek_rate_idx: db 0 ; seek rate index
     db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
 
 ps_chunks_per_second: equ 60 ; number of chunks to load per second
-ps_chunk_size: dl 0 ; size of chunks to load (sample rate / 60)
-ps_chunk_counter: db 0 ; init to chunks/sec, when hits zero play the loaded buffer
+ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
+ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
+
+ps_agm_width: db 0 ; video width in pixels (0 = 256)
+ps_agm_height: db 0 ; video height in pixels (0 = 256)
+ps_agm_frame_size: dl 0 ; size of a frame in bytes
+ps_agm_frame_rate: db 0 ; frames per second (1-60)
+
+ps_agm_chunk_size: dl 0 ; size of video chunks to load (frame size * frame rate / 60)
+ps_agm_chunk_counter: db 0 ; init to video chunks/sec, when hits zero load the next video frame
+ps_agm_frame_counter: db 0 ; init to (frames/sec)/(chunks/sec), when hits zero play the loaded video frame
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -36,7 +45,7 @@ play_song:
 
 ; reset the chunk counter to chunks / second
     ld a,ps_chunks_per_second
-    ld (ps_chunk_counter),a
+    ld (ps_wav_chunk_counter),a
 
 ; clear now playing viewport
     call vp_now_playing
@@ -78,13 +87,13 @@ play_song:
     ld hl,(ps_wav_header+wav_sample_rate)
     ld de,ps_chunks_per_second
     call udiv24 ; de = sample_rate / ps_chunks_per_second
-    ld (ps_chunk_size),de ; save the chunk size
+    ld (ps_wav_chunk_size),de ; save the chunk size
 ; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
 ; reset the chunk counter
     ld a,ps_chunks_per_second
-    ld (ps_chunk_counter),a
+    ld (ps_wav_chunk_counter),a
 ; flip the command and sample buffers and read the first block of data
     call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
                                  ; but if we don't do it here, only one audio buffer 
@@ -118,7 +127,7 @@ ps_read_sample:
     ld hl,ps_fil_struct
     ld de,ps_wav_data
     ; ld bc,(ps_wav_header+wav_sample_rate)
-    ld bc,(ps_chunk_size)
+    ld bc,(ps_wav_chunk_size)
     FFSCALL ffs_fread
 ; test bc for zero bytes read
     ld hl,0
@@ -136,13 +145,13 @@ ps_read_sample:
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
 ; decrement the chunk counter
-    ld a,(ps_chunk_counter)
+    ld a,(ps_wav_chunk_counter)
     dec a
-    ld (ps_chunk_counter),a
+    ld (ps_wav_chunk_counter),a
     ret nz ; not zero so not time to play the buffer
 ; reset the chunk counter and play the buffer
     ld a,ps_chunks_per_second
-    ld (ps_chunk_counter),a
+    ld (ps_wav_chunk_counter),a
     jp ps_play_sample
 ; ; DEBUG ; MAKES THE POPPING BETWEEN SAMPLES WORSE SO THAT PROBLEM IS ELSEWHERE
 ;     call ps_play_sample
@@ -310,7 +319,7 @@ ps_load_command_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
-    ; ld hl,(ps_chunk_size)
+    ; ld hl,(ps_wav_chunk_size)
     ld (ps_sr0),hl
     ld a,23
     ld (ps_sr0+2),a
@@ -322,7 +331,7 @@ ps_load_command_buffers:
     ld hl,cmd1_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
-    ; ld hl,(ps_chunk_size)
+    ; ld hl,(ps_wav_chunk_size)
     ld (ps_sr1),hl
     ld a,23
     ld (ps_sr1+2),a

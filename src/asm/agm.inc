@@ -36,7 +36,7 @@ verify_agm:
     lea de,iy+0 ; bf or ps agm_header
     FFSCALL ffs_fread
 
-; verify the .agm header magic number
+; verify the .agm header magic number 'AGNMOV'
     ld hl,(iy+agm_magic)
     ld de,0x4E4741 ; ascii for AGN in little-endian order
     or a ; clear carry

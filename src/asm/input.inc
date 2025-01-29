@@ -344,7 +344,7 @@ ps_seek:
     call ps_update_playbar
 ; reset the chunk counter
     ld a,ps_chunks_per_second
-    ld (ps_chunk_counter),a
+    ld (ps_wav_chunk_counter),a
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
