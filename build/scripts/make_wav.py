@@ -23,8 +23,11 @@ def compress_dynamic_range(input_path, output_path, codec):
 
 def normalize_audio(input_path, output_path, codec):
     """
-    Normalizes the audio file to a consistent loudness level.
+    Normalizes the audio file to a consistent loudness level while preserving sample rate.
     """
+    # Get the input file's sample rate
+    source_sample_rate, _ = get_audio_metadata(input_path)
+
     print("Normalizing audio...")
     subprocess.run([
         'ffmpeg',
@@ -33,6 +36,7 @@ def normalize_audio(input_path, output_path, codec):
         '-y',                                   # Overwrite output file
         '-i', input_path,                       # Input file
         '-ac', '1',                             # Ensure mono output
+        '-ar', str(source_sample_rate),         # Preserve sample rate
         '-af', 'loudnorm=I=-20:TP=-2:LRA=11',   # Normalize settings
         '-acodec', codec,                       # Preserve original codec
         output_path                             # Output file

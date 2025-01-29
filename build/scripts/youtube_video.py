@@ -7,6 +7,8 @@ import struct
 import shutil
 import json
 from PIL import Image
+import re
+import sys
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -22,7 +24,6 @@ from make_wav import (
     compress_dynamic_range,
     normalize_audio,
     get_audio_metadata,
-    convert_to_wav,
     resample_wav,
     convert_to_unsigned_pcm_wav,
 )
@@ -35,45 +36,111 @@ from play_agm import play_agm
 # ============================================================
 
 def download_video():
-    os.makedirs(staging_directory, exist_ok=True)
+    if os.path.exists(staged_video_path):
+        os.remove(staged_video_path)
 
-    # Define the output file path explicitly
-    output_file = os.path.join(staging_directory, f"{video_base_name}.mp4")
+    print("-------------------------------------------------")
+    print(f"download_video: {youtube_url} To: {staged_video_path}")
 
-    # Download command
     command = [
         "yt-dlp",
-        "--restrict-filenames",  # Sanitize filenames
-        "--format", "mp4",        # Ensure MP4 format
-        "--output", output_file,  # Use fixed filename
+        "--restrict-filenames",
+        "--format", "mp4",
+        "--output", staged_video_path,
         youtube_url,
     ]
+    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
-    print(f"Downloading video: {youtube_url} -> {output_file}")
-    subprocess.run(command, check=True)
-    print("Download completed.")
+    if not os.path.exists(staged_video_path):
+        raise RuntimeError(f"Download failed: {staged_video_path} was not created.")
+    
+    width, height = get_video_dimensions(staged_video_path)
+    file_size = os.path.getsize(staged_video_path)
+    file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"  # Convert bytes to MB
+    print(f"Download completed. Video dimensions: {width}x{height} Size: {file_size_mb}")
+    print("")
 
 # ============================================================
 #              AUDIO EXTRACTION
 # ============================================================
+
 def extract_audio():
     """
-    Extracts audio from a video file with minimal processing and saves it as MP3.
+    Extracts audio from a video file as 16-bit PCM WAV in mono,
+    preserving the original sample rate but capping it at 48000 Hz.
     """
     os.makedirs(processed_directory, exist_ok=True)
 
+    # Ensure any existing file is removed before extraction
+    if os.path.exists(staged_audio_path):
+        os.remove(staged_audio_path)
+
+    print("-------------------------------------------------")
+    print(f"extract_audio to {staged_audio_path}")
+
+    # Get source sample rate and codec
+    source_sample_rate, codec = get_audio_metadata(staged_video_path)
+
+    # Cap the sample rate at 48000 Hz
+    if source_sample_rate > 48000:
+        source_sample_rate = 48000
+
+    # FFmpeg command: Convert to 16-bit PCM WAV with mono audio, applying sample rate cap
     command = [
         "ffmpeg",
-        "-i", staged_video_path, # Input file
+        "-i", staged_video_path,  # Input file
         "-vn",                    # Disable video
-        "-c:a", "libmp3lame",     # Encode audio as MP3
-        "-y",                     # Overwrite output files without asking
+        "-acodec", "pcm_s16le",   # Use WAV format (16-bit PCM)
+        "-ar", str(source_sample_rate),  # Apply capped sample rate
+        "-ac", "1",               # Convert to mono
+        "-y",                     # Overwrite existing files without prompt
         staged_audio_path,
     ]
 
-    print(f"Extracting audio to {staged_audio_path}")
-    subprocess.run(command, check=True)
-    print("Audio extraction completed.")
+    # Run FFmpeg silently
+    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+
+    # Ensure the file was successfully created
+    if not os.path.exists(staged_audio_path):
+        raise RuntimeError(f"Audio extraction failed: {staged_audio_path} was not created.")
+
+    # Get final file size
+    file_size = os.path.getsize(staged_audio_path)
+    file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"
+
+    # Print summary
+    print(f"Audio extraction completed. Sample rate: {source_sample_rate}Hz Size: {file_size_mb}")
+
+    # Optional processing: Compression & Normalization
+    if do_compression or do_normalization:
+        temp_path = os.path.join(staging_directory, "temp.wav")
+
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
+
+        # Dynamic Range Compression
+        if do_compression:
+            print("Applying dynamic range compression...")
+            shutil.copy(staged_audio_path, temp_path)
+            compress_dynamic_range(temp_path, staged_audio_path, codec)
+            os.remove(temp_path)
+
+            # Report status after compression
+            compressed_sample_rate, compressed_codec = get_audio_metadata(staged_audio_path)
+            print(f"After compression - Sample rate: {compressed_sample_rate} Hz, Codec: {compressed_codec}")
+
+        # Loudness Normalization
+        if do_normalization:
+            print("Applying loudness normalization...")
+            shutil.copy(staged_audio_path, temp_path)
+            normalize_audio(temp_path, staged_audio_path, codec)
+            os.remove(temp_path)
+
+            # Report status after normalization
+            normalized_sample_rate, normalized_codec = get_audio_metadata(staged_audio_path)
+            print(f"After normalization - Sample rate: {normalized_sample_rate} Hz, Codec: {normalized_codec}")
+
+    print("")
 
 # ============================================================
 #              AUDIO CONVERSION
@@ -81,56 +148,30 @@ def extract_audio():
 def convert_audio():
     """
     Converts an audio file (e.g. MP3) into 8-bit unsigned PCM `.wav`.
-    Resamples to `sample_rate` if needed, optionally compresses & normalizes.
+    Resamples to `target_sample_rate` if needed, optionally compresses & normalizes.
     """
     temp_path = os.path.join(staging_directory, "temp.wav")
 
-    print(f"\nProcessing audio: {staged_audio_path}")
+    print("-------------------------------------------------")
+    print(f"convert_audio: {staged_audio_path}")
     if os.path.exists(temp_path):
         os.remove(temp_path)
 
     # 1) Get metadata
-    source_rate, codec = get_audio_metadata(staged_audio_path)
+    _, codec = get_audio_metadata(staged_audio_path)
 
-    if sample_rate == -1:
-        target_rate = source_rate
-    else:
-        target_rate = sample_rate
+    # 2) Resample
+    shutil.copy(staged_audio_path, temp_path)
+    resample_wav(temp_path, target_audio_path, target_sample_rate, codec)
+    os.remove(temp_path)
 
-    # 2) Convert to WAV if not already .wav
-    if not staged_audio_path.lower().endswith('.wav'):
-        convert_to_wav(staged_audio_path, temp_path, codec)
-        shutil.copy(temp_path, target_audio_path)
-        os.remove(temp_path)
-    else:
-        shutil.copy(staged_audio_path, target_audio_path)
-
-    # 3) Dynamic range compression (optional)
-    if do_compression:
-        shutil.copy(target_audio_path, temp_path)
-        compress_dynamic_range(temp_path, target_audio_path, codec)
-        os.remove(temp_path)
-
-    # 4) Loudness normalization (optional)
-    if do_normalization:
-        shutil.copy(target_audio_path, temp_path)
-        normalize_audio(temp_path, target_audio_path, codec)
-        os.remove(temp_path)
-
-    # 5) Resample if needed
-    if source_rate != target_rate:
-        shutil.copy(target_audio_path, temp_path)
-        resample_wav(temp_path, target_audio_path, target_rate, codec)
-        os.remove(temp_path)
-    else:
-        print("Skipping resampling: Source and target sample rates match.")
-
-    # 6) Convert to 8-bit unsigned PCM
+    # 3) Convert to 8-bit unsigned PCM
     shutil.copy(target_audio_path, temp_path)
-    convert_to_unsigned_pcm_wav(temp_path, target_audio_path, target_rate)
+    convert_to_unsigned_pcm_wav(temp_path, target_audio_path, target_sample_rate)
     os.remove(temp_path)
 
     print(f"Finished audio processing: {target_audio_path}")
+    print("")
 
 # ============================================================
 #              VIDEO RESIZING & FRAME EXTRACTION
@@ -138,11 +179,11 @@ def convert_audio():
 
 def get_video_dimensions(input_file):
     """
-    Returns (width, height) from ffprobe as integers.
+    Returns (width, height) as integers using ffprobe.
     """
     cmd = [
         'ffprobe',
-        '-v', 'error',
+        '-v', 'error',  # Suppress all but errors
         '-select_streams', 'v:0',
         '-show_entries', 'stream=width,height',
         '-of', 'json',
@@ -156,76 +197,115 @@ def get_video_dimensions(input_file):
     streams = info.get('streams')
     if not streams:
         raise ValueError("No video streams found.")
-    w = streams[0].get('width')
-    h = streams[0].get('height')
-    return int(w), int(h)
+    
+    w, h = int(streams[0].get('width')), int(streams[0].get('height'))
+    return w, h
 
 def extract_video():
     """
-    1) Probes the original video to find aspect ratio.
-    2) If original is 'wider' than target, we fix the target height & let width auto-scale.
-       If original is 'taller' (or narrower), we fix the target width & let height auto-scale.
-    3) Outputs an MP4 in the 'processed_directory' that maintains original aspect,
-       but ensures either height == target_height or width == target_width.
+    Resizes video while preserving aspect ratio, displaying frame progress.
+    - Extracts frame count from FFmpeg output and updates progress dynamically.
     """
 
     # -- Get original aspect --
     orig_w, orig_h = get_video_dimensions(staged_video_path)
     if orig_h == 0:
-        raise ValueError("Original video height is 0?")
+        raise ValueError("extract_video Original video height is 0?")
+
     orig_aspect = orig_w / orig_h
     target_aspect = target_width / target_height
 
     # -- Decide how to scale in FFmpeg --
-    # We'll either fix the width or fix the height, letting the other dimension auto-scale.
     if orig_aspect > target_aspect:
         # Original is "wider" => fix height, auto width
-        # (When aspect is bigger, we end up with something like scale=-2:target_height)
         scale_filter = f"scale=-2:{target_height}"
     else:
-        # Original is "taller" or basically narrower => fix width, auto height
+        # Original is "taller" or narrower => fix width, auto height
         scale_filter = f"scale={target_width}:-2"
 
-    print(f"Resizing video while preserving aspect: {staged_video_path}")
-    print(f"  Using filter: {scale_filter}")
+    print("-------------------------------------------------")
+    print(f"extract_video Resizing: {orig_w}x{orig_h} -> {target_width}x{target_height} (Preserving aspect)")
 
-    subprocess.run([
-        "ffmpeg",
-        "-i", staged_video_path,
-        "-an",  # Disable audio
-        "-vf", scale_filter,
-        "-c:v", "libx264",
-        "-crf", "28",
-        "-preset", "fast",
-        "-y",  # Overwrite output
-        processed_video_path,
-    ], check=True)
+    # Start FFmpeg process
+    process = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-i", staged_video_path,
+            "-an",  # Disable audio
+            "-vf", scale_filter,
+            "-c:v", "libx264",
+            "-crf", "28",
+            "-preset", "fast",
+            "-y",  # Overwrite output
+            processed_video_path,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
 
-    print(f"Intermediate video saved to {processed_video_path}")
+    # Regex pattern to extract frame count from FFmpeg logs
+    frame_pattern = re.compile(r"frame=\s*(\d+)")
+
+    # Read FFmpeg output in real-time
+    for line in iter(process.stderr.readline, ''):
+        match = frame_pattern.search(line)
+        if match:
+            frame_count = match.group(1)
+            sys.stdout.write(f"\rProcessing frame: {frame_count}")  # Overwrite the same line
+            sys.stdout.flush()
+
+    process.wait()  # Ensure FFmpeg completes
+
+    print(f"\nProcessed video saved: {processed_video_path}") 
+    print("")
 
 def extract_frames():
     """
     Extract frames from the intermediate MP4 at the desired FPS.
-    Does NOT scale further, because it's already at intermediate aspect-corrected size.
-    Saves PNG frames.
+    - Does NOT scale further (assumes intermediate aspect-corrected size).
+    - Saves PNG frames while displaying real-time progress.
     """
+
     # Clear out old frames
     for f in glob.glob(f"{frames_directory}/*"):
         os.remove(f)
 
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
-    print(f"Extracting frames at {frame_rate} FPS => {frames_directory}")
+    print("-------------------------------------------------")
+    print(f"extract_frames: Extracting frames at {frame_rate} FPS => {frames_directory}")
 
-    subprocess.run([
-        "ffmpeg",
-        "-i", processed_video_path,
-        "-vf", f"fps={frame_rate}",
-        "-pix_fmt", "rgba",
-        "-start_number", "0",
-        "-y",
-        output_pattern,
-    ], check=True)
-    print("Frame extraction complete.")
+    # Start FFmpeg process
+    process = subprocess.Popen(
+        [
+            "ffmpeg",
+            "-i", processed_video_path,
+            "-vf", f"fps={frame_rate}",
+            "-pix_fmt", "rgba",
+            "-start_number", "0",
+            "-y",
+            output_pattern,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        text=True
+    )
+
+    # Regex pattern to extract frame count from FFmpeg logs
+    frame_pattern = re.compile(r"frame=\s*\d+.*fps=.*")
+
+    # Read FFmpeg output in real-time
+    for line in iter(process.stderr.readline, ''):
+        match = frame_pattern.search(line)
+        if match:
+            sys.stdout.write(f"\r{match.group(0)}")  # Overwrite the same line
+            sys.stdout.flush()
+
+    process.wait()  # Ensure FFmpeg completes
+
+    print("\nFrame extraction complete.") 
+    print("")
+
 
 # ============================================================
 #              FRAME CROPPING AND COLOR PROCESSING
@@ -258,7 +338,9 @@ def process_frames():
     """
     filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
     total_frames = len(filenames)
-    print(f"Found {total_frames} frames to process.")
+
+    print("-------------------------------------------------")
+    print(f"process_frames found {total_frames} frames to process.")
 
     for i, pngfile in enumerate(filenames, start=1):
         pngpath = os.path.join(frames_directory, pngfile)
@@ -285,6 +367,7 @@ def process_frames():
         print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
 
     print("\nAll frames processed to .rgba2.")
+    print("")
 
 # ============================================================
 #              AGM HEADER CONSTANTS
@@ -324,7 +407,9 @@ def make_agm():
     # ---------------------------
     frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith('.rgba2'))
     total_frames = len(frame_files)
-    print(f"merge_video_audio_agm: Found {total_frames} frames in {frames_directory}")
+
+    print("-------------------------------------------------")
+    print(f"make_agm: Found {total_frames} frames in {frames_directory}")
 
     # Each frame is width*height bytes in .rgba2
     frame_bytes_per_frame = target_width * target_height
@@ -342,11 +427,11 @@ def make_agm():
     # Audio duration in seconds (assuming 8-bit mono => 1 byte/sample)
     # We'll do an integer second count. If it's not an exact match, you
     # can enforce “no rounding,” but let's be safe to do ceiling if mismatched.
-    audio_secs_float = audio_data_size / float(sample_rate)
+    audio_secs_float = audio_data_size / float(target_sample_rate)
     # ---------------------------
     # 3) Compute total secs
     # video_secs = total_frames / frame_rate
-    # audio_secs = audio_data_size / sample_rate
+    # audio_secs = audio_data_size / target_sample_rate
     video_secs_float = total_frames / float(frame_rate)
 
     total_secs = int(math.ceil(max(video_secs_float, audio_secs_float)))
@@ -370,10 +455,10 @@ def make_agm():
 
     # Each second we must store:
     #   frame_rate frames => frame_rate * frame_bytes_per_frame
-    # + sample_rate bytes of audio
+    # + target_sample_rate bytes of audio
     # = total_bytes_per_sec
     total_video_bytes_per_sec = frame_rate * frame_bytes_per_frame
-    total_audio_bytes_per_sec = sample_rate
+    total_audio_bytes_per_sec = target_sample_rate
     total_bytes_per_sec = total_video_bytes_per_sec + total_audio_bytes_per_sec
 
     # Each second is broken into lumps_per_second lumps => each lump is chunk_size
@@ -395,15 +480,15 @@ def make_agm():
         )
     frame_bytes_per_lump = frame_bytes_per_frame // lumps_per_frame
 
-    # Also, each second has sample_rate audio bytes => audio_bytes_per_lump = sample_rate / lumps_per_second
-    if sample_rate % lumps_per_second != 0:
+    # Also, each second has target_sample_rate audio bytes => audio_bytes_per_lump = target_sample_rate / lumps_per_second
+    if target_sample_rate % lumps_per_second != 0:
         raise ValueError(
-            f"Audio sample_rate={sample_rate} doesn't split evenly into lumps_per_second={lumps_per_second}."
+            f"Audio target_sample_rate={target_sample_rate} doesn't split evenly into lumps_per_second={lumps_per_second}."
         )
-    audio_bytes_per_lump = sample_rate // lumps_per_second
+    audio_bytes_per_lump = target_sample_rate // lumps_per_second
 
     print(f" -> Each frame is {frame_bytes_per_frame} bytes => {frame_bytes_per_lump} per lump")
-    print(f" -> Audio is {sample_rate} bytes/sec => {audio_bytes_per_lump} per lump")
+    print(f" -> Audio is {target_sample_rate} bytes/sec => {audio_bytes_per_lump} per lump")
 
     # Summation check:
     #   chunk_size = frame_bytes_per_lump + audio_bytes_per_lump
@@ -494,11 +579,36 @@ def make_agm():
                     agm_file.write(audio_chunk)
 
         print("AGM file creation complete.")
+        print("")
 
-    # (Optional) Clean up frames if you like
+def delete_frames():
+    print("-------------------------------------------------")
+    print("delete_frames working...")
+
+    n = 0  # Counter for deleted files
+
     for file in glob.glob(os.path.join(frames_directory, "*.rgba2")) + glob.glob(os.path.join(frames_directory, "*.png")):
         os.remove(file)
-    print("Deleted all .rgba2 files in the frames directory.")
+        n += 1  # Increment counter
+
+    print(f"Deleted {n} .png and .rgba2 files in {frames_directory}.")
+    print("")
+
+def delete_processed_files():
+    print("-------------------------------------------------")
+    print("delete_processed_files working...")
+
+    n = 0  # Counter for deleted files
+
+    for file in [processed_video_path]:  # List of files to delete
+        if os.path.exists(file):
+            os.remove(file)
+            n += 1  # Increment counter
+            print(f"Deleted: {file}")
+
+    print(f"{n} files deleted.")
+    print("")
+
 
 def do_all_the_things():
     if do_download_video:
@@ -522,6 +632,12 @@ def do_all_the_things():
     if do_make_agm:
         make_agm()
 
+    if do_delete_frames:
+        delete_frames()
+
+    if do_delete_processed_files:
+        delete_processed_files()
+
     if do_play_agm:
         play_agm(target_agm_path)
 
@@ -540,22 +656,26 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 240
-    target_height = 96
-    frame_rate    = 1
+    target_width  = 90
+    target_height = 36
+    frame_rate    = 15
     bytes_per_sec = 60000
-    sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
+    target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
 
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # video_base_name = f'a_ha__Take_On_Me'
+
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
+
     # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
-    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
     # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     
-    video_base_name = f'Star_Wars__Battle_of_Yavin'
-    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}x{sample_rate}'
+    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}x{target_sample_rate}'
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
     processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
@@ -573,23 +693,29 @@ if __name__ == "__main__":
     do_process_frames = False
     do_make_agm = False
     do_delete_frames = False
+    do_delete_processed_files = False
     do_play_agm = False
 
 # ============================================================
     # do_download_video = True
 
     # do_extract_audio = True
-    
+    # do_compression   = True
+    # do_normalization = True
+
     do_convert_audio = True
-    do_compression   = True
-    do_normalization = True
-    
+
     do_extract_video = True
+
     do_extract_frames = True
+
     do_process_frames = True
     
     do_make_agm = True
+
     do_delete_frames = True
+
+    # do_delete_processed_files = True
 
     do_play_agm = True
 
