@@ -443,17 +443,20 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 90
-    target_height = 36
-    frame_rate    = 15
+    target_width  = 240
+    target_height = 180
+    frame_rate    = 1
     bytes_per_sec = 60000
     target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
 
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
     # video_base_name = f'a_ha__Take_On_Me'
 
-    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    video_base_name = f'Star_Wars__Battle_of_Yavin'
+    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    # video_base_name = f'Star_Wars__Battle_of_Yavin'
+
+    youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
+    video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
 
     # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
     # video_base_name = f'Bad_Apple'
@@ -462,7 +465,6 @@ if __name__ == "__main__":
 
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
     # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
-    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     
     video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}x{target_sample_rate}'
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
