@@ -443,20 +443,20 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 120
-    target_height = 90
-    frame_rate    = 4
+    target_width  = 90
+    target_height = 36
+    frame_rate    = 15
     bytes_per_sec = 60000
     target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
 
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
     # video_base_name = f'a_ha__Take_On_Me'
 
-    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    # video_base_name = f'Star_Wars__Battle_of_Yavin'
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
 
-    youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
-    video_base_name = f'Bad_Apple'
+    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
+    # video_base_name = f'Bad_Apple'
 
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
 
@@ -486,26 +486,26 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-    # do_download_video = True
+# # Download and extract audio group
+#     do_download_video = True
+#     do_extract_audio = True
+#     do_compression   = True
+#     do_normalization = True
 
-    # do_extract_audio = True
-    # do_compression   = True
-    # do_normalization = True
+# Convert audio and extract video group
+    do_convert_audio = True
+    do_extract_video = True
+    do_extract_frames = True
+    do_process_frames = True
 
-    # do_convert_audio = True
+# Make AGM group
+    do_make_agm = True
 
-    # do_extract_video = True
-
-    # do_extract_frames = True
-
-    # do_process_frames = True
-    
-    # do_make_agm = True
-
-    # do_delete_frames = True
-
+# Clean up group
+    do_delete_frames = True
     # do_delete_processed_files = True
 
+# Play AGM group
     do_play_agm = True
 
     do_all_the_things()
