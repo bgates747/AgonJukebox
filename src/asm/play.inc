@@ -29,15 +29,7 @@ ps_seek_rate_idx: db 0 ; seek rate index
 ps_chunks_per_second: equ 60 ; number of chunks to load per second
 ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
 ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
-
-ps_agm_width: db 0 ; video width in pixels (0 = 256)
-ps_agm_height: db 0 ; video height in pixels (0 = 256)
-ps_agm_frame_size: dl 0 ; size of a frame in bytes
-ps_agm_frame_rate: db 0 ; frames per second (1-60)
-
-ps_agm_chunk_size: dl 0 ; size of video chunks to load (frame size * frame rate / 60)
-ps_agm_chunk_counter: db 0 ; init to video chunks/sec, when hits zero load the next video frame
-ps_agm_frame_counter: db 0 ; init to (frames/sec)/(chunks/sec), when hits zero play the loaded video frame
+ps_media_type: db 0 ; 1 = .wav, 2 = .agm
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -58,8 +50,9 @@ play_song:
     asciz "Invalid .wav file selected, try again."
     jp get_input ; return to user input loop
 
-; TODO: branch on .wav or .agm at this point
-@@: ; copy the directory filinfo struct to ps_filinfo_struct
+@@: 
+    ld (ps_media_type),a ; save the media type
+; copy the directory filinfo struct to ps_filinfo_struct
     lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
     ld de,ps_filinfo_struct ; destination address
     ld bc,filinfo_struct_size
@@ -83,22 +76,31 @@ play_song:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
+
+; branch on .wav or .agm
+    ld a,(ps_media_type) ; restore filetype
+    dec a ; zero means .wav
+    jp nz,play_agm ; not .wav so play .agm
+
 ; compute the chunksize
     ld hl,(ps_wav_header+wav_sample_rate)
     ld de,ps_chunks_per_second
     call udiv24 ; de = sample_rate / ps_chunks_per_second
     ld (ps_wav_chunk_size),de ; save the chunk size
-; reset the playbar counter to zero
-    ld hl,0
-    ld (ps_playhead),hl
-; reset the chunk counter
-    ld a,ps_chunks_per_second
-    ld (ps_wav_chunk_counter),a
+
 ; flip the command and sample buffers and read the first block of data
     call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
                                  ; but if we don't do it here, only one audio buffer 
                                  ; is loaded or/and played
-    call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
+; reset the chunk counter
+    ld a,ps_chunks_per_second
+    ld (ps_wav_chunk_counter),a
+play_agm_return:
+; reset the playbar counter to zero
+    ld hl,0
+    ld (ps_playhead),hl
+ ; this is crucial so that the next sound played is at new position
+    call ps_flip_buffers        
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
@@ -111,6 +113,12 @@ play_song:
 ; end play_song
 
 ; this is called by the PRT timer interrupt
+ps_read_media:
+    ld a,(ps_media_type)
+    dec a ; zero means .wav
+    jp nz,ps_read_agm ; not .wav so read .agm
+; fall through to ps_read_sample
+
 ; read the next chunk of sound data from the file
 ; and upload it to the sample buffer
 ps_read_sample:

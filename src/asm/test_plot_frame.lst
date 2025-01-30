@@ -10807,122 +10807,131 @@ PC     Output      Line
 043500             0010*    agm_reserved:      EQU 18+76   ; 52 bytes: Reserved for future features (compression, metadata, etc.)
 043500             0011*    agm_header_size:   EQU 144   ; Total .agm Header size
 043500             0012*    
-043500             0013*    ; verify that a file is an .agm file
-043500             0014*    ; inputs: hl = pointer to fil struct, de = pointer to filename
-043500             0015*    ; returns: zero flag set,   a = 0 if not a file we can read
-043500             0016*    ;          zero flag reset, a = 2 if .agm file
-043500             0017*    ; destroys: if called from verify_wav as usual it doesn't matter
-043500             0018*    ;           otherwise, af, hl, de, iy
-043500             0019*    verify_agm:
-043500             0020*    ; clear the .agm header buffer
-043500 E5          0021*        push hl
-043501 D5          0022*        push de
-043502 01 90 00 00 0023*        ld bc,agm_header_size
-043506 ED 23 00    0024*        lea hl,iy+0 ; bf or ps agm_header
-043509 CD CC 03 04 0025*        call clear_mem
-04350D D1          0026*        pop de
-04350E E1          0027*        pop hl
-04350F             0028*    
-04350F             0029*    ; seek back to beginning of the file
-04350F 11 00 00 00 0030*        ld de,0
-043513 0E 00       0031*        ld c,0
-043515             0032*        FFSCALL ffs_flseek
+043500 00          0013*    pv_agm_width: db 0 ; video width in pixels (0 = 256)
+043501 00          0014*    pv_agm_height: db 0 ; video height in pixels (0 = 256)
+043502 00 00 00    0015*    pv_agm_frame_size: dl 0 ; size of a frame in bytes
+043505 00          0016*    pv_agm_frame_rate: db 0 ; frames per second (1-60)
+043506             0017*    
+043506 00 00 00    0018*    pv_agm_chunk_size: dl 0 ; size of video chunks to load (frame size * frame rate / 60)
+043509 00          0019*    pv_agm_chunk_counter: db 0 ; init to video chunks/sec, when hits zero load the next video frame
+04350A 00          0020*    pv_agm_frame_counter: db 0 ; init to (frames/sec)/(chunks/sec), when hits zero play the loaded video frame
+04350B             0021*    
+04350B             0022*    ; verify that a file is an .agm file
+04350B             0023*    ; inputs: hl = pointer to fil struct, de = pointer to filename
+04350B             0024*    ; returns: zero flag set,   a = 0 if not a file we can read
+04350B             0025*    ;          zero flag reset, a = 2 if .agm file
+04350B             0026*    ; destroys: if called from verify_wav as usual it doesn't matter
+04350B             0027*    ;           otherwise, af, hl, de, iy
+04350B             0028*    verify_agm:
+04350B             0029*    ; clear the .agm header buffer
+04350B E5          0030*        push hl
+04350C D5          0031*        push de
+04350D 01 90 00 00 0032*        ld bc,agm_header_size
+043511 ED 23 00    0033*        lea hl,iy+0 ; bf or ps agm_header
+043514 CD CC 03 04 0034*        call clear_mem
+043518 D1          0035*        pop de
+043519 E1          0036*        pop hl
+04351A             0037*    
+04351A             0038*    ; seek back to beginning of the file
+04351A 11 00 00 00 0039*        ld de,0
+04351E 0E 00       0040*        ld c,0
+043520             0041*        FFSCALL ffs_flseek
                        M1 Args: function=ffs_flseek 
-043515 FD E5       0001*M1  			PUSH IY
-043517 3E 84       0002*M1  			LD	A, function
-043519 5B CF       0003*M1  			RST.LIL	08h
-04351B FD E1       0004*M1  			POP IY
-04351D             0033*    
-04351D             0034*    ; read the header
-04351D 01 90 00 00 0035*        ld bc,agm_header_size
-043521 ED 13 00    0036*        lea de,iy+0 ; bf or ps agm_header
-043524             0037*        FFSCALL ffs_fread
+043520 FD E5       0001*M1  			PUSH IY
+043522 3E 84       0002*M1  			LD	A, function
+043524 5B CF       0003*M1  			RST.LIL	08h
+043526 FD E1       0004*M1  			POP IY
+043528             0042*    
+043528             0043*    ; read the header
+043528 01 90 00 00 0044*        ld bc,agm_header_size
+04352C ED 13 00    0045*        lea de,iy+0 ; bf or ps agm_header
+04352F             0046*        FFSCALL ffs_fread
                        M1 Args: function=ffs_fread 
-043524 FD E5       0001*M1  			PUSH IY
-043526 3E 82       0002*M1  			LD	A, function
-043528 5B CF       0003*M1  			RST.LIL	08h
-04352A FD E1       0004*M1  			POP IY
-04352C             0038*    
-04352C             0039*    ; verify the .agm header magic number 'AGNMOV'
-04352C FD 27 4C    0040*        ld hl,(iy+agm_magic)
-04352F 11 41 47 4E 0041*        ld de,0x4E4741 ; ascii for AGN in little-endian order
-043533 B7          0042*        or a ; clear carry
-043534 ED 52       0043*        sbc hl,de
-043536 20 17       0044*        jr nz,@not_agm
-043538             0045*    
-043538 FD 27 4F    0046*        ld hl,(iy+agm_magic+3)
-04353B 11 4D 4F 56 0047*        ld de,0x564F4D ; ascii for MOV in little-endian order
-04353F B7          0048*        or a ; clear carry
-043540 ED 52       0049*        sbc hl,de
-043542 20 0B       0050*        jr nz,@not_agm
-043544             0051*    
-043544             0052*    ; check the version number and reject if not 0x01
-043544 FD 7E 52    0053*        ld a,(iy+agm_version)
-043547 FE 01       0054*        cp 0x01
-043549 20 04       0055*        jr nz,@not_agm
-04354B             0056*    
-04354B             0057*    ; looks good so fall through to @is_agm
-04354B             0058*    @is_agm:
-04354B 3E 01       0059*        ld a,1
-04354D 3C          0060*        inc a ; reset zero flag and a = 2 indicating .agm file
-04354E C9          0061*        ret
-04354F             0062*    @not_agm:
-04354F AF          0063*        xor a ; set zero flag and a = 0 indicating unreadable file
-043550 C9          0064*        ret
-043551             0065*    ; end verify_agm
-043551             0066*    
-043551             0067*    pv_cmd_buffer: equ 0x3004
-043551             0068*    pv_img_buffer: equ 0x3005
-043551             0069*    
-043551             0070*    pv_load_command_buffer:
-043551 3A 33 67 04 0071*        ld a,(ps_agm_width)
-043555 32 8A 35 04 0072*        ld (pv_cmd_width),a
-043559 3A 34 67 04 0073*        ld a,(ps_agm_height)
-04355D 32 8C 35 04 0074*        ld (pv_cmd_height),a
-043561 3E 20       0075*        ld a,32
-043563 32 91 35 04 0076*        ld (pv_cmd_x0),a
-043567 32 93 35 04 0077*        ld (pv_cmd_y0),a
-04356B 21 04 30 00 0078*        ld hl,pv_cmd_buffer
-04356F 01 19 00 00 0079*        ld bc,pv_cmd_draw_end-pv_cmd_draw
-043573 11 7C 35 04 0080*        ld de,pv_cmd_draw
-043577 CD 55 1F 04 0081*        call vdu_write_block_to_buffer
-04357B C9          0082*        ret
-04357C             0083*    ; end pv_load_command_buffer
-04357C             0084*    
-04357C             0085*    pv_cmd_draw:
-04357C             0086*    ; Command 14: Consolidate blocks in a buffer
-04357C             0087*    ; VDU 23, 0, &A0, bufferId; 14
-04357C 17 00 A0    0088*                        db 23,0,0xA0 ; vdu buffered api command header
-04357F 05 30       0089*                        dw pv_img_buffer
-043581 0E          0090*                        db 14 ; consolidate blocks command
-043582             0091*    
-043582             0092*    ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
-043582             0093*    ; inputs: hl=bufferId
-043582 17 1B 20    0094*                        db 23,27,0x20
-043585 05 30       0095*                        dw pv_img_buffer
-043587             0096*    
-043587             0097*    ; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
-043587             0098*    ; 1 	RGBA2222 (1-bytes per pixel)
-043587 17 1B 21    0099*                        db 23,27,0x21
-04358A 00 00       0100*    pv_cmd_width:       dw 0x0000
-04358C 00 00       0101*    pv_cmd_height:      dw 0x0000
-04358E 01          0102*                        db 1 ; format
-04358F             0103*    
-04358F             0104*    ; VDU 25, mode, x; y;: PLOT command
-04358F 19          0105*                        db 25
-043590 ED          0106*                        db plot_bmp+dr_abs_fg ; 0xED
-043591 00 00       0107*    pv_cmd_x0: 	        dw 0x0000
-043593 00 00       0108*    pv_cmd_y0: 	        dw 0x0000
-043595             0109*    pv_cmd_draw_end:
-043595             0050         include "layout.inc"
-043595             0001*    text_top: equ 0
-043595             0002*    text_left: equ 0
-043595             0003*    text_bottom: equ 47      ; 48 rows, zero-based
-043595             0004*    text_right: equ 63       ; 64 columns, zero-based
-043595             0005*    
-043595 00          0006*    original_screen_mode: db 0 ; screen mode when app started so we can return to it on exit
-043596             0007*    
-043596 2D 2D 2D 2D 0008*    str_dashes_thin: asciz  "----------------------------------------------------------------"
+04352F FD E5       0001*M1  			PUSH IY
+043531 3E 82       0002*M1  			LD	A, function
+043533 5B CF       0003*M1  			RST.LIL	08h
+043535 FD E1       0004*M1  			POP IY
+043537             0047*    
+043537             0048*    ; verify the .agm header magic number 'AGNMOV'
+043537 FD 27 4C    0049*        ld hl,(iy+agm_magic)
+04353A 11 41 47 4E 0050*        ld de,0x4E4741 ; ascii for AGN in little-endian order
+04353E B7          0051*        or a ; clear carry
+04353F ED 52       0052*        sbc hl,de
+043541 20 17       0053*        jr nz,@not_agm
+043543             0054*    
+043543 FD 27 4F    0055*        ld hl,(iy+agm_magic+3)
+043546 11 4D 4F 56 0056*        ld de,0x564F4D ; ascii for MOV in little-endian order
+04354A B7          0057*        or a ; clear carry
+04354B ED 52       0058*        sbc hl,de
+04354D 20 0B       0059*        jr nz,@not_agm
+04354F             0060*    
+04354F             0061*    ; check the version number and reject if not 0x01
+04354F FD 7E 52    0062*        ld a,(iy+agm_version)
+043552 FE 01       0063*        cp 0x01
+043554 20 04       0064*        jr nz,@not_agm
+043556             0065*    
+043556             0066*    ; looks good so fall through to @is_agm
+043556             0067*    @is_agm:
+043556 3E 01       0068*        ld a,1
+043558 3C          0069*        inc a ; reset zero flag and a = 2 indicating .agm file
+043559 C9          0070*        ret
+04355A             0071*    @not_agm:
+04355A AF          0072*        xor a ; set zero flag and a = 0 indicating unreadable file
+04355B C9          0073*        ret
+04355C             0074*    ; end verify_agm
+04355C             0075*    
+04355C             0076*    pv_cmd_buffer: equ 0x3004
+04355C             0077*    pv_img_buffer: equ 0x3005
+04355C             0078*    
+04355C             0079*    pv_load_command_buffer:
+04355C 3A 00 35 04 0080*        ld a,(pv_agm_width)
+043560 32 95 35 04 0081*        ld (pv_cmd_width),a
+043564 3A 01 35 04 0082*        ld a,(pv_agm_height)
+043568 32 97 35 04 0083*        ld (pv_cmd_height),a
+04356C 3E 20       0084*        ld a,32
+04356E 32 9C 35 04 0085*        ld (pv_cmd_x0),a
+043572 32 9E 35 04 0086*        ld (pv_cmd_y0),a
+043576 21 04 30 00 0087*        ld hl,pv_cmd_buffer
+04357A 01 19 00 00 0088*        ld bc,pv_cmd_draw_end-pv_cmd_draw
+04357E 11 87 35 04 0089*        ld de,pv_cmd_draw
+043582 CD 55 1F 04 0090*        call vdu_write_block_to_buffer
+043586 C9          0091*        ret
+043587             0092*    ; end pv_load_command_buffer
+043587             0093*    
+043587             0094*    pv_cmd_draw:
+043587             0095*    ; Command 14: Consolidate blocks in a buffer
+043587             0096*    ; VDU 23, 0, &A0, bufferId; 14
+043587 17 00 A0    0097*                        db 23,0,0xA0 ; vdu buffered api command header
+04358A 05 30       0098*                        dw pv_img_buffer
+04358C 0E          0099*                        db 14 ; consolidate blocks command
+04358D             0100*    
+04358D             0101*    ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
+04358D             0102*    ; inputs: hl=bufferId
+04358D 17 1B 20    0103*                        db 23,27,0x20
+043590 05 30       0104*                        dw pv_img_buffer
+043592             0105*    
+043592             0106*    ; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
+043592             0107*    ; 1 	RGBA2222 (1-bytes per pixel)
+043592 17 1B 21    0108*                        db 23,27,0x21
+043595 00 00       0109*    pv_cmd_width:       dw 0x0000
+043597 00 00       0110*    pv_cmd_height:      dw 0x0000
+043599 01          0111*                        db 1 ; format
+04359A             0112*    
+04359A             0113*    ; VDU 25, mode, x; y;: PLOT command
+04359A 19          0114*                        db 25
+04359B ED          0115*                        db plot_bmp+dr_abs_fg ; 0xED
+04359C 00 00       0116*    pv_cmd_x0: 	        dw 0x0000
+04359E 00 00       0117*    pv_cmd_y0: 	        dw 0x0000
+0435A0             0118*    pv_cmd_draw_end:
+0435A0             0050         include "layout.inc"
+0435A0             0001*    text_top: equ 0
+0435A0             0002*    text_left: equ 0
+0435A0             0003*    text_bottom: equ 47      ; 48 rows, zero-based
+0435A0             0004*    text_right: equ 63       ; 64 columns, zero-based
+0435A0             0005*    
+0435A0 00          0006*    original_screen_mode: db 0 ; screen mode when app started so we can return to it on exit
+0435A1             0007*    
+0435A1 2D 2D 2D 2D 0008*    str_dashes_thin: asciz  "----------------------------------------------------------------"
        2D 2D 2D 2D 
        2D 2D 2D 2D 
        2D 2D 2D 2D 
@@ -10939,7 +10948,7 @@ PC     Output      Line
        2D 2D 2D 2D 
        2D 2D 2D 2D 
        00          
-0435D7 3D 3D 3D 3D 0009*    str_dashes_thick: asciz "================================================================"
+0435E2 3D 3D 3D 3D 0009*    str_dashes_thick: asciz "================================================================"
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        3D 3D 3D 3D 
@@ -10956,261 +10965,261 @@ PC     Output      Line
        3D 3D 3D 3D 
        3D 3D 3D 3D 
        00          
-043618             0010*    
-043618             0011*    ; set text viewport for current playing song
-043618             0012*    vp_now_playing_top: equ 34
-043618             0013*    vp_now_playing:
-043618 0E 00       0014*        ld c, text_left
-04361A 16 22       0015*        ld d, vp_now_playing_top
-04361C 1E 3F       0016*        ld e, text_right
-04361E 06 22       0017*        ld b, vp_now_playing_top
-043620 CD 37 1C 04 0018*        call vdu_set_txt_viewport
-043624 C9          0019*        ret
-043625             0020*    ; end vp_now_playing
-043625             0021*    
-043625             0022*    ; set text viewport for elapsed time
-043625             0023*    vp_elapsed_top: equ vp_now_playing_top+1
-043625             0024*    vp_elapsed_right: equ text_left+7 ; 8 chars for HH:MM:SS
-043625             0025*    vp_elapsed:
-043625 0E 00       0026*        ld c, text_left
-043627 16 23       0027*        ld d, vp_elapsed_top
-043629 1E 07       0028*        ld e, vp_elapsed_right
-04362B 06 23       0029*        ld b, vp_elapsed_top
-04362D CD 37 1C 04 0030*        call vdu_set_txt_viewport
-043631 C9          0031*        ret
-043632             0032*    ; end vp_elapsed
-043632             0033*    
-043632             0034*    ; set text viewport for song duration
-043632             0035*    vp_duration_left: equ text_right-7 ; 8 chars for HH:MM:SS
-043632             0036*    vp_duration_top: equ vp_now_playing_top+1
-043632             0037*    vp_duration:
-043632 0E 38       0038*        ld c, vp_duration_left
-043634 16 23       0039*        ld d, vp_duration_top
-043636 1E 3F       0040*        ld e, text_right
-043638 06 23       0041*        ld b, vp_duration_top
-04363A CD 37 1C 04 0042*        call vdu_set_txt_viewport
-04363E C9          0043*        ret
-04363F             0044*    ; end vp_duration
-04363F             0045*    
-04363F             0046*    ; set text viewport for playing breadcrumbs
-04363F             0047*    vp_playbar_left: equ 10
-04363F             0048*    vp_playbar_top: equ vp_now_playing_top+1
-04363F             0049*    vp_playbar_right: equ 53
-04363F             0050*    vp_playbar:
-04363F 0E 0A       0051*        ld c, vp_playbar_left
-043641 16 23       0052*        ld d, vp_playbar_top
-043643 1E 35       0053*        ld e, vp_playbar_right
-043645 06 23       0054*        ld b, vp_playbar_top
-043647 CD 37 1C 04 0055*        call vdu_set_txt_viewport
-04364B C9          0056*        ret
-04364C             0057*    ; end vp_playbar
-04364C             0058*    
-04364C             0059*    vp_dir_hdr_top: equ 20
-04364C             0060*    vp_dir_hdr:
-04364C 0E 00       0061*        ld c,text_left
-04364E 16 14       0062*        ld d,vp_dir_hdr_top
-043650 1E 3F       0063*        ld e,text_right
-043652 06 14       0064*        ld b,vp_dir_hdr_top
-043654 CD 37 1C 04 0065*        call vdu_set_txt_viewport
-043658 C9          0066*        ret
-043659             0067*    
-043659             0068*    vp_dir_name_top: equ vp_dir_hdr_top+1
-043659             0069*    vp_dir_name:
-043659 0E 00       0070*        ld c,text_left
-04365B 16 15       0071*        ld d,vp_dir_name_top
-04365D 1E 3F       0072*        ld e,text_right
-04365F 06 15       0073*        ld b,vp_dir_name_top
-043661 CD 37 1C 04 0074*        call vdu_set_txt_viewport
-043665 C9          0075*        ret
-043666             0076*    
-043666             0077*    ; set text viewport for directory listing
-043666             0078*    vp_dir_top: equ vp_dir_hdr_top+3
-043666             0079*    vp_dir_bottom: equ vp_dir_top+9
-043666             0080*    vp_dir:
-043666 0E 00       0081*        ld c,text_left
-043668 16 17       0082*        ld d,vp_dir_top
-04366A 1E 3F       0083*        ld e,text_right
-04366C 06 20       0084*        ld b,vp_dir_bottom
-04366E CD 37 1C 04 0085*        call vdu_set_txt_viewport
-043672 C9          0086*        ret
-043673             0087*    
-043673             0088*    vp_legend_top: equ vp_playbar_top+2
-043673             0089*    vp_legend:
-043673 0E 00       0090*        ld c,text_left
-043675 16 25       0091*        ld d,vp_legend_top
-043677 1E 3F       0092*        ld e,text_right
-043679 06 27       0093*        ld b,vp_legend_top+2
-04367B CD 37 1C 04 0094*        call vdu_set_txt_viewport
-04367F C9          0095*        ret
-043680             0096*    
-043680             0097*    vp_legend_page_num_top: equ vp_legend_top
-043680             0098*    vp_legend_page_num_left: equ text_left+29
-043680             0099*    vp_legend_page_num:
-043680 0E 1D       0100*        ld c,vp_legend_page_num_left
-043682 16 25       0101*        ld d,vp_legend_page_num_top
-043684 1E 1E       0102*        ld e,vp_legend_page_num_left+1
-043686 06 25       0103*        ld b,vp_legend_page_num_top
-043688 CD 37 1C 04 0104*        call vdu_set_txt_viewport
-04368C C9          0105*        ret
-04368D             0106*    
-04368D             0107*    vp_legend_num_pages_top: equ vp_legend_top
-04368D             0108*    vp_legend_num_pages_left: equ text_left+36
-04368D             0109*    vp_legend_num_pages:
-04368D 0E 24       0110*        ld c,vp_legend_num_pages_left
-04368F 16 25       0111*        ld d,vp_legend_num_pages_top
-043691 1E 25       0112*        ld e,vp_legend_num_pages_left+1
-043693 06 25       0113*        ld b,vp_legend_num_pages_top
-043695 CD 37 1C 04 0114*        call vdu_set_txt_viewport
-043699 C9          0115*        ret
-04369A             0116*    
-04369A             0117*    vp_legend_shuffle_top: equ vp_legend_top+1
-04369A             0118*    vp_legend_shuffle_left: equ text_left+34
-04369A             0119*    vp_legend_shuffle:
-04369A 0E 22       0120*        ld c,vp_legend_shuffle_left
-04369C 16 26       0121*        ld d,vp_legend_shuffle_top
-04369E 1E 24       0122*        ld e,vp_legend_shuffle_left+2
-0436A0 06 26       0123*        ld b,vp_legend_shuffle_top
-0436A2 CD 37 1C 04 0124*        call vdu_set_txt_viewport
-0436A6 C9          0125*        ret
-0436A7             0126*    
-0436A7             0127*    vp_legend_loop_top: equ vp_legend_top+1
-0436A7             0128*    vp_legend_loop_left: equ text_left+51
-0436A7             0129*    vp_legend_loop:
-0436A7 0E 33       0130*        ld c,vp_legend_loop_left
-0436A9 16 26       0131*        ld d,vp_legend_loop_top
-0436AB 1E 35       0132*        ld e,vp_legend_loop_left+2
-0436AD 06 26       0133*        ld b,vp_legend_loop_top
-0436AF CD 37 1C 04 0134*        call vdu_set_txt_viewport
-0436B3 C9          0135*        ret
-0436B4             0136*    
-0436B4             0137*    vp_seek_rate_top: equ vp_legend_top+2
-0436B4             0138*    vp_seek_rate_left: equ text_left+29
-0436B4             0139*    vp_seek_rate:
-0436B4 0E 1D       0140*        ld c,vp_seek_rate_left
-0436B6 16 27       0141*        ld d,vp_seek_rate_top
-0436B8 1E 20       0142*        ld e,vp_seek_rate_left+3
-0436BA 06 27       0143*        ld b,vp_seek_rate_top
-0436BC CD 37 1C 04 0144*        call vdu_set_txt_viewport
-0436C0 C9          0145*        ret
-0436C1             0146*    
-0436C1             0147*    vp_messages_top: equ vp_playbar_top+6
-0436C1             0148*    vp_messages_bottom: equ text_bottom
-0436C1             0149*    ; set text viewport for messages
-0436C1             0150*    vp_messages:
-0436C1 0E 00       0151*        ld c,text_left
-0436C3 16 29       0152*        ld d,vp_messages_top
-0436C5 1E 3F       0153*        ld e,text_right
-0436C7 06 2F       0154*        ld b,vp_messages_bottom
-0436C9 CD 37 1C 04 0155*        call vdu_set_txt_viewport
-0436CD C9          0156*        ret
-0436CE             0157*    
-0436CE             0158*    set_text_colours_normal:
-0436CE             0159*    ; set text background color
-0436CE 3E 84       0160*        ld a,c_blue_dk+128
-0436D0 CD 0F 1C 04 0161*        call vdu_colour_text
-0436D4             0162*    ; set text foreground color
-0436D4 3E 0F       0163*        ld a,c_white
-0436D6 CD 0F 1C 04 0164*        call vdu_colour_text
-0436DA C9          0165*        ret
-0436DB             0166*    ; end set_text_colours_normal
-0436DB             0167*    
-0436DB             0168*    set_text_colours_inverse:
-0436DB             0169*    ; set text background color
-0436DB 3E 8F       0170*        ld a,c_white+128
-0436DD CD 0F 1C 04 0171*        call vdu_colour_text
-0436E1             0172*    ; set text foreground color
-0436E1 3E 04       0173*        ld a,c_blue_dk
-0436E3 CD 0F 1C 04 0174*        call vdu_colour_text
-0436E7 C9          0175*        ret
-0436E8             0176*    ; end set_text_colours_inverse
-0436E8             0177*    
-0436E8             0178*    ui_init:
-0436E8             0179*    ; get current screen mode and save it so we can return to it on exit
-0436E8 CD BD 1C 04 0180*        call vdu_get_screen_mode
-0436EC 32 95 35 04 0181*        ld (original_screen_mode),a
-0436F0             0182*    ; set up display
-0436F0 3E 14       0183*        ld a,20 ; 512x384x64 single-buffered
-0436F2 CD AC 1C 04 0184*        call vdu_set_screen_mode
-0436F6 AF          0185*        xor a
-0436F7 CD C5 1C 04 0186*        call vdu_set_scaling
-0436FB             0187*    ; load fonts and select one
-0436FB CD B3 1F 04 0188*        call vdu_clear_all_buffers
-0436FF CD 5A 0E 04 0189*    	call font_load
-043703 21 10 FA 00 0190*        ld hl,Lat2_VGA8_8x8
-043707 3E 01       0191*        ld a,1
-043709 CD 25 20 04 0192*        call vdu_font_select
-04370D             0193*    ; set text fg and bg colours to normal
-04370D CD CE 36 04 0194*        call set_text_colours_normal
-043711             0195*    ; set cursor behaviuor
-043711 CD 66 1B 04 0196*        call vdu_cursor_off
-043715 26 10       0197*        ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
-043717 2E 10       0198*        ld l,%00010000 ; bit 4 set means cursor wraps to top of screen
-043719 CD CA 1B 04 0199*        call vdu_cursor_behaviour
-04371D             0200*    ; reset text viewports and clear the screen
-04371D CD A7 1C 04 0201*        call vdu_reset_viewports
-043721 CD DE 1B 04 0202*        call vdu_cls
-043725             0203*    
-043725             0204*    ; tippy top border
-043725 0E 00       0205*        ld c,text_left ; x
-043727 06 00       0206*        ld b,text_top ; y
-043729 CD B6 1B 04 0207*        call vdu_move_cursor
-04372D 21 D7 35 04 0208*        ld hl,str_dashes_thick
-043731 CD 67 00 04 0209*        call printString
-043735             0210*    
-043735             0211*    ; print ascii art splash screen
-043735 0E 00       0212*        ld c,text_left ; x
-043737 06 01       0213*        ld b,text_top+1 ; y
-043739 CD B6 1B 04 0214*        call vdu_move_cursor
-04373D 21 27 39 04 0215*        ld hl,agon_jukebox_ascii
-043741 CD 67 00 04 0216*        call printString
-043745             0217*    
-043745             0218*    ; below logo border
-043745 0E 00       0219*        ld c,text_left ; x
-043747 06 13       0220*        ld b,vp_dir_hdr_top-1 ; y
-043749 CD B6 1B 04 0221*        call vdu_move_cursor
-04374D 21 D7 35 04 0222*        ld hl,str_dashes_thick
-043751 CD 67 00 04 0223*        call printString
-043755             0224*    
-043755             0225*    ; print the directory header
-043755 0E 00       0226*        ld c,text_left ; x
-043757 06 14       0227*        ld b,vp_dir_hdr_top ; y
-043759 CD B6 1B 04 0228*        call vdu_move_cursor
-04375D CD 60 00 04 0229*        call printInline
-043761 4F 75 72 20 0230*        asciz "Our current directory is:"
+043623             0010*    
+043623             0011*    ; set text viewport for current playing song
+043623             0012*    vp_now_playing_top: equ 34
+043623             0013*    vp_now_playing:
+043623 0E 00       0014*        ld c, text_left
+043625 16 22       0015*        ld d, vp_now_playing_top
+043627 1E 3F       0016*        ld e, text_right
+043629 06 22       0017*        ld b, vp_now_playing_top
+04362B CD 37 1C 04 0018*        call vdu_set_txt_viewport
+04362F C9          0019*        ret
+043630             0020*    ; end vp_now_playing
+043630             0021*    
+043630             0022*    ; set text viewport for elapsed time
+043630             0023*    vp_elapsed_top: equ vp_now_playing_top+1
+043630             0024*    vp_elapsed_right: equ text_left+7 ; 8 chars for HH:MM:SS
+043630             0025*    vp_elapsed:
+043630 0E 00       0026*        ld c, text_left
+043632 16 23       0027*        ld d, vp_elapsed_top
+043634 1E 07       0028*        ld e, vp_elapsed_right
+043636 06 23       0029*        ld b, vp_elapsed_top
+043638 CD 37 1C 04 0030*        call vdu_set_txt_viewport
+04363C C9          0031*        ret
+04363D             0032*    ; end vp_elapsed
+04363D             0033*    
+04363D             0034*    ; set text viewport for song duration
+04363D             0035*    vp_duration_left: equ text_right-7 ; 8 chars for HH:MM:SS
+04363D             0036*    vp_duration_top: equ vp_now_playing_top+1
+04363D             0037*    vp_duration:
+04363D 0E 38       0038*        ld c, vp_duration_left
+04363F 16 23       0039*        ld d, vp_duration_top
+043641 1E 3F       0040*        ld e, text_right
+043643 06 23       0041*        ld b, vp_duration_top
+043645 CD 37 1C 04 0042*        call vdu_set_txt_viewport
+043649 C9          0043*        ret
+04364A             0044*    ; end vp_duration
+04364A             0045*    
+04364A             0046*    ; set text viewport for playing breadcrumbs
+04364A             0047*    vp_playbar_left: equ 10
+04364A             0048*    vp_playbar_top: equ vp_now_playing_top+1
+04364A             0049*    vp_playbar_right: equ 53
+04364A             0050*    vp_playbar:
+04364A 0E 0A       0051*        ld c, vp_playbar_left
+04364C 16 23       0052*        ld d, vp_playbar_top
+04364E 1E 35       0053*        ld e, vp_playbar_right
+043650 06 23       0054*        ld b, vp_playbar_top
+043652 CD 37 1C 04 0055*        call vdu_set_txt_viewport
+043656 C9          0056*        ret
+043657             0057*    ; end vp_playbar
+043657             0058*    
+043657             0059*    vp_dir_hdr_top: equ 20
+043657             0060*    vp_dir_hdr:
+043657 0E 00       0061*        ld c,text_left
+043659 16 14       0062*        ld d,vp_dir_hdr_top
+04365B 1E 3F       0063*        ld e,text_right
+04365D 06 14       0064*        ld b,vp_dir_hdr_top
+04365F CD 37 1C 04 0065*        call vdu_set_txt_viewport
+043663 C9          0066*        ret
+043664             0067*    
+043664             0068*    vp_dir_name_top: equ vp_dir_hdr_top+1
+043664             0069*    vp_dir_name:
+043664 0E 00       0070*        ld c,text_left
+043666 16 15       0071*        ld d,vp_dir_name_top
+043668 1E 3F       0072*        ld e,text_right
+04366A 06 15       0073*        ld b,vp_dir_name_top
+04366C CD 37 1C 04 0074*        call vdu_set_txt_viewport
+043670 C9          0075*        ret
+043671             0076*    
+043671             0077*    ; set text viewport for directory listing
+043671             0078*    vp_dir_top: equ vp_dir_hdr_top+3
+043671             0079*    vp_dir_bottom: equ vp_dir_top+9
+043671             0080*    vp_dir:
+043671 0E 00       0081*        ld c,text_left
+043673 16 17       0082*        ld d,vp_dir_top
+043675 1E 3F       0083*        ld e,text_right
+043677 06 20       0084*        ld b,vp_dir_bottom
+043679 CD 37 1C 04 0085*        call vdu_set_txt_viewport
+04367D C9          0086*        ret
+04367E             0087*    
+04367E             0088*    vp_legend_top: equ vp_playbar_top+2
+04367E             0089*    vp_legend:
+04367E 0E 00       0090*        ld c,text_left
+043680 16 25       0091*        ld d,vp_legend_top
+043682 1E 3F       0092*        ld e,text_right
+043684 06 27       0093*        ld b,vp_legend_top+2
+043686 CD 37 1C 04 0094*        call vdu_set_txt_viewport
+04368A C9          0095*        ret
+04368B             0096*    
+04368B             0097*    vp_legend_page_num_top: equ vp_legend_top
+04368B             0098*    vp_legend_page_num_left: equ text_left+29
+04368B             0099*    vp_legend_page_num:
+04368B 0E 1D       0100*        ld c,vp_legend_page_num_left
+04368D 16 25       0101*        ld d,vp_legend_page_num_top
+04368F 1E 1E       0102*        ld e,vp_legend_page_num_left+1
+043691 06 25       0103*        ld b,vp_legend_page_num_top
+043693 CD 37 1C 04 0104*        call vdu_set_txt_viewport
+043697 C9          0105*        ret
+043698             0106*    
+043698             0107*    vp_legend_num_pages_top: equ vp_legend_top
+043698             0108*    vp_legend_num_pages_left: equ text_left+36
+043698             0109*    vp_legend_num_pages:
+043698 0E 24       0110*        ld c,vp_legend_num_pages_left
+04369A 16 25       0111*        ld d,vp_legend_num_pages_top
+04369C 1E 25       0112*        ld e,vp_legend_num_pages_left+1
+04369E 06 25       0113*        ld b,vp_legend_num_pages_top
+0436A0 CD 37 1C 04 0114*        call vdu_set_txt_viewport
+0436A4 C9          0115*        ret
+0436A5             0116*    
+0436A5             0117*    vp_legend_shuffle_top: equ vp_legend_top+1
+0436A5             0118*    vp_legend_shuffle_left: equ text_left+34
+0436A5             0119*    vp_legend_shuffle:
+0436A5 0E 22       0120*        ld c,vp_legend_shuffle_left
+0436A7 16 26       0121*        ld d,vp_legend_shuffle_top
+0436A9 1E 24       0122*        ld e,vp_legend_shuffle_left+2
+0436AB 06 26       0123*        ld b,vp_legend_shuffle_top
+0436AD CD 37 1C 04 0124*        call vdu_set_txt_viewport
+0436B1 C9          0125*        ret
+0436B2             0126*    
+0436B2             0127*    vp_legend_loop_top: equ vp_legend_top+1
+0436B2             0128*    vp_legend_loop_left: equ text_left+51
+0436B2             0129*    vp_legend_loop:
+0436B2 0E 33       0130*        ld c,vp_legend_loop_left
+0436B4 16 26       0131*        ld d,vp_legend_loop_top
+0436B6 1E 35       0132*        ld e,vp_legend_loop_left+2
+0436B8 06 26       0133*        ld b,vp_legend_loop_top
+0436BA CD 37 1C 04 0134*        call vdu_set_txt_viewport
+0436BE C9          0135*        ret
+0436BF             0136*    
+0436BF             0137*    vp_seek_rate_top: equ vp_legend_top+2
+0436BF             0138*    vp_seek_rate_left: equ text_left+29
+0436BF             0139*    vp_seek_rate:
+0436BF 0E 1D       0140*        ld c,vp_seek_rate_left
+0436C1 16 27       0141*        ld d,vp_seek_rate_top
+0436C3 1E 20       0142*        ld e,vp_seek_rate_left+3
+0436C5 06 27       0143*        ld b,vp_seek_rate_top
+0436C7 CD 37 1C 04 0144*        call vdu_set_txt_viewport
+0436CB C9          0145*        ret
+0436CC             0146*    
+0436CC             0147*    vp_messages_top: equ vp_playbar_top+6
+0436CC             0148*    vp_messages_bottom: equ text_bottom
+0436CC             0149*    ; set text viewport for messages
+0436CC             0150*    vp_messages:
+0436CC 0E 00       0151*        ld c,text_left
+0436CE 16 29       0152*        ld d,vp_messages_top
+0436D0 1E 3F       0153*        ld e,text_right
+0436D2 06 2F       0154*        ld b,vp_messages_bottom
+0436D4 CD 37 1C 04 0155*        call vdu_set_txt_viewport
+0436D8 C9          0156*        ret
+0436D9             0157*    
+0436D9             0158*    set_text_colours_normal:
+0436D9             0159*    ; set text background color
+0436D9 3E 84       0160*        ld a,c_blue_dk+128
+0436DB CD 0F 1C 04 0161*        call vdu_colour_text
+0436DF             0162*    ; set text foreground color
+0436DF 3E 0F       0163*        ld a,c_white
+0436E1 CD 0F 1C 04 0164*        call vdu_colour_text
+0436E5 C9          0165*        ret
+0436E6             0166*    ; end set_text_colours_normal
+0436E6             0167*    
+0436E6             0168*    set_text_colours_inverse:
+0436E6             0169*    ; set text background color
+0436E6 3E 8F       0170*        ld a,c_white+128
+0436E8 CD 0F 1C 04 0171*        call vdu_colour_text
+0436EC             0172*    ; set text foreground color
+0436EC 3E 04       0173*        ld a,c_blue_dk
+0436EE CD 0F 1C 04 0174*        call vdu_colour_text
+0436F2 C9          0175*        ret
+0436F3             0176*    ; end set_text_colours_inverse
+0436F3             0177*    
+0436F3             0178*    ui_init:
+0436F3             0179*    ; get current screen mode and save it so we can return to it on exit
+0436F3 CD BD 1C 04 0180*        call vdu_get_screen_mode
+0436F7 32 A0 35 04 0181*        ld (original_screen_mode),a
+0436FB             0182*    ; set up display
+0436FB 3E 14       0183*        ld a,20 ; 512x384x64 single-buffered
+0436FD CD AC 1C 04 0184*        call vdu_set_screen_mode
+043701 AF          0185*        xor a
+043702 CD C5 1C 04 0186*        call vdu_set_scaling
+043706             0187*    ; load fonts and select one
+043706 CD B3 1F 04 0188*        call vdu_clear_all_buffers
+04370A CD 5A 0E 04 0189*    	call font_load
+04370E 21 10 FA 00 0190*        ld hl,Lat2_VGA8_8x8
+043712 3E 01       0191*        ld a,1
+043714 CD 25 20 04 0192*        call vdu_font_select
+043718             0193*    ; set text fg and bg colours to normal
+043718 CD D9 36 04 0194*        call set_text_colours_normal
+04371C             0195*    ; set cursor behaviuor
+04371C CD 66 1B 04 0196*        call vdu_cursor_off
+043720 26 10       0197*        ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+043722 2E 10       0198*        ld l,%00010000 ; bit 4 set means cursor wraps to top of screen
+043724 CD CA 1B 04 0199*        call vdu_cursor_behaviour
+043728             0200*    ; reset text viewports and clear the screen
+043728 CD A7 1C 04 0201*        call vdu_reset_viewports
+04372C CD DE 1B 04 0202*        call vdu_cls
+043730             0203*    
+043730             0204*    ; tippy top border
+043730 0E 00       0205*        ld c,text_left ; x
+043732 06 00       0206*        ld b,text_top ; y
+043734 CD B6 1B 04 0207*        call vdu_move_cursor
+043738 21 E2 35 04 0208*        ld hl,str_dashes_thick
+04373C CD 67 00 04 0209*        call printString
+043740             0210*    
+043740             0211*    ; print ascii art splash screen
+043740 0E 00       0212*        ld c,text_left ; x
+043742 06 01       0213*        ld b,text_top+1 ; y
+043744 CD B6 1B 04 0214*        call vdu_move_cursor
+043748 21 32 39 04 0215*        ld hl,agon_jukebox_ascii
+04374C CD 67 00 04 0216*        call printString
+043750             0217*    
+043750             0218*    ; below logo border
+043750 0E 00       0219*        ld c,text_left ; x
+043752 06 13       0220*        ld b,vp_dir_hdr_top-1 ; y
+043754 CD B6 1B 04 0221*        call vdu_move_cursor
+043758 21 E2 35 04 0222*        ld hl,str_dashes_thick
+04375C CD 67 00 04 0223*        call printString
+043760             0224*    
+043760             0225*    ; print the directory header
+043760 0E 00       0226*        ld c,text_left ; x
+043762 06 14       0227*        ld b,vp_dir_hdr_top ; y
+043764 CD B6 1B 04 0228*        call vdu_move_cursor
+043768 CD 60 00 04 0229*        call printInline
+04376C 4F 75 72 20 0230*        asciz "Our current directory is:"
        63 75 72 72 
        65 6E 74 20 
        64 69 72 65 
        63 74 6F 72 
        79 20 69 73 
        3A 00       
-04377B             0231*    
-04377B             0232*    ; file list top border
-04377B 0E 00       0233*        ld c,text_left ; x
-04377D 06 16       0234*        ld b,vp_dir_top-1 ; y
-04377F CD B6 1B 04 0235*        call vdu_move_cursor
-043783 21 96 35 04 0236*        ld hl,str_dashes_thin
-043787 CD 67 00 04 0237*        call printString
-04378B             0238*    
-04378B             0239*    ; file list bottom border
-04378B 0E 00       0240*        ld c,text_left ; x
-04378D 06 21       0241*        ld b,vp_dir_bottom+1 ; y
-04378F CD B6 1B 04 0242*        call vdu_move_cursor
-043793 21 96 35 04 0243*        ld hl,str_dashes_thin
-043797 CD 67 00 04 0244*        call printString
-04379B             0245*    
-04379B             0246*    ; below the breadcrumbs border
-04379B 0E 00       0247*        ld c,text_left ; x
-04379D 06 24       0248*        ld b,vp_playbar_top+1 ; y
-04379F CD B6 1B 04 0249*        call vdu_move_cursor
-0437A3 21 D7 35 04 0250*        ld hl,str_dashes_thick
-0437A7 CD 67 00 04 0251*        call printString
-0437AB             0252*    
-0437AB             0253*    ; print the playbar
-0437AB 0E 00       0254*        ld c,text_left ; x
-0437AD 06 22       0255*        ld b,vp_playbar_top-1 ; y
-0437AF CD B6 1B 04 0256*        call vdu_move_cursor
-0437B3 CD 60 00 04 0257*        call printInline
-0437B7 53 65 6C 65 0258*        db "Select a song with \e",24," \e",25," \e",237,", 0-9, or [R]andom song\r\n"
+043786             0231*    
+043786             0232*    ; file list top border
+043786 0E 00       0233*        ld c,text_left ; x
+043788 06 16       0234*        ld b,vp_dir_top-1 ; y
+04378A CD B6 1B 04 0235*        call vdu_move_cursor
+04378E 21 A1 35 04 0236*        ld hl,str_dashes_thin
+043792 CD 67 00 04 0237*        call printString
+043796             0238*    
+043796             0239*    ; file list bottom border
+043796 0E 00       0240*        ld c,text_left ; x
+043798 06 21       0241*        ld b,vp_dir_bottom+1 ; y
+04379A CD B6 1B 04 0242*        call vdu_move_cursor
+04379E 21 A1 35 04 0243*        ld hl,str_dashes_thin
+0437A2 CD 67 00 04 0244*        call printString
+0437A6             0245*    
+0437A6             0246*    ; below the breadcrumbs border
+0437A6 0E 00       0247*        ld c,text_left ; x
+0437A8 06 24       0248*        ld b,vp_playbar_top+1 ; y
+0437AA CD B6 1B 04 0249*        call vdu_move_cursor
+0437AE 21 E2 35 04 0250*        ld hl,str_dashes_thick
+0437B2 CD 67 00 04 0251*        call printString
+0437B6             0252*    
+0437B6             0253*    ; print the playbar
+0437B6 0E 00       0254*        ld c,text_left ; x
+0437B8 06 22       0255*        ld b,vp_playbar_top-1 ; y
+0437BA CD B6 1B 04 0256*        call vdu_move_cursor
+0437BE CD 60 00 04 0257*        call printInline
+0437C2 53 65 6C 65 0258*        db "Select a song with \e",24," \e",25," \e",237,", 0-9, or [R]andom song\r\n"
        63 74 20 61 
        20 73 6F 6E 
        67 20 77 69 
@@ -11223,7 +11232,7 @@ PC     Output      Line
        61 6E 64 6F 
        6D 20 73 6F 
        6E 67 0D 0A 
-0437EB 30 30 3A 30 0259*        db "00:00:00 [............................................] 00:00:00"
+0437F6 30 30 3A 30 0259*        db "00:00:00 [............................................] 00:00:00"
        30 3A 30 30 
        20 5B 2E 2E 
        2E 2E 2E 2E 
@@ -11239,14 +11248,14 @@ PC     Output      Line
        2E 2E 5D 20 
        30 30 3A 30 
        30 3A 30 30 
-04382B 00          0260*        db 0 ; null terminator
-04382C             0261*    
-04382C             0262*    ; print the navigation and song control instructions
-04382C 0E 00       0263*        ld c,text_left ; x
-04382E 06 25       0264*        ld b,vp_playbar_top+2 ; y
-043830 CD B6 1B 04 0265*        call vdu_move_cursor
-043834 CD 60 00 04 0266*        call printInline
-043838 20 53 6F 6E 0267*        db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
+043836 00          0260*        db 0 ; null terminator
+043837             0261*    
+043837             0262*    ; print the navigation and song control instructions
+043837 0E 00       0263*        ld c,text_left ; x
+043839 06 25       0264*        ld b,vp_playbar_top+2 ; y
+04383B CD B6 1B 04 0265*        call vdu_move_cursor
+04383F CD 60 00 04 0266*        call printInline
+043843 20 53 6F 6E 0267*        db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
        67 20 1B 18 
        20 1B 19 20 
        1B ED 20 6F 
@@ -11262,7 +11271,7 @@ PC     Output      Line
        20 64 69 72 
        65 63 74 6F 
        72 79 0D 0A 
-043878 20 5B 52 5D 0268*        db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
+043883 20 5B 52 5D 0268*        db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
        61 6E 64 6F 
        6D 20 73 6F 
        6E 67 20 20 
@@ -11276,7 +11285,7 @@ PC     Output      Line
        4C 5D 6F 6F 
        70 3A 20 4F 
        46 46 0D 0A 
-0438B0 20 5B 45 53 0269*        db " [ESC] or [Q]uit     | Seek -   1 + sec. | v0.9.5-beta\r\n"
+0438BB 20 5B 45 53 0269*        db " [ESC] or [Q]uit     | Seek -   1 + sec. | v0.9.5-beta\r\n"
        43 5D 20 6F 
        72 20 5B 51 
        5D 75 69 74 
@@ -11290,36 +11299,36 @@ PC     Output      Line
        30 2E 39 2E 
        35 2D 62 65 
        74 61 0D 0A 
-0438E8 00          0270*        db 0 ; null terminator
-0438E9             0271*    
-0438E9             0272*    ; below the detailed instructions / status border
-0438E9 0E 00       0273*        ld c,text_left ; x
-0438EB 06 28       0274*        ld b,vp_playbar_top+5 ; y
-0438ED CD B6 1B 04 0275*        call vdu_move_cursor
-0438F1 21 D7 35 04 0276*        ld hl,str_dashes_thick
-0438F5 CD 67 00 04 0277*        call printString
-0438F9             0278*    
-0438F9             0279*    ; print the current directory path and first page of files
-0438F9 CD 13 3E 04 0280*        call bf_print_dir_name
-0438FD 21 00 00 00 0281*        ld hl,0
-043901 22 0A 00 07 0282*        ld (bf_page_cur),hl
-043905 AF          0283*        xor a
-043906 32 00 00 07 0284*        ld (bf_file_idx),a ; reset the file index
-04390A CD BF 3D 04 0285*        call bf_highlight_file ; highlight the first file
-04390E             0286*    
-04390E             0287*    ; load logo and plot it
-04390E CD 60 41 04 0288*        call load_ui_images
-043912 21 00 20 00 0289*        ld hl,BUF_UI_LOGO
-043916 CD D8 1C 04 0290*        call vdu_buff_select
-04391A 01 80 01 00 0291*        ld bc,384 ; x
-04391E 11 14 00 00 0292*        ld de,20 ; y
-043922 CD D8 20 04 0293*        call vdu_plot_bmp
-043926             0294*    
-043926 C9          0295*        ret
-043927             0296*    ; end ui_init
-043927             0297*    
-043927             0298*    agon_jukebox_ascii:
-043927 20 20 20 5F 0299*        db 32,32,32,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,95,32,95,95,95,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,13,10
+0438F3 00          0270*        db 0 ; null terminator
+0438F4             0271*    
+0438F4             0272*    ; below the detailed instructions / status border
+0438F4 0E 00       0273*        ld c,text_left ; x
+0438F6 06 28       0274*        ld b,vp_playbar_top+5 ; y
+0438F8 CD B6 1B 04 0275*        call vdu_move_cursor
+0438FC 21 E2 35 04 0276*        ld hl,str_dashes_thick
+043900 CD 67 00 04 0277*        call printString
+043904             0278*    
+043904             0279*    ; print the current directory path and first page of files
+043904 CD 1E 3E 04 0280*        call bf_print_dir_name
+043908 21 00 00 00 0281*        ld hl,0
+04390C 22 0A 00 07 0282*        ld (bf_page_cur),hl
+043910 AF          0283*        xor a
+043911 32 00 00 07 0284*        ld (bf_file_idx),a ; reset the file index
+043915 CD CA 3D 04 0285*        call bf_highlight_file ; highlight the first file
+043919             0286*    
+043919             0287*    ; load logo and plot it
+043919 CD 6B 41 04 0288*        call load_ui_images
+04391D 21 00 20 00 0289*        ld hl,BUF_UI_LOGO
+043921 CD D8 1C 04 0290*        call vdu_buff_select
+043925 01 80 01 00 0291*        ld bc,384 ; x
+043929 11 14 00 00 0292*        ld de,20 ; y
+04392D CD D8 20 04 0293*        call vdu_plot_bmp
+043931             0294*    
+043931 C9          0295*        ret
+043932             0296*    ; end ui_init
+043932             0297*    
+043932             0298*    agon_jukebox_ascii:
+043932 20 20 20 5F 0299*        db 32,32,32,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,95,32,95,95,95,95,95,95,95,95,32,32,32,32,95,95,95,95,95,95,95,13,10
        5F 5F 5F 5F 
        20 20 20 20 
        5F 5F 5F 5F 
@@ -11330,7 +11339,7 @@ PC     Output      Line
        20 5F 5F 5F 
        5F 5F 5F 5F 
        0D 0A       
-043951 20 20 2F 20 0300*        db 32,32,47,32,32,95,32,32,92,32,32,47,32,32,95,95,95,95,95,47,32,92,95,95,95,95,95,32,32,92,32,32,32,92,32,32,32,32,32,32,92,13,10
+04395C 20 20 2F 20 0300*        db 32,32,47,32,32,95,32,32,92,32,32,47,32,32,95,95,95,95,95,47,32,92,95,95,95,95,95,32,32,92,32,32,32,92,32,32,32,32,32,32,92,13,10
        20 5F 20 20 
        5C 20 20 2F 
        20 20 5F 5F 
@@ -11341,7 +11350,7 @@ PC     Output      Line
        20 5C 20 20 
        20 20 20 20 
        5C 0D 0A    
-04397C 20 2F 20 20 0301*        db 32,47,32,32,47,95,92,32,32,92,47,32,32,32,92,32,32,95,95,95,32,32,47,32,32,32,124,32,32,32,92,32,32,47,32,32,32,124,32,32,32,92,13,10
+043987 20 2F 20 20 0301*        db 32,47,32,32,47,95,92,32,32,92,47,32,32,32,92,32,32,95,95,95,32,32,47,32,32,32,124,32,32,32,92,32,32,47,32,32,32,124,32,32,32,92,13,10
        2F 5F 5C 20 
        20 5C 2F 20 
        20 20 5C 20 
@@ -11352,7 +11361,7 @@ PC     Output      Line
        20 2F 20 20 
        20 7C 20 20 
        20 5C 0D 0A 
-0439A8 2F 20 20 20 0302*        db 47,32,32,32,32,124,32,32,32,32,92,32,32,32,32,92,95,92,32,32,92,47,32,32,32,32,124,32,32,32,32,92,47,32,32,32,32,124,32,32,32,32,92,13,10
+0439B3 2F 20 20 20 0302*        db 47,32,32,32,32,124,32,32,32,32,92,32,32,32,32,92,95,92,32,32,92,47,32,32,32,32,124,32,32,32,32,92,47,32,32,32,32,124,32,32,32,32,92,13,10
        20 7C 20 20 
        20 20 5C 20 
        20 20 20 5C 
@@ -11364,7 +11373,7 @@ PC     Output      Line
        20 7C 20 20 
        20 20 5C 0D 
        0A          
-0439D5 5C 5F 5F 5F 0303*        db 92,95,95,95,95,124,95,95,32,32,47,92,95,95,95,95,95,95,32,32,47,92,95,95,95,95,95,95,95,32,32,47,92,95,95,95,95,124,95,95,32,32,47,13,10
+0439E0 5C 5F 5F 5F 0303*        db 92,95,95,95,95,124,95,95,32,32,47,92,95,95,95,95,95,95,32,32,47,92,95,95,95,95,95,95,95,32,32,47,92,95,95,95,95,124,95,95,32,32,47,13,10
        5F 7C 5F 5F 
        20 20 2F 5C 
        5F 5F 5F 5F 
@@ -11376,7 +11385,7 @@ PC     Output      Line
        5F 7C 5F 5F 
        20 20 2F 0D 
        0A          
-043A02 20 20 20 20 0304*        db 32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,13,10
+043A0D 20 20 20 20 0304*        db 32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,13,10
        20 20 20 20 
        5C 2F 20 20 
        20 20 20 20 
@@ -11387,7 +11396,7 @@ PC     Output      Line
        20 20 20 20 
        20 20 20 20 
        5C 2F 0D 0A 
-043A2E 20 20 20 20 0305*        db 32,32,32,32,32,95,95,95,95,32,95,95,95,95,32,95,95,95,32,95,95,95,95,32,32,95,95,32,95,95,95,95,95,95,95,95,95,95,95,13,10
+043A39 20 20 20 20 0305*        db 32,32,32,32,32,95,95,95,95,32,95,95,95,95,32,95,95,95,32,95,95,95,95,32,32,95,95,32,95,95,95,95,95,95,95,95,95,95,95,13,10
        20 5F 5F 5F 
        5F 20 5F 5F 
        5F 5F 20 5F 
@@ -11398,7 +11407,7 @@ PC     Output      Line
        5F 5F 5F 5F 
        5F 5F 5F 0D 
        0A          
-043A57 20 20 20 20 0306*        db 32,32,32,32,124,32,32,32,32,124,32,32,32,32,124,32,32,32,92,32,32,32,32,124,47,32,95,124,92,95,32,32,32,95,95,95,95,95,47,13,10
+043A62 20 20 20 20 0306*        db 32,32,32,32,124,32,32,32,32,124,32,32,32,32,124,32,32,32,92,32,32,32,32,124,47,32,95,124,92,95,32,32,32,95,95,95,95,95,47,13,10
        7C 20 20 20 
        20 7C 20 20 
        20 20 7C 20 
@@ -11409,7 +11418,7 @@ PC     Output      Line
        20 5F 5F 5F 
        5F 5F 2F 0D 
        0A          
-043A80 20 20 20 20 0307*        db 32,32,32,32,124,32,32,32,32,124,32,32,32,32,124,32,32,32,47,32,32,32,32,32,32,60,32,32,32,124,32,32,32,32,95,95,41,95,13,10
+043A8B 20 20 20 20 0307*        db 32,32,32,32,124,32,32,32,32,124,32,32,32,32,124,32,32,32,47,32,32,32,32,32,32,60,32,32,32,124,32,32,32,32,95,95,41,95,13,10
        7C 20 20 20 
        20 7C 20 20 
        20 20 7C 20 
@@ -11419,7 +11428,7 @@ PC     Output      Line
        20 7C 20 20 
        20 20 5F 5F 
        29 5F 0D 0A 
-043AA8 2F 5C 5F 5F 0308*        db 47,92,95,95,124,32,32,32,32,124,32,32,32,32,124,32,32,47,124,32,32,32,32,124,32,32,92,32,32,124,32,32,32,32,32,32,32,32,92,13,10
+043AB3 2F 5C 5F 5F 0308*        db 47,92,95,95,124,32,32,32,32,124,32,32,32,32,124,32,32,47,124,32,32,32,32,124,32,32,92,32,32,124,32,32,32,32,32,32,32,32,92,13,10
        7C 20 20 20 
        20 7C 20 20 
        20 20 7C 20 
@@ -11430,7 +11439,7 @@ PC     Output      Line
        20 20 20 20 
        20 20 5C 0D 
        0A          
-043AD1 5C 5F 5F 5F 0309*        db 92,95,95,95,95,95,95,95,95,124,95,95,95,95,95,95,47,32,124,95,95,95,95,124,95,95,32,92,47,95,95,95,95,95,95,95,32,32,47,13,10
+043ADC 5C 5F 5F 5F 0309*        db 92,95,95,95,95,95,95,95,95,124,95,95,95,95,95,95,47,32,124,95,95,95,95,124,95,95,32,92,47,95,95,95,95,95,95,95,32,32,47,13,10
        5F 5F 5F 5F 
        5F 7C 5F 5F 
        5F 5F 5F 5F 
@@ -11441,7 +11450,7 @@ PC     Output      Line
        5F 5F 5F 5F 
        20 20 2F 0D 
        0A          
-043AFA 20 20 20 20 0310*        db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,92,47,13,10
+043B05 20 20 20 20 0310*        db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,92,47,13,10
        20 20 20 20 
        20 20 20 20 
        20 20 20 20 
@@ -11451,7 +11460,7 @@ PC     Output      Line
        20 20 20 20 
        20 20 20 20 
        5C 2F 0D 0A 
-043B22 20 20 20 20 0311*        db 32,32,32,32,95,95,95,95,95,95,95,95,95,95,32,95,95,95,95,95,95,95,95,32,32,95,95,95,95,32,32,95,95,95,13,10
+043B2D 20 20 20 20 0311*        db 32,32,32,32,95,95,95,95,95,95,95,95,95,95,32,95,95,95,95,95,95,95,95,32,32,95,95,95,95,32,32,95,95,95,13,10
        5F 5F 5F 5F 
        5F 5F 5F 5F 
        5F 5F 20 5F 
@@ -11460,7 +11469,7 @@ PC     Output      Line
        20 5F 5F 5F 
        5F 20 20 5F 
        5F 5F 0D 0A 
-043B46 20 20 20 20 0312*        db 32,32,32,32,92,95,95,95,95,95,95,32,32,32,92,92,95,95,95,95,95,32,32,92,32,92,32,32,32,92,47,32,32,47,13,10
+043B51 20 20 20 20 0312*        db 32,32,32,32,92,95,95,95,95,95,95,32,32,32,92,92,95,95,95,95,95,32,32,92,32,92,32,32,32,92,47,32,32,47,13,10
        5C 5F 5F 5F 
        5F 5F 5F 20 
        20 20 5C 5C 
@@ -11469,7 +11478,7 @@ PC     Output      Line
        20 5C 20 20 
        20 5C 2F 20 
        20 2F 0D 0A 
-043B6A 20 20 20 20 0313*        db 32,32,32,32,32,124,32,32,32,32,124,32,32,95,47,32,47,32,32,32,124,32,32,32,92,32,92,32,32,32,32,32,47,13,10
+043B75 20 20 20 20 0313*        db 32,32,32,32,32,124,32,32,32,32,124,32,32,95,47,32,47,32,32,32,124,32,32,32,92,32,92,32,32,32,32,32,47,13,10
        20 7C 20 20 
        20 20 7C 20 
        20 5F 2F 20 
@@ -11478,7 +11487,7 @@ PC     Output      Line
        5C 20 5C 20 
        20 20 20 20 
        2F 0D 0A    
-043B8D 20 20 20 20 0314*        db 32,32,32,32,32,124,32,32,32,32,124,32,32,32,92,47,32,32,32,32,124,32,32,32,32,92,47,32,32,32,32,32,92,13,10
+043B98 20 20 20 20 0314*        db 32,32,32,32,32,124,32,32,32,32,124,32,32,32,92,47,32,32,32,32,124,32,32,32,32,92,47,32,32,32,32,32,92,13,10
        20 7C 20 20 
        20 20 7C 20 
        20 20 5C 2F 
@@ -11487,7 +11496,7 @@ PC     Output      Line
        20 5C 2F 20 
        20 20 20 20 
        5C 0D 0A    
-043BB0 20 20 20 20 0315*        db 32,32,32,32,32,124,95,95,95,95,95,95,32,32,47,92,95,95,95,95,95,95,95,32,32,47,95,95,95,47,92,32,32,92,13,10
+043BBB 20 20 20 20 0315*        db 32,32,32,32,32,124,95,95,95,95,95,95,32,32,47,92,95,95,95,95,95,95,95,32,32,47,95,95,95,47,92,32,32,92,13,10
        20 7C 5F 5F 
        5F 5F 5F 5F 
        20 20 2F 5C 
@@ -11496,7 +11505,7 @@ PC     Output      Line
        20 2F 5F 5F 
        5F 2F 5C 20 
        20 5C 0D 0A 
-043BD4 20 20 20 20 0316*        db 32,32,32,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,92,95,47,13,10
+043BDF 20 20 20 20 0316*        db 32,32,32,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,32,32,32,92,47,32,32,32,32,32,32,92,95,47,13,10
        20 20 20 20 
        20 20 20 20 
        5C 2F 20 20 
@@ -11505,754 +11514,754 @@ PC     Output      Line
        2F 20 20 20 
        20 20 20 5C 
        5F 2F 0D 0A 
-043BF8 00          0317*        db 0 ; list terminator
-043BF9             0051         include "browse.inc"
-043BF9             0001*    bf_files_per_pg: equ 10 ; number of directories / files to display per page
-043BF9             0002*    
-043BF9             0003*    bf_get_dir:
-043BF9             0004*    ; initialize counters
-043BF9 21 00 00 00 0005*        ld hl,0
-043BFD 22 01 00 07 0006*        ld (bf_dir_num_files),hl
-043C01             0007*    
-043C01             0008*    ; initialize pointers to store directory info and print directory name
-043C01 21 10 00 07 0009*        ld hl,bf_dir_path  ; where to store result
-043C05 01 FF 00 00 0010*        ld bc,255          ; max length (final byte is zero terminator) [has no effect]
-043C09             0011*        FFSCALL ffs_getcwd ; MOS api get current working directory
+043C03 00          0317*        db 0 ; list terminator
+043C04             0051         include "browse.inc"
+043C04             0001*    bf_files_per_pg: equ 10 ; number of directories / files to display per page
+043C04             0002*    
+043C04             0003*    bf_get_dir:
+043C04             0004*    ; initialize counters
+043C04 21 00 00 00 0005*        ld hl,0
+043C08 22 01 00 07 0006*        ld (bf_dir_num_files),hl
+043C0C             0007*    
+043C0C             0008*    ; initialize pointers to store directory info and print directory name
+043C0C 21 10 00 07 0009*        ld hl,bf_dir_path  ; where to store result
+043C10 01 FF 00 00 0010*        ld bc,255          ; max length (final byte is zero terminator) [has no effect]
+043C14             0011*        FFSCALL ffs_getcwd ; MOS api get current working directory
                        M1 Args: function=ffs_getcwd 
-043C09 FD E5       0001*M1  			PUSH IY
-043C0B 3E 9E       0002*M1  			LD	A, function
-043C0D 5B CF       0003*M1  			RST.LIL	08h
-043C0F FD E1       0004*M1  			POP IY
-043C11             0012*    
-043C11             0013*    ; get dir info
-043C11 21 00 02 07 0014*        ld hl,bf_dir_struct ; define where to store directory info
-043C15 11 10 00 07 0015*        ld de,bf_dir_path   ; this is pointer to the path to the directory
-043C19 AF          0016*        xor a               ; tell MOS to expect zero-terminated string
-043C1A             0017*        FFSCALL ffs_dopen   ; open dir
+043C14 FD E5       0001*M1  			PUSH IY
+043C16 3E 9E       0002*M1  			LD	A, function
+043C18 5B CF       0003*M1  			RST.LIL	08h
+043C1A FD E1       0004*M1  			POP IY
+043C1C             0012*    
+043C1C             0013*    ; get dir info
+043C1C 21 00 02 07 0014*        ld hl,bf_dir_struct ; define where to store directory info
+043C20 11 10 00 07 0015*        ld de,bf_dir_path   ; this is pointer to the path to the directory
+043C24 AF          0016*        xor a               ; tell MOS to expect zero-terminated string
+043C25             0017*        FFSCALL ffs_dopen   ; open dir
                        M1 Args: function=ffs_dopen 
-043C1A FD E5       0001*M1  			PUSH IY
-043C1C 3E 91       0002*M1  			LD	A, function
-043C1E 5B CF       0003*M1  			RST.LIL	08h
-043C20 FD E1       0004*M1  			POP IY
-043C22             0018*    
-043C22             0019*    ; set up pointers
-043C22 DD 21 00 06 0020*        ld ix,bf_dir_fil_list ; this is the pointer to the filinfo structs
+043C25 FD E5       0001*M1  			PUSH IY
+043C27 3E 91       0002*M1  			LD	A, function
+043C29 5B CF       0003*M1  			RST.LIL	08h
+043C2B FD E1       0004*M1  			POP IY
+043C2D             0018*    
+043C2D             0019*    ; set up pointers
+043C2D DD 21 00 06 0020*        ld ix,bf_dir_fil_list ; this is the pointer to the filinfo structs
        07          
-043C27 FD 21 00 03 0021*        ld iy,bf_filinfo_ptrs ; where to store pointers to filinfo structs
+043C32 FD 21 00 03 0021*        ld iy,bf_filinfo_ptrs ; where to store pointers to filinfo structs
        07          
-043C2C             0022*    
-043C2C             0023*    @readFileInfo:               ; we will loop here until all files have been processed
-043C2C 21 00 02 07 0024*        ld hl,bf_dir_struct      ; HL is where to get directory info
-043C30 ED 12 00    0025*        lea de,ix                ; DE is where to store filinfo struct
-043C33             0026*        FFSCALL ffs_dread        ; read next item from dir into filinfo struct
+043C37             0022*    
+043C37             0023*    @readFileInfo:               ; we will loop here until all files have been processed
+043C37 21 00 02 07 0024*        ld hl,bf_dir_struct      ; HL is where to get directory info
+043C3B ED 12 00    0025*        lea de,ix                ; DE is where to store filinfo struct
+043C3E             0026*        FFSCALL ffs_dread        ; read next item from dir into filinfo struct
                        M1 Args: function=ffs_dread 
-043C33 FD E5       0001*M1  			PUSH IY
-043C35 3E 93       0002*M1  			LD	A, function
-043C37 5B CF       0003*M1  			RST.LIL	08h
-043C39 FD E1       0004*M1  			POP IY
-043C3B             0027*    
-043C3B DD 7E 16    0028*        ld a,(ix+filinfo_fname)  ; get first char of file name
-043C3E B7          0029*        or a                     ; if zero then we are at the end of the listing
-043C3F CA 9A 3C 04 0030*        jp z,@allDone
-043C43             0031*    
-043C43 DD 7E 08    0032*        ld a,(ix+filinfo_fattrib) ; get the file attribute
-043C46 CB AF       0033*        res AM_ARC,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
-043C48 B7          0034*        or a ; if zero this is a file
-043C49 C2 52 3C 04 0035*        jp nz,@F ; not zero so this is some other file type
-043C4D CB EF       0036*        set AM_ARC,a ; set bit 5 (archive) so will be consistent btw emulator and hardware
-043C4F DD 77 08    0037*        ld (ix+filinfo_fattrib),a ; update so we don't have to do this every time downstream
-043C52             0038*    
-043C52             0039*    @@: ; skip over writing hidden and system files
-043C52 CB 4F       0040*        bit AM_HID,a ; hidden file
-043C54 C2 2C 3C 04 0041*        jp nz,@readFileInfo
-043C58 CB 57       0042*        bit AM_SYS,a ; system file
-043C5A C2 2C 3C 04 0043*        jp nz,@readFileInfo
-043C5E             0044*    
-043C5E             0045*    ; check for valid directory
-043C5E CB 67       0046*        bit AM_DIR,a ; directory
-043C60 C2 7C 3C 04 0047*        jp nz,@isDir ; is directory so skip .wav file check
-043C64             0048*    
-043C64             0049*    ; is file so check for valid .wav format
-043C64 21 00 FF 06 0050*        ld hl,bf_fil_struct ; hl = pointer to fil struct
-043C68 ED 12 16    0051*        lea de,ix+filinfo_fname ; de = pointer to filename
-043C6B CD E8 6A 04 0052*        call bf_verify_wav
-043C6F CA 2C 3C 04 0053*        jp z,@readFileInfo ; not a .wav file, so skip it
-043C73             0054*    ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
-043C73 3E 31       0055*        ld a,'1'
-043C75 DD 77 15    0056*        ld (ix+filinfo_fname-1),a
-043C78 C3 81 3C 04 0057*        jp @goodPath
-043C7C             0058*    @isDir:
-043C7C             0059*    ; set the last byte of filinfo_faltname to 0 to indicate this is a directory for filename sorting
-043C7C 3E 30       0060*        ld a,'0'
-043C7E DD 77 15    0061*        ld (ix+filinfo_fname-1),a
-043C81             0062*        ; fall through to @goodPath
-043C81             0063*    @goodPath:
-043C81             0064*    ; valid file or directory
-043C81 FD 3E 00    0065*        ld (iy),ix ; store pointer to filinfo struct
-043C84 2A 01 00 07 0066*        ld hl,(bf_dir_num_files) ; get the current file counter
-043C88 23          0067*        inc hl                  ; increment the counter
-043C89 22 01 00 07 0068*        ld (bf_dir_num_files),hl
-043C8D             0069*    ; bump pointers
-043C8D ED 33 03    0070*        lea iy,iy+3
-043C90 11 16 01 00 0071*        ld de,filinfo_struct_size ; length of filinfo record
-043C94 DD 19       0072*        add ix,de
-043C96 C3 2C 3C 04 0073*        jp @readFileInfo         ; loop around to check next entry
-043C9A             0074*    @allDone:
-043C9A             0075*    ; compute page statistics
-043C9A 11 0A 00 00 0076*        ld de,bf_files_per_pg    ; number of files per page
-043C9E 2A 01 00 07 0077*        ld hl,(bf_dir_num_files) ; get the number of files
-043CA2             0078*        SIGN_HLU ; check for zero
+043C3E FD E5       0001*M1  			PUSH IY
+043C40 3E 93       0002*M1  			LD	A, function
+043C42 5B CF       0003*M1  			RST.LIL	08h
+043C44 FD E1       0004*M1  			POP IY
+043C46             0027*    
+043C46 DD 7E 16    0028*        ld a,(ix+filinfo_fname)  ; get first char of file name
+043C49 B7          0029*        or a                     ; if zero then we are at the end of the listing
+043C4A CA A5 3C 04 0030*        jp z,@allDone
+043C4E             0031*    
+043C4E DD 7E 08    0032*        ld a,(ix+filinfo_fattrib) ; get the file attribute
+043C51 CB AF       0033*        res AM_ARC,a ; clear bit 5 (archive) see: https://discord.com/channels/1158535358624039014/1158536667670511726/1328466726098309173
+043C53 B7          0034*        or a ; if zero this is a file
+043C54 C2 5D 3C 04 0035*        jp nz,@F ; not zero so this is some other file type
+043C58 CB EF       0036*        set AM_ARC,a ; set bit 5 (archive) so will be consistent btw emulator and hardware
+043C5A DD 77 08    0037*        ld (ix+filinfo_fattrib),a ; update so we don't have to do this every time downstream
+043C5D             0038*    
+043C5D             0039*    @@: ; skip over writing hidden and system files
+043C5D CB 4F       0040*        bit AM_HID,a ; hidden file
+043C5F C2 37 3C 04 0041*        jp nz,@readFileInfo
+043C63 CB 57       0042*        bit AM_SYS,a ; system file
+043C65 C2 37 3C 04 0043*        jp nz,@readFileInfo
+043C69             0044*    
+043C69             0045*    ; check for valid directory
+043C69 CB 67       0046*        bit AM_DIR,a ; directory
+043C6B C2 87 3C 04 0047*        jp nz,@isDir ; is directory so skip .wav file check
+043C6F             0048*    
+043C6F             0049*    ; is file so check for valid .wav format
+043C6F 21 00 FF 06 0050*        ld hl,bf_fil_struct ; hl = pointer to fil struct
+043C73 ED 12 16    0051*        lea de,ix+filinfo_fname ; de = pointer to filename
+043C76 CD E8 6A 04 0052*        call bf_verify_wav
+043C7A CA 37 3C 04 0053*        jp z,@readFileInfo ; not a .wav file, so skip it
+043C7E             0054*    ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
+043C7E 3E 31       0055*        ld a,'1'
+043C80 DD 77 15    0056*        ld (ix+filinfo_fname-1),a
+043C83 C3 8C 3C 04 0057*        jp @goodPath
+043C87             0058*    @isDir:
+043C87             0059*    ; set the last byte of filinfo_faltname to 0 to indicate this is a directory for filename sorting
+043C87 3E 30       0060*        ld a,'0'
+043C89 DD 77 15    0061*        ld (ix+filinfo_fname-1),a
+043C8C             0062*        ; fall through to @goodPath
+043C8C             0063*    @goodPath:
+043C8C             0064*    ; valid file or directory
+043C8C FD 3E 00    0065*        ld (iy),ix ; store pointer to filinfo struct
+043C8F 2A 01 00 07 0066*        ld hl,(bf_dir_num_files) ; get the current file counter
+043C93 23          0067*        inc hl                  ; increment the counter
+043C94 22 01 00 07 0068*        ld (bf_dir_num_files),hl
+043C98             0069*    ; bump pointers
+043C98 ED 33 03    0070*        lea iy,iy+3
+043C9B 11 16 01 00 0071*        ld de,filinfo_struct_size ; length of filinfo record
+043C9F DD 19       0072*        add ix,de
+043CA1 C3 37 3C 04 0073*        jp @readFileInfo         ; loop around to check next entry
+043CA5             0074*    @allDone:
+043CA5             0075*    ; compute page statistics
+043CA5 11 0A 00 00 0076*        ld de,bf_files_per_pg    ; number of files per page
+043CA9 2A 01 00 07 0077*        ld hl,(bf_dir_num_files) ; get the number of files
+043CAD             0078*        SIGN_HLU ; check for zero
                        M1 Args: none
-043CA2 19          0001*M1      add hl,de ; 1 cycle
-043CA3 B7          0002*M1      or a ; clear flags ; 1 cycle
-043CA4 ED 52       0003*M1      sbc hl,de ; 2 cycles
-043CA6             0004*M1      ; 4 cycles total
-043CA6 C2 B6 3C 04 0079*        jp nz,@not_zero
-043CAA 11 00 00 00 0080*        ld de,0 ; number of pages, will increment by 1 later
-043CAE 21 00 00 00 0081*        ld hl,0 ; number of files on last page
-043CB2 C3 C7 3C 04 0082*        jp @write_stats
-043CB6             0083*    @not_zero:
-043CB6 CD ED 03 04 0084*        call udiv24 ; de = hl/bf_files_per_pg, hl = mod(hl,bf_files_per_pg)
-043CBA             0085*        SIGN_HLU ; check remainder for zero
+043CAD 19          0001*M1      add hl,de ; 1 cycle
+043CAE B7          0002*M1      or a ; clear flags ; 1 cycle
+043CAF ED 52       0003*M1      sbc hl,de ; 2 cycles
+043CB1             0004*M1      ; 4 cycles total
+043CB1 C2 C1 3C 04 0079*        jp nz,@not_zero
+043CB5 11 00 00 00 0080*        ld de,0 ; number of pages, will increment by 1 later
+043CB9 21 00 00 00 0081*        ld hl,0 ; number of files on last page
+043CBD C3 D2 3C 04 0082*        jp @write_stats
+043CC1             0083*    @not_zero:
+043CC1 CD ED 03 04 0084*        call udiv24 ; de = hl/bf_files_per_pg, hl = mod(hl,bf_files_per_pg)
+043CC5             0085*        SIGN_HLU ; check remainder for zero
                        M1 Args: none
-043CBA 19          0001*M1      add hl,de ; 1 cycle
-043CBB B7          0002*M1      or a ; clear flags ; 1 cycle
-043CBC ED 52       0003*M1      sbc hl,de ; 2 cycles
-043CBE             0004*M1      ; 4 cycles total
-043CBE C2 C7 3C 04 0086*        jp nz,@write_stats
-043CC2 21 0A 00 00 0087*        ld hl,bf_files_per_pg ; if zero then we have exactly bf_files_per_pg files on the last page ...
-043CC6 1B          0088*        dec de ; ... and we don't need an additional page for the remainder
-043CC7             0089*    @write_stats:
-043CC7 22 07 00 07 0090*        ld (bf_files_last_pg),hl ; save the number of files on the last page
-043CCB 13          0091*        inc de ; bump the page count
-043CCC ED 53 0D 00 0092*        ld (bf_dir_num_pages),de ; save the number of pages
+043CC5 19          0001*M1      add hl,de ; 1 cycle
+043CC6 B7          0002*M1      or a ; clear flags ; 1 cycle
+043CC7 ED 52       0003*M1      sbc hl,de ; 2 cycles
+043CC9             0004*M1      ; 4 cycles total
+043CC9 C2 D2 3C 04 0086*        jp nz,@write_stats
+043CCD 21 0A 00 00 0087*        ld hl,bf_files_per_pg ; if zero then we have exactly bf_files_per_pg files on the last page ...
+043CD1 1B          0088*        dec de ; ... and we don't need an additional page for the remainder
+043CD2             0089*    @write_stats:
+043CD2 22 07 00 07 0090*        ld (bf_files_last_pg),hl ; save the number of files on the last page
+043CD6 13          0091*        inc de ; bump the page count
+043CD7 ED 53 0D 00 0092*        ld (bf_dir_num_pages),de ; save the number of pages
        07          
-043CD1 21 00 00 00 0093*        ld hl,0 ; reset the page number
-043CD5 22 0A 00 07 0094*        ld (bf_page_cur),hl
-043CD9             0095*    ; sort the filenames
-043CD9 FD 21 00 03 0096*        ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+043CDC 21 00 00 00 0093*        ld hl,0 ; reset the page number
+043CE0 22 0A 00 07 0094*        ld (bf_page_cur),hl
+043CE4             0095*    ; sort the filenames
+043CE4 FD 21 00 03 0096*        ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
        07          
-043CDE 3A 01 00 07 0097*        ld a,(bf_dir_num_files) ; get the number of files
-043CE2 47          0098*        ld b,a ; loop counter
-043CE3 CD 57 6A 04 0099*        call selection_sort_asc_filinfo ; sort the filenames
-043CE7             0100*    ; close the directory
-043CE7 21 00 02 07 0101*        ld hl,bf_dir_struct      ; load H: with address of the DIR struct
-043CEB             0102*        FFSCALL ffs_dclose       ; close dir
+043CE9 3A 01 00 07 0097*        ld a,(bf_dir_num_files) ; get the number of files
+043CED 47          0098*        ld b,a ; loop counter
+043CEE CD 57 6A 04 0099*        call selection_sort_asc_filinfo ; sort the filenames
+043CF2             0100*    ; close the directory
+043CF2 21 00 02 07 0101*        ld hl,bf_dir_struct      ; load H: with address of the DIR struct
+043CF6             0102*        FFSCALL ffs_dclose       ; close dir
                        M1 Args: function=ffs_dclose 
-043CEB FD E5       0001*M1  			PUSH IY
-043CED 3E 92       0002*M1  			LD	A, function
-043CEF 5B CF       0003*M1  			RST.LIL	08h
-043CF1 FD E1       0004*M1  			POP IY
-043CF3             0103*    ; fall through to bf_get_page_num_files
-043CF3             0104*    
-043CF3             0105*    bf_get_page_num_files:
-043CF3             0106*    ; check whether we're at last page
-043CF3 2A 0A 00 07 0107*        ld hl,(bf_page_cur)
-043CF7 ED 5B 0D 00 0108*        ld de,(bf_dir_num_pages)
+043CF6 FD E5       0001*M1  			PUSH IY
+043CF8 3E 92       0002*M1  			LD	A, function
+043CFA 5B CF       0003*M1  			RST.LIL	08h
+043CFC FD E1       0004*M1  			POP IY
+043CFE             0103*    ; fall through to bf_get_page_num_files
+043CFE             0104*    
+043CFE             0105*    bf_get_page_num_files:
+043CFE             0106*    ; check whether we're at last page
+043CFE 2A 0A 00 07 0107*        ld hl,(bf_page_cur)
+043D02 ED 5B 0D 00 0108*        ld de,(bf_dir_num_pages)
        07          
-043CFC 1B          0109*        dec de ; zero-based
-043CFD B7          0110*        or a ; clear carry
-043CFE ED 52       0111*        sbc hl,de
-043D00 3E 0A       0112*        ld a,bf_files_per_pg ; a = default number of files per page
-043D02 C2 0A 3D 04 0113*        jp nz,@F ; not the last page
-043D06 3A 07 00 07 0114*        ld a,(bf_files_last_pg) ; get the number of files on the last page
-043D0A             0115*    @@:
-043D0A 32 04 00 07 0116*        ld (bf_files_cur_pg),a ; save the number of files on the page
-043D0E C9          0117*        ret
-043D0F             0118*    ; end bf_get_page_num_files
-043D0F             0119*    ; end bf_get_dir
-043D0F             0120*    
-043D0F             0121*    ; print the directory listing for the current directory page
-043D0F             0122*    ; inputs: none
-043D0F             0123*    ; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
-043D0F             0124*    ; destroys: everything
-043D0F             0125*    bf_print_dir_page:
-043D0F             0126*    ; set text viewport for directory listing
-043D0F CD 66 36 04 0127*        call vp_dir
-043D13 CD DE 1B 04 0128*        call vdu_cls
-043D17             0129*    ; check for zero files in directory
-043D17 2A 01 00 07 0130*        ld hl,(bf_dir_num_files)
-043D1B             0131*        SIGN_HLU
+043D07 1B          0109*        dec de ; zero-based
+043D08 B7          0110*        or a ; clear carry
+043D09 ED 52       0111*        sbc hl,de
+043D0B 3E 0A       0112*        ld a,bf_files_per_pg ; a = default number of files per page
+043D0D C2 15 3D 04 0113*        jp nz,@F ; not the last page
+043D11 3A 07 00 07 0114*        ld a,(bf_files_last_pg) ; get the number of files on the last page
+043D15             0115*    @@:
+043D15 32 04 00 07 0116*        ld (bf_files_cur_pg),a ; save the number of files on the page
+043D19 C9          0117*        ret
+043D1A             0118*    ; end bf_get_page_num_files
+043D1A             0119*    ; end bf_get_dir
+043D1A             0120*    
+043D1A             0121*    ; print the directory listing for the current directory page
+043D1A             0122*    ; inputs: none
+043D1A             0123*    ; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
+043D1A             0124*    ; destroys: everything
+043D1A             0125*    bf_print_dir_page:
+043D1A             0126*    ; set text viewport for directory listing
+043D1A CD 71 36 04 0127*        call vp_dir
+043D1E CD DE 1B 04 0128*        call vdu_cls
+043D22             0129*    ; check for zero files in directory
+043D22 2A 01 00 07 0130*        ld hl,(bf_dir_num_files)
+043D26             0131*        SIGN_HLU
                        M1 Args: none
-043D1B 19          0001*M1      add hl,de ; 1 cycle
-043D1C B7          0002*M1      or a ; clear flags ; 1 cycle
-043D1D ED 52       0003*M1      sbc hl,de ; 2 cycles
-043D1F             0004*M1      ; 4 cycles total
-043D1F CA 5D 3D 04 0132*        jp z,@no_files ; no files to display so update ui with page stats and return
-043D23             0133*    ; set pointer to the correct index in the fileinfo pointer table
-043D23 2A 0A 00 07 0134*        ld hl,(bf_page_cur) ; get the current page
-043D27 11 1E 00 00 0135*        ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
-043D2B CD D4 03 04 0136*        call umul24 ; hl = page * num_files_per_page
-043D2F EB          0137*        ex de,hl ; can't add ix,hl ...
-043D30 DD 21 00 03 0138*        ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+043D26 19          0001*M1      add hl,de ; 1 cycle
+043D27 B7          0002*M1      or a ; clear flags ; 1 cycle
+043D28 ED 52       0003*M1      sbc hl,de ; 2 cycles
+043D2A             0004*M1      ; 4 cycles total
+043D2A CA 68 3D 04 0132*        jp z,@no_files ; no files to display so update ui with page stats and return
+043D2E             0133*    ; set pointer to the correct index in the fileinfo pointer table
+043D2E 2A 0A 00 07 0134*        ld hl,(bf_page_cur) ; get the current page
+043D32 11 1E 00 00 0135*        ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
+043D36 CD D4 03 04 0136*        call umul24 ; hl = page * num_files_per_page
+043D3A EB          0137*        ex de,hl ; can't add ix,hl ...
+043D3B DD 21 00 03 0138*        ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
        07          
-043D35 DD 19       0139*        add ix,de ; ix points to the correct index in the fileinfo pointer table
-043D37             0140*    ; loop through the fileinfo pointer table and print out the filenames
-043D37 3A 04 00 07 0141*        ld a,(bf_files_cur_pg)
-043D3B 47          0142*        ld b,a ; loop counter
-043D3C AF          0143*        xor a ; song index
-043D3D             0144*    @loop:
-043D3D C5          0145*        push bc ; save loop counter
-043D3E F5          0146*        push af ; save song index
-043D3F CD A5 6B 04 0147*        call printHexA ; print the song index
-043D43 DD 31 00    0148*        ld iy,(ix) ; iy points to filinfo struct
-043D46 CD F8 3D 04 0149*        call bf_print_dir_or_file
-043D4A             0150*    @bump_counters:
-043D4A ED 32 03    0151*        lea ix,ix+3 ; bump the filename pointer
-043D4D F1          0152*        pop af ; restore song index
-043D4E 3C          0153*        inc a ; increment the song index
-043D4F C1          0154*        pop bc ; restore loop counter
-043D50 05          0155*        dec b
-043D51 CA 70 3D 04 0156*        jp z,@done ; if zero, we're done
-043D55 CD 7C 00 04 0157*        call printNewLine
-043D59 C3 3D 3D 04 0158*        jp @loop
-043D5D             0159*    @no_files:
-043D5D AF          0160*        xor a ; reset the page number to zero
-043D5E 32 0A 00 07 0161*        ld (bf_page_cur),a
-043D62 21 01 00 00 0162*        ld hl,1 ; an empty page is still a page
-043D66 22 0D 00 07 0163*        ld (bf_dir_num_pages),hl
-043D6A CD A5 3D 04 0164*        call bf_update_pages_ui
-043D6E AF          0165*        xor a ; set zero flag indicating there were no files to display
-043D6F C9          0166*        ret
-043D70             0167*    @done:
-043D70             0168*    ; update ui and return to caller
-043D70 CD A5 3D 04 0169*        call bf_update_pages_ui
-043D74 F6 01       0170*        or a,1 ; reset zero flag indicating there were files to display
-043D76 C9          0171*        ret
-043D77             0172*    ; end bf_print_dir_page
-043D77             0173*    
-043D77             0174*    ; print the entire directory (for debugging, not in-app use)
-043D77             0175*    ; inputs: none
-043D77             0176*    ; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
-043D77             0177*    ; destroys: everything
-043D77             0178*    bf_print_dir:
-043D77             0179*    ; set pointer to the correct index in the fileinfo pointer table
-043D77 DD 21 00 03 0180*        ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+043D40 DD 19       0139*        add ix,de ; ix points to the correct index in the fileinfo pointer table
+043D42             0140*    ; loop through the fileinfo pointer table and print out the filenames
+043D42 3A 04 00 07 0141*        ld a,(bf_files_cur_pg)
+043D46 47          0142*        ld b,a ; loop counter
+043D47 AF          0143*        xor a ; song index
+043D48             0144*    @loop:
+043D48 C5          0145*        push bc ; save loop counter
+043D49 F5          0146*        push af ; save song index
+043D4A CD A5 6B 04 0147*        call printHexA ; print the song index
+043D4E DD 31 00    0148*        ld iy,(ix) ; iy points to filinfo struct
+043D51 CD 03 3E 04 0149*        call bf_print_dir_or_file
+043D55             0150*    @bump_counters:
+043D55 ED 32 03    0151*        lea ix,ix+3 ; bump the filename pointer
+043D58 F1          0152*        pop af ; restore song index
+043D59 3C          0153*        inc a ; increment the song index
+043D5A C1          0154*        pop bc ; restore loop counter
+043D5B 05          0155*        dec b
+043D5C CA 7B 3D 04 0156*        jp z,@done ; if zero, we're done
+043D60 CD 7C 00 04 0157*        call printNewLine
+043D64 C3 48 3D 04 0158*        jp @loop
+043D68             0159*    @no_files:
+043D68 AF          0160*        xor a ; reset the page number to zero
+043D69 32 0A 00 07 0161*        ld (bf_page_cur),a
+043D6D 21 01 00 00 0162*        ld hl,1 ; an empty page is still a page
+043D71 22 0D 00 07 0163*        ld (bf_dir_num_pages),hl
+043D75 CD B0 3D 04 0164*        call bf_update_pages_ui
+043D79 AF          0165*        xor a ; set zero flag indicating there were no files to display
+043D7A C9          0166*        ret
+043D7B             0167*    @done:
+043D7B             0168*    ; update ui and return to caller
+043D7B CD B0 3D 04 0169*        call bf_update_pages_ui
+043D7F F6 01       0170*        or a,1 ; reset zero flag indicating there were files to display
+043D81 C9          0171*        ret
+043D82             0172*    ; end bf_print_dir_page
+043D82             0173*    
+043D82             0174*    ; print the entire directory (for debugging, not in-app use)
+043D82             0175*    ; inputs: none
+043D82             0176*    ; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
+043D82             0177*    ; destroys: everything
+043D82             0178*    bf_print_dir:
+043D82             0179*    ; set pointer to the correct index in the fileinfo pointer table
+043D82 DD 21 00 03 0180*        ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
        07          
-043D7C             0181*    ; loop through the fileinfo pointer table and print out the filenames
-043D7C 3A 01 00 07 0182*        ld a,(bf_dir_num_files)
-043D80 47          0183*        ld b,a ; loop counter
-043D81 A7          0184*        and a ; check for zero files in the directory
-043D82 C8          0185*        ret z ; nothing to see here, move along
-043D83 AF          0186*        xor a ; song index
-043D84             0187*    @loop:
-043D84 C5          0188*        push bc ; save loop counter
-043D85 F5          0189*        push af ; save song index
-043D86 CD A5 6B 04 0190*        call printHexA ; print the song index
-043D8A DD 31 00    0191*        ld iy,(ix) ; iy points to filinfo struct
-043D8D CD F8 3D 04 0192*        call bf_print_dir_or_file
-043D91             0193*    @bump_counters:
-043D91 ED 32 03    0194*        lea ix,ix+3 ; bump the filename pointer
-043D94 F1          0195*        pop af ; restore song index
-043D95 3C          0196*        inc a ; increment the song index
-043D96 C1          0197*        pop bc ; restore loop counter
-043D97 05          0198*        dec b
-043D98 CA A4 3D 04 0199*        jp z,@done ; if zero, we're done
-043D9C CD 7C 00 04 0200*        call printNewLine
-043DA0 C3 84 3D 04 0201*        jp @loop
-043DA4             0202*    @done:
-043DA4 C9          0203*        ret
-043DA5             0204*    ; end bf_print_dir
-043DA5             0205*    
-043DA5             0206*    bf_update_pages_ui:
-043DA5             0207*    ; update the directory page ui widgets
-043DA5 CD 80 36 04 0208*        call vp_legend_page_num
-043DA9 3A 0A 00 07 0209*        ld a,(bf_page_cur)
-043DAD 3C          0210*        inc a ; pages are zero-based, users are not
-043DAE CD AE 00 04 0211*        call printHex8
-043DB2 CD 8D 36 04 0212*        call vp_legend_num_pages
-043DB6 3A 0D 00 07 0213*        ld a,(bf_dir_num_pages)
-043DBA CD AE 00 04 0214*        call printHex8
-043DBE C9          0215*        ret
-043DBF             0216*    ; end bf_update_pages_ui
-043DBF             0217*    
-043DBF             0218*    bf_highlight_file:
-043DBF             0219*    ; refresh the directory listing
-043DBF CD 0F 3D 04 0220*        call bf_print_dir_page
-043DC3 C8          0221*        ret z ; no files to display so we're done
-043DC4             0222*    ; highlight the song being played in the directory listing
-043DC4 3A 00 00 07 0223*        ld a,(bf_file_idx)
-043DC8 16 17       0224*        ld d,vp_dir_top
-043DCA 82          0225*        add a,d
-043DCB 0E 00       0226*        ld c,text_left
-043DCD 57          0227*        ld d,a
-043DCE 1E 3F       0228*        ld e,text_right
-043DD0 47          0229*        ld b,a
-043DD1 CD 37 1C 04 0230*        call vdu_set_txt_viewport
-043DD5 CD DE 1B 04 0231*        call vdu_cls
-043DD9             0232*    ; set text colours to inverse
-043DD9 CD DB 36 04 0233*        call set_text_colours_inverse
-043DDD             0234*    ; print the index and song filename
-043DDD 3A 00 00 07 0235*        ld a,(bf_file_idx)
-043DE1 CD A5 6B 04 0236*        call printHexA
-043DE5 CD 9F 3F 04 0237*        call bf_get_filinfo_from_pg_idx ; iy = pointer to the filinfo struct
-043DE9 CD F8 3D 04 0238*        call bf_print_dir_or_file
-043DED             0239*    ; set text colours to normal
-043DED CD CE 36 04 0240*        call set_text_colours_normal
-043DF1 C9          0241*        ret
-043DF2             0242*    ; end bf_highlight_file
-043DF2             0243*    
-043DF2             0244*    bf_check_dir_or_file:
-043DF2 FD 7E 08    0245*        ld a,(iy+filinfo_fattrib)
-043DF5 CB 67       0246*        bit AM_DIR,a ; if not zero, is directory
-043DF7 C9          0247*        ret
-043DF8             0248*    ; end bf_check_dir_or_file
-043DF8             0249*    
-043DF8             0250*    bf_print_dir_or_file:
-043DF8 CD F2 3D 04 0251*        call bf_check_dir_or_file
-043DFC CA 0B 3E 04 0252*        jp z,@print_file ; not directory so just write filename
-043E00 CD 60 00 04 0253*        call printInline
-043E04 3C 44 49 52 0254*        asciz "<DIR> "
+043D87             0181*    ; loop through the fileinfo pointer table and print out the filenames
+043D87 3A 01 00 07 0182*        ld a,(bf_dir_num_files)
+043D8B 47          0183*        ld b,a ; loop counter
+043D8C A7          0184*        and a ; check for zero files in the directory
+043D8D C8          0185*        ret z ; nothing to see here, move along
+043D8E AF          0186*        xor a ; song index
+043D8F             0187*    @loop:
+043D8F C5          0188*        push bc ; save loop counter
+043D90 F5          0189*        push af ; save song index
+043D91 CD A5 6B 04 0190*        call printHexA ; print the song index
+043D95 DD 31 00    0191*        ld iy,(ix) ; iy points to filinfo struct
+043D98 CD 03 3E 04 0192*        call bf_print_dir_or_file
+043D9C             0193*    @bump_counters:
+043D9C ED 32 03    0194*        lea ix,ix+3 ; bump the filename pointer
+043D9F F1          0195*        pop af ; restore song index
+043DA0 3C          0196*        inc a ; increment the song index
+043DA1 C1          0197*        pop bc ; restore loop counter
+043DA2 05          0198*        dec b
+043DA3 CA AF 3D 04 0199*        jp z,@done ; if zero, we're done
+043DA7 CD 7C 00 04 0200*        call printNewLine
+043DAB C3 8F 3D 04 0201*        jp @loop
+043DAF             0202*    @done:
+043DAF C9          0203*        ret
+043DB0             0204*    ; end bf_print_dir
+043DB0             0205*    
+043DB0             0206*    bf_update_pages_ui:
+043DB0             0207*    ; update the directory page ui widgets
+043DB0 CD 8B 36 04 0208*        call vp_legend_page_num
+043DB4 3A 0A 00 07 0209*        ld a,(bf_page_cur)
+043DB8 3C          0210*        inc a ; pages are zero-based, users are not
+043DB9 CD AE 00 04 0211*        call printHex8
+043DBD CD 98 36 04 0212*        call vp_legend_num_pages
+043DC1 3A 0D 00 07 0213*        ld a,(bf_dir_num_pages)
+043DC5 CD AE 00 04 0214*        call printHex8
+043DC9 C9          0215*        ret
+043DCA             0216*    ; end bf_update_pages_ui
+043DCA             0217*    
+043DCA             0218*    bf_highlight_file:
+043DCA             0219*    ; refresh the directory listing
+043DCA CD 1A 3D 04 0220*        call bf_print_dir_page
+043DCE C8          0221*        ret z ; no files to display so we're done
+043DCF             0222*    ; highlight the song being played in the directory listing
+043DCF 3A 00 00 07 0223*        ld a,(bf_file_idx)
+043DD3 16 17       0224*        ld d,vp_dir_top
+043DD5 82          0225*        add a,d
+043DD6 0E 00       0226*        ld c,text_left
+043DD8 57          0227*        ld d,a
+043DD9 1E 3F       0228*        ld e,text_right
+043DDB 47          0229*        ld b,a
+043DDC CD 37 1C 04 0230*        call vdu_set_txt_viewport
+043DE0 CD DE 1B 04 0231*        call vdu_cls
+043DE4             0232*    ; set text colours to inverse
+043DE4 CD E6 36 04 0233*        call set_text_colours_inverse
+043DE8             0234*    ; print the index and song filename
+043DE8 3A 00 00 07 0235*        ld a,(bf_file_idx)
+043DEC CD A5 6B 04 0236*        call printHexA
+043DF0 CD AA 3F 04 0237*        call bf_get_filinfo_from_pg_idx ; iy = pointer to the filinfo struct
+043DF4 CD 03 3E 04 0238*        call bf_print_dir_or_file
+043DF8             0239*    ; set text colours to normal
+043DF8 CD D9 36 04 0240*        call set_text_colours_normal
+043DFC C9          0241*        ret
+043DFD             0242*    ; end bf_highlight_file
+043DFD             0243*    
+043DFD             0244*    bf_check_dir_or_file:
+043DFD FD 7E 08    0245*        ld a,(iy+filinfo_fattrib)
+043E00 CB 67       0246*        bit AM_DIR,a ; if not zero, is directory
+043E02 C9          0247*        ret
+043E03             0248*    ; end bf_check_dir_or_file
+043E03             0249*    
+043E03             0250*    bf_print_dir_or_file:
+043E03 CD FD 3D 04 0251*        call bf_check_dir_or_file
+043E07 CA 16 3E 04 0252*        jp z,@print_file ; not directory so just write filename
+043E0B CD 60 00 04 0253*        call printInline
+043E0F 3C 44 49 52 0254*        asciz "<DIR> "
        3E 20 00    
-043E0B             0255*    @print_file:
-043E0B ED 23 16    0256*        lea hl,iy+filinfo_fname
-043E0E CD 67 00 04 0257*        call printString ; print the filename
-043E12 C9          0258*        ret
-043E13             0259*    ; end bf_print_dir_or_file
-043E13             0260*    
-043E13             0261*    bf_print_dir_name:
-043E13 CD 59 36 04 0262*        call vp_dir_name
-043E17 CD DE 1B 04 0263*        call vdu_cls
-043E1B 21 10 00 07 0264*        ld hl,bf_dir_path
-043E1F CD 67 00 04 0265*        call printString
-043E23 C9          0266*        ret
-043E24             0267*    ; end bf_print_dir_name
-043E24             0052         include "input.inc"
-043E24             0001*    get_input:
-043E24             0002*    ; wait for the user to push a button
-043E24 FB          0003*        ei ; enable interrupts
-043E25             0004*        MOSCALL mos_getkey ; a = ascii code of key pressed
+043E16             0255*    @print_file:
+043E16 ED 23 16    0256*        lea hl,iy+filinfo_fname
+043E19 CD 67 00 04 0257*        call printString ; print the filename
+043E1D C9          0258*        ret
+043E1E             0259*    ; end bf_print_dir_or_file
+043E1E             0260*    
+043E1E             0261*    bf_print_dir_name:
+043E1E CD 64 36 04 0262*        call vp_dir_name
+043E22 CD DE 1B 04 0263*        call vdu_cls
+043E26 21 10 00 07 0264*        ld hl,bf_dir_path
+043E2A CD 67 00 04 0265*        call printString
+043E2E C9          0266*        ret
+043E2F             0267*    ; end bf_print_dir_name
+043E2F             0052         include "input.inc"
+043E2F             0001*    get_input:
+043E2F             0002*    ; wait for the user to push a button
+043E2F FB          0003*        ei ; enable interrupts
+043E30             0004*        MOSCALL mos_getkey ; a = ascii code of key pressed
                        M1 Args: function=mos_getkey 
-043E25 3E 00       0001*M1  			LD	A, function
-043E27 5B CF       0002*M1  			RST.LIL	08h
-043E29 F3          0005*        di ; disable interrupts
-043E2A             0006*    
-043E2A             0007*    ; RETURN TO MAIN, which re-enables interrupts and exits app
-043E2A FE 1B       0008*        cp '\e' ; escape
-043E2C C8          0009*        ret z
-043E2D FE 71       0010*        cp 'q' ; quit
-043E2F C8          0011*        ret z
-043E30             0012*    
-043E30             0013*    ; FILE BROWSER COMMANDS
-043E30 FE 0B       0014*        cp 0x0B ; up arrow
-043E32 CA D1 3E 04 0015*        jp z,bf_prev_file
-043E36 FE 0A       0016*        cp 0x0A ; down arrow
-043E38 CA F2 3E 04 0017*        jp z,bf_next_file
-043E3C FE 15       0018*        cp 0x15 ; right arrow
-043E3E CA FE 3E 04 0019*        jp z,bf_next_page
-043E42 FE 08       0020*        cp 0x08 ; left arrow
-043E44 CA 2A 3F 04 0021*        jp z,bf_prev_page
-043E48 FE 75       0022*        cp 'u' ; go up one directory
-043E4A CA 54 3F 04 0023*        jp z,bf_up_dir
-043E4E             0024*    
-043E4E             0025*    ; SONG PLAYING COMMANDS
-043E4E             0026*    ; set seek speed commands
-043E4E FE 2D       0027*        cp '-' ; slow down
-043E50 CA 77 40 04 0028*        jp z,ps_seek_slow
-043E54 FE 3D       0029*        cp '=' ; speed up (means +)
-043E56 CA 80 40 04 0030*        jp z,ps_seek_fast
-043E5A             0031*    ; seek back / forward
-043E5A FE 5B       0032*        cp '['
-043E5C CA AE 40 04 0033*        jp z,ps_seek_back
-043E60 FE 5D       0034*        cp ']'
-043E62 CA C2 40 04 0035*        jp z,ps_seek_fwd
-043E66             0036*    ; toggle play / pause
-043E66 FE 70       0037*        cp 'p'
-043E68 CA C1 3F 04 0038*        jp z,ps_toggle_pause
-043E6C             0039*    ; toggle loop
-043E6C FE 6C       0040*        cp 'l'
-043E6E CA 3E 40 04 0041*        jp z,ps_toggle_loop
-043E72             0042*    ; toggle shuffle
-043E72 FE 73       0043*        cp 's'
-043E74 CA 05 40 04 0044*        jp z,ps_toggle_shuffle
-043E78             0045*    ; play random song
-043E78 FE 72       0046*        cp 'r'
-043E7A CA 46 69 04 0047*        jp z,ps_play_random
-043E7E             0048*    ; select song or directory
-043E7E FE 0D       0049*        cp '\r' ; ENTER key
-043E80 CA 81 3F 04 0050*        jp z,bf_select_file
-043E84             0051*    ; number key selections
-043E84 FE 30       0052*        cp '0'
-043E86 DA 9A 3E 04 0053*        jp c,@no_cmd ; not a song command
-043E8A FE 3A       0054*        cp '9'+1
-043E8C D2 9A 3E 04 0055*        jp nc,@no_cmd ; not a song command
-043E90             0056*    ; select song or directory
-043E90 D6 30       0057*        sub '0' ; a = file index
-043E92 32 00 00 07 0058*        ld (bf_file_idx),a
-043E96 C3 81 3F 04 0059*        jp bf_select_file
-043E9A             0060*    @no_cmd: ; no valid commands so loop
-043E9A C3 24 3E 04 0061*        jp get_input
-043E9E             0062*    @play_song:
-043E9E CD BF 3D 04 0063*        call bf_highlight_file ; highlight the selected file
-043EA2 C3 3E 67 04 0064*        jp play_song ; play the song
-043EA6             0065*    ; end get_input
-043EA6             0066*    
-043EA6             0067*    get_rand_file_idx:
-043EA6 3A 04 00 07 0068*        ld a,(bf_files_cur_pg)
-043EAA B7          0069*        or a
-043EAB C8          0070*        ret z ; no files on page
-043EAC 6F          0071*        ld l,a
-043EAD CD CD 05 04 0072*        call rand_8 ; a = 0-255
-043EB1 67          0073*        ld h,a
-043EB2 CD 09 06 04 0074*        call udiv8 ; a = mod(a,bf_files_per_pg)
-043EB6 32 00 00 07 0075*        ld (bf_file_idx),a
-043EBA C9          0076*        ret
-043EBB             0077*    
-043EBB             0078*    get_prev_file_idx:
-043EBB             0079*    ; get number of files on current page
-043EBB 3A 04 00 07 0080*        ld a,(bf_files_cur_pg)
-043EBF 47          0081*        ld b,a
-043EC0             0082*    ; decrement the file index
-043EC0 3A 00 00 07 0083*        ld a,(bf_file_idx)
-043EC4 3D          0084*        dec a
-043EC5 B8          0085*        cp b
-043EC6 DA CC 3E 04 0086*        jp c,@F ; check for wraparound
-043ECA 78          0087*        ld a,b ; get the number of files this page
-043ECB 3D          0088*        dec a ; zero-based
-043ECC             0089*    @@:
-043ECC 32 00 00 07 0090*        ld (bf_file_idx),a
-043ED0 C9          0091*        ret
-043ED1             0092*    ; end get_prev_file_idx
-043ED1             0093*    
-043ED1             0094*    bf_prev_file:
-043ED1 CD BB 3E 04 0095*        call get_prev_file_idx
-043ED5 CD BF 3D 04 0096*        call bf_highlight_file ; highlight the file
-043ED9 C3 24 3E 04 0097*        jp get_input
-043EDD             0098*    ; end bf_prev_file
-043EDD             0099*    
-043EDD             0100*    get_next_file_idx:
-043EDD             0101*    ; get number of files on current page
-043EDD 3A 04 00 07 0102*        ld a,(bf_files_cur_pg)
-043EE1 47          0103*        ld b,a
-043EE2             0104*    ; increment the file index
-043EE2 3A 00 00 07 0105*        ld a,(bf_file_idx)
-043EE6 3C          0106*        inc a
-043EE7 B8          0107*        cp b
-043EE8 DA ED 3E 04 0108*        jp c,@F ; check for wraparound
-043EEC AF          0109*        xor a ; wrap around to the first file
-043EED             0110*    @@:
-043EED 32 00 00 07 0111*        ld (bf_file_idx),a
-043EF1 C9          0112*        ret
-043EF2             0113*    ; end get_next_file_idx
-043EF2             0114*    
-043EF2             0115*    bf_next_file:
-043EF2 CD DD 3E 04 0116*        call get_next_file_idx
-043EF6 CD BF 3D 04 0117*        call bf_highlight_file ; highlight the file
-043EFA C3 24 3E 04 0118*        jp get_input
-043EFE             0119*    ; end bf_next_file
-043EFE             0120*    
-043EFE             0121*    bf_next_page:
-043EFE             0122*    ; advance the page number
-043EFE ED 5B 0A 00 0123*        ld de,(bf_page_cur) ; get the current page number
+043E30 3E 00       0001*M1  			LD	A, function
+043E32 5B CF       0002*M1  			RST.LIL	08h
+043E34 F3          0005*        di ; disable interrupts
+043E35             0006*    
+043E35             0007*    ; RETURN TO MAIN, which re-enables interrupts and exits app
+043E35 FE 1B       0008*        cp '\e' ; escape
+043E37 C8          0009*        ret z
+043E38 FE 71       0010*        cp 'q' ; quit
+043E3A C8          0011*        ret z
+043E3B             0012*    
+043E3B             0013*    ; FILE BROWSER COMMANDS
+043E3B FE 0B       0014*        cp 0x0B ; up arrow
+043E3D CA DC 3E 04 0015*        jp z,bf_prev_file
+043E41 FE 0A       0016*        cp 0x0A ; down arrow
+043E43 CA FD 3E 04 0017*        jp z,bf_next_file
+043E47 FE 15       0018*        cp 0x15 ; right arrow
+043E49 CA 09 3F 04 0019*        jp z,bf_next_page
+043E4D FE 08       0020*        cp 0x08 ; left arrow
+043E4F CA 35 3F 04 0021*        jp z,bf_prev_page
+043E53 FE 75       0022*        cp 'u' ; go up one directory
+043E55 CA 5F 3F 04 0023*        jp z,bf_up_dir
+043E59             0024*    
+043E59             0025*    ; SONG PLAYING COMMANDS
+043E59             0026*    ; set seek speed commands
+043E59 FE 2D       0027*        cp '-' ; slow down
+043E5B CA 82 40 04 0028*        jp z,ps_seek_slow
+043E5F FE 3D       0029*        cp '=' ; speed up (means +)
+043E61 CA 8B 40 04 0030*        jp z,ps_seek_fast
+043E65             0031*    ; seek back / forward
+043E65 FE 5B       0032*        cp '['
+043E67 CA B9 40 04 0033*        jp z,ps_seek_back
+043E6B FE 5D       0034*        cp ']'
+043E6D CA CD 40 04 0035*        jp z,ps_seek_fwd
+043E71             0036*    ; toggle play / pause
+043E71 FE 70       0037*        cp 'p'
+043E73 CA CC 3F 04 0038*        jp z,ps_toggle_pause
+043E77             0039*    ; toggle loop
+043E77 FE 6C       0040*        cp 'l'
+043E79 CA 49 40 04 0041*        jp z,ps_toggle_loop
+043E7D             0042*    ; toggle shuffle
+043E7D FE 73       0043*        cp 's'
+043E7F CA 10 40 04 0044*        jp z,ps_toggle_shuffle
+043E83             0045*    ; play random song
+043E83 FE 72       0046*        cp 'r'
+043E85 CA 46 69 04 0047*        jp z,ps_play_random
+043E89             0048*    ; select song or directory
+043E89 FE 0D       0049*        cp '\r' ; ENTER key
+043E8B CA 8C 3F 04 0050*        jp z,bf_select_file
+043E8F             0051*    ; number key selections
+043E8F FE 30       0052*        cp '0'
+043E91 DA A5 3E 04 0053*        jp c,@no_cmd ; not a song command
+043E95 FE 3A       0054*        cp '9'+1
+043E97 D2 A5 3E 04 0055*        jp nc,@no_cmd ; not a song command
+043E9B             0056*    ; select song or directory
+043E9B D6 30       0057*        sub '0' ; a = file index
+043E9D 32 00 00 07 0058*        ld (bf_file_idx),a
+043EA1 C3 8C 3F 04 0059*        jp bf_select_file
+043EA5             0060*    @no_cmd: ; no valid commands so loop
+043EA5 C3 2F 3E 04 0061*        jp get_input
+043EA9             0062*    @play_song:
+043EA9 CD CA 3D 04 0063*        call bf_highlight_file ; highlight the selected file
+043EAD C3 3E 67 04 0064*        jp play_song ; play the song
+043EB1             0065*    ; end get_input
+043EB1             0066*    
+043EB1             0067*    get_rand_file_idx:
+043EB1 3A 04 00 07 0068*        ld a,(bf_files_cur_pg)
+043EB5 B7          0069*        or a
+043EB6 C8          0070*        ret z ; no files on page
+043EB7 6F          0071*        ld l,a
+043EB8 CD CD 05 04 0072*        call rand_8 ; a = 0-255
+043EBC 67          0073*        ld h,a
+043EBD CD 09 06 04 0074*        call udiv8 ; a = mod(a,bf_files_per_pg)
+043EC1 32 00 00 07 0075*        ld (bf_file_idx),a
+043EC5 C9          0076*        ret
+043EC6             0077*    
+043EC6             0078*    get_prev_file_idx:
+043EC6             0079*    ; get number of files on current page
+043EC6 3A 04 00 07 0080*        ld a,(bf_files_cur_pg)
+043ECA 47          0081*        ld b,a
+043ECB             0082*    ; decrement the file index
+043ECB 3A 00 00 07 0083*        ld a,(bf_file_idx)
+043ECF 3D          0084*        dec a
+043ED0 B8          0085*        cp b
+043ED1 DA D7 3E 04 0086*        jp c,@F ; check for wraparound
+043ED5 78          0087*        ld a,b ; get the number of files this page
+043ED6 3D          0088*        dec a ; zero-based
+043ED7             0089*    @@:
+043ED7 32 00 00 07 0090*        ld (bf_file_idx),a
+043EDB C9          0091*        ret
+043EDC             0092*    ; end get_prev_file_idx
+043EDC             0093*    
+043EDC             0094*    bf_prev_file:
+043EDC CD C6 3E 04 0095*        call get_prev_file_idx
+043EE0 CD CA 3D 04 0096*        call bf_highlight_file ; highlight the file
+043EE4 C3 2F 3E 04 0097*        jp get_input
+043EE8             0098*    ; end bf_prev_file
+043EE8             0099*    
+043EE8             0100*    get_next_file_idx:
+043EE8             0101*    ; get number of files on current page
+043EE8 3A 04 00 07 0102*        ld a,(bf_files_cur_pg)
+043EEC 47          0103*        ld b,a
+043EED             0104*    ; increment the file index
+043EED 3A 00 00 07 0105*        ld a,(bf_file_idx)
+043EF1 3C          0106*        inc a
+043EF2 B8          0107*        cp b
+043EF3 DA F8 3E 04 0108*        jp c,@F ; check for wraparound
+043EF7 AF          0109*        xor a ; wrap around to the first file
+043EF8             0110*    @@:
+043EF8 32 00 00 07 0111*        ld (bf_file_idx),a
+043EFC C9          0112*        ret
+043EFD             0113*    ; end get_next_file_idx
+043EFD             0114*    
+043EFD             0115*    bf_next_file:
+043EFD CD E8 3E 04 0116*        call get_next_file_idx
+043F01 CD CA 3D 04 0117*        call bf_highlight_file ; highlight the file
+043F05 C3 2F 3E 04 0118*        jp get_input
+043F09             0119*    ; end bf_next_file
+043F09             0120*    
+043F09             0121*    bf_next_page:
+043F09             0122*    ; advance the page number
+043F09 ED 5B 0A 00 0123*        ld de,(bf_page_cur) ; get the current page number
        07          
-043F03 13          0124*        inc de ; increment the page number
-043F04 2A 0D 00 07 0125*        ld hl,(bf_dir_num_pages) ; get the number of pages
-043F08 2B          0126*        dec hl ; zero-based
-043F09 B7          0127*        or a ; clear carry
-043F0A ED 52       0128*        sbc hl,de
-043F0C F2 14 3F 04 0129*        jp p,@F ; not the last page
-043F10 11 00 00 00 0130*        ld de,0 ; wrap around to the first page
-043F14             0131*    @@:
-043F14             0132*    ; print the new page
-043F14 ED 53 0A 00 0133*        ld (bf_page_cur),de
+043F0E 13          0124*        inc de ; increment the page number
+043F0F 2A 0D 00 07 0125*        ld hl,(bf_dir_num_pages) ; get the number of pages
+043F13 2B          0126*        dec hl ; zero-based
+043F14 B7          0127*        or a ; clear carry
+043F15 ED 52       0128*        sbc hl,de
+043F17 F2 1F 3F 04 0129*        jp p,@F ; not the last page
+043F1B 11 00 00 00 0130*        ld de,0 ; wrap around to the first page
+043F1F             0131*    @@:
+043F1F             0132*    ; print the new page
+043F1F ED 53 0A 00 0133*        ld (bf_page_cur),de
        07          
-043F19 AF          0134*        xor a
-043F1A 32 00 00 07 0135*        ld (bf_file_idx),a ; reset the file index
-043F1E CD F3 3C 04 0136*        call bf_get_page_num_files ; get the number of files on the new page and store it
-043F22 CD BF 3D 04 0137*        call bf_highlight_file ; highlight the first file
-043F26 C3 24 3E 04 0138*        jp get_input
-043F2A             0139*    ; end bf_next_page
-043F2A             0140*    
-043F2A             0141*    bf_prev_page:
-043F2A             0142*    ; decrement the page number
-043F2A 2A 0A 00 07 0143*        ld hl,(bf_page_cur) ; get the current page number
-043F2E 2B          0144*        dec hl ; decrement the page number
-043F2F             0145*        SIGN_HLU
+043F24 AF          0134*        xor a
+043F25 32 00 00 07 0135*        ld (bf_file_idx),a ; reset the file index
+043F29 CD FE 3C 04 0136*        call bf_get_page_num_files ; get the number of files on the new page and store it
+043F2D CD CA 3D 04 0137*        call bf_highlight_file ; highlight the first file
+043F31 C3 2F 3E 04 0138*        jp get_input
+043F35             0139*    ; end bf_next_page
+043F35             0140*    
+043F35             0141*    bf_prev_page:
+043F35             0142*    ; decrement the page number
+043F35 2A 0A 00 07 0143*        ld hl,(bf_page_cur) ; get the current page number
+043F39 2B          0144*        dec hl ; decrement the page number
+043F3A             0145*        SIGN_HLU
                        M1 Args: none
-043F2F 19          0001*M1      add hl,de ; 1 cycle
-043F30 B7          0002*M1      or a ; clear flags ; 1 cycle
-043F31 ED 52       0003*M1      sbc hl,de ; 2 cycles
-043F33             0004*M1      ; 4 cycles total
-043F33 F2 3C 3F 04 0146*        jp p,@F ; not time to wrap around
-043F37 2A 0D 00 07 0147*        ld hl,(bf_dir_num_pages) ; get the number of pages
-043F3B 2B          0148*        dec hl ; zero-based
-043F3C             0149*    @@:
-043F3C             0150*    ; print the new page
-043F3C 22 0A 00 07 0151*        ld (bf_page_cur),hl
-043F40 AF          0152*        xor a
-043F41 32 00 00 07 0153*        ld (bf_file_idx),a ; reset the file index
-043F45 CD F3 3C 04 0154*        call bf_get_page_num_files ; get the number of files on the new page and store it
-043F49 CD BF 3D 04 0155*        call bf_highlight_file ; highlight the first file
-043F4D C3 24 3E 04 0156*        jp get_input
-043F51             0157*    ; end bf_prev_page
-043F51             0158*    
-043F51 2E 2E 00    0159*    str_up_dir: asciz ".."
-043F54             0160*    ; change directory one level up
-043F54             0161*    ; inputs: none
-043F54             0162*    bf_up_dir:
-043F54 21 51 3F 04 0163*        ld hl,str_up_dir
-043F58             0164*    ; change directory
-043F58             0165*    ; inputs: hl = pointer to directory name
-043F58             0166*    bf_change_dir:
-043F58             0167*        MOSCALL mos_cd ; change to the directory
+043F3A 19          0001*M1      add hl,de ; 1 cycle
+043F3B B7          0002*M1      or a ; clear flags ; 1 cycle
+043F3C ED 52       0003*M1      sbc hl,de ; 2 cycles
+043F3E             0004*M1      ; 4 cycles total
+043F3E F2 47 3F 04 0146*        jp p,@F ; not time to wrap around
+043F42 2A 0D 00 07 0147*        ld hl,(bf_dir_num_pages) ; get the number of pages
+043F46 2B          0148*        dec hl ; zero-based
+043F47             0149*    @@:
+043F47             0150*    ; print the new page
+043F47 22 0A 00 07 0151*        ld (bf_page_cur),hl
+043F4B AF          0152*        xor a
+043F4C 32 00 00 07 0153*        ld (bf_file_idx),a ; reset the file index
+043F50 CD FE 3C 04 0154*        call bf_get_page_num_files ; get the number of files on the new page and store it
+043F54 CD CA 3D 04 0155*        call bf_highlight_file ; highlight the first file
+043F58 C3 2F 3E 04 0156*        jp get_input
+043F5C             0157*    ; end bf_prev_page
+043F5C             0158*    
+043F5C 2E 2E 00    0159*    str_up_dir: asciz ".."
+043F5F             0160*    ; change directory one level up
+043F5F             0161*    ; inputs: none
+043F5F             0162*    bf_up_dir:
+043F5F 21 5C 3F 04 0163*        ld hl,str_up_dir
+043F63             0164*    ; change directory
+043F63             0165*    ; inputs: hl = pointer to directory name
+043F63             0166*    bf_change_dir:
+043F63             0167*        MOSCALL mos_cd ; change to the directory
                        M1 Args: function=mos_cd 
-043F58 3E 03       0001*M1  			LD	A, function
-043F5A 5B CF       0002*M1  			RST.LIL	08h
-043F5C             0168*    ; stop the PRT timer and disable interrupts
-043F5C CD A8 6A 04 0169*        call ps_prt_stop ; stop the PRT timer
-043F60             0170*     ; get directory listing
-043F60 CD F9 3B 04 0171*        call bf_get_dir
-043F64 21 00 00 00 0172*        ld hl,0
-043F68 22 0A 00 07 0173*        ld (bf_page_cur),hl ; reset the page number
-043F6C AF          0174*        xor a
-043F6D 32 00 00 07 0175*        ld (bf_file_idx),a ; reset the file index
-043F71 CD BF 3D 04 0176*        call bf_highlight_file ; highlight the first file
-043F75 CD 13 3E 04 0177*        call bf_print_dir_name ; print the directory name
-043F79             0178*    ; restart the PRT timer
-043F79 CD 93 6A 04 0179*        call ps_prt_start ; start the PRT timer
-043F7D C3 24 3E 04 0180*        jp get_input ; back to main loop (will re-enable interrupts)
-043F81             0181*    ; end bf_change_dir
-043F81             0182*    ; end bf_up_dir
-043F81             0183*    
-043F81             0184*    bf_select_file:
-043F81             0185*    ; set up pointers to the fileinfo struct and filename
-043F81 CD 9F 3F 04 0186*        call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
-043F85 21 00 FF 06 0187*        ld hl,bf_fil_struct ; hl = pointer to fil struct
-043F89 ED 13 16    0188*        lea de,iy+filinfo_fname ; de = pointer to filename
-043F8C CD E8 6A 04 0189*        call bf_verify_wav
-043F90 ED 23 16    0190*        lea hl,iy+filinfo_fname ; hl = pointer to filename
-043F93 CA 58 3F 04 0191*        jp z,bf_change_dir ; not a .wav file, so must be a directory
-043F97             0192*    ; play the .wav file
-043F97 CD BF 3D 04 0193*        call bf_highlight_file ; highlight the selected file
-043F9B C3 3E 67 04 0194*        jp play_song
-043F9F             0195*    ; end bf_select_file
-043F9F             0196*    
-043F9F             0197*    ; get a pointer to a filinfo struct from a directory page index
-043F9F             0198*    ; inputs: none
-043F9F             0199*    ; outputs: iy = pointer to the filinfo struct
-043F9F             0200*    bf_get_filinfo_from_pg_idx:
-043F9F             0201*    ; get the fileinfo pointer from the fileinfo pointer table
-043F9F 2A 0A 00 07 0202*        ld hl,(bf_page_cur) ; get the current page number
-043FA3 11 1E 00 00 0203*        ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
-043FA7 CD D4 03 04 0204*        call umul24 ; hl = page * num_files_per_page
-043FAB 3A 00 00 07 0205*        ld a,(bf_file_idx) ; get the file index
-043FAF 5F          0206*        ld e,a ; file index
-043FB0 16 03       0207*        ld d,3 ; 3 bytes per pointer
-043FB2 ED 5C       0208*        mlt de ; de = file index * 3
-043FB4 19          0209*        add hl,de
-043FB5 EB          0210*        ex de,hl ; can't add iy,hl ...
-043FB6 FD 21 00 03 0211*        ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
+043F63 3E 03       0001*M1  			LD	A, function
+043F65 5B CF       0002*M1  			RST.LIL	08h
+043F67             0168*    ; stop the PRT timer and disable interrupts
+043F67 CD A8 6A 04 0169*        call ps_prt_stop ; stop the PRT timer
+043F6B             0170*     ; get directory listing
+043F6B CD 04 3C 04 0171*        call bf_get_dir
+043F6F 21 00 00 00 0172*        ld hl,0
+043F73 22 0A 00 07 0173*        ld (bf_page_cur),hl ; reset the page number
+043F77 AF          0174*        xor a
+043F78 32 00 00 07 0175*        ld (bf_file_idx),a ; reset the file index
+043F7C CD CA 3D 04 0176*        call bf_highlight_file ; highlight the first file
+043F80 CD 1E 3E 04 0177*        call bf_print_dir_name ; print the directory name
+043F84             0178*    ; restart the PRT timer
+043F84 CD 93 6A 04 0179*        call ps_prt_start ; start the PRT timer
+043F88 C3 2F 3E 04 0180*        jp get_input ; back to main loop (will re-enable interrupts)
+043F8C             0181*    ; end bf_change_dir
+043F8C             0182*    ; end bf_up_dir
+043F8C             0183*    
+043F8C             0184*    bf_select_file:
+043F8C             0185*    ; set up pointers to the fileinfo struct and filename
+043F8C CD AA 3F 04 0186*        call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
+043F90 21 00 FF 06 0187*        ld hl,bf_fil_struct ; hl = pointer to fil struct
+043F94 ED 13 16    0188*        lea de,iy+filinfo_fname ; de = pointer to filename
+043F97 CD E8 6A 04 0189*        call bf_verify_wav
+043F9B ED 23 16    0190*        lea hl,iy+filinfo_fname ; hl = pointer to filename
+043F9E CA 63 3F 04 0191*        jp z,bf_change_dir ; not a .wav file, so must be a directory
+043FA2             0192*    ; play the .wav file
+043FA2 CD CA 3D 04 0193*        call bf_highlight_file ; highlight the selected file
+043FA6 C3 3E 67 04 0194*        jp play_song
+043FAA             0195*    ; end bf_select_file
+043FAA             0196*    
+043FAA             0197*    ; get a pointer to a filinfo struct from a directory page index
+043FAA             0198*    ; inputs: none
+043FAA             0199*    ; outputs: iy = pointer to the filinfo struct
+043FAA             0200*    bf_get_filinfo_from_pg_idx:
+043FAA             0201*    ; get the fileinfo pointer from the fileinfo pointer table
+043FAA 2A 0A 00 07 0202*        ld hl,(bf_page_cur) ; get the current page number
+043FAE 11 1E 00 00 0203*        ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
+043FB2 CD D4 03 04 0204*        call umul24 ; hl = page * num_files_per_page
+043FB6 3A 00 00 07 0205*        ld a,(bf_file_idx) ; get the file index
+043FBA 5F          0206*        ld e,a ; file index
+043FBB 16 03       0207*        ld d,3 ; 3 bytes per pointer
+043FBD ED 5C       0208*        mlt de ; de = file index * 3
+043FBF 19          0209*        add hl,de
+043FC0 EB          0210*        ex de,hl ; can't add iy,hl ...
+043FC1 FD 21 00 03 0211*        ld iy,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
        07          
-043FBB FD 19       0212*        add iy,de ; iy points to the first fileinfo pointer in the current page
-043FBD FD 37 00    0213*        ld iy,(iy) ; iy points to the filinfo record
-043FC0 C9          0214*        ret
-043FC1             0215*    ; end bf_get_filinfo_from_pg_idx
-043FC1             0216*    
-043FC1             0217*    ps_toggle_pause:
-043FC1 CD 18 36 04 0218*        call vp_now_playing
-043FC5 CD DE 1B 04 0219*        call vdu_cls
-043FC9 21 0E 67 04 0220*        ld hl,ps_mode
-043FCD CB 46       0221*        bit ps_mode_playing,(hl)
-043FCF C2 E8 3F 04 0222*        jp nz,@playing
-043FD3 CB C6       0223*        set ps_mode_playing,(hl)
-043FD5 CD 60 00 04 0224*        call printInline
-043FD9 28 50 29 6C 0225*        asciz "(P)laying "
+043FC6 FD 19       0212*        add iy,de ; iy points to the first fileinfo pointer in the current page
+043FC8 FD 37 00    0213*        ld iy,(iy) ; iy points to the filinfo record
+043FCB C9          0214*        ret
+043FCC             0215*    ; end bf_get_filinfo_from_pg_idx
+043FCC             0216*    
+043FCC             0217*    ps_toggle_pause:
+043FCC CD 23 36 04 0218*        call vp_now_playing
+043FD0 CD DE 1B 04 0219*        call vdu_cls
+043FD4 21 19 67 04 0220*        ld hl,ps_mode
+043FD8 CB 46       0221*        bit ps_mode_playing,(hl)
+043FDA C2 F3 3F 04 0222*        jp nz,@playing
+043FDE CB C6       0223*        set ps_mode_playing,(hl)
+043FE0 CD 60 00 04 0224*        call printInline
+043FE4 28 50 29 6C 0225*        asciz "(P)laying "
        61 79 69 6E 
        67 20 00    
-043FE4 C3 F9 3F 04 0226*        jp @print
-043FE8             0227*    @playing:
-043FE8 CB 86       0228*        res ps_mode_playing,(hl)
-043FEA CD 60 00 04 0229*        call printInline
-043FEE 28 50 29 61 0230*        asciz "(P)aused  "
+043FEF C3 04 40 04 0226*        jp @print
+043FF3             0227*    @playing:
+043FF3 CB 86       0228*        res ps_mode_playing,(hl)
+043FF5 CD 60 00 04 0229*        call printInline
+043FF9 28 50 29 61 0230*        asciz "(P)aused  "
        75 73 65 64 
        20 20 00    
-043FF9             0231*    @print:
-043FF9 21 16 01 09 0232*        ld hl,ps_filinfo_fname
-043FFD CD 67 00 04 0233*        call printString ; print the song filename
-044001 C3 24 3E 04 0234*        jp get_input
-044005             0235*    ; end ps_toggle_pause
-044005             0236*    
-044005             0237*    ps_toggle_shuffle:
-044005 CD 9A 36 04 0238*        call vp_legend_shuffle
-044009 CD DE 1B 04 0239*        call vdu_cls
-04400D 21 0E 67 04 0240*        ld hl,ps_mode
-044011 CB 56       0241*        bit ps_mode_shuffle,(hl)
-044013 C2 30 40 04 0242*        jp nz,@shuffling
-044017 CD DB 36 04 0243*        call set_text_colours_inverse
-04401B 21 0E 67 04 0244*        ld hl,ps_mode
-04401F CB D6       0245*        set ps_mode_shuffle,(hl)
-044021 CD 60 00 04 0246*        call printInline
-044025 4F 4E 00    0247*        asciz "ON"
-044028 CD CE 36 04 0248*        call set_text_colours_normal
-04402C C3 24 3E 04 0249*        jp get_input
-044030             0250*    @shuffling:
-044030 CB 96       0251*        res ps_mode_shuffle,(hl)
-044032 CD 60 00 04 0252*        call printInline
-044036 4F 46 46 00 0253*        asciz "OFF"
-04403A C3 24 3E 04 0254*        jp get_input
-04403E             0255*    ; end ps_toggle_shuffle
-04403E             0256*    
-04403E             0257*    ps_toggle_loop:
-04403E CD A7 36 04 0258*        call vp_legend_loop
-044042 CD DE 1B 04 0259*        call vdu_cls
-044046 21 0E 67 04 0260*        ld hl,ps_mode
-04404A CB 4E       0261*        bit ps_mode_loop,(hl)
-04404C C2 69 40 04 0262*        jp nz,@looping
-044050 CD DB 36 04 0263*        call set_text_colours_inverse
-044054 21 0E 67 04 0264*        ld hl,ps_mode
-044058 CB CE       0265*        set ps_mode_loop,(hl)
-04405A CD 60 00 04 0266*        call printInline
-04405E 4F 4E 00    0267*        asciz "ON"
-044061 CD CE 36 04 0268*        call set_text_colours_normal
-044065 C3 24 3E 04 0269*        jp get_input
-044069             0270*    @looping:
-044069 CB 8E       0271*        res ps_mode_loop,(hl)
-04406B CD 60 00 04 0272*        call printInline
-04406F 4F 46 46 00 0273*        asciz "OFF"
-044073 C3 24 3E 04 0274*        jp get_input
-044077             0275*    ; end ps_toggle_loop
-044077             0276*    
-044077             0277*    ps_seek_slow:
-044077 3A 26 67 04 0278*        ld a,(ps_seek_rate_idx)
-04407B 3D          0279*        dec a
-04407C C3 85 40 04 0280*        jp ps_set_seek_rate
-044080             0281*    ; end ps_seek_slow
-044080             0282*    
-044080             0283*    ps_seek_fast:
-044080 3A 26 67 04 0284*        ld a,(ps_seek_rate_idx)
-044084 3C          0285*        inc a
-044085             0286*    ; fall through to ps_seek_rate
-044085             0287*    ; end ps_seek_fast
-044085             0288*    
-044085             0289*    ps_set_seek_rate:
-044085 E6 07       0290*        and 7 ; mod 8
-044087 32 26 67 04 0291*        ld (ps_seek_rate_idx),a
-04408B 21 27 67 04 0292*        ld hl,ps_seek_rate_idx+1
-04408F 11 00 00 00 0293*        ld de,0
-044093 5F          0294*        ld e,a
-044094 19          0295*        add hl,de
-044095 7E          0296*        ld a,(hl)
-044096 32 22 67 04 0297*        ld (ps_seek_rate),a
-04409A CD B4 36 04 0298*        call vp_seek_rate
-04409E CD DE 1B 04 0299*        call vdu_cls
-0440A2 3A 22 67 04 0300*        ld a,(ps_seek_rate)
-0440A6 CD 44 01 04 0301*        call printDec8
-0440AA C3 24 3E 04 0302*        jp get_input
-0440AE             0303*    ; end ps_set_seek_rate
-0440AE             0304*    
-0440AE             0305*    ps_seek_back:
-0440AE             0306*    ; stop the PRT timer and disable interrupts
-0440AE CD A8 6A 04 0307*        call ps_prt_stop ; stop the PRT timer
-0440B2             0308*    ; negate seek rate
-0440B2 ED 5B 22 67 0309*        ld de,(ps_seek_rate)
+044004             0231*    @print:
+044004 21 16 01 09 0232*        ld hl,ps_filinfo_fname
+044008 CD 67 00 04 0233*        call printString ; print the song filename
+04400C C3 2F 3E 04 0234*        jp get_input
+044010             0235*    ; end ps_toggle_pause
+044010             0236*    
+044010             0237*    ps_toggle_shuffle:
+044010 CD A5 36 04 0238*        call vp_legend_shuffle
+044014 CD DE 1B 04 0239*        call vdu_cls
+044018 21 19 67 04 0240*        ld hl,ps_mode
+04401C CB 56       0241*        bit ps_mode_shuffle,(hl)
+04401E C2 3B 40 04 0242*        jp nz,@shuffling
+044022 CD E6 36 04 0243*        call set_text_colours_inverse
+044026 21 19 67 04 0244*        ld hl,ps_mode
+04402A CB D6       0245*        set ps_mode_shuffle,(hl)
+04402C CD 60 00 04 0246*        call printInline
+044030 4F 4E 00    0247*        asciz "ON"
+044033 CD D9 36 04 0248*        call set_text_colours_normal
+044037 C3 2F 3E 04 0249*        jp get_input
+04403B             0250*    @shuffling:
+04403B CB 96       0251*        res ps_mode_shuffle,(hl)
+04403D CD 60 00 04 0252*        call printInline
+044041 4F 46 46 00 0253*        asciz "OFF"
+044045 C3 2F 3E 04 0254*        jp get_input
+044049             0255*    ; end ps_toggle_shuffle
+044049             0256*    
+044049             0257*    ps_toggle_loop:
+044049 CD B2 36 04 0258*        call vp_legend_loop
+04404D CD DE 1B 04 0259*        call vdu_cls
+044051 21 19 67 04 0260*        ld hl,ps_mode
+044055 CB 4E       0261*        bit ps_mode_loop,(hl)
+044057 C2 74 40 04 0262*        jp nz,@looping
+04405B CD E6 36 04 0263*        call set_text_colours_inverse
+04405F 21 19 67 04 0264*        ld hl,ps_mode
+044063 CB CE       0265*        set ps_mode_loop,(hl)
+044065 CD 60 00 04 0266*        call printInline
+044069 4F 4E 00    0267*        asciz "ON"
+04406C CD D9 36 04 0268*        call set_text_colours_normal
+044070 C3 2F 3E 04 0269*        jp get_input
+044074             0270*    @looping:
+044074 CB 8E       0271*        res ps_mode_loop,(hl)
+044076 CD 60 00 04 0272*        call printInline
+04407A 4F 46 46 00 0273*        asciz "OFF"
+04407E C3 2F 3E 04 0274*        jp get_input
+044082             0275*    ; end ps_toggle_loop
+044082             0276*    
+044082             0277*    ps_seek_slow:
+044082 3A 31 67 04 0278*        ld a,(ps_seek_rate_idx)
+044086 3D          0279*        dec a
+044087 C3 90 40 04 0280*        jp ps_set_seek_rate
+04408B             0281*    ; end ps_seek_slow
+04408B             0282*    
+04408B             0283*    ps_seek_fast:
+04408B 3A 31 67 04 0284*        ld a,(ps_seek_rate_idx)
+04408F 3C          0285*        inc a
+044090             0286*    ; fall through to ps_seek_rate
+044090             0287*    ; end ps_seek_fast
+044090             0288*    
+044090             0289*    ps_set_seek_rate:
+044090 E6 07       0290*        and 7 ; mod 8
+044092 32 31 67 04 0291*        ld (ps_seek_rate_idx),a
+044096 21 32 67 04 0292*        ld hl,ps_seek_rate_idx+1
+04409A 11 00 00 00 0293*        ld de,0
+04409E 5F          0294*        ld e,a
+04409F 19          0295*        add hl,de
+0440A0 7E          0296*        ld a,(hl)
+0440A1 32 2D 67 04 0297*        ld (ps_seek_rate),a
+0440A5 CD BF 36 04 0298*        call vp_seek_rate
+0440A9 CD DE 1B 04 0299*        call vdu_cls
+0440AD 3A 2D 67 04 0300*        ld a,(ps_seek_rate)
+0440B1 CD 44 01 04 0301*        call printDec8
+0440B5 C3 2F 3E 04 0302*        jp get_input
+0440B9             0303*    ; end ps_set_seek_rate
+0440B9             0304*    
+0440B9             0305*    ps_seek_back:
+0440B9             0306*    ; stop the PRT timer and disable interrupts
+0440B9 CD A8 6A 04 0307*        call ps_prt_stop ; stop the PRT timer
+0440BD             0308*    ; negate seek rate
+0440BD ED 5B 2D 67 0309*        ld de,(ps_seek_rate)
        04          
-0440B7 21 00 00 00 0310*        ld hl,0
-0440BB B7          0311*        or a ; clear carry
-0440BC ED 52       0312*        sbc hl,de ; hl -seek_rate
-0440BE C3 CA 40 04 0313*        jp ps_seek
-0440C2             0314*    ; end ps_seek_back
-0440C2             0315*    
-0440C2             0316*    ps_seek_fwd:
-0440C2             0317*    ; stop the PRT timer and disable interrupts
-0440C2 CD A8 6A 04 0318*        call ps_prt_stop ; stop the PRT timer
-0440C6             0319*    ; seek forward
-0440C6 2A 22 67 04 0320*        ld hl,(ps_seek_rate)
-0440CA             0321*    ; fall through to ps_seek
-0440CA             0322*    ; end ps_seek_fwd
-0440CA             0323*    
-0440CA             0324*    ps_seek:
-0440CA             0325*    ; compute new playhead position and update the playbar
-0440CA ED 5B 19 67 0326*        ld de,(ps_playhead)
+0440C2 21 00 00 00 0310*        ld hl,0
+0440C6 B7          0311*        or a ; clear carry
+0440C7 ED 52       0312*        sbc hl,de ; hl -seek_rate
+0440C9 C3 D5 40 04 0313*        jp ps_seek
+0440CD             0314*    ; end ps_seek_back
+0440CD             0315*    
+0440CD             0316*    ps_seek_fwd:
+0440CD             0317*    ; stop the PRT timer and disable interrupts
+0440CD CD A8 6A 04 0318*        call ps_prt_stop ; stop the PRT timer
+0440D1             0319*    ; seek forward
+0440D1 2A 2D 67 04 0320*        ld hl,(ps_seek_rate)
+0440D5             0321*    ; fall through to ps_seek
+0440D5             0322*    ; end ps_seek_fwd
+0440D5             0323*    
+0440D5             0324*    ps_seek:
+0440D5             0325*    ; compute new playhead position and update the playbar
+0440D5 ED 5B 24 67 0326*        ld de,(ps_playhead)
        04          
-0440CF 19          0327*        add hl,de ; hl = playhead + seek_rate
-0440D0 2B          0328*        dec hl ; to offset an inc we get further down somewhere
-0440D1             0329*    ; handle wraparound
-0440D1 ED 5B 1D 67 0330*        ld de,(ps_song_duration)
+0440DA 19          0327*        add hl,de ; hl = playhead + seek_rate
+0440DB 2B          0328*        dec hl ; to offset an inc we get further down somewhere
+0440DC             0329*    ; handle wraparound
+0440DC ED 5B 28 67 0330*        ld de,(ps_song_duration)
        04          
-0440D6             0331*        SIGN_HLU
+0440E1             0331*        SIGN_HLU
                        M1 Args: none
-0440D6 19          0001*M1      add hl,de ; 1 cycle
-0440D7 B7          0002*M1      or a ; clear flags ; 1 cycle
-0440D8 ED 52       0003*M1      sbc hl,de ; 2 cycles
-0440DA             0004*M1      ; 4 cycles total
-0440DA CA F5 40 04 0332*        jp z,@print
-0440DE F2 F1 40 04 0333*        jp p,@mod
-0440E2 B7          0334*        or a ; clear carry for adc because
-0440E3 ED 5A       0335*        adc hl,de ; add doesn't set sign flag
-0440E5 F2 F5 40 04 0336*        jp p,@print
-0440E9 CD 15 05 04 0337*        call neg_hlu
-0440ED C3 F5 40 04 0338*        jp @print
-0440F1             0339*    @mod:
-0440F1 CD ED 03 04 0340*        call udiv24
-0440F5             0341*    @print:
-0440F5             0342*    ; save new playhead position and update the playbar
-0440F5 22 19 67 04 0343*        ld (ps_playhead),hl
-0440F9 CD 53 68 04 0344*        call ps_update_playbar
-0440FD             0345*    ; reset the chunk counter
-0440FD 3E 3C       0346*        ld a,ps_chunks_per_second
-0440FF 32 32 67 04 0347*        ld (ps_wav_chunk_counter),a
-044103             0348*    ; multiply new playhead position by sample rate
-044103 DD 21 18 03 0349*        ld ix,ps_wav_header+wav_sample_rate
+0440E1 19          0001*M1      add hl,de ; 1 cycle
+0440E2 B7          0002*M1      or a ; clear flags ; 1 cycle
+0440E3 ED 52       0003*M1      sbc hl,de ; 2 cycles
+0440E5             0004*M1      ; 4 cycles total
+0440E5 CA 00 41 04 0332*        jp z,@print
+0440E9 F2 FC 40 04 0333*        jp p,@mod
+0440ED B7          0334*        or a ; clear carry for adc because
+0440EE ED 5A       0335*        adc hl,de ; add doesn't set sign flag
+0440F0 F2 00 41 04 0336*        jp p,@print
+0440F4 CD 15 05 04 0337*        call neg_hlu
+0440F8 C3 00 41 04 0338*        jp @print
+0440FC             0339*    @mod:
+0440FC CD ED 03 04 0340*        call udiv24
+044100             0341*    @print:
+044100             0342*    ; save new playhead position and update the playbar
+044100 22 24 67 04 0343*        ld (ps_playhead),hl
+044104 CD 53 68 04 0344*        call ps_update_playbar
+044108             0345*    ; reset the chunk counter
+044108 3E 3C       0346*        ld a,ps_chunks_per_second
+04410A 32 3D 67 04 0347*        ld (ps_wav_chunk_counter),a
+04410E             0348*    ; multiply new playhead position by sample rate
+04410E DD 21 18 03 0349*        ld ix,ps_wav_header+wav_sample_rate
        09          
-044108 CD 2B 32 04 0350*        call fetch_int_nor
-04410C DD 21 19 67 0351*        ld ix,ps_playhead
+044113 CD 2B 32 04 0350*        call fetch_int_nor
+044117 DD 21 24 67 0351*        ld ix,ps_playhead
        04          
-044111 CD 4B 32 04 0352*        call fetch_int_alt
-044115 3E 0A       0353*        ld a,fmul
-044117 CD 4A 23 04 0354*        call FPP ; HLH'L' = seek position from start of file in bytes less .wav header
-04411B CD 2F 31 04 0355*        call SWAP
-04411F 21 4C 00 00 0356*        ld hl,76 ; wav header size
-044123 CD 7C 31 04 0357*        call hlu2float
-044127 3E 0B       0358*        ld a,fadd
-044129 CD 4A 23 04 0359*        call FPP ; HLH'L' = seek position from start of file in bytes
-04412D DD 21 5C 41 0360*        ld ix,@seek_pos
+04411C CD 4B 32 04 0352*        call fetch_int_alt
+044120 3E 0A       0353*        ld a,fmul
+044122 CD 4A 23 04 0354*        call FPP ; HLH'L' = seek position from start of file in bytes less .wav header
+044126 CD 2F 31 04 0355*        call SWAP
+04412A 21 4C 00 00 0356*        ld hl,76 ; wav header size
+04412E CD 7C 31 04 0357*        call hlu2float
+044132 3E 0B       0358*        ld a,fadd
+044134 CD 4A 23 04 0359*        call FPP ; HLH'L' = seek position from start of file in bytes
+044138 DD 21 67 41 0360*        ld ix,@seek_pos
        04          
-044132 CD 1C 32 04 0361*        call store_int_nor
-044136             0362*    ; seek to new position and load the next block of data
-044136 21 00 00 09 0363*        ld hl,ps_fil_struct
-04413A ED 5B 5C 41 0364*        ld de,(@seek_pos) ; low 3 bytes of seek position
+04413D CD 1C 32 04 0361*        call store_int_nor
+044141             0362*    ; seek to new position and load the next block of data
+044141 21 00 00 09 0363*        ld hl,ps_fil_struct
+044145 ED 5B 67 41 0364*        ld de,(@seek_pos) ; low 3 bytes of seek position
        04          
-04413F 3A 5F 41 04 0365*        ld a,(@seek_pos+3) ; high byte of seek position
-044143 4F          0366*        ld c,a
-044144             0367*        FFSCALL ffs_flseek
+04414A 3A 6A 41 04 0365*        ld a,(@seek_pos+3) ; high byte of seek position
+04414E 4F          0366*        ld c,a
+04414F             0367*        FFSCALL ffs_flseek
                        M1 Args: function=ffs_flseek 
-044144 FD E5       0001*M1  			PUSH IY
-044146 3E 84       0002*M1  			LD	A, function
-044148 5B CF       0003*M1  			RST.LIL	08h
-04414A FD E1       0004*M1  			POP IY
-04414C             0368*    ; flip the command and sample buffers and read the first block of data at the new position
-04414C CD 88 69 04 0369*        call ps_load_command_buffers ; TODO: we should only have to do this on app init,
-044150             0370*                                     ; but if we don't do it here, only one audio buffer
-044150             0371*                                     ; is loaded or/and played
-044150 CD AC 68 04 0372*        call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
-044154             0373*    ; restart the PRT timer
-044154 CD 93 6A 04 0374*        call ps_prt_start ; start the PRT timer
-044158 C3 24 3E 04 0375*        jp get_input ; will reenable interrupts
-04415C 00 00 00 00 0376*    @seek_pos: dw32 0 ; temp buffer for seek position
-044160             0377*    ; end ps_seek
-044160             0053         include "logo.inc"
-044160             0001*    ; Bitmap indices:
-044160             0002*    BUF_UI_LOGO: equ 0x2000
-044160             0003*    
-044160             0004*    ; Import .rgba2 bitmap files and load them into VDP buffers
-044160             0005*    load_ui_images:
-044160             0006*    ; load a vdu buffer from local memory
-044160 21 00 20 00 0007*        ld hl,BUF_UI_LOGO
-044164 11 8E 41 04 0008*        ld de,F_UI_logo
-044168 01 80 25 00 0009*        ld bc,F_UI_logo_end-F_UI_logo
-04416C CD 83 1D 04 0010*        call vdu_load_buffer
-044170             0011*    ; now make it a bitmap
-044170 21 00 20 00 0012*    	ld hl,BUF_UI_LOGO
-044174 CD AF 1D 04 0013*        call vdu_consolidate_buffer
-044178 21 00 20 00 0014*    	ld hl,BUF_UI_LOGO
-04417C CD D8 1C 04 0015*        call vdu_buff_select
-044180 01 50 00 00 0016*    	ld bc,80
-044184 11 78 00 00 0017*    	ld de,120
-044188 3E 01       0018*    	ld a,1 ; image type 1 = rgba2222
-04418A C3 ED 1C 04 0019*    	jp vdu_bmp_create
-04418E             0020*    
-04418E             0021*    F_UI_logo:
-04418E E0 E0 E0 E0 0022*        incbin "../images/logo.rgba2"
+04414F FD E5       0001*M1  			PUSH IY
+044151 3E 84       0002*M1  			LD	A, function
+044153 5B CF       0003*M1  			RST.LIL	08h
+044155 FD E1       0004*M1  			POP IY
+044157             0368*    ; flip the command and sample buffers and read the first block of data at the new position
+044157 CD 88 69 04 0369*        call ps_load_command_buffers ; TODO: we should only have to do this on app init,
+04415B             0370*                                     ; but if we don't do it here, only one audio buffer
+04415B             0371*                                     ; is loaded or/and played
+04415B CD AC 68 04 0372*        call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
+04415F             0373*    ; restart the PRT timer
+04415F CD 93 6A 04 0374*        call ps_prt_start ; start the PRT timer
+044163 C3 2F 3E 04 0375*        jp get_input ; will reenable interrupts
+044167 00 00 00 00 0376*    @seek_pos: dw32 0 ; temp buffer for seek position
+04416B             0377*    ; end ps_seek
+04416B             0053         include "logo.inc"
+04416B             0001*    ; Bitmap indices:
+04416B             0002*    BUF_UI_LOGO: equ 0x2000
+04416B             0003*    
+04416B             0004*    ; Import .rgba2 bitmap files and load them into VDP buffers
+04416B             0005*    load_ui_images:
+04416B             0006*    ; load a vdu buffer from local memory
+04416B 21 00 20 00 0007*        ld hl,BUF_UI_LOGO
+04416F 11 99 41 04 0008*        ld de,F_UI_logo
+044173 01 80 25 00 0009*        ld bc,F_UI_logo_end-F_UI_logo
+044177 CD 83 1D 04 0010*        call vdu_load_buffer
+04417B             0011*    ; now make it a bitmap
+04417B 21 00 20 00 0012*    	ld hl,BUF_UI_LOGO
+04417F CD AF 1D 04 0013*        call vdu_consolidate_buffer
+044183 21 00 20 00 0014*    	ld hl,BUF_UI_LOGO
+044187 CD D8 1C 04 0015*        call vdu_buff_select
+04418B 01 50 00 00 0016*    	ld bc,80
+04418F 11 78 00 00 0017*    	ld de,120
+044193 3E 01       0018*    	ld a,1 ; image type 1 = rgba2222
+044195 C3 ED 1C 04 0019*    	jp vdu_bmp_create
+044199             0020*    
+044199             0021*    F_UI_logo:
+044199 E0 E0 E0 E0 0022*        incbin "../images/logo.rgba2"
        E0 E0 E0 E0 
        E0 E0 E0 E0 
        E0 E0 E0 E0 
@@ -14652,68 +14661,59 @@ PC     Output      Line
        EA FA FF FF 
        FF FF FA E5 
        E0 E0 E0 E0 
-04670E             0023*    F_UI_logo_end:
-04670E             0054         include "play.inc"
-04670E             0001*    ; stream a song from the SD card
-04670E             0002*    ; inputs: hl = pointer to filename
-04670E             0003*    ; requirements: the file must be 8-bit signed PCM mono
-04670E             0004*    ; uses: sound channels 0 and 1, buffers 0x3000 and 0x3001
-04670E             0005*    ; play_song constants
-04670E             0006*    ch0_buffer: equ 0x3000
-04670E             0007*    ch1_buffer: equ 0x3001
-04670E             0008*    cmd0_buffer: equ 0x3002
-04670E             0009*    cmd1_buffer: equ 0x3003
-04670E             0010*    
-04670E             0011*    ; ps_mode bits
-04670E             0012*    ps_mode_playing: equ 0 ; 0 = paused 1 = playing, p key toggles
-04670E             0013*    ps_mode_loop:    equ 1 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
-04670E             0014*    ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
-04670E             0015*    
-04670E             0016*    ; play_song state variables
-04670E             0017*    ; current active channel and bufferId's
-04670E 00          0018*    ps_mode: db 0 ; playback mode bitmask
-04670F 00          0019*    ps_channel: db 0 ; channel number
-046710 00 00 00    0020*    ps_cmdId: dl 0 ; command bufferId
-046713 00 00 00    0021*    ps_sampleId: dl 0 ; sample bufferId
-046716 00 00 00    0022*    ps_chunkpointer: dl 0 ; pointer to current chunk
-046719 00 00 00 00 0023*    ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
-04671D 00 00 00 00 0024*    ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
+046719             0023*    F_UI_logo_end:
+046719             0054         include "play.inc"
+046719             0001*    ; stream a song from the SD card
+046719             0002*    ; inputs: hl = pointer to filename
+046719             0003*    ; requirements: the file must be 8-bit signed PCM mono
+046719             0004*    ; uses: sound channels 0 and 1, buffers 0x3000 and 0x3001
+046719             0005*    ; play_song constants
+046719             0006*    ch0_buffer: equ 0x3000
+046719             0007*    ch1_buffer: equ 0x3001
+046719             0008*    cmd0_buffer: equ 0x3002
+046719             0009*    cmd1_buffer: equ 0x3003
+046719             0010*    
+046719             0011*    ; ps_mode bits
+046719             0012*    ps_mode_playing: equ 0 ; 0 = paused 1 = playing, p key toggles
+046719             0013*    ps_mode_loop:    equ 1 ; 0 = no loop 1 = loop (overrides ps_mode_shuffle if on), l key toggles
+046719             0014*    ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
+046719             0015*    
+046719             0016*    ; play_song state variables
+046719             0017*    ; current active channel and bufferId's
+046719 00          0018*    ps_mode: db 0 ; playback mode bitmask
+04671A 00          0019*    ps_channel: db 0 ; channel number
+04671B 00 00 00    0020*    ps_cmdId: dl 0 ; command bufferId
+04671E 00 00 00    0021*    ps_sampleId: dl 0 ; sample bufferId
+046721 00 00 00    0022*    ps_chunkpointer: dl 0 ; pointer to current chunk
+046724 00 00 00 00 0023*    ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
+046728 00 00 00 00 0024*    ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
        00          
-046722 01 00 00 00 0025*    ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
-046726 00          0026*    ps_seek_rate_idx: db 0 ; seek rate index
-046727 01 05 0A 0F 0027*        db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
+04672D 01 00 00 00 0025*    ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
+046731 00          0026*    ps_seek_rate_idx: db 0 ; seek rate index
+046732 01 05 0A 0F 0027*        db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
        1E 3C 78 F0 
-04672F             0028*    
-04672F             0029*    ps_chunks_per_second: equ 60 ; number of chunks to load per second
-04672F 00 00 00    0030*    ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
-046732 00          0031*    ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
-046733             0032*    
-046733 00          0033*    ps_agm_width: db 0 ; video width in pixels (0 = 256)
-046734 00          0034*    ps_agm_height: db 0 ; video height in pixels (0 = 256)
-046735 00 00 00    0035*    ps_agm_frame_size: dl 0 ; size of a frame in bytes
-046738 00          0036*    ps_agm_frame_rate: db 0 ; frames per second (1-60)
-046739             0037*    
-046739 00 00 00    0038*    ps_agm_chunk_size: dl 0 ; size of video chunks to load (frame size * frame rate / 60)
-04673C 00          0039*    ps_agm_chunk_counter: db 0 ; init to video chunks/sec, when hits zero load the next video frame
-04673D 00          0040*    ps_agm_frame_counter: db 0 ; init to (frames/sec)/(chunks/sec), when hits zero play the loaded video frame
-04673E             0041*    
-04673E             0042*    play_song:
-04673E             0043*    ; stop the PRT timer and close any currently playing file
-04673E CD C5 68 04 0044*        call ps_close_file ; also stops prt timer
-046742             0045*    
-046742             0046*    ; reset the chunk counter to chunks / second
-046742 3E 3C       0047*        ld a,ps_chunks_per_second
-046744 32 32 67 04 0048*        ld (ps_wav_chunk_counter),a
-046748             0049*    
-046748             0050*    ; clear now playing viewport
-046748 CD 18 36 04 0051*        call vp_now_playing
-04674C CD DE 1B 04 0052*        call vdu_cls
-046750             0053*    
-046750             0054*    ; open the file and verify it's a playable .wav file
-046750 CD 00 6B 04 0055*        call ps_open_wav
-046754 C2 87 67 04 0056*        jp nz,@F ; valid .wav file so continue
-046758 CD 60 00 04 0057*        call printInline
-04675C 49 6E 76 61 0058*        asciz "Invalid .wav file selected, try again."
+04673A             0028*    
+04673A             0029*    ps_chunks_per_second: equ 60 ; number of chunks to load per second
+04673A 00 00 00    0030*    ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
+04673D 00          0031*    ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
+04673E             0032*    
+04673E             0033*    play_song:
+04673E             0034*    ; stop the PRT timer and close any currently playing file
+04673E CD C5 68 04 0035*        call ps_close_file ; also stops prt timer
+046742             0036*    
+046742             0037*    ; reset the chunk counter to chunks / second
+046742 3E 3C       0038*        ld a,ps_chunks_per_second
+046744 32 3D 67 04 0039*        ld (ps_wav_chunk_counter),a
+046748             0040*    
+046748             0041*    ; clear now playing viewport
+046748 CD 23 36 04 0042*        call vp_now_playing
+04674C CD DE 1B 04 0043*        call vdu_cls
+046750             0044*    
+046750             0045*    ; open the file and verify it's a playable .wav file
+046750 CD 00 6B 04 0046*        call ps_open_wav
+046754 C2 87 67 04 0047*        jp nz,@F ; valid .wav file so continue
+046758 CD 60 00 04 0048*        call printInline
+04675C 49 6E 76 61 0049*        asciz "Invalid .wav file selected, try again."
        6C 69 64 20 
        2E 77 61 76 
        20 66 69 6C 
@@ -14723,384 +14723,384 @@ PC     Output      Line
        74 72 79 20 
        61 67 61 69 
        6E 2E 00    
-046783 C3 24 3E 04 0059*        jp get_input ; return to user input loop
-046787             0060*    
-046787             0061*    ; TODO: branch on .wav or .agm at this point
-046787             0062*    @@: ; copy the directory filinfo struct to ps_filinfo_struct
-046787 ED 23 00    0063*        lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
-04678A 11 00 01 09 0064*        ld de,ps_filinfo_struct ; destination address
-04678E 01 16 01 00 0065*        ld bc,filinfo_struct_size
-046792 ED B0       0066*        ldir
-046794             0067*    
-046794             0068*    ; tell the user what they've won
-046794 CD 60 00 04 0069*        call printInline
-046798 28 50 29 6C 0070*        asciz "(P)laying "
+046783 C3 2F 3E 04 0050*        jp get_input ; return to user input loop
+046787             0051*    
+046787             0052*    ; TODO: branch on .wav or .agm at this point
+046787             0053*    @@: ; copy the directory filinfo struct to ps_filinfo_struct
+046787 ED 23 00    0054*        lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
+04678A 11 00 01 09 0055*        ld de,ps_filinfo_struct ; destination address
+04678E 01 16 01 00 0056*        ld bc,filinfo_struct_size
+046792 ED B0       0057*        ldir
+046794             0058*    
+046794             0059*    ; tell the user what they've won
+046794 CD 60 00 04 0060*        call printInline
+046798 28 50 29 6C 0061*        asciz "(P)laying "
        61 79 69 6E 
        67 20 00    
-0467A3 21 16 01 09 0071*        ld hl,ps_filinfo_fname
-0467A7 CD 67 00 04 0072*        call printString ; print the song filename
-0467AB             0073*    
-0467AB             0074*    ; compute the song duration from the file size and sample rate and print it
-0467AB             0075*    ; technically we should account for the .wav header, but at 76 bytes it's negligible
-0467AB CD 32 36 04 0076*        call vp_duration ; set viewport to duration window
-0467AF 3A 07 03 09 0077*        ld a,(ps_wav_header+wav_file_size+3) ; upper byte
-0467B3 DD 2A 04 03 0078*        ld ix,(ps_wav_header+wav_file_size+0) ; lower word
+0467A3 21 16 01 09 0062*        ld hl,ps_filinfo_fname
+0467A7 CD 67 00 04 0063*        call printString ; print the song filename
+0467AB             0064*    
+0467AB             0065*    ; compute the song duration from the file size and sample rate and print it
+0467AB             0066*    ; technically we should account for the .wav header, but at 76 bytes it's negligible
+0467AB CD 3D 36 04 0067*        call vp_duration ; set viewport to duration window
+0467AF 3A 07 03 09 0068*        ld a,(ps_wav_header+wav_file_size+3) ; upper byte
+0467B3 DD 2A 04 03 0069*        ld ix,(ps_wav_header+wav_file_size+0) ; lower word
        09          
-0467B8 ED 5B 18 03 0079*        ld de,(ps_wav_header+wav_sample_rate)
+0467B8 ED 5B 18 03 0070*        ld de,(ps_wav_header+wav_sample_rate)
        09          
-0467BD CD 3A 06 04 0080*        call udiv3223 ; auix = duration in seconds
-0467C1 DD 22 1D 67 0081*        ld (ps_song_duration),ix ; duration low word
+0467BD CD 3A 06 04 0071*        call udiv3223 ; auix = duration in seconds
+0467C1 DD 22 28 67 0072*        ld (ps_song_duration),ix ; duration low word
        04          
-0467C6 32 20 67 04 0082*        ld (ps_song_duration+3),a ; duration high byte
-0467CA 2A 1D 67 04 0083*        ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
-0467CE CD CA 18 04 0084*        call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
-0467D2 CD 67 00 04 0085*        call printString ; print the duration
-0467D6             0086*    ; compute the chunksize
-0467D6 2A 18 03 09 0087*        ld hl,(ps_wav_header+wav_sample_rate)
-0467DA 11 3C 00 00 0088*        ld de,ps_chunks_per_second
-0467DE CD ED 03 04 0089*        call udiv24 ; de = sample_rate / ps_chunks_per_second
-0467E2 ED 53 2F 67 0090*        ld (ps_wav_chunk_size),de ; save the chunk size
+0467C6 32 2B 67 04 0073*        ld (ps_song_duration+3),a ; duration high byte
+0467CA 2A 28 67 04 0074*        ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
+0467CE CD CA 18 04 0075*        call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+0467D2 CD 67 00 04 0076*        call printString ; print the duration
+0467D6             0077*    ; compute the chunksize
+0467D6 2A 18 03 09 0078*        ld hl,(ps_wav_header+wav_sample_rate)
+0467DA 11 3C 00 00 0079*        ld de,ps_chunks_per_second
+0467DE CD ED 03 04 0080*        call udiv24 ; de = sample_rate / ps_chunks_per_second
+0467E2 ED 53 3A 67 0081*        ld (ps_wav_chunk_size),de ; save the chunk size
        04          
-0467E7             0091*    ; reset the playbar counter to zero
-0467E7 21 00 00 00 0092*        ld hl,0
-0467EB 22 19 67 04 0093*        ld (ps_playhead),hl
-0467EF             0094*    ; reset the chunk counter
-0467EF 3E 3C       0095*        ld a,ps_chunks_per_second
-0467F1 32 32 67 04 0096*        ld (ps_wav_chunk_counter),a
-0467F5             0097*    ; flip the command and sample buffers and read the first block of data
-0467F5 CD 88 69 04 0098*        call ps_load_command_buffers ; TODO: we should only have to do this on app init,
-0467F9             0099*                                     ; but if we don't do it here, only one audio buffer
-0467F9             0100*                                     ; is loaded or/and played
-0467F9 CD AC 68 04 0101*        call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
-0467FD             0102*    ; set ps_mode_playing
-0467FD 21 0E 67 04 0103*        ld hl,ps_mode
-046801 CB C6       0104*        set ps_mode_playing,(hl)
-046803             0105*    ; enable interrupts and start the PRT timer
-046803 CD 93 6A 04 0106*        call ps_prt_start
-046807             0107*    ; jump to user input loop (enables interrupts)
-046807             0108*    ; the play sample interrupt will return to there
-046807             0109*    ; and exit app will return to main from there as well
-046807 C3 24 3E 04 0110*        jp get_input
-04680B             0111*    ; end play_song
-04680B             0112*    
-04680B             0113*    ; this is called by the PRT timer interrupt
-04680B             0114*    ; read the next chunk of sound data from the file
-04680B             0115*    ; and upload it to the sample buffer
-04680B             0116*    ps_read_sample:
-04680B             0117*    ; 0x82: ffs_fread
-04680B             0118*    ; Read from a file (Requires MOS 1.03 or above)
-04680B             0119*    ; Parameters:
-04680B             0120*    ; HL(U): Pointer to a FIL structure
-04680B             0121*    ; DE(U): Pointer to a buffer to store the data in
-04680B             0122*    ; BC(U): Number of bytes to read (typically the size of the buffer)
-04680B             0123*    ; Preserves: HL(U), DE(U)
-04680B             0124*    ; Returns:
-04680B             0125*    ; BC(U): Number of bytes read
-04680B             0126*    ; A: FRESULT
-04680B 21 00 00 09 0127*        ld hl,ps_fil_struct
-04680F 11 4C 03 09 0128*        ld de,ps_wav_data
-046813             0129*        ; ld bc,(ps_wav_header+wav_sample_rate)
-046813 ED 4B 2F 67 0130*        ld bc,(ps_wav_chunk_size)
+0467E7             0082*    ; reset the playbar counter to zero
+0467E7 21 00 00 00 0083*        ld hl,0
+0467EB 22 24 67 04 0084*        ld (ps_playhead),hl
+0467EF             0085*    ; reset the chunk counter
+0467EF 3E 3C       0086*        ld a,ps_chunks_per_second
+0467F1 32 3D 67 04 0087*        ld (ps_wav_chunk_counter),a
+0467F5             0088*    ; flip the command and sample buffers and read the first block of data
+0467F5 CD 88 69 04 0089*        call ps_load_command_buffers ; TODO: we should only have to do this on app init,
+0467F9             0090*                                     ; but if we don't do it here, only one audio buffer
+0467F9             0091*                                     ; is loaded or/and played
+0467F9 CD AC 68 04 0092*        call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
+0467FD             0093*    ; set ps_mode_playing
+0467FD 21 19 67 04 0094*        ld hl,ps_mode
+046801 CB C6       0095*        set ps_mode_playing,(hl)
+046803             0096*    ; enable interrupts and start the PRT timer
+046803 CD 93 6A 04 0097*        call ps_prt_start
+046807             0098*    ; jump to user input loop (enables interrupts)
+046807             0099*    ; the play sample interrupt will return to there
+046807             0100*    ; and exit app will return to main from there as well
+046807 C3 2F 3E 04 0101*        jp get_input
+04680B             0102*    ; end play_song
+04680B             0103*    
+04680B             0104*    ; this is called by the PRT timer interrupt
+04680B             0105*    ; read the next chunk of sound data from the file
+04680B             0106*    ; and upload it to the sample buffer
+04680B             0107*    ps_read_sample:
+04680B             0108*    ; 0x82: ffs_fread
+04680B             0109*    ; Read from a file (Requires MOS 1.03 or above)
+04680B             0110*    ; Parameters:
+04680B             0111*    ; HL(U): Pointer to a FIL structure
+04680B             0112*    ; DE(U): Pointer to a buffer to store the data in
+04680B             0113*    ; BC(U): Number of bytes to read (typically the size of the buffer)
+04680B             0114*    ; Preserves: HL(U), DE(U)
+04680B             0115*    ; Returns:
+04680B             0116*    ; BC(U): Number of bytes read
+04680B             0117*    ; A: FRESULT
+04680B 21 00 00 09 0118*        ld hl,ps_fil_struct
+04680F 11 4C 03 09 0119*        ld de,ps_wav_data
+046813             0120*        ; ld bc,(ps_wav_header+wav_sample_rate)
+046813 ED 4B 3A 67 0121*        ld bc,(ps_wav_chunk_size)
        04          
-046818             0131*        FFSCALL ffs_fread
+046818             0122*        FFSCALL ffs_fread
                        M1 Args: function=ffs_fread 
 046818 FD E5       0001*M1  			PUSH IY
 04681A 3E 82       0002*M1  			LD	A, function
 04681C 5B CF       0003*M1  			RST.LIL	08h
 04681E FD E1       0004*M1  			POP IY
-046820             0132*    ; test bc for zero bytes read
-046820 21 00 00 00 0133*        ld hl,0
-046824 AF          0134*        xor a ; clear carry
-046825 ED 42       0135*        sbc hl,bc ; hl = 0-chunksize
-046827 C2 33 68 04 0136*        jp nz,@load ; we read some data
-04682B             0137*    ; no data read so close file and play next song
-04682B CD C5 68 04 0138*        call ps_close_file
-04682F C3 D6 68 04 0139*        jp ps_song_over
-046833             0140*    ; load a vdu buffer from local memory
-046833             0141*    ; inputs: hl = bufferId ; bc = length ; de = pointer to data
-046833             0142*    @load:
-046833             0143*    ; load the chunk to the current sample buffer
-046833 2A 13 67 04 0144*        ld hl,(ps_sampleId)
-046837 11 4C 03 09 0145*        ld de,ps_wav_data ; pointer to data
-04683B CD 83 1D 04 0146*        call vdu_load_buffer
-04683F             0147*    ; decrement the chunk counter
-04683F 3A 32 67 04 0148*        ld a,(ps_wav_chunk_counter)
-046843 3D          0149*        dec a
-046844 32 32 67 04 0150*        ld (ps_wav_chunk_counter),a
-046848 C0          0151*        ret nz ; not zero so not time to play the buffer
-046849             0152*    ; reset the chunk counter and play the buffer
-046849 3E 3C       0153*        ld a,ps_chunks_per_second
-04684B 32 32 67 04 0154*        ld (ps_wav_chunk_counter),a
-04684F C3 9A 68 04 0155*        jp ps_play_sample
-046853             0156*    ; ; DEBUG ; MAKES THE POPPING BETWEEN SAMPLES WORSE SO THAT PROBLEM IS ELSEWHERE
-046853             0157*    ;     call ps_play_sample
-046853             0158*    ;     call ps_read_sample
-046853             0159*    ; ; END DEBUG
-046853             0160*    ; end ps_read_sample
-046853             0161*    ps_update_playbar:
-046853             0162*    ; set viewport to playbar
-046853 CD 25 36 04 0163*        call vp_elapsed
-046857             0164*    ; increment the playbar counter
-046857 2A 19 67 04 0165*        ld hl,(ps_playhead)
-04685B 23          0166*        inc hl
-04685C 22 19 67 04 0167*        ld (ps_playhead),hl
-046860             0168*    ; convert the playbar counter to HH:MM:SS and print it
-046860 CD CA 18 04 0169*        call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
-046864 CD 67 00 04 0170*        call printString ; print the playhead position
-046868             0171*    ; print breadcrumbs and playhead marker
-046868 CD 3F 36 04 0172*        call vp_playbar
-04686C CD DE 1B 04 0173*        call vdu_cls
-046870 21 00 2B 00 0174*        ld hl,[vp_playbar_right-vp_playbar_left]*256 ; leave room for cursor
-046874 ED 5B 1D 67 0175*        ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
+046820             0123*    ; test bc for zero bytes read
+046820 21 00 00 00 0124*        ld hl,0
+046824 AF          0125*        xor a ; clear carry
+046825 ED 42       0126*        sbc hl,bc ; hl = 0-chunksize
+046827 C2 33 68 04 0127*        jp nz,@load ; we read some data
+04682B             0128*    ; no data read so close file and play next song
+04682B CD C5 68 04 0129*        call ps_close_file
+04682F C3 D6 68 04 0130*        jp ps_song_over
+046833             0131*    ; load a vdu buffer from local memory
+046833             0132*    ; inputs: hl = bufferId ; bc = length ; de = pointer to data
+046833             0133*    @load:
+046833             0134*    ; load the chunk to the current sample buffer
+046833 2A 1E 67 04 0135*        ld hl,(ps_sampleId)
+046837 11 4C 03 09 0136*        ld de,ps_wav_data ; pointer to data
+04683B CD 83 1D 04 0137*        call vdu_load_buffer
+04683F             0138*    ; decrement the chunk counter
+04683F 3A 3D 67 04 0139*        ld a,(ps_wav_chunk_counter)
+046843 3D          0140*        dec a
+046844 32 3D 67 04 0141*        ld (ps_wav_chunk_counter),a
+046848 C0          0142*        ret nz ; not zero so not time to play the buffer
+046849             0143*    ; reset the chunk counter and play the buffer
+046849 3E 3C       0144*        ld a,ps_chunks_per_second
+04684B 32 3D 67 04 0145*        ld (ps_wav_chunk_counter),a
+04684F C3 9A 68 04 0146*        jp ps_play_sample
+046853             0147*    ; ; DEBUG ; MAKES THE POPPING BETWEEN SAMPLES WORSE SO THAT PROBLEM IS ELSEWHERE
+046853             0148*    ;     call ps_play_sample
+046853             0149*    ;     call ps_read_sample
+046853             0150*    ; ; END DEBUG
+046853             0151*    ; end ps_read_sample
+046853             0152*    ps_update_playbar:
+046853             0153*    ; set viewport to playbar
+046853 CD 30 36 04 0154*        call vp_elapsed
+046857             0155*    ; increment the playbar counter
+046857 2A 24 67 04 0156*        ld hl,(ps_playhead)
+04685B 23          0157*        inc hl
+04685C 22 24 67 04 0158*        ld (ps_playhead),hl
+046860             0159*    ; convert the playbar counter to HH:MM:SS and print it
+046860 CD CA 18 04 0160*        call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+046864 CD 67 00 04 0161*        call printString ; print the playhead position
+046868             0162*    ; print breadcrumbs and playhead marker
+046868 CD 4A 36 04 0163*        call vp_playbar
+04686C CD DE 1B 04 0164*        call vdu_cls
+046870 21 00 2B 00 0165*        ld hl,[vp_playbar_right-vp_playbar_left]*256 ; leave room for cursor
+046874 ED 5B 28 67 0166*        ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
        04          
-046879 CD 5D 0F 04 0176*        call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
-04687D 2A 19 67 04 0177*        ld hl,(ps_playhead)
-046881 CD D4 03 04 0178*        call umul24 ; uhl is the breadcrumb position
-046885             0179*        HLU_TO_A ; a = breadcrumb position
+046879 CD 5D 0F 04 0167*        call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
+04687D 2A 24 67 04 0168*        ld hl,(ps_playhead)
+046881 CD D4 03 04 0169*        call umul24 ; uhl is the breadcrumb position
+046885             0170*        HLU_TO_A ; a = breadcrumb position
                        M1 Args: none
 046885 3B          0001*M1      dec sp ; 1 cycle
 046886 E5          0002*M1      push hl ; 4 cycles
 046887 33          0003*M1      inc sp ; 1 cycle
 046888 F1          0004*M1      pop af ; 4 cycles
 046889             0005*M1      ; 10 cycles total
-046889 A7          0180*        and a
-04688A CA 95 68 04 0181*        jp z,@done ; if zero, we're done
-04688E 47          0182*        ld b,a
-04688F             0183*    @loop:
-04688F 3E 2E       0184*        ld a,'.'
-046891 5B D7       0185*        rst.lil 10h
-046893 10 FA       0186*        djnz @loop
-046895             0187*    @done:
-046895 3E DB       0188*        ld a,219 ; cursor
-046897 5B D7       0189*        rst.lil 10h
-046899 C9          0190*        ret
-04689A             0191*    ; end ps_update_playbar
-04689A             0192*    
-04689A             0193*    ps_play_sample:
-04689A             0194*    ; update the playbar counter and display the time elapsed
-04689A CD 53 68 04 0195*        call ps_update_playbar
-04689E             0196*    ; call the command buffer to play the sound
-04689E 2A 13 67 04 0197*        ld hl,(ps_sampleId)
-0468A2 2C          0198*        inc l
-0468A3 2C          0199*        inc l
-0468A4 22 10 67 04 0200*        ld (ps_cmdId),hl ; TODO: perhaps not needed
-0468A8 CD 7D 1F 04 0201*        call vdu_call_buffer
-0468AC             0202*        ; fall through to ps_flip_buffers
-0468AC             0203*    ps_flip_buffers:
-0468AC             0204*    ; flip the command and sample buffers and clear the new sample buffer
-0468AC 3A 0F 67 04 0205*        ld a,(ps_channel)
-0468B0 3C          0206*        inc a
-0468B1 E6 01       0207*        and 1
-0468B3 32 0F 67 04 0208*        ld (ps_channel),a
-0468B7 21 00 30 00 0209*        ld hl,ch0_buffer
-0468BB 6F          0210*        ld l,a
-0468BC 22 13 67 04 0211*        ld (ps_sampleId),hl
-0468C0 CD 98 1F 04 0212*        call vdu_clear_buffer
-0468C4 C9          0213*        ret
-0468C5             0214*    ; end ps_flip_buffers
-0468C5             0215*    ; end ps_play_sample
-0468C5             0216*    
-0468C5             0217*    ; close the file
-0468C5             0218*    ps_close_file:
-0468C5 CD A8 6A 04 0219*        call ps_prt_stop ; stop the PRT timer
-0468C9             0220*    ; 0x81: ffs_fclose
-0468C9             0221*    ; Close a file (Requires MOS 1.03 or above)
-0468C9             0222*    ; Parameters:
-0468C9             0223*    ; HL(U): Pointer to a FIL structure
-0468C9             0224*    ; Preserves: HL(U)
-0468C9             0225*    ; Returns:
-0468C9             0226*    ; A: FRESULT
-0468C9 21 00 00 09 0227*        ld hl,ps_fil_struct
-0468CD             0228*        FFSCALL ffs_fclose
+046889 A7          0171*        and a
+04688A CA 95 68 04 0172*        jp z,@done ; if zero, we're done
+04688E 47          0173*        ld b,a
+04688F             0174*    @loop:
+04688F 3E 2E       0175*        ld a,'.'
+046891 5B D7       0176*        rst.lil 10h
+046893 10 FA       0177*        djnz @loop
+046895             0178*    @done:
+046895 3E DB       0179*        ld a,219 ; cursor
+046897 5B D7       0180*        rst.lil 10h
+046899 C9          0181*        ret
+04689A             0182*    ; end ps_update_playbar
+04689A             0183*    
+04689A             0184*    ps_play_sample:
+04689A             0185*    ; update the playbar counter and display the time elapsed
+04689A CD 53 68 04 0186*        call ps_update_playbar
+04689E             0187*    ; call the command buffer to play the sound
+04689E 2A 1E 67 04 0188*        ld hl,(ps_sampleId)
+0468A2 2C          0189*        inc l
+0468A3 2C          0190*        inc l
+0468A4 22 1B 67 04 0191*        ld (ps_cmdId),hl ; TODO: perhaps not needed
+0468A8 CD 7D 1F 04 0192*        call vdu_call_buffer
+0468AC             0193*        ; fall through to ps_flip_buffers
+0468AC             0194*    ps_flip_buffers:
+0468AC             0195*    ; flip the command and sample buffers and clear the new sample buffer
+0468AC 3A 1A 67 04 0196*        ld a,(ps_channel)
+0468B0 3C          0197*        inc a
+0468B1 E6 01       0198*        and 1
+0468B3 32 1A 67 04 0199*        ld (ps_channel),a
+0468B7 21 00 30 00 0200*        ld hl,ch0_buffer
+0468BB 6F          0201*        ld l,a
+0468BC 22 1E 67 04 0202*        ld (ps_sampleId),hl
+0468C0 CD 98 1F 04 0203*        call vdu_clear_buffer
+0468C4 C9          0204*        ret
+0468C5             0205*    ; end ps_flip_buffers
+0468C5             0206*    ; end ps_play_sample
+0468C5             0207*    
+0468C5             0208*    ; close the file
+0468C5             0209*    ps_close_file:
+0468C5 CD A8 6A 04 0210*        call ps_prt_stop ; stop the PRT timer
+0468C9             0211*    ; 0x81: ffs_fclose
+0468C9             0212*    ; Close a file (Requires MOS 1.03 or above)
+0468C9             0213*    ; Parameters:
+0468C9             0214*    ; HL(U): Pointer to a FIL structure
+0468C9             0215*    ; Preserves: HL(U)
+0468C9             0216*    ; Returns:
+0468C9             0217*    ; A: FRESULT
+0468C9 21 00 00 09 0218*        ld hl,ps_fil_struct
+0468CD             0219*        FFSCALL ffs_fclose
                        M1 Args: function=ffs_fclose 
 0468CD FD E5       0001*M1  			PUSH IY
 0468CF 3E 81       0002*M1  			LD	A, function
 0468D1 5B CF       0003*M1  			RST.LIL	08h
 0468D3 FD E1       0004*M1  			POP IY
-0468D5 C9          0229*        ret
-0468D6             0230*    ; end ps_close_file
-0468D6             0231*    
-0468D6             0232*    ps_song_over:
-0468D6             0233*    ; get playback mode
-0468D6 21 0E 67 04 0234*        ld hl,ps_mode
-0468DA             0235*    
-0468DA             0236*    ; are we in loop mode?
-0468DA CB 4E       0237*        bit ps_mode_loop,(hl)
-0468DC CA E8 68 04 0238*        jp z,@F ; no so check next mode
-0468E0 21 16 01 09 0239*        ld hl,ps_filinfo_fname ; get current song filename
-0468E4 C3 3E 67 04 0240*        jp play_song ; and play it again, Sam
-0468E8             0241*    
-0468E8             0242*    @@: ; are we in shuffle mode?
-0468E8 CB 56       0243*        bit ps_mode_shuffle,(hl)
-0468EA C2 46 69 04 0244*        jp nz,ps_play_random ; yes so play a random song
-0468EE             0245*    
-0468EE             0246*    ; loop and shuffle are off so play next song
-0468EE C3 F2 68 04 0247*        jp ps_play_next_song
-0468F2             0248*    ; end ps_song_over
-0468F2             0249*    
-0468F2             0250*    ps_play_next_song:
-0468F2 3A 04 00 07 0251*        ld a,(bf_files_cur_pg)
-0468F6 B7          0252*        or a ; check for zero files
-0468F7 CA 24 3E 04 0253*        jp z,get_input ; no files to play so return to user input loop
-0468FB 47          0254*        ld b,a ; loop counter
-0468FC             0255*    @next_file:
-0468FC C5          0256*        push bc ; save loop counter
-0468FD CD DD 3E 04 0257*        call get_next_file_idx ; (bf_file_idx)++ with wraparound
-046901 CD 9F 3F 04 0258*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-046905 CD F2 3D 04 0259*        call bf_check_dir_or_file ; if zero then it's a song
-046909 C1          0260*        pop bc ; restore loop counter
-04690A CA 14 69 04 0261*        jp z,@play_song ; is a file so play song
-04690E 10 EC       0262*        djnz @next_file ; try the next file
-046910 C3 24 3E 04 0263*        jp get_input ; no files in this directory so return to user input loop
-046914             0264*    @play_song:
-046914 CD BF 3D 04 0265*        call bf_highlight_file ; highlight the selected file
-046918 C3 3E 67 04 0266*        jp play_song
-04691C             0267*    ; end ps_play_next_song
-04691C             0268*    
-04691C             0269*    ps_play_prev_song:
-04691C 3A 04 00 07 0270*        ld a,(bf_files_cur_pg)
-046920 B7          0271*        or a ; check for zero files
-046921 CA 24 3E 04 0272*        jp z,get_input ; no files to play so return to user input loop
-046925 47          0273*        ld b,a ; loop counter
-046926             0274*    @next_file:
-046926 C5          0275*        push bc ; save loop counter
-046927 CD DD 3E 04 0276*        call get_next_file_idx ; (bf_file_idx)++ with wraparound
-04692B CD 9F 3F 04 0277*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-04692F CD F2 3D 04 0278*        call bf_check_dir_or_file ; if zero then it's a song
-046933 C1          0279*        pop bc ; restore loop counter
-046934 CA 3E 69 04 0280*        jp z,@play_song ; is a file so play song
-046938 10 EC       0281*        djnz @next_file ; try the next file
-04693A C3 24 3E 04 0282*        jp get_input ; no files in this directory so return to user input loop
-04693E             0283*    @play_song:
-04693E CD BF 3D 04 0284*        call bf_highlight_file ; highlight the selected file
-046942 C3 3E 67 04 0285*        jp play_song
-046946             0286*    ; end ps_play_prev_song
-046946             0287*    
-046946             0288*    ; queue a random song on the current page to play next
-046946             0289*    ps_play_random:
-046946 3A 04 00 07 0290*        ld a,(bf_files_cur_pg)
-04694A B7          0291*        or a ; check for zero files
-04694B CA 24 3E 04 0292*        jp z,get_input ; no files to play so return to user input loop
-04694F 47          0293*        ld b,a ; loop counter
-046950 3A 00 00 07 0294*        ld a,(bf_file_idx) ; save current song index
-046954 32 87 69 04 0295*        ld (@file_idx),a
-046958             0296*    @next_file:
-046958 C5          0297*        push bc ; save loop counter
-046959 CD A6 3E 04 0298*        call get_rand_file_idx ; a->(bf_file_idx)
-04695D 21 87 69 04 0299*        ld hl,@file_idx
-046961 BE          0300*        cp (hl) ; check for same song
-046962 CA 79 69 04 0301*        jp z,@same ; same song so try again
-046966 CD 9F 3F 04 0302*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-04696A CD F2 3D 04 0303*        call bf_check_dir_or_file ; if zero then it's a song
-04696E             0304*    @bump_counter:
-04696E C1          0305*        pop bc ; restore loop counter
-04696F CA 7F 69 04 0306*        jp z,@play_song ; is a file so play song
-046973 10 E3       0307*        djnz @next_file ; try the next file
-046975 C3 24 3E 04 0308*        jp get_input ; no files in this directory so return to user input loop
-046979             0309*    @same:
-046979 F6 01       0310*        or a,1 ; reset zero flag
-04697B C3 6E 69 04 0311*        jp @bump_counter
-04697F             0312*    @play_song:
-04697F CD BF 3D 04 0313*        call bf_highlight_file ; highlight the selected file
-046983 C3 3E 67 04 0314*        jp play_song
-046987 00          0315*    @file_idx: db 0
-046988             0316*    ; end ps_play_random
-046988             0317*    
-046988             0318*    ps_load_command_buffers:
-046988 21 02 30 00 0319*        ld hl,cmd0_buffer
-04698C CD 98 1F 04 0320*        call vdu_clear_buffer
-046990 2A 18 03 09 0321*        ld hl,(ps_wav_header+wav_sample_rate)
-046994             0322*        ; ld hl,(ps_wav_chunk_size)
-046994 22 E4 69 04 0323*        ld (ps_sr0),hl
-046998 3E 17       0324*        ld a,23
-04699A 32 E6 69 04 0325*        ld (ps_sr0+2),a
-04699E 21 02 30 00 0326*        ld hl,cmd0_buffer
-0469A2 01 23 00 00 0327*        ld bc,ps_cmd0_end-ps_cmd0
-0469A6 11 D5 69 04 0328*        ld de,ps_cmd0
-0469AA CD 55 1F 04 0329*        call vdu_write_block_to_buffer
-0469AE             0330*    
-0469AE 21 03 30 00 0331*        ld hl,cmd1_buffer
-0469B2 CD 98 1F 04 0332*        call vdu_clear_buffer
-0469B6 2A 18 03 09 0333*        ld hl,(ps_wav_header+wav_sample_rate)
-0469BA             0334*        ; ld hl,(ps_wav_chunk_size)
-0469BA 22 07 6A 04 0335*        ld (ps_sr1),hl
-0469BE 3E 17       0336*        ld a,23
-0469C0 32 09 6A 04 0337*        ld (ps_sr1+2),a
-0469C4 21 03 30 00 0338*        ld hl,cmd1_buffer
-0469C8 01 23 00 00 0339*        ld bc,ps_cmd1_end-ps_cmd1
-0469CC 11 F8 69 04 0340*        ld de,ps_cmd1
-0469D0 CD 55 1F 04 0341*        call vdu_write_block_to_buffer
-0469D4 C9          0342*        ret
-0469D5             0343*    ps_cmd0:
-0469D5             0344*    ; Command 14: Consolidate blocks in a buffer
-0469D5             0345*    ; VDU 23, 0, &A0, bufferId; 14
-0469D5 17 00 A0    0346*        db 23,0,0xA0 ; vdu buffered api command header
-0469D8 00 30       0347*        dw ch0_buffer
-0469DA 0E          0348*        db 14 ; consolidate blocks command
-0469DB             0349*    ; vdu_buffer_to_sound command string
-0469DB             0350*    ; Command 2: Buffer to sound
-0469DB             0351*    ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
-0469DB 17 00 85    0352*        db 23,0,0x85 ; vdu sound command header
-0469DE 00          0353*        db 0x00 ; channel (ignored)
-0469DF 05          0354*        db 0x05 ; buffer to sound command
-0469E0 02          0355*        db 0x02 ; command 2 create sample
-0469E1 00 30       0356*        dw ch0_buffer
-0469E3 09          0357*        db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
-0469E4             0358*    ps_sr0:
-0469E4 00 00       0359*        dw 0x0000 ; sample rate Hz
-0469E6             0360*    ; vdu_play_sfx command string
-0469E6             0361*    ; Command 4: Set waveform
-0469E6             0362*    ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
-0469E6 17 00 85    0363*        db 23,0,$85 ; vdu sound command header
-0469E9 00          0364*        db 0 ; channel
-0469EA 04          0365*        db 4 ; set waveform command
-0469EB 08          0366*        db 8 ; waveform 8 = sample
-0469EC 00 30       0367*        dw ch0_buffer ; sample bufferId
-0469EE             0368*    ; Command 0: Play note
-0469EE             0369*    ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
-0469EE 17 00 85    0370*        db 23,0,$85 ; vdu sound command header
-0469F1 00          0371*        db 0 ; channel
-0469F2 00          0372*        db 0 ; play note command
-0469F3 7F          0373*        db 127  ; volume 127 = max
-0469F4 00 00       0374*        dw 0 ; frequency (relevant only for tuneable samples)
-0469F6 00 00       0375*        dw 0 ; duration (ms), zero means play one time in full
-0469F8             0376*    ps_cmd0_end:
-0469F8             0377*    
-0469F8             0378*    ps_cmd1:
-0469F8             0379*    ; Command 14: Consolidate blocks in a buffer
-0469F8             0380*    ; VDU 23, 0, &A0, bufferId; 14
-0469F8 17 00 A0    0381*        db 23,0,0xA0 ; vdu buffered api command header
-0469FB 01 30       0382*        dw ch1_buffer
-0469FD 0E          0383*        db 14 ; consolidate blocks command
-0469FE             0384*    ; vdu_buffer_to_sound command string
-0469FE             0385*    ; Command 2: Buffer to sound
-0469FE             0386*    ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
-0469FE 17 00 85    0387*        db 23,0,0x85 ; vdu sound command header
-046A01 00          0388*        db 0x00 ; channel (ignored)
-046A02 05          0389*        db 0x05 ; buffer to sound command
-046A03 02          0390*        db 0x02 ; command 2 create sample
-046A04 01 30       0391*        dw ch1_buffer
-046A06 09          0392*        db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
-046A07             0393*    ps_sr1:
-046A07 00 00       0394*        dw 0x0000 ; sample rate Hz
-046A09             0395*    ; vdu_play_sfx command string
-046A09             0396*    ; Command 4: Set waveform
-046A09             0397*    ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
-046A09 17 00 85    0398*        db 23,0,$85 ; vdu sound command header
-046A0C 01          0399*        db 1 ; channel
-046A0D 04          0400*        db 4 ; set waveform command
-046A0E 08          0401*        db 8 ; waveform 8 = sample
-046A0F 01 30       0402*        dw ch1_buffer ; sample bufferId
-046A11             0403*    ; Command 0: Play note
-046A11             0404*    ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
-046A11 17 00 85    0405*        db 23,0,$85 ; vdu sound command header
-046A14 01          0406*        db 1 ; channel
-046A15 00          0407*        db 0 ; play note command
-046A16 7F          0408*        db 127  ; volume 127 = max
-046A17 00 00       0409*        dw 0 ; frequency (relevant only for tuneable samples)
-046A19 00 00       0410*        dw 0 ; duration (ms), zero means play one time in full
-046A1B             0411*    ps_cmd1_end:
-046A1B             0412*    ; end ps_load_command_buffers
+0468D5 C9          0220*        ret
+0468D6             0221*    ; end ps_close_file
+0468D6             0222*    
+0468D6             0223*    ps_song_over:
+0468D6             0224*    ; get playback mode
+0468D6 21 19 67 04 0225*        ld hl,ps_mode
+0468DA             0226*    
+0468DA             0227*    ; are we in loop mode?
+0468DA CB 4E       0228*        bit ps_mode_loop,(hl)
+0468DC CA E8 68 04 0229*        jp z,@F ; no so check next mode
+0468E0 21 16 01 09 0230*        ld hl,ps_filinfo_fname ; get current song filename
+0468E4 C3 3E 67 04 0231*        jp play_song ; and play it again, Sam
+0468E8             0232*    
+0468E8             0233*    @@: ; are we in shuffle mode?
+0468E8 CB 56       0234*        bit ps_mode_shuffle,(hl)
+0468EA C2 46 69 04 0235*        jp nz,ps_play_random ; yes so play a random song
+0468EE             0236*    
+0468EE             0237*    ; loop and shuffle are off so play next song
+0468EE C3 F2 68 04 0238*        jp ps_play_next_song
+0468F2             0239*    ; end ps_song_over
+0468F2             0240*    
+0468F2             0241*    ps_play_next_song:
+0468F2 3A 04 00 07 0242*        ld a,(bf_files_cur_pg)
+0468F6 B7          0243*        or a ; check for zero files
+0468F7 CA 2F 3E 04 0244*        jp z,get_input ; no files to play so return to user input loop
+0468FB 47          0245*        ld b,a ; loop counter
+0468FC             0246*    @next_file:
+0468FC C5          0247*        push bc ; save loop counter
+0468FD CD E8 3E 04 0248*        call get_next_file_idx ; (bf_file_idx)++ with wraparound
+046901 CD AA 3F 04 0249*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+046905 CD FD 3D 04 0250*        call bf_check_dir_or_file ; if zero then it's a song
+046909 C1          0251*        pop bc ; restore loop counter
+04690A CA 14 69 04 0252*        jp z,@play_song ; is a file so play song
+04690E 10 EC       0253*        djnz @next_file ; try the next file
+046910 C3 2F 3E 04 0254*        jp get_input ; no files in this directory so return to user input loop
+046914             0255*    @play_song:
+046914 CD CA 3D 04 0256*        call bf_highlight_file ; highlight the selected file
+046918 C3 3E 67 04 0257*        jp play_song
+04691C             0258*    ; end ps_play_next_song
+04691C             0259*    
+04691C             0260*    ps_play_prev_song:
+04691C 3A 04 00 07 0261*        ld a,(bf_files_cur_pg)
+046920 B7          0262*        or a ; check for zero files
+046921 CA 2F 3E 04 0263*        jp z,get_input ; no files to play so return to user input loop
+046925 47          0264*        ld b,a ; loop counter
+046926             0265*    @next_file:
+046926 C5          0266*        push bc ; save loop counter
+046927 CD E8 3E 04 0267*        call get_next_file_idx ; (bf_file_idx)++ with wraparound
+04692B CD AA 3F 04 0268*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+04692F CD FD 3D 04 0269*        call bf_check_dir_or_file ; if zero then it's a song
+046933 C1          0270*        pop bc ; restore loop counter
+046934 CA 3E 69 04 0271*        jp z,@play_song ; is a file so play song
+046938 10 EC       0272*        djnz @next_file ; try the next file
+04693A C3 2F 3E 04 0273*        jp get_input ; no files in this directory so return to user input loop
+04693E             0274*    @play_song:
+04693E CD CA 3D 04 0275*        call bf_highlight_file ; highlight the selected file
+046942 C3 3E 67 04 0276*        jp play_song
+046946             0277*    ; end ps_play_prev_song
+046946             0278*    
+046946             0279*    ; queue a random song on the current page to play next
+046946             0280*    ps_play_random:
+046946 3A 04 00 07 0281*        ld a,(bf_files_cur_pg)
+04694A B7          0282*        or a ; check for zero files
+04694B CA 2F 3E 04 0283*        jp z,get_input ; no files to play so return to user input loop
+04694F 47          0284*        ld b,a ; loop counter
+046950 3A 00 00 07 0285*        ld a,(bf_file_idx) ; save current song index
+046954 32 87 69 04 0286*        ld (@file_idx),a
+046958             0287*    @next_file:
+046958 C5          0288*        push bc ; save loop counter
+046959 CD B1 3E 04 0289*        call get_rand_file_idx ; a->(bf_file_idx)
+04695D 21 87 69 04 0290*        ld hl,@file_idx
+046961 BE          0291*        cp (hl) ; check for same song
+046962 CA 79 69 04 0292*        jp z,@same ; same song so try again
+046966 CD AA 3F 04 0293*        call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
+04696A CD FD 3D 04 0294*        call bf_check_dir_or_file ; if zero then it's a song
+04696E             0295*    @bump_counter:
+04696E C1          0296*        pop bc ; restore loop counter
+04696F CA 7F 69 04 0297*        jp z,@play_song ; is a file so play song
+046973 10 E3       0298*        djnz @next_file ; try the next file
+046975 C3 2F 3E 04 0299*        jp get_input ; no files in this directory so return to user input loop
+046979             0300*    @same:
+046979 F6 01       0301*        or a,1 ; reset zero flag
+04697B C3 6E 69 04 0302*        jp @bump_counter
+04697F             0303*    @play_song:
+04697F CD CA 3D 04 0304*        call bf_highlight_file ; highlight the selected file
+046983 C3 3E 67 04 0305*        jp play_song
+046987 00          0306*    @file_idx: db 0
+046988             0307*    ; end ps_play_random
+046988             0308*    
+046988             0309*    ps_load_command_buffers:
+046988 21 02 30 00 0310*        ld hl,cmd0_buffer
+04698C CD 98 1F 04 0311*        call vdu_clear_buffer
+046990 2A 18 03 09 0312*        ld hl,(ps_wav_header+wav_sample_rate)
+046994             0313*        ; ld hl,(ps_wav_chunk_size)
+046994 22 E4 69 04 0314*        ld (ps_sr0),hl
+046998 3E 17       0315*        ld a,23
+04699A 32 E6 69 04 0316*        ld (ps_sr0+2),a
+04699E 21 02 30 00 0317*        ld hl,cmd0_buffer
+0469A2 01 23 00 00 0318*        ld bc,ps_cmd0_end-ps_cmd0
+0469A6 11 D5 69 04 0319*        ld de,ps_cmd0
+0469AA CD 55 1F 04 0320*        call vdu_write_block_to_buffer
+0469AE             0321*    
+0469AE 21 03 30 00 0322*        ld hl,cmd1_buffer
+0469B2 CD 98 1F 04 0323*        call vdu_clear_buffer
+0469B6 2A 18 03 09 0324*        ld hl,(ps_wav_header+wav_sample_rate)
+0469BA             0325*        ; ld hl,(ps_wav_chunk_size)
+0469BA 22 07 6A 04 0326*        ld (ps_sr1),hl
+0469BE 3E 17       0327*        ld a,23
+0469C0 32 09 6A 04 0328*        ld (ps_sr1+2),a
+0469C4 21 03 30 00 0329*        ld hl,cmd1_buffer
+0469C8 01 23 00 00 0330*        ld bc,ps_cmd1_end-ps_cmd1
+0469CC 11 F8 69 04 0331*        ld de,ps_cmd1
+0469D0 CD 55 1F 04 0332*        call vdu_write_block_to_buffer
+0469D4 C9          0333*        ret
+0469D5             0334*    ps_cmd0:
+0469D5             0335*    ; Command 14: Consolidate blocks in a buffer
+0469D5             0336*    ; VDU 23, 0, &A0, bufferId; 14
+0469D5 17 00 A0    0337*        db 23,0,0xA0 ; vdu buffered api command header
+0469D8 00 30       0338*        dw ch0_buffer
+0469DA 0E          0339*        db 14 ; consolidate blocks command
+0469DB             0340*    ; vdu_buffer_to_sound command string
+0469DB             0341*    ; Command 2: Buffer to sound
+0469DB             0342*    ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
+0469DB 17 00 85    0343*        db 23,0,0x85 ; vdu sound command header
+0469DE 00          0344*        db 0x00 ; channel (ignored)
+0469DF 05          0345*        db 0x05 ; buffer to sound command
+0469E0 02          0346*        db 0x02 ; command 2 create sample
+0469E1 00 30       0347*        dw ch0_buffer
+0469E3 09          0348*        db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+0469E4             0349*    ps_sr0:
+0469E4 00 00       0350*        dw 0x0000 ; sample rate Hz
+0469E6             0351*    ; vdu_play_sfx command string
+0469E6             0352*    ; Command 4: Set waveform
+0469E6             0353*    ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+0469E6 17 00 85    0354*        db 23,0,$85 ; vdu sound command header
+0469E9 00          0355*        db 0 ; channel
+0469EA 04          0356*        db 4 ; set waveform command
+0469EB 08          0357*        db 8 ; waveform 8 = sample
+0469EC 00 30       0358*        dw ch0_buffer ; sample bufferId
+0469EE             0359*    ; Command 0: Play note
+0469EE             0360*    ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+0469EE 17 00 85    0361*        db 23,0,$85 ; vdu sound command header
+0469F1 00          0362*        db 0 ; channel
+0469F2 00          0363*        db 0 ; play note command
+0469F3 7F          0364*        db 127  ; volume 127 = max
+0469F4 00 00       0365*        dw 0 ; frequency (relevant only for tuneable samples)
+0469F6 00 00       0366*        dw 0 ; duration (ms), zero means play one time in full
+0469F8             0367*    ps_cmd0_end:
+0469F8             0368*    
+0469F8             0369*    ps_cmd1:
+0469F8             0370*    ; Command 14: Consolidate blocks in a buffer
+0469F8             0371*    ; VDU 23, 0, &A0, bufferId; 14
+0469F8 17 00 A0    0372*        db 23,0,0xA0 ; vdu buffered api command header
+0469FB 01 30       0373*        dw ch1_buffer
+0469FD 0E          0374*        db 14 ; consolidate blocks command
+0469FE             0375*    ; vdu_buffer_to_sound command string
+0469FE             0376*    ; Command 2: Buffer to sound
+0469FE             0377*    ; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
+0469FE 17 00 85    0378*        db 23,0,0x85 ; vdu sound command header
+046A01 00          0379*        db 0x00 ; channel (ignored)
+046A02 05          0380*        db 0x05 ; buffer to sound command
+046A03 02          0381*        db 0x02 ; command 2 create sample
+046A04 01 30       0382*        dw ch1_buffer
+046A06 09          0383*        db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+046A07             0384*    ps_sr1:
+046A07 00 00       0385*        dw 0x0000 ; sample rate Hz
+046A09             0386*    ; vdu_play_sfx command string
+046A09             0387*    ; Command 4: Set waveform
+046A09             0388*    ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+046A09 17 00 85    0389*        db 23,0,$85 ; vdu sound command header
+046A0C 01          0390*        db 1 ; channel
+046A0D 04          0391*        db 4 ; set waveform command
+046A0E 08          0392*        db 8 ; waveform 8 = sample
+046A0F 01 30       0393*        dw ch1_buffer ; sample bufferId
+046A11             0394*    ; Command 0: Play note
+046A11             0395*    ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+046A11 17 00 85    0396*        db 23,0,$85 ; vdu sound command header
+046A14 01          0397*        db 1 ; channel
+046A15 00          0398*        db 0 ; play note command
+046A16 7F          0399*        db 127  ; volume 127 = max
+046A17 00 00       0400*        dw 0 ; frequency (relevant only for tuneable samples)
+046A19 00 00       0401*        dw 0 ; duration (ms), zero means play one time in full
+046A1B             0402*    ps_cmd1_end:
+046A1B             0403*    ; end ps_load_command_buffers
 046A1B             0055         include "sort.inc"
 046A1B             0001*    ; Determines the ascending lexical order of two zero-terminated strings
 046A1B             0002*    ; Inputs: HL, DE = pointers to strings
@@ -15276,7 +15276,7 @@ PC     Output      Line
 046AD2 DD 77 05    0059*    	ld (IX+sysvar_keyascii),a
 046AD5             0060*    ; read the timer interrupt and call the handler
 046AD5 ED 38 83    0061*        in0 a,(TMR1_CTL+TMR_REG_CTL)
-046AD8 21 0E 67 04 0062*        ld hl,ps_mode
+046AD8 21 19 67 04 0062*        ld hl,ps_mode
 046ADC CB 46       0063*        bit ps_mode_playing,(hl)
 046ADE C4 0B 68 04 0064*        call nz,ps_read_sample
 046AE2             0065*    @@:
@@ -15332,7 +15332,7 @@ PC     Output      Line
 046B00             0038*    
 046B00             0039*    ps_open_wav:
 046B00             0040*    ; get filinfo and fil struct pointers to currently selected file
-046B00 CD 9F 3F 04 0041*        call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
+046B00 CD AA 3F 04 0041*        call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
 046B04 ED 13 16    0042*        lea de,iy+filinfo_fname ; de = pointer to filename
 046B07 21 00 00 09 0043*        ld hl,ps_fil_struct
 046B0B             0044*    
@@ -15437,7 +15437,7 @@ PC     Output      Line
 046B91 E1          0127*        pop hl ; restore pointer to fil struct
 046B92 E5          0128*        push hl ; and back them up
 046B93 D5          0129*        push de ; again to balance stack
-046B94 CD 00 35 04 0130*        call verify_agm ; a = 2, zero flag reset if .agm, otherwise zero flag set and a = 0
+046B94 CD 0B 35 04 0130*        call verify_agm ; a = 2, zero flag reset if .agm, otherwise zero flag set and a = 0
 046B98             0131*        ; fall through to @done
 046B98             0132*    @done:
 046B98             0133*    ; restore registers and return
@@ -16019,7 +16019,7 @@ PC     Output      Line
 046EE7 D5          0013*M1      push de
 046EE8 DD E5       0014*M1      push ix
 046EEA FD E5       0015*M1      push iy
-046EEC CD C1 36 04 0512*        CALL vp_messages
+046EEC CD CC 36 04 0512*        CALL vp_messages
 046EF0 CD DE 1B 04 0513*        CALL vdu_cls
 046EF4             0514*        POP_ALL
                        M1 Args: none
@@ -16201,10 +16201,10 @@ PC     Output      Line
 046FAD             0067     
 046FAD             0068     ; load image plot command buffer
 046FAD 3E F0       0069         ld a,240
-046FAF 32 33 67 04 0070         ld (ps_agm_width),a
+046FAF 32 00 35 04 0070         ld (pv_agm_width),a
 046FB3 3E B4       0071         ld a,180
-046FB5 32 34 67 04 0072         ld (ps_agm_height),a
-046FB9 CD 51 35 04 0073         call pv_load_command_buffer
+046FB5 32 01 35 04 0072         ld (pv_agm_height),a
+046FB9 CD 5C 35 04 0073         call pv_load_command_buffer
 046FBD             0074     
 046FBD             0075     ; set up screen
 046FBD 3E 08       0076         ld a,8

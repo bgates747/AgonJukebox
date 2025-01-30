@@ -61,7 +61,7 @@ ps_prt_irq_handler:
     in0 a,(TMR1_CTL+TMR_REG_CTL)
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
-    call nz,ps_read_sample
+    call nz,ps_read_media
 @@:
     exx
     ex af,af'

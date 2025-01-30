@@ -10,6 +10,94 @@ agm_audio_seconds: EQU 14+76   ; 4 bytes: Total seconds of audio (32-bit float o
 agm_reserved:      EQU 18+76   ; 52 bytes: Reserved for future features (compression, metadata, etc.)
 agm_header_size:   EQU 144   ; Total .agm Header size
 
+pv_agm_width: db 0 ; video width in pixels (0 = 256)
+pv_agm_height: db 0 ; video height in pixels (0 = 256)
+pv_agm_frame_size: dl 0 ; size of a frame in bytes
+pv_agm_frame_rate: db 0 ; frames per second (1-60)
+pv_agm_frame_counter: db 0 ; init to frames/sec, when hits zero we load the next audio sample
+pv_agm_chunks_per_frame: db 0 ; chunk size per frame (frame size / chunks per second)
+pv_agm_frame_load_counter: db 0 ; init to chunks/frame, when hits zero plot the frame
+pv_agm_chunks_per_sample: db 0 ; chunks per 1 second audio sample (sample rate / chunk size)
+pv_wav_chunk_counter: db 0 ; init to chunks/sample, when hits zero play the loaded audio buffer
+
+ps_read_agm:
+; branch on the state of the wav chunk counter
+    ld a,(pv_wav_chunk_counter)
+    dec a
+    ld (pv_wav_chunk_counter),a
+    jp m,@F ; we're in the load and draw frames phase
+    jp z,ps_play_sample ; sample buffer is loaded so play it
+
+@@: ; branch on the state of the frame load counter
+    ld a,(pv_agm_frame_load_counter)
+    dec a
+    ld (pv_agm_frame_load_counter),a
+    jp z,draw_frame ; load the next frame
+    jp get_input ; not time to load next frame
+; end ps_read_agm
+
+draw_frame:
+; plot the image
+    ld hl,pv_cmd_buffer
+    call vdu_call_buffer
+
+; reset the frame load counter
+    ld a,(pv_agm_frame_rate)
+    ld (pv_agm_frame_load_counter),a
+
+; bump frame draw counters and branch on results
+    ld a,(pv_agm_frame_counter)
+    dec a
+    jp nz,@F ; not time to load next sample
+
+; reset the wav chunk counter
+    ld a,(pv_agm_chunks_per_sample)
+    ld (pv_wav_chunk_counter),a
+
+; reset the frame counter
+    ld a,(pv_agm_frame_rate)
+
+@@:
+; save the frame counter
+    ld (pv_agm_frame_counter),a
+
+; jump to user input
+    jp get_input
+; end draw_frame
+
+play_agm:
+; copy metadata to local variables
+    ld a,(ps_wav_header+agm_width)
+    ld (pv_agm_width),a
+    ld a,(ps_wav_header+agm_height)
+    ld (pv_agm_height),a
+    ld a, (ps_wav_header+agm_frame_rate)
+    ld (pv_agm_frame_rate),a
+
+; compute frame statistics
+    ld hl,(ps_wav_header+agm_width) ; l = width, h = height, hlu we don't care
+    mlt hl ; hl = width * height
+    ld (pv_agm_frame_size),hl ; save the frame size
+    ld de,ps_chunks_per_second
+    call udiv24 ; e = chunks per frame
+    ld a,e
+    ld (pv_agm_chunks_per_frame),a ; save the chunks per frame
+    ld (pv_agm_frame_load_counter),a ; reset the frame chunk counter
+
+; compute sample statistics
+    ld hl,(ps_wav_header+wav_sample_rate)
+    ld de,ps_chunks_per_second
+    call udiv24 ; e = sample rate / chunks per second
+    ld a,e
+    ld (pv_agm_chunks_per_sample),a ; save the chunks per sample
+    ld (pv_wav_chunk_counter),a ; reset the chunk counter
+    ld (ps_wav_chunk_counter),a ; reset the chunk counter
+
+; load the command buffer and return to play_agm
+    call pv_load_command_buffer
+    jp play_agm_return
+; end play_agm
+
 ; verify that a file is an .agm file
 ; inputs: hl = pointer to fil struct, de = pointer to filename
 ; returns: zero flag set,   a = 0 if not a file we can read
@@ -68,9 +156,9 @@ pv_cmd_buffer: equ 0x3004
 pv_img_buffer: equ 0x3005
 
 pv_load_command_buffer:
-    ld a,(ps_agm_width)
+    ld a,(pv_agm_width)
     ld (pv_cmd_width),a    
-    ld a,(ps_agm_height)
+    ld a,(pv_agm_height)
     ld (pv_cmd_height),a
     ld a,32
     ld (pv_cmd_x0),a

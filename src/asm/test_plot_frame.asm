@@ -67,9 +67,9 @@ init:
 
 ; load image plot command buffer
     ld a,240
-    ld (ps_agm_width),a
+    ld (pv_agm_width),a
     ld a,180
-    ld (ps_agm_height),a
+    ld (pv_agm_height),a
     call pv_load_command_buffer
 
 ; set up screen
