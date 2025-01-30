@@ -146,8 +146,8 @@ if __name__ == '__main__':
     target_directory =       'tgt/images'
     palette_filepath =      'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    screen_width = 120
-    screen_height = 90
+    screen_width = 240
+    screen_height = 180
     palette_conversion_method = 'floyd'
     agon_rgba_type = 1  # RGBA2222
 

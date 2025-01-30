@@ -63,3 +63,47 @@ verify_agm:
     xor a ; set zero flag and a = 0 indicating unreadable file
     ret
 ; end verify_agm
+
+pv_cmd_buffer: equ 0x3004
+pv_img_buffer: equ 0x3005
+
+pv_load_command_buffer:
+    ld a,(ps_agm_width)
+    ld (pv_cmd_width),a    
+    ld a,(ps_agm_height)
+    ld (pv_cmd_height),a
+    ld a,32
+    ld (pv_cmd_x0),a
+    ld (pv_cmd_y0),a
+    ld hl,pv_cmd_buffer
+    ld bc,pv_cmd_draw_end-pv_cmd_draw
+    ld de,pv_cmd_draw
+    call vdu_write_block_to_buffer
+    ret
+; end pv_load_command_buffer
+
+pv_cmd_draw:
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+                    db 23,0,0xA0 ; vdu buffered api command header
+                    dw pv_img_buffer
+                    db 14 ; consolidate blocks command
+
+; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
+; inputs: hl=bufferId
+                    db 23,27,0x20
+                    dw pv_img_buffer
+
+; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
+; 1 	RGBA2222 (1-bytes per pixel)
+                    db 23,27,0x21
+pv_cmd_width:       dw 0x0000
+pv_cmd_height:      dw 0x0000
+                    db 1 ; format
+
+; VDU 25, mode, x; y;: PLOT command
+                    db 25
+                    db plot_bmp+dr_abs_fg ; 0xED
+pv_cmd_x0: 	        dw 0x0000
+pv_cmd_y0: 	        dw 0x0000
+pv_cmd_draw_end:
