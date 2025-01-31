@@ -417,7 +417,7 @@ def do_all_the_things():
         process_frames()
 
     if do_make_agm:
-        make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate)
+        make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
 
     if do_delete_frames:
         delete_frames()
@@ -443,20 +443,21 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 240
-    target_height = 180
-    frame_rate    = 1
+    target_width  = 120
+    target_height = 90
+    frame_rate    = 4
     bytes_per_sec = 60000
     target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
+    chunksize = bytes_per_sec // 60
 
-    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    # video_base_name = f'a_ha__Take_On_Me'
+    youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    video_base_name = f'a_ha__Take_On_Me'
 
     # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     # video_base_name = f'Star_Wars__Battle_of_Yavin'
 
-    youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
-    video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
+    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
+    # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
 
     # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
     # video_base_name = f'Bad_Apple'
@@ -466,7 +467,7 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
     # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
     
-    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}x{target_sample_rate}'
+    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
     processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
@@ -494,20 +495,20 @@ if __name__ == "__main__":
 #     do_compression   = True
 #     do_normalization = True
 
-# Convert audio and extract video group
-    do_convert_audio = True
-    do_extract_video = True
-    do_extract_frames = True
-    do_process_frames = True
+# # Convert audio and extract video group
+#     do_convert_audio = True
+#     do_extract_video = True
+#     do_extract_frames = True
+#     do_process_frames = True
 
 # Make AGM group
     do_make_agm = True
 
 # Clean up group
-    do_delete_frames = True
+    # do_delete_frames = True
     # do_delete_processed_files = True
 
 # Play AGM group
-    do_play_agm = True
+    # do_play_agm = True
 
     do_all_the_things()

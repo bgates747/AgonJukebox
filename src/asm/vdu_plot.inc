@@ -125,6 +125,19 @@ c_magenta: equ 13
 c_cyan: equ 14
 c_white: equ 15
 
+; GCOL paint modes
+; The GCOL command (VDU 18, mode, colour) is used to set the paint mode for the PLOT
+; command. The paint mode is used to control how the PLOT command interacts with the 
+; existing pixels on the screen.
+gcol_mode_col: equ %000000000 ; Set on-screen pixel to target colour value
+gcol_mode_or: equ %000000001 ; OR value with the on-screen pixel
+gcol_mode_and: equ %000000010 ; AND value with the on-screen pixel
+gcol_mode_xor: equ %000000011 ; EOR value with the on-screen pixel
+gcol_mode_inv: equ %000000100 ; Invert the on-screen pixel
+gcol_mode_non: equ %000000101 ; No operation
+gcol_mode_and_inv: equ %000000110 ; AND the inverse of the specified colour with the on-screen pixel
+gcol_mode_or_inv: equ %000000111 ; OR the inverse of the specified colour with the on-screen pixel
+
 ; VDU 25, mode, x; y;: PLOT command
 ; inputs: a=mode, bc=x0, de=y0
 vdu_plot:

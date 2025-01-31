@@ -1,29 +1,18 @@
 #!/usr/bin/env python3
 import os
 import pygame
+import struct
 from struct import unpack
-import math
+from io import BytesIO
 
 import agonutils as au  # for rgba2_to_img, etc.
 
 WAV_HEADER_SIZE = 76
 AGM_HEADER_SIZE = 68
-TOTAL_HEADER_SIZE = AGM_HEADER_SIZE + WAV_HEADER_SIZE  # 144 bytes
-
+SEGMENT_HEADER_SIZE = 8  # 4 bytes: last segment size, 4 bytes: this segment size
 
 def parse_agm_header(header_bytes):
-    """
-    Parse the 68-byte AGM header.
-      offset layout:
-      0..5:   "AGNMOV"
-      6:      version (1 byte)
-      7:      width   (1 byte)
-      8:      height  (1 byte)
-      9:      fps     (1 byte)
-      10..13: total_frames (4 bytes)
-      14..17: audio_secs   (4 bytes, integer)
-      18..67: reserved
-    """
+    """ Parse the 68-byte AGM header. """
     if len(header_bytes) != AGM_HEADER_SIZE:
         raise ValueError(f"AGM header is {len(header_bytes)} bytes, expected {AGM_HEADER_SIZE}")
     fmt = "<6sBBBBII50x"
@@ -39,145 +28,225 @@ def parse_agm_header(header_bytes):
         "audio_secs": audio_secs,
     }
 
-
 def parse_sample_rate_from_wav_header(wav_header_bytes):
-    """
-    Expects a 76-byte 'WAV' header (with 'agm' at offset 12..14).
-    Extracts the sample rate at offset 24..27 (4 bytes, little-endian).
-    """
-    if len(wav_header_bytes) != 76:
+    """ Extracts the sample rate from a 76-byte WAV header. """
+    if len(wav_header_bytes) != WAV_HEADER_SIZE:
         raise ValueError("WAV header not 76 bytes.")
     if wav_header_bytes[12:15] != b"agm":
         raise ValueError("WAV header does not contain 'agm' marker at offset 12..14.")
-    sample_rate = int.from_bytes(wav_header_bytes[24:28], byteorder='little', signed=False)
-    return sample_rate
+    return int.from_bytes(wav_header_bytes[24:28], byteorder='little', signed=False)
 
-
-def create_1sec_wav_file(audio_data, sample_rate, filename):
-    """
-    Given up to 1 second of 8-bit mono audio_data (length <= sample_rate),
-    create a small PCM WAV file so Pygame can load & play it.
-    """
+def create_wav_file(audio_data, sample_rate, filename):
+    """ Create a temporary PCM WAV file for playback. """
     import wave
     with wave.open(filename, "wb") as wf:
         wf.setnchannels(1)
-        wf.setsampwidth(1)        # 8-bit = 1 byte/sample
+        wf.setsampwidth(1)  # 8-bit = 1 byte/sample
         wf.setframerate(sample_rate)
         wf.writeframesraw(audio_data)
 
-
 def play_agm(filepath):
     """
-    Reads the .agm file in 1-second blocks:
-      1) sample_rate bytes of audio
-      2) frame_rate frames, each width*height bytes (RGBA2)
-    Decodes & displays frames in real-time, playing audio via pygame.
+    Reads the new .agm file format:
+      * 8-byte segment header
+      * Then for each segment, typically two units:
+         (a) Audio Unit => 1-byte mask=0x00, chunked data until chunk_size=0
+         (b) Video Unit => 1-byte mask=0x80, chunked data until chunk_size=0
+      * Each chunk = 4-byte chunk_size + chunk_data
+      * chunk_size=0 => end of that unit
+
+    For audio, we accumulate the entire unit and play it once per segment.
+    For video, we accumulate chunk_data until we have enough for a full frame.
+    Then we display that frame immediately, and repeat if there's leftover data.
     """
     pygame.init()
     clock = pygame.time.Clock()
-
     temp_wav = "tgt/temp_audio.wav"
 
+    # Open the .agm file
     with open(filepath, "rb") as f:
-        # 1) Read headers
+        # 1) Read the WAV header & the AGM header
         wav_header = f.read(WAV_HEADER_SIZE)
         agm_header = f.read(AGM_HEADER_SIZE)
 
+        # 2) Parse relevant info
         meta = parse_agm_header(agm_header)
-        width       = meta["width"]
-        height      = meta["height"]
-        fps         = meta["frame_rate"]
-        total_frames= meta["total_frames"]
-        audio_secs  = meta["audio_secs"]  # total length (integer seconds)
+        width, height = meta["width"], meta["height"]
+        fps, total_frames, audio_secs = (
+            meta["frame_rate"],
+            meta["total_frames"],
+            meta["audio_secs"]
+        )
         sample_rate = parse_sample_rate_from_wav_header(wav_header)
 
-        print("=== AGM HEADER ===")
-        print(f"File:         {filepath}")
-        print(f"Resolution:   {width}x{height}")
-        print(f"Frame Rate:   {fps} fps")
-        print(f"Total Frames: {total_frames}")
-        print(f"Audio Secs:   {audio_secs}")
-        print(f"Sample Rate:  {sample_rate} bytes/s (8-bit mono)\n")
+        print(f"=== AGM HEADER ===\n"
+              f"File: {filepath}\n"
+              f"Resolution: {width}x{height}\n"
+              f"Frame Rate: {fps} fps\n"
+              f"Total Frames: {total_frames}\n"
+              f"Audio Secs: {audio_secs}\n"
+              f"Sample Rate: {sample_rate} Hz\n")
 
-        # For safety, compute how many seconds we must play from the header:
-        total_secs = audio_secs
-        # Each frame is width*height bytes in your RGBA2 data:
-        frame_size = width * height
-
-        # Prepare the Pygame window
-        scale_factor = 4
-        screen = pygame.display.set_mode((width * scale_factor, height * scale_factor))
+        screen = pygame.display.set_mode((width * 4, height * 4))
         pygame.display.set_caption("AGM Video Player")
 
-        frame_idx = 0  # which frame are we on in the entire video?
+        frame_idx = 0  # how many frames we've displayed so far
 
-        # 2) Read data one second at a time
-        for sec_idx in range(total_secs):
-            print(f"\rPlaying second {sec_idx+1}/{total_secs}...", end="")
+        # 3) Loop over the file reading segments
+        while True:
+            seg_header = f.read(SEGMENT_HEADER_SIZE)
+            if len(seg_header) < SEGMENT_HEADER_SIZE:
+                print("End of file (no more segment headers).")
+                break
 
-            # -- (a) Read 1 second of audio (sample_rate bytes) --
-            audio_chunk = f.read(sample_rate)
-            if len(audio_chunk) < sample_rate:
-                # If short, pad with silence
-                audio_chunk += b"\x00" * (sample_rate - len(audio_chunk))
+            # Unpack the segment header
+            seg_size_last, seg_size_this = unpack("<II", seg_header)
+            print(f"\nSegment: last={seg_size_last}, this={seg_size_this}")
 
-            # Write to a small .wav so pygame can handle it
-            create_1sec_wav_file(audio_chunk[:sample_rate], sample_rate, temp_wav)
+            if seg_size_this == 0:
+                print("Segment size=0 => skipping.")
+                continue
 
-            # Play it immediately
-            sound = pygame.mixer.Sound(temp_wav)
-            sound.play()
+            # Read exactly seg_size_this bytes of segment data
+            segment_data = f.read(seg_size_this)
+            if len(segment_data) < seg_size_this:
+                print("File ended unexpectedly in middle of segment.")
+                break
 
-            # -- (b) Display frames for this second (fps frames) --
-            for _ in range(fps):
-                # Handle events (allow user to quit)
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
-                        pygame.quit()
-                        if os.path.exists(temp_wav):
-                            os.remove(temp_wav)
-                        return
+            seg_stream = BytesIO(segment_data)
+            seg_consumed = 0
 
-                # If we've run out of frames, display a blank frame
-                if frame_idx >= total_frames:
-                    # Just fill screen with black
-                    screen.fill((0, 0, 0))
-                    pygame.display.flip()
+            # We typically expect exactly 2 units: audio + video
+            # but let's parse "units" in a loop until we exhaust the segment
+            while True:
+                if seg_stream.tell() >= seg_size_this:
+                    # done with this segment
+                    break
+
+                # 4) Read the 1-byte unit mask
+                unit_mask_b = seg_stream.read(1)
+                if not unit_mask_b:
+                    print("Ran out of data reading unit mask. Corrupt segment?")
+                    break
+
+                unit_mask = unit_mask_b[0]
+                is_video = bool(unit_mask & 0x80)
+
+                if is_video:
+                    print("Unit: VIDEO (mask=0x%02X)" % unit_mask)
                 else:
-                    # Read frame_size bytes from the file
-                    frame_data = f.read(frame_size)
-                    if len(frame_data) < frame_size:
-                        # If short, pad with zeros => black
-                        frame_data += b"\x00" * (frame_size - len(frame_data))
+                    print("Unit: AUDIO (mask=0x%02X)" % unit_mask)
 
-                    # Write a temp .rgba2, convert => display
-                    rgba2_path = "temp_frame.rgba2"
-                    with open(rgba2_path, "wb") as tmpf:
-                        tmpf.write(frame_data)
+                # 5) Read chunks until chunk_size=0
+                if is_video:
+                    video_buffer = b""
+                    while True:
+                        # read 4 bytes => chunk_size
+                        chunk_size_data = seg_stream.read(4)
+                        if len(chunk_size_data) < 4:
+                            print("Ran out of data reading video chunk size.")
+                            break
+                        chunk_size = struct.unpack("<I", chunk_size_data)[0]
+                        if chunk_size == 0:
+                            # End of video unit
+                            print("End of VIDEO unit.\n")
+                            break
 
-                    png_out = "temp_frame.png"
-                    au.rgba2_to_img(rgba2_path, png_out, width, height)
+                        chunk_data = seg_stream.read(chunk_size)
+                        if len(chunk_data) < chunk_size:
+                            # pad with black
+                            chunk_data += b"\x00" * (chunk_size - len(chunk_data))
 
-                    frame_surface = pygame.image.load(png_out)
+                        # Accumulate in video_buffer
+                        video_buffer += chunk_data
 
-                    os.remove(rgba2_path)
-                    os.remove(png_out)
+                        # Each frame is width*height bytes
+                        frame_bytes_needed = width * height
+                        # Keep extracting frames from video_buffer
+                        while len(video_buffer) >= frame_bytes_needed:
+                            one_frame = video_buffer[:frame_bytes_needed]
+                            video_buffer = video_buffer[frame_bytes_needed:]
+                            # Decode & display
+                            rgba2_path = "temp_frame.rgba2"
+                            with open(rgba2_path, "wb") as tmpf:
+                                tmpf.write(one_frame)
 
-                    # Scale up the frame for display
-                    scaled_surface = pygame.transform.scale(
-                        frame_surface, (width * scale_factor, height * scale_factor)
-                    )
-                    screen.blit(scaled_surface, (0, 0))
-                    pygame.display.flip()
+                            png_out = "temp_frame.png"
+                            au.rgba2_to_img(rgba2_path, png_out, width, height)
+                            frame_surface = pygame.image.load(png_out)
 
-                    frame_idx += 1
+                            os.remove(rgba2_path)
+                            os.remove(png_out)
 
-                # Wait enough time to space frames out over 1 second => 1000/fps
-                clock.tick(fps)
+                            # Scale & blit
+                            screen.blit(pygame.transform.scale(frame_surface, (width*4, height*4)), (0, 0))
+                            pygame.display.flip()
 
-        print("\nPlayback completed.")
+                            frame_idx += 1
+                            if frame_idx >= total_frames:
+                                print("Reached total_frames => stopping video playback.")
+                                break
+
+                            # Allow quit
+                            for event in pygame.event.get():
+                                if event.type == pygame.QUIT:
+                                    pygame.quit()
+                                    if os.path.exists(temp_wav):
+                                        os.remove(temp_wav)
+                                    return
+
+                            # Use clock to maintain approximate FPS
+                            clock.tick(fps)
+
+                            if frame_idx >= total_frames:
+                                break
+
+                        if frame_idx >= total_frames:
+                            # no need to parse further video
+                            break
+
+                else:
+                    # AUDIO unit
+                    audio_buffer = b""
+                    while True:
+                        chunk_size_data = seg_stream.read(4)
+                        if len(chunk_size_data) < 4:
+                            print("Ran out of data reading audio chunk size.")
+                            break
+                        chunk_size = struct.unpack("<I", chunk_size_data)[0]
+                        if chunk_size == 0:
+                            # End of audio unit
+                            print("End of AUDIO unit.\n")
+                            break
+
+                        chunk_data = seg_stream.read(chunk_size)
+                        if len(chunk_data) < chunk_size:
+                            # pad with silence
+                            chunk_data += b"\x00" * (chunk_size - len(chunk_data))
+
+                        audio_buffer += chunk_data
+
+                    # Once we finish reading all chunks for the audio unit,
+                    # we have (up to) 1 second of audio in `audio_buffer`.
+                    # Let's play that second:
+                    if len(audio_buffer) > 0:
+                        # We'll limit playback to just 1 second => sample_rate bytes
+                        # to avoid drifting if there's leftover
+                        create_wav_file(audio_buffer[:sample_rate], sample_rate, temp_wav)
+                        pygame.mixer.Sound(temp_wav).play()
+
+        print("Playback completed.")
         f.close()
 
     pygame.quit()
     if os.path.exists(temp_wav):
         os.remove(temp_wav)
+
+# Test / main
+if __name__ == "__main__":
+    agm_path = "tgt/video/a_ha__Take_On_Me_120x90x4.agm"
+    if not os.path.exists(agm_path):
+        print(f"Error: AGM file not found at '{agm_path}'")
+    else:
+        print(f"Playing: {agm_path}")
+        play_agm(agm_path)

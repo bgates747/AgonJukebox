@@ -1,29 +1,8 @@
 import os
 import math
 import struct
+from io import BytesIO
 
-# ============================================================
-#              AGM HEADER CONSTANTS
-# ============================================================
-AGM_HEADER_SIZE = 68
-WAV_HEADER_SIZE = 76
-TOTAL_HEADER_SIZE = AGM_HEADER_SIZE + WAV_HEADER_SIZE  # 144
-
-# This format uses (example) offsets:
-#   0..5:  magic "AGNMOV"
-#   6:     version (1 byte)
-#   7:     width   (1 byte)
-#   8:     height  (1 byte)
-#   9:     framerate (1 byte)
-#   10..13: total_frames (4 bytes)
-#   14..17: total_audio_seconds (4 bytes) -- integer or float
-#   18..67: reserved (50 bytes)
-# total = 68 bytes
-agm_header_fmt = "<6sBBBBII50x"
-
-# ============================================================
-#          MERGE VIDEO & AUDIO INTO .AGM (new approach)
-# ============================================================
 def make_agm(
     frames_directory,
     target_audio_path,
@@ -31,132 +10,143 @@ def make_agm(
     target_width,
     target_height,
     frame_rate,
-    target_sample_rate
+    target_sample_rate,
+    chunksize
 ):
     """
-    Creates an AGM file with:
-      - 76-byte WAV header
-      - 68-byte AGM header
-      - 144 bytes total header
-      - Then data for each full second:
-         1) The entire audio for that second (target_sample_rate bytes)
-         2) The video frames for that second (frame_rate frames)
-      - If audio or video runs out early, we pad with silence or blank frames
-        up to total_secs.
+    Creates an AGM file with the following structure:
+      - 76-byte WAV header (with 'agm' marker at offset 12..14).
+      - 68-byte AGM header.
+      - For each 1-second segment:
+          - 8-byte segment header (lastSegmentSize, thisSegmentSize).
+          - Audio unit: 1 byte mask (bit7=0), then multiple:
+              * <I=chunk_size> + chunk_data
+              * A 0 for chunk_size indicates end of audio unit.
+          - Video unit: 1 byte mask (bit7=1), then multiple:
+              * <I=chunk_size> + chunk_data
+              * A 0 for chunk_size indicates end of video unit.
     """
-    # ---------------------------
-    # 1) Read frames
-    # ---------------------------
-    frame_files = sorted(
-        f for f in os.listdir(frames_directory) if f.endswith(".rgba2")
-    )
-    total_frames = len(frame_files)
+    WAV_HEADER_SIZE = 76
+    AGM_HEADER_SIZE = 68
+    agm_header_fmt  = "<6sBBBBII50x"
 
+    # Masks (bit7=1 => video; bit7=0 => audio)
+    AUDIO_MASK = 0x00  # 0b00000000
+    VIDEO_MASK = 0x80  # 0b10000000
+
+    # 1) Gather frames
+    frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith(".rgba2"))
+    total_frames = len(frame_files)
     print("-------------------------------------------------")
     print(f"make_agm: Found {total_frames} frames in {frames_directory}")
 
-    # Each frame in .rgba2 is exactly width*height bytes in your 8bpp format
-    frame_bytes_per_frame = target_width * target_height
-
-    # ---------------------------
     # 2) Read audio + fix header
-    # ---------------------------
     with open(target_audio_path, "rb") as wf:
         wav_header = wf.read(WAV_HEADER_SIZE)  # 76 bytes
-        # Modify the WAV format marker (12 byte offset) to "agm" in little-endian order
-        # just as your prior code did:
+        # Insert "agm" marker at offset 12..14
         wav_header = wav_header[:12] + b"agm" + wav_header[15:]
-        audio_data = wf.read()  # The rest is raw PCM data
+        audio_data = wf.read()
 
     audio_data_size = len(audio_data)
-
-    # We assume 8-bit mono => 1 byte per sample => length in bytes is #samples
     audio_secs_float = audio_data_size / float(target_sample_rate)
 
-    # ---------------------------
     # 3) Determine total_secs
-    # ---------------------------
     video_secs_float = total_frames / float(frame_rate)
     total_secs = int(math.ceil(max(video_secs_float, audio_secs_float)))
-
     print(
         f"Video ~{video_secs_float:.2f}s, Audio ~{audio_secs_float:.2f}s => "
         f"Merging up to {total_secs}s total."
     )
 
-    # ---------------------------
-    # 4) AGM header
-    # ---------------------------
-    version = 1
+    # 4) Create AGM header (68 bytes)
+    version       = 1
+    total_frames_ = total_frames
+    total_secs_   = total_secs
     agm_header = struct.pack(
         agm_header_fmt,
-        b"AGNMOV",           # magic (6s)
-        version,             # 1 byte
-        target_width,        # 1 byte
-        target_height,       # 1 byte
-        frame_rate,          # 1 byte
-        total_frames,        # 4 bytes
-        total_secs,          # 4 bytes (storing as int)
-        # plus 50x reserved (that's handled by 50x in struct)
+        b"AGNMOV",       # magic (6 bytes)
+        version,         # 1 byte
+        target_width,    # 1 byte
+        target_height,   # 1 byte
+        frame_rate,      # 1 byte
+        total_frames_,   # 4 bytes
+        total_secs_      # 4 bytes
     )
 
-    # ---------------------------
     # 5) Write .agm file
-    # ---------------------------
     print(f"Writing AGM to: {target_agm_path}")
-
     with open(target_agm_path, "wb") as agm_file:
-        # (a) Write the 76-byte WAV header
-        if len(wav_header) != WAV_HEADER_SIZE:
-            raise ValueError("WAV header is not 76 bytes as expected.")
+        # Write WAV header + AGM header
         agm_file.write(wav_header)
-
-        # (b) Write the 68-byte AGM header
-        if len(agm_header) != AGM_HEADER_SIZE:
-            raise ValueError("AGM header is not 68 bytes as expected.")
         agm_file.write(agm_header)
 
-        # (c) Interleave data in 1-second blocks
-        #     For each second:
-        #       1) Write target_sample_rate bytes of audio
-        #       2) Write frame_rate frames (video data)
-
-        # We'll keep track of which frames we've used so far:
+        segment_size_last = 0
         frame_idx = 0
 
-        # We'll write audio in 1-second chunks
-        #   audio for second s => audio_data[s * target_sample_rate : (s+1)*target_sample_rate]
-        # if short, pad with zeroes
+        # For each 1-second segment
         for sec in range(total_secs):
-            # ---- AUDIO chunk for this second ----
+            seg_buffer = BytesIO()
+
+            # ---------------- AUDIO UNIT ----------------
+            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
+            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
+
+            # 2) Extract/pad the audio for this second
             start_aud = sec * target_sample_rate
-            end_aud = start_aud + target_sample_rate
-            chunk = audio_data[start_aud:end_aud]
+            end_aud   = start_aud + target_sample_rate
+            unit_audio = audio_data[start_aud:end_aud]
 
-            if len(chunk) < target_sample_rate:
-                # pad with silence
-                chunk += b"\x00" * (target_sample_rate - len(chunk))
+            if len(unit_audio) < target_sample_rate:
+                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
 
-            agm_file.write(chunk)
+            # 3) Write chunks
+            offset = 0
+            while offset < len(unit_audio):
+                chunk = unit_audio[offset : offset + chunksize]
+                offset += len(chunk)
+                # 4-byte size, then chunk data
+                seg_buffer.write(struct.pack("<I", len(chunk)))
+                seg_buffer.write(chunk)
 
-            # ---- VIDEO frames for this second ----
-            # We expect `frame_rate` frames in each second
+            # 4) End of audio unit => size=0
+            seg_buffer.write(struct.pack("<I", 0))
+
+            # ---------------- VIDEO UNIT ----------------
+            # 1) Write 1 byte mask => video = bit7=1 => 0x80
+            seg_buffer.write(struct.pack("<B", VIDEO_MASK))
+
+            # 2) For each frame in this second
             for _ in range(frame_rate):
                 if frame_idx < total_frames:
-                    frame_path = os.path.join(
-                        frames_directory, frame_files[frame_idx]
-                    )
+                    frame_path = os.path.join(frames_directory, frame_files[frame_idx])
                     with open(frame_path, "rb") as f_in:
                         frame_bytes = f_in.read()
-                    if len(frame_bytes) != frame_bytes_per_frame:
-                        raise ValueError(
-                            f"Frame {frame_idx} has unexpected size {len(frame_bytes)}"
-                        )
                     frame_idx += 1
                 else:
-                    # If no more frames, write blank (fully black) frames
-                    frame_bytes = b"\x00" * frame_bytes_per_frame
+                    # No frames left => blank
+                    frame_bytes = b"\x00" * (target_width * target_height)
 
-                agm_file.write(frame_bytes)
+                # 3) Chunk the frame
+                off = 0
+                while off < len(frame_bytes):
+                    chunk = frame_bytes[off : off + chunksize]
+                    off += len(chunk)
+                    seg_buffer.write(struct.pack("<I", len(chunk)))
+                    seg_buffer.write(chunk)
+
+            # 4) End of video unit => size=0
+            seg_buffer.write(struct.pack("<I", 0))
+
+            # -------------- FINALIZE SEGMENT --------------
+            segment_data = seg_buffer.getvalue()
+            segment_size_this = len(segment_data)
+
+            # Write 8-byte segment header first
+            agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
+            # Then the segment data
+            agm_file.write(segment_data)
+
+            # Update for next
+            segment_size_last = segment_size_this
 
         print("AGM file creation complete.\n")

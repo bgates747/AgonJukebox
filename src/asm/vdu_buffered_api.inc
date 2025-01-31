@@ -165,3 +165,39 @@ vdu_call_buffer_offset:
     ret ; TODO: implement
 ; end vdu_call_buffer_offset
 
+; Command 64: Compress a buffer
+; VDU 23, 0, &A0, targetBufferId; 64, sourceBufferId;
+; inputs: hl = sourceBufferId, de = targetBufferId
+vdu_compress_buffer:
+    ld (@sourceBufferId),hl
+    ld (@targetBufferId),de
+    ld a,64 ; compress buffer
+    ld (@sourceBufferId-1),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:     db 23,0,0xA0
+@targetBufferId: dw 0x0000
+           db 64 ; compress buffer
+@sourceBufferId: dw 0x0000
+@end:     db 0x00 ; padding
+
+
+; Command 65: Decompress a buffer
+; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
+; inputs: hl = sourceBufferId, de = targetBufferId
+vdu_decompress_buffer:
+    ld (@sourceBufferId),hl
+    ld (@targetBufferId),de
+    ld a,65 ; decompress buffer
+    ld (@sourceBufferId-1),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:     db 23,0,0xA0
+@targetBufferId: dw 0x0000
+           db 65 ; decompress buffer
+@sourceBufferId: dw 0x0000
+@end:     db 0x00 ; padding
