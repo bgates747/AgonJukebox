@@ -57,42 +57,67 @@ exit:
     include "wav.inc"
     include "debug.inc"
 
-    include "test_agm.inc"
-
 ; --- MAIN PROGRAM FILE ---
 init:
-    call bf_get_dir
-    call ui_init
-    call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
-                                 ; (though it must be done here b/c ui_init clears all buffers)
-    call ps_prt_irq_init
+; load an image
+; inputs: hl = bufferId; iy = pointer to filename
+    ld hl,pv_img_buffer
+    ld iy,fn_image
+    call vdu_load_buffer_from_file
+
+; load image plot command buffer
+    ld a,240
+    ld (agm_width),a
+    ld a,180
+    ld (agm_height),a
+    call pv_load_video_cmd_buffers
+
+; set up screen
+    ld a,8
+    call vdu_set_screen_mode
+    call vdu_cls
+    xor a
+    call vdu_set_scaling
+
+; set up timer
+    call vdu_vblank ; sync to vblank
+    ld iy,tmr_test
+    ld hl,1200 ; 1/120ths of a second
+    call tmr_set
+    ld bc,0 ; counter
+
     ret
 ; end init
 main:
-; call the change directory routine and jp to user input
-    call get_input
+    push bc ; save counter
 
-; we come back here when user wants to quit app
-; shut down everytyhing and gracefully exit to MOS
-    call ps_close_file ; close any playing file and stop the PRT timer
-    ei ; interrupts were disabled by get_input
-; restore original screen mode
-    ld a,(original_screen_mode)
-    call vdu_set_screen_mode
-    call vdu_reset_viewports
-    call vdu_cls
-; print thanks for playing message
-    call printInline
-    asciz "Thank you for using\r\n"
-    ld hl,agon_jukebox_ascii
-    call printString
-; set cursor behaviuor
-    call vdu_cursor_on
-    ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
-    ld l,%00000000 ; bit 4 reset means cursor scrolls screen
-    call vdu_cursor_behaviour
+; plot the image
+    ld hl,pv_cmd_buffer
+    call vdu_call_buffer
+
+; bump counter
+    pop bc
+    inc bc
+
+    ; ret ; DEBUG
+
+; check timer
+    ld iy,tmr_test
+    call tmr_get
+    jp z,@done
+    jp m,@done
+
+    jr main ; loop
+
+@done:
+    push bc
+    pop hl
+    call printDec
+    call printNewLine
     ret ; back to MOS
 ; end main
+
+fn_image: asciz "images/rainbow_swirl.rgba2"
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

@@ -366,10 +366,10 @@ ps_seek:
     ld c,a
     FFSCALL ffs_flseek
 ; flip the command and sample buffers and read the first block of data at the new position
-    call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
+    call ps_load_audio_cmd_buffers ; TODO: we should only have to do this on app init, 
                                  ; but if we don't do it here, only one audio buffer 
                                  ; is loaded or/and played
-    call ps_flip_buffers         ; this is crucial so that the next sound played is at new position
+    call ps_set_audio_buffers         ; this is crucial so that the next sound played is at new position
 ; restart the PRT timer
     call ps_prt_start ; start the PRT timer
     jp get_input ; will reenable interrupts

@@ -1,3 +1,30 @@
+; WAV File Structure Offsets and Descriptions
+wav_riff:          EQU 0    ; 4 bytes: "RIFF" identifier
+wav_file_size:     EQU 4    ; 4 bytes: Total file size minus 8 bytes for RIFF header
+wav_wave:          EQU 8    ; 4 bytes: "WAVE" identifier
+wav_fmt_marker:    EQU 12   ; 4 bytes: "fmt " subchunk marker for .wav, "agm" for .agm
+wav_fmt_size:      EQU 16   ; 4 bytes: Format chunk size (16 for PCM)
+wav_audio_format:  EQU 20   ; 2 bytes: Audio format (1 = PCM)
+wav_num_channels:  EQU 22   ; 2 bytes: Number of channels (1 = mono, 2 = stereo)
+wav_sample_rate:   EQU 24   ; 4 bytes: Sample rate in Hz (e.g., 32768)
+wav_byte_rate:     EQU 28   ; 4 bytes: Bytes per second (SampleRate * NumChannels * BitsPerSample / 8)
+wav_block_align:   EQU 32   ; 2 bytes: Bytes per sample block (NumChannels * BitsPerSample / 8)
+wav_bits_per_sample: EQU 34 ; 2 bytes: Bits per sample (e.g., 8 or 16)
+
+; LIST Chunk (Extra Metadata)
+wav_list_marker:   EQU 36   ; 4 bytes: "LIST" marker
+wav_list_size:     EQU 40   ; 4 bytes: Size of the LIST chunk (e.g., 26)
+wav_info_marker:   EQU 44   ; 4 bytes: "INFO" marker
+wav_isft_marker:   EQU 48   ; 4 bytes: "ISFT" marker (software identifier)
+wav_isft_data:     EQU 52   ; 14 bytes: Software info string (e.g., "Lavf59.27.100")
+wav_isft_padding:  EQU 66   ; 2 bytes: Padding/NULL terminator for alignment
+
+; Data Chunk
+wav_data_marker:   EQU 68   ; 4 bytes: "data" subchunk marker
+wav_data_size:     EQU 72   ; 4 bytes: Size of the audio data in bytes
+wav_data_start:    EQU 76   ; Start of audio data
+wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
+
 ; AGON Movie (.agm) Header Structure Offsets and Descriptions
 ; the first 76 bytes are the size and layout of a standard .wav header
 agm_magic:         EQU 0+76    ; 6 bytes: "AGNMOV" identifier
@@ -10,125 +37,26 @@ agm_audio_seconds: EQU 14+76   ; 4 bytes: Total seconds of audio (32-bit float o
 agm_reserved:      EQU 18+76   ; 52 bytes: Reserved for future features (compression, metadata, etc.)
 agm_header_size:   EQU 144   ; Total .agm Header size
 
-agm_next_chunk_size: db 0 ; size of the next chunk
-agm_num_subchunks: db 0 ; number of subchunks in the next chunk
+; agm segment header
+agm_segment_size_last: db 0 ; 4 bytes: size of previous segment (including unit and chunk headers)
+agm_segment_size_this: db 4  ; 4 bytes: size of this segment (including unit and chunk headers)
+agm_segment_hdr_size: equ 8 ; size of the segment header
 
-; subchunk header contains metadata about the next subchunk being read
-agm_subchunk_size: equ 0 ; 3 bytes: size of the subchunk
-agm_subchunk_mask: equ 3 ; 1 byte: encodes what to do with the subchunk
+; unit header contains metadata about the next unit being read
+agm_unit_mask:     equ 0              ; 1 byte: encodes what to do with the unit with the following masks
+agm_unit_hdr_size: equ 1              ; size of the unit header
 
-; agm_subchunk_mask bits
-agm_subchunk_chunk_cmplt: equ 7 ; 1 = chunk complete
-agm_subchunk_chunk_type: equ 6 ; 0 = audio, 1 = video
-agm_subchunk_frame_num: equ %00111111 ; zero-based video frame number
+agm_unit_type:     equ %10000000  ; bit 7, 0 = audio, 1 = video
+agm_unit_gcol:     equ %00000111  ; bits 0-2, set gcol plotting mode for video frames, see 'GCOL paint modes' in vdu_plot.inc
+agm_unit_cmp_typ:  equ %00011000  ; bits 3-4, compression type with the following types
+agm_unit_cmp_non:  equ %00000000  ; no compression (bits 3,4 clear)
+agm_unit_cmp_tbv:  equ %00001000  ; TurboVega compression (bit 3 set)
+agm_unit_cmp_rle:  equ %00010000  ; Run-Length Encoding (bit 4 set)
+agm_unit_cmp_res:  equ %00011000  ; Reserved for future use (bits 3,4 set)
 
-pv_agm_frame_size: dl 0 ; size of a frame in bytes ; TODO: make this part of the agm header
-
-pv_agm_bytes_per_second: dl 0 ; total bytes per second (frame size * frame rate + sample rate)
-pv_frame_bytes_per_chunk: dl 0 ; bytes per chunk (bytes per second / chunks per second)
-pv_agm_chunks_per_sample: db 0 ; chunks per 1 second audio sample (sample rate / chunk size)
-pv_agm_chunks_per_frame: db 0 ; chunk size per frame (frame size / chunks per second)
-
-pv_sample_chunk_counter: db 0 ; init to chunks/sample, when hits zero play the loaded audio buffer
-pv_frame_chunk_counter: db 0 ; init to chunks/frame, when hits zero plot the frame
-
-pv_frame_counter: db 0 ; init to frames/sec, when hits zero we load the next audio sample
-
-
-; chunk header contains metadata about the next chunk being read
-agm_chunk_size: equ 0 ; size of the next chunk
-agm_chunk_header_size: 
-
-
-ps_read_agm:
-; branch on the state of the wav chunk counter
-    ld a,(pv_sample_chunk_counter)
-    dec a
-    ld (pv_sample_chunk_counter),a
-    jp m,@F ; we're in the load and draw frames phase
-    jp z,ps_play_sample ; sample buffer is loaded so play it
-
-@@: ; branch on the state of the frame load counter
-    ld a,(pv_frame_chunk_counter)
-    dec a
-    ld (pv_frame_chunk_counter),a
-    jp z,draw_frame ; load the next frame
-    jp get_input ; not time to load next frame
-; end ps_read_agm
-
-draw_frame:
-; plot the image
-    ld hl,pv_cmd_buffer
-    call vdu_call_buffer
-
-; reset the frame load counter
-    ld a,(ps_wav_header+agm_frame_rate)
-    ld (pv_frame_chunk_counter),a
-
-; bump frame draw counters and branch on results
-    ld a,(pv_frame_counter)
-    dec a
-    jp nz,@F ; not time to load next sample
-
-; reset the wav chunk counter
-    ld a,(pv_agm_chunks_per_sample)
-    ld (pv_sample_chunk_counter),a
-
-; reset the frame counter
-    ld a,(ps_wav_header+agm_frame_rate)
-
-@@:
-; save the frame counter
-    ld (pv_frame_counter),a
-
-; jump to user input
-    jp get_input
-; end draw_frame
-
-play_agm:
-; DEBUG
-    CALL vp_messages
-    CALL vdu_cls
-; END DEBUG
-
-; compute frame and sample statistics
-    ld hl,(ps_wav_header+agm_width) ; l = width, h = height, hlu we don't care
-    mlt hl ; hl = width * height
-    ld (pv_agm_frame_size),hl
-    ld a,(ps_wav_header+agm_frame_rate)
-    ld (pv_frame_counter),a ; reset the frame counter
-    call mul24x8 ; hl = frame size * frame rate = frames bytes per second
-
-    ld de,(ps_wav_header+wav_sample_rate)
-    add hl,de ; hl = total bytes per second
-    ld (pv_agm_bytes_per_second),hl
-
-    ld de,ps_chunks_per_second
-    call udiv24 ; ude = bytes / chunk
-    ld (pv_frame_bytes_per_chunk),de
-
-    ld hl,(pv_agm_frame_size)
-    call udiv24 ; ude = chunks / frame
-    ld a,e
-    ld (pv_agm_chunks_per_frame),a
-    ld (pv_frame_chunk_counter),a ; reset the frame chunk counter
-
-    call printDec8 ; DEBUG
-
-    ld hl,(ps_wav_header+wav_sample_rate)
-    ld de,ps_chunks_per_second
-    call udiv24 ; ude = chunks / sample
-    ld a,e
-    ld (pv_agm_chunks_per_sample),a ; save the chunks per sample
-    ld (pv_sample_chunk_counter),a ; reset the pv sample chunk counter
-    ld (ps_wav_chunk_counter),a ; reset the ps sample chunk counter
-
-    call printDec8 ; DEBUG
-
-; load the command buffer and return to play_agm
-    call pv_load_command_buffer
-    jp play_agm_return
-; end play_agm
+; chunk header (for each chunk of a unit)
+agm_chunk_size: equ 0        ; 4 bytes: size of the chunk (excluding chunk header); 0 = end of unit
+agm_chunk_hdr_size: equ 4    ; size of the chunk header
 
 ; verify that a file is an .agm file
 ; inputs: hl = pointer to fil struct, de = pointer to filename
@@ -187,7 +115,14 @@ verify_agm:
 pv_cmd_buffer: equ 0x3004
 pv_img_buffer: equ 0x3005
 
-pv_load_command_buffer:
+pv_set_video_buffers:
+    ld hl,pv_cmd_buffer
+    ld (ps_agm_cmd_bufferId),hl
+    ld hl,pv_img_buffer
+    ld (ps_agm_data_bufferId),hl
+    ret
+
+pv_load_video_cmd_buffers:
     ld a,(ps_wav_header+agm_width)
     ld (pv_cmd_width),a    
     ld a,(ps_wav_header+agm_height)
@@ -200,7 +135,7 @@ pv_load_command_buffer:
     ld de,pv_cmd_draw
     call vdu_write_block_to_buffer
     ret
-; end pv_load_command_buffer
+; end pv_load_video_cmd_buffers
 
 pv_cmd_draw:
 ; Command 14: Consolidate blocks in a buffer

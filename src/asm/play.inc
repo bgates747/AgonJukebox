@@ -31,6 +31,14 @@ ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
 ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
 ps_media_type: db 0 ; 1 = .wav, 2 = .agm
 
+ps_agm_segment_hdr: blkb agm_segment_hdr_size,0
+ps_agm_unit_hdr: blkb agm_unit_hdr_size,0
+ps_agm_chunk_hdr: blkb agm_chunk_hdr_size,0
+
+ps_agm_data_bufferId: dl 0
+ps_agm_cmd_bufferId: dl 0
+
+
 play_song:
 ; stop the PRT timer and close any currently playing file
     call ps_close_file ; also stops prt timer
@@ -80,7 +88,7 @@ play_song:
 ; branch on .wav or .agm
     ld a,(ps_media_type) ; restore filetype
     dec a ; zero means .wav
-    jp nz,play_agm ; not .wav so play .agm
+    jp nz,ps_play_agm ; not .wav so play .agm
 
 ; compute the chunksize
     ld hl,(ps_wav_header+wav_sample_rate)
@@ -89,7 +97,7 @@ play_song:
     ld (ps_wav_chunk_size),de ; save the chunk size
 
 ; flip the command and sample buffers and read the first block of data
-    call ps_load_command_buffers ; TODO: we should only have to do this on app init, 
+    call ps_load_audio_cmd_buffers ; TODO: we should only have to do this on app init, 
                                  ; but if we don't do it here, only one audio buffer 
                                  ; is loaded or/and played
 ; reset the chunk counter
@@ -100,7 +108,7 @@ play_agm_return:
     ld hl,0
     ld (ps_playhead),hl
  ; this is crucial so that the next sound played is at new position
-    call ps_flip_buffers        
+    call ps_set_audio_buffers        
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
@@ -207,8 +215,8 @@ ps_play_sample:
     inc l
     ld (ps_cmdId),hl ; TODO: perhaps not needed
     call vdu_call_buffer
-    ; fall through to ps_flip_buffers
-ps_flip_buffers:
+    ; fall through to ps_set_audio_buffers
+ps_set_audio_buffers:
 ; flip the command and sample buffers and clear the new sample buffer
     ld a,(ps_channel)
     inc a
@@ -219,7 +227,7 @@ ps_flip_buffers:
     ld (ps_sampleId),hl
     call vdu_clear_buffer
     ret
-; end ps_flip_buffers
+; end ps_set_audio_buffers
 ; end ps_play_sample
 
 ; close the file
@@ -323,7 +331,7 @@ ps_play_random:
 @file_idx: db 0
 ; end ps_play_random
 
-ps_load_command_buffers:
+ps_load_audio_cmd_buffers:
     ld hl,cmd0_buffer
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
@@ -417,4 +425,4 @@ ps_sr1:
     dw 0 ; frequency (relevant only for tuneable samples)
     dw 0 ; duration (ms), zero means play one time in full
 ps_cmd1_end:
-; end ps_load_command_buffers
+; end ps_load_audio_cmd_buffers
