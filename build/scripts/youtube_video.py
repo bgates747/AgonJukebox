@@ -175,7 +175,6 @@ def convert_audio():
 # ============================================================
 #              VIDEO RESIZING & FRAME EXTRACTION
 # ============================================================
-
 def get_video_dimensions(input_file):
     """
     Returns (width, height) as integers using ffprobe.
@@ -307,31 +306,54 @@ def extract_frames():
 
 
 # ============================================================
-#              FRAME CROPPING AND COLOR PROCESSING
+#       FRAME CROPPING AND COLOR PROCESSING (MODIFIED)
 # ============================================================
+#
+# In the original code each frame was simply center‐cropped to the
+# target dimensions. That fails to remove letterboxing (or pillarboxing)
+# – i.e. the black bars that pad a 4:3 image to 16:9.
+#
+# Below we add a helper function, remove_letterbox(), that uses a simple
+# threshold method to detect and remove large black borders. Then we
+# either center‐crop (if the remaining content is larger than the target)
+# or resize to force the final output to be exactly target_width x target_height.
+#
 
-def crop_frames(img, final_width, final_height):
+def remove_letterbox(img, threshold=10, min_crop_ratio=0.9):
+    """
+    Detects and removes letterbox (black borders) from 'img'.
+    It converts the image to grayscale, thresholds it, and computes the bounding
+    box of non‑black pixels. If that bounding box is significantly smaller than the
+    full image (i.e. black bars are present), it crops to that region.
+    """
+    gray = img.convert("L")
+    # Create a binary image: pixels brighter than threshold become white
+    binary = gray.point(lambda p: 255 if p > threshold else 0)
+    bbox = binary.getbbox()
+    if bbox:
+        crop_width = bbox[2] - bbox[0]
+        crop_height = bbox[3] - bbox[1]
+        # Only crop if the detected content is significantly smaller than the full image.
+        if crop_width < img.width * min_crop_ratio or crop_height < img.height * min_crop_ratio:
+            return img.crop(bbox)
+    return img
+
+def center_crop(img, final_width, final_height):
     """
     Center-crops 'img' to final_width x final_height.
-    If the image is already the same size or smaller in either dimension,
-    watch out for edge cases (we typically assume the image is at least as big).
     """
     width, height = img.size
-
-    # If no crop needed, just return
-    if width == final_width and height == final_height:
-        return img
-
     left = (width - final_width) // 2
     top = (height - final_height) // 2
     right = left + final_width
     bottom = top + final_height
-
     return img.crop((left, top, right, bottom))
 
 def process_frames():
     """
-    1) For each PNG frame, do a center crop to exactly target_width x target_height.
+    1) For each PNG frame, remove letterbox (i.e. black borders) if present,
+       then adjust the image so that its final dimensions are exactly
+       target_width x target_height (by center cropping or resizing).
     2) Convert to custom palette (in-place).
     3) Convert to .rgba2 (8bpp).
     """
@@ -346,10 +368,20 @@ def process_frames():
         base = os.path.splitext(pngfile)[0]
         rgba2_path = os.path.join(frames_directory, base + ".rgba2")
 
-        # --- 1) Load the frame, center crop to final dimension ---
+        # --- 1) Load the frame ---
         img = Image.open(pngpath)
-        cropped_img = crop_frames(img, target_width, target_height)
-        cropped_img.save(pngpath)  # Overwrite the PNG with the cropped version
+
+        # --- Remove letterbox (black borders) if present ---
+        content_img = remove_letterbox(img)
+
+        # --- Adjust image to target dimensions ---
+        cw, ch = content_img.size
+        if cw >= target_width and ch >= target_height:
+            final_img = center_crop(content_img, target_width, target_height)
+        else:
+            # If the content is smaller than desired, upscale it
+            final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
+        final_img.save(pngpath)  # Overwrite the PNG with the processed image
 
         # --- 2) Convert to your custom palette in-place ---
         au.convert_to_palette(
@@ -360,7 +392,7 @@ def process_frames():
             transparent_rgb
         )
 
-        # --- 3) Convert that palette-based PNG to RGBA2 (8bpp) => .rgba2
+        # --- 3) Convert that palette-based PNG to RGBA2 (8bpp) => .rgba2 ---
         au.img_to_rgba2(pngpath, rgba2_path)
 
         print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
@@ -444,17 +476,17 @@ if __name__ == "__main__":
 
     # For your *no-rounding* design example:
     target_width  = 240
-    target_height = 180
+    target_height = target_width // 2.35  
     frame_rate    = 1
     bytes_per_sec = 60000
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
-    youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    video_base_name = f'a_ha__Take_On_Me'
+    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # video_base_name = f'a_ha__Take_On_Me'
 
-    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    # video_base_name = f'Star_Wars__Battle_of_Yavin'
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
 
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
@@ -489,8 +521,8 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-# # Download and extract audio group
-#     do_download_video = True
+# Download and extract audio group
+    # do_download_video = True
     # do_extract_audio = True
     # do_compression   = True
     # do_normalization = True
@@ -509,6 +541,6 @@ if __name__ == "__main__":
     # do_delete_processed_files = True
 
 # Play AGM group
-    do_play_agm = True
+    # do_play_agm = True
 
     do_all_the_things()
