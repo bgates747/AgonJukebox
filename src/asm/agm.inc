@@ -127,8 +127,9 @@ pv_load_video_cmd_buffers:
     ld (pv_cmd_width),a    
     ld a,(ps_wav_header+agm_height)
     ld (pv_cmd_height),a
-    ld a,32
+    ld a,128
     ld (pv_cmd_x0),a
+    xor a 
     ld (pv_cmd_y0),a
     ld hl,pv_cmd_buffer
     ld bc,pv_cmd_draw_end-pv_cmd_draw

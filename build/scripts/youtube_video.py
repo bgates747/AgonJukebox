@@ -443,11 +443,11 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 120
-    target_height = 90
-    frame_rate    = 4
-    bytes_per_sec = 60000
-    target_sample_rate   = bytes_per_sec - (target_width * target_height * frame_rate)
+    target_width  = 160
+    target_height = 120
+    frame_rate    = 1
+    bytes_per_sec = 48000
+    target_sample_rate = 48000 // 4
     chunksize = bytes_per_sec // 60
 
     youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
@@ -491,9 +491,9 @@ if __name__ == "__main__":
 # ============================================================
 # # Download and extract audio group
 #     do_download_video = True
-    do_extract_audio = True
-    do_compression   = True
-    do_normalization = True
+    # do_extract_audio = True
+    # do_compression   = True
+    # do_normalization = True
 
 # Convert audio and extract video group
     do_convert_audio = True
@@ -509,6 +509,6 @@ if __name__ == "__main__":
     # do_delete_processed_files = True
 
 # Play AGM group
-    # do_play_agm = True
+    do_play_agm = True
 
     do_all_the_things()

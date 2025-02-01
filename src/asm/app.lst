@@ -29,8 +29,8 @@ PC     Output      Line
 040048 DD E5       0013         push ix
 04004A FD E5       0014         push iy
 04004C             0015     
-04004C CD C0 71 04 0016         call init
-040050 CD D1 71 04 0017         call main
+04004C CD BC 71 04 0016         call init
+040050 CD CD 71 04 0017         call main
 040054             0018     
 040054             0019     exit:
 040054 FD E1       0020         pop iy
@@ -16477,268 +16477,268 @@ PC     Output      Line
 04719B             0129*    ; DEBUG
 04719B CD 4E 6D 04 0130*        CALL dumpRegistersHex
 04719F CD 7C 00 04 0131*        CALL printNewLine
-0471A3 CD 80 6F 04 0132*        CALL DEBUG_WAITKEYPRESS
-0471A7             0133*    ; END DEBUG
-0471A7             0134*    
-0471A7 CD 7D 1F 04 0135*        call vdu_call_buffer
-0471AB             0136*    
-0471AB             0137*    
-0471AB C3 B3 71 04 0138*        jp @done ; DEBUG
-0471AF             0139*    
-0471AF C3 82 70 04 0140*        jp @unit_loop
-0471B3             0141*    
-0471B3             0142*    
-0471B3             0143*    
-0471B3             0144*    
-0471B3             0145*    
-0471B3             0146*    
-0471B3             0147*    
-0471B3             0148*    
-0471B3             0149*    
-0471B3             0150*    
-0471B3             0151*    
-0471B3             0152*    
-0471B3             0153*    
-0471B3             0154*        ; call vdu_home_cursor ; DEBUG
-0471B3             0155*    
-0471B3             0156*    
-0471B3             0157*    
-0471B3             0158*    
-0471B3             0159*    
-0471B3             0160*    
-0471B3             0161*    ; ; clear the image buffer
-0471B3             0162*    ;     ld hl,test_image_buffer
-0471B3             0163*    ;     call vdu_clear_buffer
-0471B3             0164*    
-0471B3             0165*    ; ; set the frame timer
-0471B3             0166*    ;     ld hl,test_frame_timer
-0471B3             0167*    ;     ld iy,tmr_test
-0471B3             0168*    ;     call tmr_set
-0471B3             0169*    
-0471B3             0170*    ; ; read how many bytes in the next chunk
-0471B3             0171*    ;     ld hl,ps_fil_struct
-0471B3             0172*    ;     ld bc,4 ; bytes to read
-0471B3             0173*    ;     ld de,ps_agm_data ; target address
-0471B3             0174*    ;     FFSCALL ffs_fread
-0471B3             0175*    ;     ld hl,(ps_agm_data) ; number of bytes to read this frame
-0471B3             0176*    ;     ld (test_bytes_to_read),hl
-0471B3             0177*    ;     push bc
-0471B3             0178*    
-0471B3             0179*    ;     CALL printDec ; DEBUG; print the number of bytes to read
-0471B3             0180*    
-0471B3             0181*    ;     pop hl
-0471B3             0182*    ;     SIGN_HLU
-0471B3             0183*    ;     jp z,@done
-0471B3             0184*    
-0471B3             0185*    ; ; compute number of chunks to load
-0471B3             0186*    ;     ld hl,(test_bytes_to_read)
-0471B3             0187*    ;     ld de,test_chunksize
-0471B3             0188*    ;     call udiv24 ; de = number of whole chunks, hl = remaining bytes
-0471B3             0189*    ;     push hl ; save remaining bytes
-0471B3             0190*    
-0471B3             0191*    ;     ex de,hl ; hl = number of whole chunks
-0471B3             0192*    ;     SIGN_HLU
-0471B3             0193*    ;     jp z,@load_remain ; no bytes to load so skip ahead
-0471B3             0194*    
-0471B3             0195*    ;     ld b,l ; loop counter
-0471B3             0196*    ; @load_loop:
-0471B3             0197*    ;     push bc ; save loop counter
-0471B3             0198*    
-0471B3             0199*    ; ; read the next chunk from the file
-0471B3             0200*    ;     ld bc,test_chunksize ; bytes to read
-0471B3             0201*    ;     ld hl,ps_fil_struct
-0471B3             0202*    ;     ld de,ps_agm_data ; target address
-0471B3             0203*    ;     FFSCALL ffs_fread
-0471B3             0204*    
-0471B3             0205*    ; ; load buffer with the data read
-0471B3             0206*    ;     ld hl,test_image_buffer ; bufferId
-0471B3             0207*    ;     ld bc,test_chunksize ; bytes to load
-0471B3             0208*    ;     call vdu_load_buffer
-0471B3             0209*    
-0471B3             0210*    ; ; bump loop counter
-0471B3             0211*    ;     pop bc ; restore loop counter
-0471B3             0212*    ;     djnz @load_loop
-0471B3             0213*    
-0471B3             0214*    ; @load_remain: ; check for remaining bytes to load
-0471B3             0215*    ;     pop hl ; restore remaining bytes
-0471B3             0216*    ;     SIGN_HLU
-0471B3             0217*    ;     jp z,@decompress ; no bytes left to load so skip ahead
-0471B3             0218*    
-0471B3             0219*    ; ; read the final chunk from the file
-0471B3             0220*    ;     push hl
-0471B3             0221*    ;     pop bc ; remaining bytes
-0471B3             0222*    ;     ld hl,ps_fil_struct
-0471B3             0223*    ;     ld de,ps_agm_data ; target address
-0471B3             0224*    ;     FFSCALL ffs_fread
-0471B3             0225*    
-0471B3             0226*    ; ; load buffer with the data read
-0471B3             0227*    ;     ld hl,test_image_buffer ; bufferId
-0471B3             0228*    ;     ld bc,test_chunksize ; bytes to load
-0471B3             0229*    ;     call vdu_load_buffer
-0471B3             0230*    
-0471B3             0231*    ; @decompress: ; decompress the loaded buffer
-0471B3             0232*    ;     ; ld hl,test_image_buffer ; sourceBufferId
-0471B3             0233*    ;     ; ld de,test_image_buffer ; targetBufferId
-0471B3             0234*    ;     ; call vdu_decompress_buffer
-0471B3             0235*    
-0471B3             0236*    ; ; make an image from the buffer
-0471B3             0237*    ;     ld hl,test_image_buffer ; bufferId
-0471B3             0238*    ;     call vdu_consolidate_buffer
-0471B3             0239*    ;     ld hl,test_image_buffer ; bufferId
-0471B3             0240*    ;     call vdu_buff_select
-0471B3             0241*    ;     ld a,1 ; rgba2222
-0471B3             0242*    ;     ld bc,test_width ; width
-0471B3             0243*    ;     ld de,test_height ; height
-0471B3             0244*    ; 	call vdu_bmp_create
-0471B3             0245*    
-0471B3             0246*    ; ; check the frame timer
-0471B3             0247*    ; @wait_here:
-0471B3             0248*    ;     ld iy,tmr_test
-0471B3             0249*    ;     call tmr_get
-0471B3             0250*    ;     jp z,@F
-0471B3             0251*    ;     jp m,@F
-0471B3             0252*    ;     jp @wait_here
-0471B3             0253*    
-0471B3             0254*    ; @@: ; plot the image
-0471B3             0255*    ;     ld bc,[screen_width-test_width]/2 ; x
-0471B3             0256*    ;     ld de,[screen_height-test_height]/2 ; y
-0471B3             0257*    ;     call vdu_plot_bmp
-0471B3             0258*    
-0471B3             0259*    ; ; ; print the frame number
-0471B3             0260*    ; ;     call vdu_home_cursor
-0471B3             0261*    ; ;     ld hl,(test_frame_number)
-0471B3             0262*    ; ;     inc hl
-0471B3             0263*    ; ;     ld (test_frame_number),hl
-0471B3             0264*    ; ;     call printDec
-0471B3             0265*    
-0471B3             0266*    ; ; loop back to play_loop
-0471B3             0267*    ;     jp @play_loop
-0471B3             0268*    
-0471B3             0269*    @done: ; close the file
-0471B3 21 00 00 09 0270*        ld hl,ps_fil_struct
-0471B7             0271*        FFSCALL ffs_fclose
+0471A3             0132*        ; CALL DEBUG_WAITKEYPRESS
+0471A3             0133*    ; END DEBUG
+0471A3             0134*    
+0471A3 CD 7D 1F 04 0135*        call vdu_call_buffer
+0471A7             0136*    
+0471A7             0137*    
+0471A7 C3 AF 71 04 0138*        jp @done ; DEBUG
+0471AB             0139*    
+0471AB C3 82 70 04 0140*        jp @unit_loop
+0471AF             0141*    
+0471AF             0142*    
+0471AF             0143*    
+0471AF             0144*    
+0471AF             0145*    
+0471AF             0146*    
+0471AF             0147*    
+0471AF             0148*    
+0471AF             0149*    
+0471AF             0150*    
+0471AF             0151*    
+0471AF             0152*    
+0471AF             0153*    
+0471AF             0154*        ; call vdu_home_cursor ; DEBUG
+0471AF             0155*    
+0471AF             0156*    
+0471AF             0157*    
+0471AF             0158*    
+0471AF             0159*    
+0471AF             0160*    
+0471AF             0161*    ; ; clear the image buffer
+0471AF             0162*    ;     ld hl,test_image_buffer
+0471AF             0163*    ;     call vdu_clear_buffer
+0471AF             0164*    
+0471AF             0165*    ; ; set the frame timer
+0471AF             0166*    ;     ld hl,test_frame_timer
+0471AF             0167*    ;     ld iy,tmr_test
+0471AF             0168*    ;     call tmr_set
+0471AF             0169*    
+0471AF             0170*    ; ; read how many bytes in the next chunk
+0471AF             0171*    ;     ld hl,ps_fil_struct
+0471AF             0172*    ;     ld bc,4 ; bytes to read
+0471AF             0173*    ;     ld de,ps_agm_data ; target address
+0471AF             0174*    ;     FFSCALL ffs_fread
+0471AF             0175*    ;     ld hl,(ps_agm_data) ; number of bytes to read this frame
+0471AF             0176*    ;     ld (test_bytes_to_read),hl
+0471AF             0177*    ;     push bc
+0471AF             0178*    
+0471AF             0179*    ;     CALL printDec ; DEBUG; print the number of bytes to read
+0471AF             0180*    
+0471AF             0181*    ;     pop hl
+0471AF             0182*    ;     SIGN_HLU
+0471AF             0183*    ;     jp z,@done
+0471AF             0184*    
+0471AF             0185*    ; ; compute number of chunks to load
+0471AF             0186*    ;     ld hl,(test_bytes_to_read)
+0471AF             0187*    ;     ld de,test_chunksize
+0471AF             0188*    ;     call udiv24 ; de = number of whole chunks, hl = remaining bytes
+0471AF             0189*    ;     push hl ; save remaining bytes
+0471AF             0190*    
+0471AF             0191*    ;     ex de,hl ; hl = number of whole chunks
+0471AF             0192*    ;     SIGN_HLU
+0471AF             0193*    ;     jp z,@load_remain ; no bytes to load so skip ahead
+0471AF             0194*    
+0471AF             0195*    ;     ld b,l ; loop counter
+0471AF             0196*    ; @load_loop:
+0471AF             0197*    ;     push bc ; save loop counter
+0471AF             0198*    
+0471AF             0199*    ; ; read the next chunk from the file
+0471AF             0200*    ;     ld bc,test_chunksize ; bytes to read
+0471AF             0201*    ;     ld hl,ps_fil_struct
+0471AF             0202*    ;     ld de,ps_agm_data ; target address
+0471AF             0203*    ;     FFSCALL ffs_fread
+0471AF             0204*    
+0471AF             0205*    ; ; load buffer with the data read
+0471AF             0206*    ;     ld hl,test_image_buffer ; bufferId
+0471AF             0207*    ;     ld bc,test_chunksize ; bytes to load
+0471AF             0208*    ;     call vdu_load_buffer
+0471AF             0209*    
+0471AF             0210*    ; ; bump loop counter
+0471AF             0211*    ;     pop bc ; restore loop counter
+0471AF             0212*    ;     djnz @load_loop
+0471AF             0213*    
+0471AF             0214*    ; @load_remain: ; check for remaining bytes to load
+0471AF             0215*    ;     pop hl ; restore remaining bytes
+0471AF             0216*    ;     SIGN_HLU
+0471AF             0217*    ;     jp z,@decompress ; no bytes left to load so skip ahead
+0471AF             0218*    
+0471AF             0219*    ; ; read the final chunk from the file
+0471AF             0220*    ;     push hl
+0471AF             0221*    ;     pop bc ; remaining bytes
+0471AF             0222*    ;     ld hl,ps_fil_struct
+0471AF             0223*    ;     ld de,ps_agm_data ; target address
+0471AF             0224*    ;     FFSCALL ffs_fread
+0471AF             0225*    
+0471AF             0226*    ; ; load buffer with the data read
+0471AF             0227*    ;     ld hl,test_image_buffer ; bufferId
+0471AF             0228*    ;     ld bc,test_chunksize ; bytes to load
+0471AF             0229*    ;     call vdu_load_buffer
+0471AF             0230*    
+0471AF             0231*    ; @decompress: ; decompress the loaded buffer
+0471AF             0232*    ;     ; ld hl,test_image_buffer ; sourceBufferId
+0471AF             0233*    ;     ; ld de,test_image_buffer ; targetBufferId
+0471AF             0234*    ;     ; call vdu_decompress_buffer
+0471AF             0235*    
+0471AF             0236*    ; ; make an image from the buffer
+0471AF             0237*    ;     ld hl,test_image_buffer ; bufferId
+0471AF             0238*    ;     call vdu_consolidate_buffer
+0471AF             0239*    ;     ld hl,test_image_buffer ; bufferId
+0471AF             0240*    ;     call vdu_buff_select
+0471AF             0241*    ;     ld a,1 ; rgba2222
+0471AF             0242*    ;     ld bc,test_width ; width
+0471AF             0243*    ;     ld de,test_height ; height
+0471AF             0244*    ; 	call vdu_bmp_create
+0471AF             0245*    
+0471AF             0246*    ; ; check the frame timer
+0471AF             0247*    ; @wait_here:
+0471AF             0248*    ;     ld iy,tmr_test
+0471AF             0249*    ;     call tmr_get
+0471AF             0250*    ;     jp z,@F
+0471AF             0251*    ;     jp m,@F
+0471AF             0252*    ;     jp @wait_here
+0471AF             0253*    
+0471AF             0254*    ; @@: ; plot the image
+0471AF             0255*    ;     ld bc,[screen_width-test_width]/2 ; x
+0471AF             0256*    ;     ld de,[screen_height-test_height]/2 ; y
+0471AF             0257*    ;     call vdu_plot_bmp
+0471AF             0258*    
+0471AF             0259*    ; ; ; print the frame number
+0471AF             0260*    ; ;     call vdu_home_cursor
+0471AF             0261*    ; ;     ld hl,(test_frame_number)
+0471AF             0262*    ; ;     inc hl
+0471AF             0263*    ; ;     ld (test_frame_number),hl
+0471AF             0264*    ; ;     call printDec
+0471AF             0265*    
+0471AF             0266*    ; ; loop back to play_loop
+0471AF             0267*    ;     jp @play_loop
+0471AF             0268*    
+0471AF             0269*    @done: ; close the file
+0471AF 21 00 00 09 0270*        ld hl,ps_fil_struct
+0471B3             0271*        FFSCALL ffs_fclose
                        M1 Args: function=ffs_fclose 
-0471B7 FD E5       0001*M1  			PUSH IY
-0471B9 3E 81       0002*M1  			LD	A, function
-0471BB 5B CF       0003*M1  			RST.LIL	08h
-0471BD FD E1       0004*M1  			POP IY
-0471BF             0272*    
-0471BF C9          0273*        ret
-0471C0             0274*    ; end ps_read_agm
-0471C0             0275*    
-0471C0             0276*    
-0471C0             0277*    ; ; set graphics mode
-0471C0             0278*    ;     ld a,3 ; mode xor
-0471C0             0279*    ;     ld c,c_black ; can be any foreground
-0471C0             0280*    ;     call vdu_gcol
-0471C0             0061     
-0471C0             0062     ; --- MAIN PROGRAM FILE ---
-0471C0             0063     init:
-0471C0 CD 0A 3C 04 0064         call bf_get_dir
-0471C4 CD F9 36 04 0065         call ui_init
-0471C8 CD B7 69 04 0066         call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
-0471CC             0067                                      ; (though it must be done here b/c ui_init clears all buffers)
-0471CC CD DD 6A 04 0068         call ps_prt_irq_init
-0471D0 C9          0069         ret
-0471D1             0070     ; end init
-0471D1             0071     main:
-0471D1             0072     ; call the change directory routine and jp to user input
-0471D1 CD 35 3E 04 0073         call get_input
-0471D5             0074     
-0471D5             0075     ; we come back here when user wants to quit app
-0471D5             0076     ; shut down everytyhing and gracefully exit to MOS
-0471D5 CD F4 68 04 0077         call ps_close_file ; close any playing file and stop the PRT timer
-0471D9 FB          0078         ei ; interrupts were disabled by get_input
-0471DA             0079     ; restore original screen mode
-0471DA 3A A6 35 04 0080         ld a,(original_screen_mode)
-0471DE CD AC 1C 04 0081         call vdu_set_screen_mode
-0471E2 CD A7 1C 04 0082         call vdu_reset_viewports
-0471E6 CD DE 1B 04 0083         call vdu_cls
-0471EA             0084     ; print thanks for playing message
-0471EA CD 60 00 04 0085         call printInline
-0471EE 54 68 61 6E 0086         asciz "Thank you for using\r\n"
+0471B3 FD E5       0001*M1  			PUSH IY
+0471B5 3E 81       0002*M1  			LD	A, function
+0471B7 5B CF       0003*M1  			RST.LIL	08h
+0471B9 FD E1       0004*M1  			POP IY
+0471BB             0272*    
+0471BB C9          0273*        ret
+0471BC             0274*    ; end ps_read_agm
+0471BC             0275*    
+0471BC             0276*    
+0471BC             0277*    ; ; set graphics mode
+0471BC             0278*    ;     ld a,3 ; mode xor
+0471BC             0279*    ;     ld c,c_black ; can be any foreground
+0471BC             0280*    ;     call vdu_gcol
+0471BC             0061     
+0471BC             0062     ; --- MAIN PROGRAM FILE ---
+0471BC             0063     init:
+0471BC CD 0A 3C 04 0064         call bf_get_dir
+0471C0 CD F9 36 04 0065         call ui_init
+0471C4 CD B7 69 04 0066         call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
+0471C8             0067                                      ; (though it must be done here b/c ui_init clears all buffers)
+0471C8 CD DD 6A 04 0068         call ps_prt_irq_init
+0471CC C9          0069         ret
+0471CD             0070     ; end init
+0471CD             0071     main:
+0471CD             0072     ; call the change directory routine and jp to user input
+0471CD CD 35 3E 04 0073         call get_input
+0471D1             0074     
+0471D1             0075     ; we come back here when user wants to quit app
+0471D1             0076     ; shut down everytyhing and gracefully exit to MOS
+0471D1 CD F4 68 04 0077         call ps_close_file ; close any playing file and stop the PRT timer
+0471D5 FB          0078         ei ; interrupts were disabled by get_input
+0471D6             0079     ; restore original screen mode
+0471D6 3A A6 35 04 0080         ld a,(original_screen_mode)
+0471DA CD AC 1C 04 0081         call vdu_set_screen_mode
+0471DE CD A7 1C 04 0082         call vdu_reset_viewports
+0471E2 CD DE 1B 04 0083         call vdu_cls
+0471E6             0084     ; print thanks for playing message
+0471E6 CD 60 00 04 0085         call printInline
+0471EA 54 68 61 6E 0086         asciz "Thank you for using\r\n"
        6B 20 79 6F 
        75 20 66 6F 
        72 20 75 73 
        69 6E 67 0D 
        0A 00       
-047204 21 38 39 04 0087         ld hl,agon_jukebox_ascii
-047208 CD 67 00 04 0088         call printString
-04720C             0089     ; set cursor behaviuor
-04720C CD 58 1B 04 0090         call vdu_cursor_on
-047210 26 10       0091         ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
-047212 2E 00       0092         ld l,%00000000 ; bit 4 reset means cursor scrolls screen
-047214 CD CA 1B 04 0093         call vdu_cursor_behaviour
-047218 C9          0094         ret ; back to MOS
-047219             0095     ; end main
-047219             0096     
-047219             0097     ; must be final include in program so file data does not stomp on program code or other data
-047219             0098         include "files.inc"
-047219             0001*    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
-047219             0002*    
-047219             0003*    ; buffer for loading files unrelated to audio
-047219             0004*    ; e.g.: fonts, sprites, etc. (limited to 8k)
-047219             0005*    filedata: equ 0xB7E000 ; address of onboard 8k sram
-047219             0006*    
-047219             0007*    bf_fil_struct: equ 0x06FF00 ;
-047219             0008*    bf_fil_obj: equ 0x06FF00 ; 15 bytes: Object identifier
-047219             0009*    bf_fil_flag: equ 0x06FF0F ; 1 bytes: File status flags
-047219             0010*    bf_fil_err: equ 0x06FF10 ; 1 bytes: Abort flag (error code)
-047219             0011*    bf_fil_fptr: equ 0x06FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
-047219             0012*    bf_fil_clust: equ 0x06FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
-047219             0013*    bf_fil_sect: equ 0x06FF19 ; 4 bytes: Sector number appearing in buf[] (0
-047219             0014*    bf_fil_dir_sect: equ 0x06FF1D ; 4 bytes: Sector number containing the directory entry
-047219             0015*    bf_fil_dir_ptr: equ 0x06FF21 ; 3 bytes: Pointer to the directory entry in the win[]
-047219             0016*    
-047219             0017*    
-047219             0018*    bf_struct: equ 0x070000 ; browsing song jukebox info
-047219             0019*    bf_file_idx: equ 0x070000 ; 1 bytes: Current file index in the directory page
-047219             0020*    bf_dir_num_files: equ 0x070001 ; 3 bytes: Number of files/directories in the directory (virtually unlimited)
-047219             0021*    bf_files_cur_pg: equ 0x070004 ; 3 bytes: Number of files/directories of the current directory page
-047219             0022*    bf_files_last_pg: equ 0x070007 ; 3 bytes: Number of files/directories of the last directory page
-047219             0023*    bf_page_cur: equ 0x07000A ; 3 bytes: Current directory page number
-047219             0024*    bf_dir_num_pages: equ 0x07000D ; 3 bytes: Number of pages in the directory (virtually unlimited)
-047219             0025*    bf_dir_path: equ 0x070010 ; 256 bytes: Path of the current directory
-047219             0026*    bf_struct_size: equ 512
-047219             0027*    
-047219             0028*    bf_dir_struct: equ 0x070200 ; browsing song directory info
-047219             0029*    bf_dir_obj: equ 0x070200 ; 15 bytes: Object identifier
-047219             0030*    bf_dir_dptr: equ 0x07020F ; 4 bytes: Current read/write offset
-047219             0031*    bf_dir_clust: equ 0x070213 ; 4 bytes: Current cluster
-047219             0032*    bf_dir_sect: equ 0x070217 ; 4 bytes: Current sector (0:Read operation has terminated)
-047219             0033*    bf_dir_dir: equ 0x07021B ; 3 bytes: Pointer to the directory item in the win[]
-047219             0034*    bf_dir_fn: equ 0x07021E ; 12 bytes: SFN (in/out) {body[8],ext[3],status[1]}
-047219             0035*    bf_dir_blk_ofs: equ 0x07022A ; 4 bytes: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-047219             0036*    
-047219             0037*    bf_filinfo_ptrs: equ 0x070300 ; 768 bytes: List of filename pointers in the current directory page (256*3)
-047219             0038*    bf_filinfo_ptrs_size: equ 768
-047219             0039*    
-047219             0040*    bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
-047219             0041*    bf_dir_fil_list_size: equ 71168
-047219             0042*    
-047219             0043*    bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
-047219             0044*    bf_agm_header: equ 0x081C4C ; 144 bytes: browsing song .agm file header
-047219             0045*    
-047219             0046*    ps_fil_struct: equ 0x090000 ;
-047219             0047*    ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
-047219             0048*    ps_fil_flag: equ 0x09000F ; 1 bytes: File status flags
-047219             0049*    ps_fil_err: equ 0x090010 ; 1 bytes: Abort flag (error code)
-047219             0050*    ps_fil_fptr: equ 0x090011 ; 4 bytes: File read/write pointer (Zeroed on file open)
-047219             0051*    ps_fil_clust: equ 0x090015 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
-047219             0052*    ps_fil_sect: equ 0x090019 ; 4 bytes: Sector number appearing in buf[] (0
-047219             0053*    ps_fil_dir_sect: equ 0x09001D ; 4 bytes: Sector number containing the directory entry
-047219             0054*    ps_fil_dir_ptr: equ 0x090021 ; 3 bytes: Pointer to the directory entry in the win[]
-047219             0055*    
-047219             0056*    ps_filinfo_struct: equ 0x090100 ;
-047219             0057*    ps_filinfo_fsize: equ 0x090100 ; 4 bytes: File size
-047219             0058*    ps_filinfo_fdate: equ 0x090104 ; 2 bytes: Modified date
-047219             0059*    ps_filinfo_ftime: equ 0x090106 ; 2 bytes: Modified time
-047219             0060*    ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
-047219             0061*    ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
-047219             0062*    ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
-047219             0063*    
-047219             0064*    ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
-047219             0065*    ps_wav_data: equ 0x09034C ; virtually unlimited bytes:
-047219             0066*    
-047219             0067*    ps_agm_header: equ 0x09034C ; 144 bytes:
-047219             0068*    ps_agm_data: equ 0x0903DC ; virtually unlimited bytes:
+047200 21 38 39 04 0087         ld hl,agon_jukebox_ascii
+047204 CD 67 00 04 0088         call printString
+047208             0089     ; set cursor behaviuor
+047208 CD 58 1B 04 0090         call vdu_cursor_on
+04720C 26 10       0091         ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+04720E 2E 00       0092         ld l,%00000000 ; bit 4 reset means cursor scrolls screen
+047210 CD CA 1B 04 0093         call vdu_cursor_behaviour
+047214 C9          0094         ret ; back to MOS
+047215             0095     ; end main
+047215             0096     
+047215             0097     ; must be final include in program so file data does not stomp on program code or other data
+047215             0098         include "files.inc"
+047215             0001*    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+047215             0002*    
+047215             0003*    ; buffer for loading files unrelated to audio
+047215             0004*    ; e.g.: fonts, sprites, etc. (limited to 8k)
+047215             0005*    filedata: equ 0xB7E000 ; address of onboard 8k sram
+047215             0006*    
+047215             0007*    bf_fil_struct: equ 0x06FF00 ;
+047215             0008*    bf_fil_obj: equ 0x06FF00 ; 15 bytes: Object identifier
+047215             0009*    bf_fil_flag: equ 0x06FF0F ; 1 bytes: File status flags
+047215             0010*    bf_fil_err: equ 0x06FF10 ; 1 bytes: Abort flag (error code)
+047215             0011*    bf_fil_fptr: equ 0x06FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
+047215             0012*    bf_fil_clust: equ 0x06FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
+047215             0013*    bf_fil_sect: equ 0x06FF19 ; 4 bytes: Sector number appearing in buf[] (0
+047215             0014*    bf_fil_dir_sect: equ 0x06FF1D ; 4 bytes: Sector number containing the directory entry
+047215             0015*    bf_fil_dir_ptr: equ 0x06FF21 ; 3 bytes: Pointer to the directory entry in the win[]
+047215             0016*    
+047215             0017*    
+047215             0018*    bf_struct: equ 0x070000 ; browsing song jukebox info
+047215             0019*    bf_file_idx: equ 0x070000 ; 1 bytes: Current file index in the directory page
+047215             0020*    bf_dir_num_files: equ 0x070001 ; 3 bytes: Number of files/directories in the directory (virtually unlimited)
+047215             0021*    bf_files_cur_pg: equ 0x070004 ; 3 bytes: Number of files/directories of the current directory page
+047215             0022*    bf_files_last_pg: equ 0x070007 ; 3 bytes: Number of files/directories of the last directory page
+047215             0023*    bf_page_cur: equ 0x07000A ; 3 bytes: Current directory page number
+047215             0024*    bf_dir_num_pages: equ 0x07000D ; 3 bytes: Number of pages in the directory (virtually unlimited)
+047215             0025*    bf_dir_path: equ 0x070010 ; 256 bytes: Path of the current directory
+047215             0026*    bf_struct_size: equ 512
+047215             0027*    
+047215             0028*    bf_dir_struct: equ 0x070200 ; browsing song directory info
+047215             0029*    bf_dir_obj: equ 0x070200 ; 15 bytes: Object identifier
+047215             0030*    bf_dir_dptr: equ 0x07020F ; 4 bytes: Current read/write offset
+047215             0031*    bf_dir_clust: equ 0x070213 ; 4 bytes: Current cluster
+047215             0032*    bf_dir_sect: equ 0x070217 ; 4 bytes: Current sector (0:Read operation has terminated)
+047215             0033*    bf_dir_dir: equ 0x07021B ; 3 bytes: Pointer to the directory item in the win[]
+047215             0034*    bf_dir_fn: equ 0x07021E ; 12 bytes: SFN (in/out) {body[8],ext[3],status[1]}
+047215             0035*    bf_dir_blk_ofs: equ 0x07022A ; 4 bytes: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+047215             0036*    
+047215             0037*    bf_filinfo_ptrs: equ 0x070300 ; 768 bytes: List of filename pointers in the current directory page (256*3)
+047215             0038*    bf_filinfo_ptrs_size: equ 768
+047215             0039*    
+047215             0040*    bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
+047215             0041*    bf_dir_fil_list_size: equ 71168
+047215             0042*    
+047215             0043*    bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
+047215             0044*    bf_agm_header: equ 0x081C4C ; 144 bytes: browsing song .agm file header
+047215             0045*    
+047215             0046*    ps_fil_struct: equ 0x090000 ;
+047215             0047*    ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
+047215             0048*    ps_fil_flag: equ 0x09000F ; 1 bytes: File status flags
+047215             0049*    ps_fil_err: equ 0x090010 ; 1 bytes: Abort flag (error code)
+047215             0050*    ps_fil_fptr: equ 0x090011 ; 4 bytes: File read/write pointer (Zeroed on file open)
+047215             0051*    ps_fil_clust: equ 0x090015 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
+047215             0052*    ps_fil_sect: equ 0x090019 ; 4 bytes: Sector number appearing in buf[] (0
+047215             0053*    ps_fil_dir_sect: equ 0x09001D ; 4 bytes: Sector number containing the directory entry
+047215             0054*    ps_fil_dir_ptr: equ 0x090021 ; 3 bytes: Pointer to the directory entry in the win[]
+047215             0055*    
+047215             0056*    ps_filinfo_struct: equ 0x090100 ;
+047215             0057*    ps_filinfo_fsize: equ 0x090100 ; 4 bytes: File size
+047215             0058*    ps_filinfo_fdate: equ 0x090104 ; 2 bytes: Modified date
+047215             0059*    ps_filinfo_ftime: equ 0x090106 ; 2 bytes: Modified time
+047215             0060*    ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
+047215             0061*    ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
+047215             0062*    ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
+047215             0063*    
+047215             0064*    ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
+047215             0065*    ps_wav_data: equ 0x09034C ; virtually unlimited bytes:
+047215             0066*    
+047215             0067*    ps_agm_header: equ 0x09034C ; 144 bytes:
+047215             0068*    ps_agm_data: equ 0x0903DC ; virtually unlimited bytes:
