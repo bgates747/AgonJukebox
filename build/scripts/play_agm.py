@@ -244,7 +244,7 @@ def play_agm(filepath):
 
 # Test / main
 if __name__ == "__main__":
-    agm_path = "tgt/video/a_ha__Take_On_Me_120x90x4.agm"
+    agm_path = "tgt/video/a_ha__Take_On_Me_short_120x90x4.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:

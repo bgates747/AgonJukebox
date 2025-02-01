@@ -38,8 +38,8 @@ agm_reserved:      EQU 18+76   ; 52 bytes: Reserved for future features (compres
 agm_header_size:   EQU 144   ; Total .agm Header size
 
 ; agm segment header
-agm_segment_size_last: db 0 ; 4 bytes: size of previous segment (including unit and chunk headers)
-agm_segment_size_this: db 4  ; 4 bytes: size of this segment (including unit and chunk headers)
+agm_segment_size_last: equ 0 ; 4 bytes: size of previous segment (including unit and chunk headers)
+agm_segment_size_this: equ 4  ; 4 bytes: size of this segment (including unit and chunk headers)
 agm_segment_hdr_size: equ 8 ; size of the segment header
 
 ; unit header contains metadata about the next unit being read

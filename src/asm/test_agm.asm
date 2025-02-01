@@ -72,7 +72,7 @@ init:
     ret
 ; end init
 main:
-    call printNewLine
+    call vdu_cls
 
 ; a=2 and zero flag reset if good .agm file (a=1 if good .wav)
 ; hl points to ps_fil_struct

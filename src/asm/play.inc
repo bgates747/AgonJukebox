@@ -3,10 +3,12 @@
 ; requirements: the file must be 8-bit signed PCM mono
 ; uses: sound channels 0 and 1, buffers 0x3000 and 0x3001
 ; play_song constants
-ch0_buffer: equ 0x3000
-ch1_buffer: equ 0x3001
-cmd0_buffer: equ 0x3002
-cmd1_buffer: equ 0x3003
+
+ps_wav_cmd_bufferId0: equ 0x003000
+ps_wav_cmd_bufferId1: equ 0x003001
+ps_wav_data_bufferId0: equ 0x003002
+ps_wav_data_bufferId1: equ 0x003003
+
 
 ; ps_mode bits
 ps_mode_playing: equ 0 ; 0 = paused 1 = playing, p key toggles
@@ -17,8 +19,6 @@ ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
 ; current active channel and bufferId's
 ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
-ps_cmdId: dl 0 ; command bufferId
-ps_sampleId: dl 0 ; sample bufferId
 ps_chunkpointer: dl 0 ; pointer to current chunk
 ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
 ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
@@ -157,7 +157,7 @@ ps_read_sample:
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
 ; load the chunk to the current sample buffer
-    ld hl,(ps_sampleId)
+    ld hl,(ps_agm_data_bufferId)
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
 ; decrement the chunk counter
@@ -210,25 +210,27 @@ ps_play_sample:
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
 ; call the command buffer to play the sound
-    ld hl,(ps_sampleId)
-    inc l
-    inc l
-    ld (ps_cmdId),hl ; TODO: perhaps not needed
+    ld hl,(ps_agm_cmd_bufferId)
     call vdu_call_buffer
-    ; fall through to ps_set_audio_buffers
+; flip the sample and command buffers
+    call ps_set_audio_buffers
+    ret
+; end ps_play_sample
 ps_set_audio_buffers:
 ; flip the command and sample buffers and clear the new sample buffer
     ld a,(ps_channel)
     inc a
     and 1
     ld (ps_channel),a
-    ld hl,ch0_buffer
+    ld hl,ps_wav_cmd_bufferId0
     ld l,a
-    ld (ps_sampleId),hl
+    ld (ps_agm_cmd_bufferId),hl
+    inc l
+    inc l
+    ld (ps_agm_data_bufferId),hl
     call vdu_clear_buffer
     ret
 ; end ps_set_audio_buffers
-; end ps_play_sample
 
 ; close the file
 ps_close_file:
@@ -332,26 +334,26 @@ ps_play_random:
 ; end ps_play_random
 
 ps_load_audio_cmd_buffers:
-    ld hl,cmd0_buffer
+    ld hl,ps_wav_cmd_bufferId0
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
     ; ld hl,(ps_wav_chunk_size)
     ld (ps_sr0),hl
     ld a,23
     ld (ps_sr0+2),a
-    ld hl,cmd0_buffer
+    ld hl,ps_wav_cmd_bufferId0
     ld bc,ps_cmd0_end-ps_cmd0
     ld de,ps_cmd0
     call vdu_write_block_to_buffer
 
-    ld hl,cmd1_buffer
+    ld hl,ps_wav_cmd_bufferId1
     call vdu_clear_buffer
     ld hl,(ps_wav_header+wav_sample_rate)
     ; ld hl,(ps_wav_chunk_size)
     ld (ps_sr1),hl
     ld a,23
     ld (ps_sr1+2),a
-    ld hl,cmd1_buffer
+    ld hl,ps_wav_cmd_bufferId1
     ld bc,ps_cmd1_end-ps_cmd1
     ld de,ps_cmd1
     call vdu_write_block_to_buffer
@@ -360,7 +362,7 @@ ps_cmd0:
 ; Command 14: Consolidate blocks in a buffer
 ; VDU 23, 0, &A0, bufferId; 14
     db 23,0,0xA0 ; vdu buffered api command header
-    dw ch0_buffer
+    dw ps_wav_data_bufferId0
     db 14 ; consolidate blocks command
 ; vdu_buffer_to_sound command string
 ; Command 2: Buffer to sound
@@ -369,7 +371,7 @@ ps_cmd0:
     db 0x00 ; channel (ignored)
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
-    dw ch0_buffer
+    dw ps_wav_data_bufferId0
     db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
 ps_sr0:
     dw 0x0000 ; sample rate Hz
@@ -380,7 +382,7 @@ ps_sr0:
     db 0 ; channel
     db 4 ; set waveform command
     db 8 ; waveform 8 = sample
-    dw ch0_buffer ; sample bufferId
+    dw ps_wav_data_bufferId0 ; sample bufferId
 ; Command 0: Play note
 ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
     db 23,0,$85 ; vdu sound command header
@@ -395,7 +397,7 @@ ps_cmd1:
 ; Command 14: Consolidate blocks in a buffer
 ; VDU 23, 0, &A0, bufferId; 14
     db 23,0,0xA0 ; vdu buffered api command header
-    dw ch1_buffer
+    dw ps_wav_data_bufferId1
     db 14 ; consolidate blocks command
 ; vdu_buffer_to_sound command string
 ; Command 2: Buffer to sound
@@ -404,7 +406,7 @@ ps_cmd1:
     db 0x00 ; channel (ignored)
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
-    dw ch1_buffer
+    dw ps_wav_data_bufferId1
     db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows    
 ps_sr1:
     dw 0x0000 ; sample rate Hz
@@ -415,7 +417,7 @@ ps_sr1:
     db 1 ; channel
     db 4 ; set waveform command
     db 8 ; waveform 8 = sample
-    dw ch1_buffer ; sample bufferId
+    dw ps_wav_data_bufferId1 ; sample bufferId
 ; Command 0: Play note
 ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
     db 23,0,$85 ; vdu sound command header

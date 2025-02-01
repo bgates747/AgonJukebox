@@ -1,20 +1,4 @@
-
-; test_width: equ 200
-; test_height: equ 150
-; test_bytes_to_read: dl 0 ; number of bytes read
-
-test_image_buffer: equ 4000
-; test_frame_number: dl 0
-
-; test_frames_per_second: equ 6
-; test_frame_timer: equ 120/test_frames_per_second
-
-; test_chunksize: equ 48000/60
-
-screen_width: equ 512
-screen_height: equ 384
-
-test_fn: asciz "a_ha__Take_On_Me_120x90x4.agm"
+test_fn: asciz "a_ha__Take_On_Me_short_120x90x4.agm"
 
 ; inputs:
 ;     iy = pointer to a filinfo struct
@@ -51,17 +35,59 @@ ps_read_agm:
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,ps_agm_segment_hdr   ; target address
     FFSCALL ffs_fread
+
+; DEBUG
+    call vdu_home_cursor
+    ld ix,ps_agm_segment_hdr
+    call printInline
+    asciz "agm_segment_size_last: "
+    ld hl,(ix+agm_segment_size_last)
+    call printDec
+    call printNewLine
+    call printInline
+    asciz "agm_segment_size_this: "
+    ld hl,(ix+agm_segment_size_this)
+    call printDec
+    call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+; END DEBUG
+
 @unit_loop:
 ; read the next unit header
     ld hl,ps_fil_struct
     ld bc,agm_unit_hdr_size ; bytes to read
     ld de,ps_agm_unit_hdr   ; target address
     FFSCALL ffs_fread
+
+; DEBUG
+    ld ix,ps_agm_unit_hdr
+    call printInline
+    asciz "agm_unit_mask:         "
+    ld a,(ix+agm_unit_mask)
+    call printBin8
+    call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+; END DEBUG
+
 ; set data and command bufferId's based on the unit type
     ld a,(ps_agm_segment_hdr+agm_unit_mask)
     and agm_unit_type
     call z,ps_set_audio_buffers ; audio unit
-    jr @chunk_loop
+; DEBUG
+    call printInline
+    asciz "ps_agm_cmd_bufferId:   "
+    ld hl,(ps_agm_cmd_bufferId)
+    call printHex24
+    call printNewLine
+    CALL printInline
+    asciz "ps_agm_data_bufferId:  "
+    ld hl,(ps_agm_data_bufferId)
+    call printHex24
+    call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+; END DEBUG
+
+    jp @chunk_loop
     call pv_set_video_buffers ; video unit
 @chunk_loop:
 ; read the next chunk header
@@ -69,6 +95,17 @@ ps_read_agm:
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,ps_agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
+
+; DEBUG
+    ld ix,ps_agm_chunk_hdr
+    call printInline
+    asciz "agm_chunk_size:        "
+    ld hl,(ix+agm_chunk_size)
+    call printDec
+    call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+; END DEBUG
+
 ; read the next chunk of data from the SD card to RAM
     ld hl,ps_fil_struct
     ld bc,(ps_agm_chunk_hdr+agm_chunk_size)
@@ -84,12 +121,23 @@ ps_read_agm:
     ld hl,(ps_agm_data_bufferId) ; bufferId
     ld de,ps_agm_data ; source address
     call vdu_load_buffer
-    jr @chunk_loop
+    jp @chunk_loop
 @next_unit:
 ; execute the unit command buffer
     ld hl,(ps_agm_cmd_bufferId) ; bufferId
+
+; DEBUG
+    CALL dumpRegistersHex
+    CALL printNewLine
+    CALL DEBUG_WAITKEYPRESS
+; END DEBUG
+
     call vdu_call_buffer
-    jr @unit_loop
+
+
+    jp @done ; DEBUG
+
+    jp @unit_loop
 
 
 

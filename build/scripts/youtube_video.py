@@ -451,7 +451,7 @@ if __name__ == "__main__":
     chunksize = bytes_per_sec // 60
 
     youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    video_base_name = f'a_ha__Take_On_Me'
+    video_base_name = f'a_ha__Take_On_Me_short'
 
     # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     # video_base_name = f'Star_Wars__Battle_of_Yavin'
@@ -491,15 +491,15 @@ if __name__ == "__main__":
 # ============================================================
 # # Download and extract audio group
 #     do_download_video = True
-#     do_extract_audio = True
-#     do_compression   = True
-#     do_normalization = True
+    do_extract_audio = True
+    do_compression   = True
+    do_normalization = True
 
-# # Convert audio and extract video group
-#     do_convert_audio = True
-#     do_extract_video = True
-#     do_extract_frames = True
-#     do_process_frames = True
+# Convert audio and extract video group
+    do_convert_audio = True
+    do_extract_video = True
+    do_extract_frames = True
+    do_process_frames = True
 
 # Make AGM group
     do_make_agm = True
