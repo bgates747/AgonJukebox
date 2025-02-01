@@ -1,5 +1,5 @@
 ; test_fn: asciz "a_ha__Take_On_Me_short_120x90x4.agm"
-test_fn: asciz "a_ha__Take_On_Me_short_160x120x1.agm"
+test_fn: asciz "a_ha__Take_On_Me_240x180x1.agm"
 
 ; inputs:
 ;     iy = pointer to a filinfo struct

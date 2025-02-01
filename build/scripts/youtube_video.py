@@ -443,15 +443,15 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 160
-    target_height = 120
+    target_width  = 240
+    target_height = 180
     frame_rate    = 1
-    bytes_per_sec = 48000
-    target_sample_rate = 48000 // 4
+    bytes_per_sec = 60000
+    target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
     youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    video_base_name = f'a_ha__Take_On_Me_short'
+    video_base_name = f'a_ha__Take_On_Me'
 
     # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     # video_base_name = f'Star_Wars__Battle_of_Yavin'
