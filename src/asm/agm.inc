@@ -142,6 +142,13 @@ pv_load_video_cmd_buffers:
 ; end pv_load_video_cmd_buffers
 
 pv_cmd_draw:
+; Command 65: Decompress a buffer
+; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
+                    db 23,0,0xA0
+                    dw pv_img_buffer
+                    db 65 ; decompress buffer
+                    dw pv_img_buffer
+                    
 ; Command 14: Consolidate blocks in a buffer
 ; VDU 23, 0, &A0, bufferId; 14
                     db 23,0,0xA0 ; vdu buffered api command header

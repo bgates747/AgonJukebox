@@ -1,6 +1,5 @@
-; test_fn: asciz "a_ha__Take_On_Me_short_120x90x4.agm"
-; test_fn: asciz "a_ha__Take_On_Me_240x180x1.agm"
-test_fn: asciz "Star_Wars__Battle_of_Yavin.agm"
+test_fn: asciz "a_ha__Take_On_Me.agm"
+; test_fn: asciz "Star_Wars__Battle_of_Yavin.agm"
 
 ; inputs:
 ;     iy = pointer to a filinfo struct

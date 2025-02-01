@@ -7,7 +7,7 @@ import json
 from PIL import Image
 import re
 import sys
-from make_agm import make_agm
+from make_agm_cmp import make_agm
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -475,18 +475,19 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 512
-    target_height = int(target_width / 2.35)  
+    target_width  = 320
+    target_height = int(target_width * 0.75)  # 4:3 aspect ratio
+    # target_height = int(target_width / 2.35)  
     frame_rate    = 1
     bytes_per_sec = 60000
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
-    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    # video_base_name = f'a_ha__Take_On_Me'
+    youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    video_base_name = f'a_ha__Take_On_Me'
 
-    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    video_base_name = f'Star_Wars__Battle_of_Yavin'
+    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    # video_base_name = f'Star_Wars__Battle_of_Yavin'
 
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
@@ -521,14 +522,16 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-# # Download and extract audio group
+# # Download group
 #     do_download_video = True
+
+# # Extract audio group
 #     do_extract_audio = True
 #     do_compression   = True
 #     do_normalization = True
-
-# # Convert audio and extract video group
 #     do_convert_audio = True
+
+# # Extract video group
     do_extract_video = True
     do_extract_frames = True
     do_process_frames = True
@@ -541,6 +544,6 @@ if __name__ == "__main__":
     # do_delete_processed_files = True
 
 # Play AGM group
-    do_play_agm = True
+    # do_play_agm = True
 
     do_all_the_things()
