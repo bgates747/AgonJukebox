@@ -125,15 +125,29 @@ pv_set_video_buffers:
     ret
 
 pv_load_video_cmd_buffers:
-    ld hl,(ps_wav_header+agm_width)
-    ld (pv_cmd_width),hl    
-    ld hl,(ps_wav_header+agm_height)
-    ld (pv_cmd_height),hl
+    ld de,(ps_wav_header+agm_width)
+    dec de
+    inc.s de ; clears ude
+    ld (pv_cmd_width),de
+    ld hl,(screen_width)
+    or a ; clear carry
+    sbc hl,de
+    call hlu_div2
+    ld (pv_cmd_x0),hl
+
+    ld de,(ps_wav_header+agm_height)
+    dec de
+    inc.s de ; clears ude
+    ld (pv_cmd_height),de
+    ld hl,(screen_height)
+    or a ; clear carry
+    sbc hl,de
+    call hlu_div2
+    ld (pv_cmd_y0),hl
+
     ld a,1 ; format got stomped above
     ld (pv_cmd_height+2),a
-    xor a 
-    ld (pv_cmd_x0),a
-    ld (pv_cmd_y0),a
+
     ld hl,pv_cmd_buffer
     ld bc,pv_cmd_draw_end-pv_cmd_draw
     ld de,pv_cmd_draw

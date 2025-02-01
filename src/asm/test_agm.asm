@@ -61,26 +61,49 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
-; set up display
-    ld a,8 ; 320x240x64 single-buffered
-    ; ld a,20 ; 512x384x64 single-buffered
-    call vdu_set_screen_mode
-    xor a
-    call vdu_set_scaling
-    call vdu_cursor_off
+; ; set up display
+;     ; ld a,8 ; 320x240x64 single-buffered
+;     ld a,20 ; 512x384x64 single-buffered
+;     call vdu_set_screen_mode
+;     xor a
+;     call vdu_set_scaling
+;     call vdu_cursor_off
     
     ret
 ; end init
 main:
     call vdu_cls
 
+    call printInline
+    asciz "Press a number key to play a file\r\n1: "
+    ld hl,test_fn_1
+    call printString
+    call printInline
+    asciz "\r\n2: "
+    ld hl,test_fn_2
+    call printString
+@getkey:
+    call waitKeypress
+    cp '1'
+    jp z,@play_1
+    cp '2'
+    jp z,@play_2
+    jp @getkey
+
+@play_1:
+    ld de,test_fn_1
+    jp @play
+
+@play_2:
+    ld de,test_fn_2
+@play:
 ; a=2 and zero flag reset if good .agm file (a=1 if good .wav)
 ; hl points to ps_fil_struct
 ; iy points to ps_filinfo_struct, 
 ; ps_wav_header and ps_agm_header structs populated
     ld iy,ps_filinfo_struct
     ld hl,ps_fil_struct
-    ld de,test_fn
+    ; ld de,test_fn ; de set above at @getkey
     call ps_play_agm 
 
 ; ; DEBUG

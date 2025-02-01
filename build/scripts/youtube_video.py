@@ -475,7 +475,7 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 320
+    target_width  = 260
     target_height = int(target_width * 0.75)  # 4:3 aspect ratio
     # target_height = int(target_width / 2.35)  
     frame_rate    = 1

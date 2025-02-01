@@ -1,5 +1,5 @@
-test_fn: asciz "a_ha__Take_On_Me.agm"
-; test_fn: asciz "Star_Wars__Battle_of_Yavin.agm"
+test_fn_1: asciz "a_ha__Take_On_Me.agm"
+test_fn_2: asciz "Star_Wars__Battle_of_Yavin.agm"
 
 ; inputs:
 ;     iy = pointer to a filinfo struct
@@ -30,6 +30,31 @@ ps_play_agm:
 segment_counter: db 0
 
 ps_read_agm:
+; set screen mode according to video dimensions
+    ld de,(ps_wav_header+agm_width)
+    ld hl,320
+    or a ; clear carry
+    sbc hl,de
+    jp m,@big
+    ld hl,320
+    ld (screen_width),hl
+    ld hl,240
+    ld (screen_height),hl
+    ld a,8 ; 320x240x64 60Hz single-buffered
+    jp @start
+@big:
+    ld hl,512
+    ld (screen_width),hl
+    ld hl,384
+    ld (screen_height),hl
+    ld a,20 ; 512x384x64 60Hz single-buffered
+@start: 
+; initialize screen
+    call vdu_set_screen_mode
+    xor a
+    call vdu_set_scaling
+    call vdu_cursor_off
+; initialize command and data buffers
     call ps_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
 @next_segment:
@@ -99,7 +124,14 @@ ps_read_agm:
     ld hl,(ps_agm_cmd_bufferId) ; bufferId
     call vdu_call_buffer
 
-; bump the unit counter
+; check for escape keypress
+    MOSCALL mos_getkbmap
+; 113 Escape
+    bit 0,(ix+14)
+    jp z,@F
+    jp @done
+
+@@: ; bump the unit counter
     ld a,(segment_counter)
     dec a
     jp nz,@unit_loop
