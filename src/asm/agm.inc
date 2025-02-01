@@ -26,16 +26,17 @@ wav_data_start:    EQU 76   ; Start of audio data
 wav_header_size:   EQU wav_data_start ; Total Header Size: 76 bytes
 
 ; AGON Movie (.agm) Header Structure Offsets and Descriptions
-; the first 76 bytes are the size and layout of a standard .wav header
-agm_magic:         EQU 0+76    ; 6 bytes: "AGNMOV" identifier
-agm_version:       EQU 6+76    ; 1 byte: File format version (e.g., 0x01)
-agm_width:         EQU 7+76    ; 1 byte: Video width in pixels (e.g., 128)
-agm_height:        EQU 8+76    ; 1 byte: Video height in pixels (e.g., 96)
-agm_frame_rate:    EQU 9+76    ; 1 byte: Frames per second (e.g., 4)
-agm_total_frames:  EQU 10+76   ; 4 bytes: Total number of frames (32-bit integer)
-agm_audio_seconds: EQU 14+76   ; 4 bytes: Total seconds of audio (32-bit float or int)
-agm_reserved:      EQU 18+76   ; 52 bytes: Reserved for future features (compression, metadata, etc.)
-agm_header_size:   EQU 144   ; Total .agm Header size
+; The first 76 bytes are the size and layout of a standard .wav header
+agm_magic:         EQU 0+76    ; 6 bytes: "AGNMOV" identifier (offset 76-81)
+agm_version:       EQU 6+76    ; 1 byte: File format version (offset 82)
+agm_width:         EQU 7+76    ; 2 bytes: Video width in pixels (offsets 83-84)
+agm_height:        EQU 9+76    ; 2 bytes: Video height in pixels (offsets 85-86)
+agm_frame_rate:    EQU 11+76   ; 1 byte: Frames per second (offset 87)
+agm_total_frames:  EQU 12+76   ; 4 bytes: Total number of frames (offsets 88-91)
+agm_audio_seconds: EQU 16+76   ; 4 bytes: Total seconds of audio (offsets 92-95)
+agm_reserved:      EQU 20+76   ; 48 bytes: Reserved for future features (offsets 96-143)
+agm_header_size:   EQU 144     ; Total .agm Header size
+
 
 ; agm segment header
 agm_segment_size_last: equ 0 ; 4 bytes: size of previous segment (including unit and chunk headers)
@@ -124,10 +125,12 @@ pv_set_video_buffers:
     ret
 
 pv_load_video_cmd_buffers:
-    ld a,(ps_wav_header+agm_width)
-    ld (pv_cmd_width),a    
-    ld a,(ps_wav_header+agm_height)
-    ld (pv_cmd_height),a
+    ld hl,(ps_wav_header+agm_width)
+    ld (pv_cmd_width),hl    
+    ld hl,(ps_wav_header+agm_height)
+    ld (pv_cmd_height),hl
+    ld a,1 ; format got stomped above
+    ld (pv_cmd_height+2),a
     xor a 
     ld (pv_cmd_x0),a
     ld (pv_cmd_y0),a
