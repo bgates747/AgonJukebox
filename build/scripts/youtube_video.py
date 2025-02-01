@@ -475,8 +475,8 @@ if __name__ == "__main__":
     palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
-    target_width  = 240
-    target_height = target_width // 2.35  
+    target_width  = 320
+    target_height = int(target_width / 2.35)  
     frame_rate    = 1
     bytes_per_sec = 60000
     target_sample_rate = 16000
@@ -499,7 +499,7 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
     # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
     
-    video_target_name = f'{video_base_name}_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
+    video_target_name = f'{video_base_name}' #_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
     processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
@@ -521,14 +521,14 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-# Download and extract audio group
-    # do_download_video = True
-    # do_extract_audio = True
-    # do_compression   = True
-    # do_normalization = True
+# # Download and extract audio group
+#     do_download_video = True
+#     do_extract_audio = True
+#     do_compression   = True
+#     do_normalization = True
 
-# Convert audio and extract video group
-    do_convert_audio = True
+# # Convert audio and extract video group
+#     do_convert_audio = True
     do_extract_video = True
     do_extract_frames = True
     do_process_frames = True
@@ -541,6 +541,6 @@ if __name__ == "__main__":
     # do_delete_processed_files = True
 
 # Play AGM group
-    # do_play_agm = True
+    do_play_agm = True
 
     do_all_the_things()

@@ -12,10 +12,11 @@ AGM_HEADER_SIZE = 68
 SEGMENT_HEADER_SIZE = 8  # 4 bytes: last segment size, 4 bytes: this segment size
 
 def parse_agm_header(header_bytes):
-    """ Parse the 68-byte AGM header. """
+    """ Parse the 68-byte AGM header with 16-bit width and height fields. """
     if len(header_bytes) != AGM_HEADER_SIZE:
         raise ValueError(f"AGM header is {len(header_bytes)} bytes, expected {AGM_HEADER_SIZE}")
-    fmt = "<6sBBBBII50x"
+    # Updated format: width and height as 16-bit integers (H), reserved padding reduced to 48 bytes.
+    fmt = "<6sBHHBII48x"
     magic, version, width, height, fps, total_frames, audio_secs = unpack(fmt, header_bytes)
     if magic != b"AGNMOV":
         raise ValueError("Invalid AGM magic.")
@@ -114,7 +115,6 @@ def play_agm(filepath):
                 break
 
             seg_stream = BytesIO(segment_data)
-            seg_consumed = 0
 
             # We typically expect exactly 2 units: audio + video
             # but let's parse "units" in a loop until we exhaust the segment
@@ -244,7 +244,7 @@ def play_agm(filepath):
 
 # Test / main
 if __name__ == "__main__":
-    agm_path = "tgt/video/a_ha__Take_On_Me_short_120x90x4.agm"
+    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:

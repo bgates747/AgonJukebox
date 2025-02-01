@@ -25,10 +25,16 @@ def make_agm(
           - Video unit: 1 byte mask (bit7=1), then multiple:
               * <I=chunk_size> + chunk_data
               * A 0 for chunk_size indicates end of video unit.
+              
+    The width and height fields in the AGM header are now 16-bit integers.
+    Note: The header size remains 68 bytes by reducing the reserved space.
     """
     WAV_HEADER_SIZE = 76
     AGM_HEADER_SIZE = 68
-    agm_header_fmt  = "<6sBBBBII50x"
+    # Original format was: "<6sBBBBII50x"
+    # We now use 16-bit width and height ("H") instead of 8-bit ("B") for each.
+    # The size increase is offset by reducing the reserved padding from 50 to 48 bytes.
+    agm_header_fmt  = "<6sBHHBII48x"
 
     # Masks (bit7=1 => video; bit7=0 => audio)
     AUDIO_MASK = 0x00  # 0b00000000
@@ -66,8 +72,8 @@ def make_agm(
         agm_header_fmt,
         b"AGNMOV",       # magic (6 bytes)
         version,         # 1 byte
-        target_width,    # 1 byte
-        target_height,   # 1 byte
+        target_width,    # 16-bit unsigned (2 bytes)
+        target_height,   # 16-bit unsigned (2 bytes)
         frame_rate,      # 1 byte
         total_frames_,   # 4 bytes
         total_secs_      # 4 bytes
