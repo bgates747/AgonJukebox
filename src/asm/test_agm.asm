@@ -61,13 +61,13 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
-; ; set up display
-;     ; ld a,8 ; 320x240x64 single-buffered
-;     ld a,20 ; 512x384x64 single-buffered
-;     call vdu_set_screen_mode
-;     xor a
-;     call vdu_set_scaling
-;     call vdu_cursor_off
+; set up display
+    ; ld a,8 ; 320x240x64 single-buffered
+    ld a,20 ; 512x384x64 single-buffered
+    call vdu_set_screen_mode
+    xor a
+    call vdu_set_scaling
+    call vdu_cursor_off
     
     ret
 ; end init

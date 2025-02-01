@@ -120,6 +120,7 @@ pv_set_video_buffers:
     ld (ps_agm_cmd_bufferId),hl
     ld hl,pv_img_buffer
     ld (ps_agm_data_bufferId),hl
+    call vdu_clear_buffer
     ret
 
 pv_load_video_cmd_buffers:

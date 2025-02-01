@@ -33,6 +33,11 @@ ps_read_agm:
     call ps_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
 @next_segment:
+; set up a frame timer
+    ld iy,tmr_test
+    ld hl,120
+    call tmr_set
+
 ; read the next segment header
     ld hl,ps_fil_struct
     ld bc,agm_segment_hdr_size ; bytes to read
@@ -93,11 +98,19 @@ ps_read_agm:
 ; execute the unit command buffer
     ld hl,(ps_agm_cmd_bufferId) ; bufferId
     call vdu_call_buffer
+
 ; bump the unit counter
     ld a,(segment_counter)
     dec a
     jp nz,@unit_loop
-    jp @next_segment
+
+@wait_here:
+    ld iy,tmr_test
+    call tmr_get
+    jp z,@next_segment
+    jp m,@next_segment
+    jp @wait_here
+
 @done: ; close the file
     ld hl,ps_fil_struct
     FFSCALL ffs_fclose
