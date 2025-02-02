@@ -71,6 +71,11 @@ init:
     
     ret
 ; end init
+
+test_fn_1: asciz "Bad_Apple_cmp.agm"
+test_fn_2: asciz "Bad_Apple_dif.agm"
+test_fn_3: asciz "Bad_Apple.agm"
+
 main:
     call vdu_cls
 
@@ -78,16 +83,25 @@ main:
     asciz "Press a number key to play a file\r\n1: "
     ld hl,test_fn_1
     call printString
+
     call printInline
     asciz "\r\n2: "
     ld hl,test_fn_2
     call printString
+
+    call printInline
+    asciz "\r\n3: "
+    ld hl,test_fn_3
+    call printString
+
 @getkey:
     call waitKeypress
     cp '1'
     jp z,@play_1
     cp '2'
     jp z,@play_2
+    cp '3'
+    jp z,@play_3
     jp @getkey
 
 @play_1:
@@ -96,6 +110,10 @@ main:
 
 @play_2:
     ld de,test_fn_2
+    jp @play
+
+@play_3:
+    ld de,test_fn_3
 @play:
 ; a=2 and zero flag reset if good .agm file (a=1 if good .wav)
 ; hl points to ps_fil_struct

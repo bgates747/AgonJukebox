@@ -7,7 +7,10 @@ import json
 from PIL import Image
 import re
 import sys
-from make_agm_cmp import make_agm
+from make_agm import make_agm
+from make_agm_cmp import make_agm_cmp
+from make_agm_dif import make_agm_dif
+from make_agm_rle import make_agm_rle
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -41,10 +44,16 @@ def download_video():
     print("-------------------------------------------------")
     print(f"download_video: {youtube_url} To: {staged_video_path}")
 
+    # # List available formats
+    # command = ["yt-dlp", "-F", youtube_url]
+    # result = subprocess.run(command, capture_output=True, text=True)
+    # print(result.stdout)
+
+    # Download video-only stream (video only; audio to be downloaded separately)
     command = [
         "yt-dlp",
         "--restrict-filenames",
-        "--format", "mp4",
+        "--format", "bestvideo[height>=720]",  # video only, no audio
         "--output", staged_video_path,
         youtube_url,
     ]
@@ -59,61 +68,66 @@ def download_video():
     print(f"Download completed. Video dimensions: {width}x{height} Size: {file_size_mb}")
     print("")
 
+
 # ============================================================
 #              AUDIO EXTRACTION
 # ============================================================
 
-def extract_audio():
+def download_audio():
     """
-    Extracts audio from a video file as 16-bit PCM WAV in mono,
-    preserving the original sample rate but capping it at 48000 Hz.
+    Downloads audio from the YouTube video as 16-bit PCM WAV in mono,
+    capping the sample rate at 48000 Hz.
     """
     os.makedirs(processed_directory, exist_ok=True)
 
-    # Ensure any existing file is removed before extraction
+    # Remove any existing file first.
     if os.path.exists(staged_audio_path):
         os.remove(staged_audio_path)
 
     print("-------------------------------------------------")
-    print(f"extract_audio to {staged_audio_path}")
+    print(f"download_audio to {staged_audio_path}")
 
-    # Get source sample rate and codec
-    source_sample_rate, codec = get_audio_metadata(staged_video_path)
-
-    # Cap the sample rate at 48000 Hz
-    if source_sample_rate > 48000:
-        source_sample_rate = 48000
-
-    # FFmpeg command: Convert to 16-bit PCM WAV with mono audio, applying sample rate cap
+    # Download audio-only stream and convert to WAV using yt-dlp.
+    # This command tells yt-dlp to extract audio, convert it to WAV,
+    # force mono output, and set the sample rate to 48000 Hz.
     command = [
-        "ffmpeg",
-        "-i", staged_video_path,  # Input file
-        "-vn",                    # Disable video
-        "-acodec", "pcm_s16le",   # Use WAV format (16-bit PCM)
-        "-ar", str(source_sample_rate),  # Apply capped sample rate
-        "-ac", "1",               # Convert to mono
-        "-y",                     # Overwrite existing files without prompt
-        staged_audio_path,
+        "yt-dlp",
+        "--restrict-filenames",
+        "--extract-audio",
+        "--audio-format", "wav",
+        "--audio-quality", "0",  # best quality
+        "--postprocessor-args", "-ac 1 -ar 48000",
+        "--output", staged_audio_path,
+        youtube_url,
     ]
-
-    # Run FFmpeg silently
+    
     subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
 
-    # Ensure the file was successfully created
     if not os.path.exists(staged_audio_path):
         raise RuntimeError(f"Audio extraction failed: {staged_audio_path} was not created.")
 
-    # Get final file size
     file_size = os.path.getsize(staged_audio_path)
     file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"
 
-    # Print summary
-    print(f"Audio extraction completed. Sample rate: {source_sample_rate}Hz Size: {file_size_mb}")
+    print(f"Audio download completed. Sample rate capped at 48000Hz Size: {file_size_mb}")
+    print("")
 
-    # Optional processing: Compression & Normalization
+def preprocess_audio():
+    """
+    Performs optional processing on the staged_audio_path file:
+      - If do_compression is True, applies dynamic range compression.
+      - If do_normalization is True, applies loudness normalization.
+    
+    This function operates on the file specified by staged_audio_path and uses a
+    temporary file located in staging_directory ("temp.wav").
+    """
+    # Define codec as 16-bit PCM little-endian signed.
+    codec = "pcm_s16le"
+
     if do_compression or do_normalization:
         temp_path = os.path.join(staging_directory, "temp.wav")
 
+        # Remove any existing temporary file.
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
@@ -433,8 +447,11 @@ def do_all_the_things():
     if do_download_video:
         download_video()
 
-    if do_extract_audio:
-        extract_audio()
+    if do_download_audio:
+        download_audio()
+
+    if do_compression or do_normalization:
+        preprocess_audio()
 
     if do_convert_audio:
         convert_audio()
@@ -450,6 +467,9 @@ def do_all_the_things():
 
     if do_make_agm:
         make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
 
     if do_delete_frames:
         delete_frames()
@@ -472,10 +492,10 @@ if __name__ == "__main__":
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'floyd'
+    palette_conversion_method = 'rgb'
 
     # For your *no-rounding* design example:
-    target_width  = 260
+    target_width  = 640
     target_height = int(target_width * 0.75)  # 4:3 aspect ratio
     # target_height = int(target_width / 2.35)  
     frame_rate    = 1
@@ -483,8 +503,9 @@ if __name__ == "__main__":
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
-    youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    video_base_name = f'a_ha__Take_On_Me'
+    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # video_base_name = f'a_ha__Take_On_Me'
+    # video_base_name = f'a_ha__Take_On_Me_short'
 
     # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     # video_base_name = f'Star_Wars__Battle_of_Yavin'
@@ -492,8 +513,8 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
 
-    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
-    # video_base_name = f'Bad_Apple'
+    youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
+    video_base_name = f'Bad_Apple'
 
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
 
@@ -509,7 +530,7 @@ if __name__ == "__main__":
 
 
     do_download_video = False
-    do_extract_audio = False
+    do_download_audio = False
     do_convert_audio = False
     do_compression   = False
     do_normalization = False
@@ -524,19 +545,19 @@ if __name__ == "__main__":
 # ============================================================
 # # Download group
 #     do_download_video = True
+#     do_download_audio = True
 
 # # Extract audio group
-#     do_extract_audio = True
 #     do_compression   = True
 #     do_normalization = True
 #     do_convert_audio = True
 
 # # Extract video group
-    do_extract_video = True
-    do_extract_frames = True
+#     do_extract_video = True
+#     do_extract_frames = True
     do_process_frames = True
 
-# Make AGM group
+# # Make AGM group
     do_make_agm = True
 
 # Clean up group

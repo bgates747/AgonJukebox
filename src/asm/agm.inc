@@ -181,6 +181,11 @@ pv_cmd_width:       dw 0x0000
 pv_cmd_height:      dw 0x0000
                     db 1 ; format
 
+; ; DEBUG FOR TESTING DIFFERENCING FRAMES WITH TRANSPARENCY
+; ; VDU 16: Clear graphics area (CLG)
+;                     db 16
+; ; END DEBUG
+
 ; VDU 25, mode, x; y;: PLOT command
                     db 25
                     db plot_bmp+dr_abs_fg ; 0xED

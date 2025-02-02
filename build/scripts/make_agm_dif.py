@@ -2,6 +2,8 @@ import os
 import struct
 import subprocess
 import tempfile
+import math
+from io import BytesIO
 
 # ------------------- Unit Header Mask Definitions -------------------
 # Bit definitions (using binary for clarity):
@@ -69,12 +71,7 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
             
     return compressed_bytes
 
-import os
-import math
-import struct
-from io import BytesIO
-
-def make_agm_cmp(
+def make_agm_dif(
     frames_directory,
     target_audio_path,
     target_agm_path,
@@ -102,9 +99,7 @@ def make_agm_cmp(
     """
     WAV_HEADER_SIZE = 76
     AGM_HEADER_SIZE = 68
-    # Original format was: "<6sBBBBII50x"
-    # We now use 16-bit width and height ("H") instead of 8-bit ("B") for each.
-    # The size increase is offset by reducing the reserved padding from 50 to 48 bytes.
+
     agm_header_fmt  = "<6sBHHBII48x"
 
     # Masks (bit7=1 => video; bit7=0 => audio)
@@ -153,7 +148,7 @@ def make_agm_cmp(
     # 5) Write .agm file
     target_agm_dir = os.path.dirname(target_agm_path)
     target_agm_basename = os.path.basename(target_agm_path).split(".")[0]
-    target_agm_path = os.path.join(target_agm_dir, f"{target_agm_basename}_cmp.agm")
+    target_agm_path = os.path.join(target_agm_dir, f"{target_agm_basename}_dif.agm")
     print(f"Writing AGM to: {target_agm_path}")
     with open(target_agm_path, "wb") as agm_file:
         # Write WAV header + AGM header
@@ -191,9 +186,13 @@ def make_agm_cmp(
             # 4) End of audio unit => size=0
             seg_buffer.write(struct.pack("<I", 0))
 
-            # ---------------- VIDEO UNIT (with compression) ----------------
+            # ---------------- VIDEO UNIT (with difference scheme) ----------------
+
             # Write the 1-byte unit header mask for video.
             seg_buffer.write(struct.pack("<B", VIDEO_MASK))
+
+            # Initialize previous frame storage; the first frame is fully encoded.
+            prev_frame_data = None
 
             # For each frame in this second:
             for _ in range(frame_rate):
@@ -206,8 +205,22 @@ def make_agm_cmp(
                     # No frames left => use a blank frame.
                     frame_bytes = b"\x00" * (target_width * target_height)
 
-                # Compress the raw frame data using the helper function.
-                compressed_frame_bytes = compress_frame_data(frame_bytes, frame_idx - 1, total_frames)
+                # If this is not the first frame, create a difference frame:
+                # Compare the current frame with the previous one and set unchanged pixels to 0 (transparent).
+                if prev_frame_data is not None:
+                    diff_frame = bytearray(frame_bytes)  # Create a mutable copy.
+                    for i in range(len(diff_frame)):
+                        if diff_frame[i] == prev_frame_data[i]:
+                            diff_frame[i] = 0  # Unchanged pixel => transparent.
+                    frame_to_compress = bytes(diff_frame)
+                else:
+                    frame_to_compress = frame_bytes
+
+                # Update previous frame for the next iteration.
+                prev_frame_data = frame_bytes
+
+                # Compress the (full or difference) frame data.
+                compressed_frame_bytes = compress_frame_data(frame_to_compress, frame_idx - 1, total_frames)
                 
                 # Chunk the compressed frame data.
                 off = 0
@@ -217,7 +230,7 @@ def make_agm_cmp(
                     seg_buffer.write(struct.pack("<I", len(chunk)))
                     seg_buffer.write(chunk)
 
-            # End of video unit: write a zero-length chunk.
+            # End of video unit => write a zero-length chunk.
             seg_buffer.write(struct.pack("<I", 0))
 
             # -------------- FINALIZE SEGMENT --------------
