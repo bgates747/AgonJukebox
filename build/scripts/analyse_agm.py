@@ -1,9 +1,7 @@
 #!/usr/bin/env python3
 import os
 import sys
-import json
 import struct
-import subprocess
 import io
 import numpy as np
 import matplotlib.pyplot as plt
