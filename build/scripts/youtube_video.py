@@ -397,8 +397,8 @@ if __name__ == "__main__":
 
     # For your *no-rounding* design example:
     target_width  = 320
-    target_height = int(target_width * 0.75)  # 4:3 aspect ratio
-    # target_height = int(target_width / 2.35) 
+    # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
+    target_height = int(target_width / 2.35) 
     max_height = 720 
     frame_rate    = 1
     bytes_per_sec = 60000
@@ -409,14 +409,14 @@ if __name__ == "__main__":
     # video_base_name = f'a_ha__Take_On_Me'
     # video_base_name = f'a_ha__Take_On_Me_short'
 
-    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    # video_base_name = f'Star_Wars__Battle_of_Yavin'
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
 
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
 
-    youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
-    video_base_name = f'Bad_Apple'
+    # youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
+    # video_base_name = f'Bad_Apple'
 
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
 
@@ -445,13 +445,13 @@ if __name__ == "__main__":
 
 # ============================================================
 # Download group
-    # do_download_video = True
-    # do_download_audio = True
+    do_download_video = True
+    do_download_audio = True
 
-# # Extract audio group
-#     do_compression   = True
-#     do_normalization = True
-#     do_convert_audio = True
+# Extract audio group
+    do_compression   = True
+    do_normalization = True
+    do_convert_audio = True
 
 # Extract video group
     do_extract_frames = True
