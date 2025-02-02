@@ -30,7 +30,7 @@ PC     Output      Line
 04004A FD E5       0014         push iy
 04004C             0015     
 04004C CD 11 73 04 0016         call init
-040050 CD 78 73 04 0017         call main
+040050 CD 68 73 04 0017         call main
 040054             0018     
 040054             0019     exit:
 040054 FD E1       0020         pop iy
@@ -16783,33 +16783,29 @@ PC     Output      Line
        42 5F 63 6D 
        70 2E 61 67 
        6D 00       
-047328 53 74 61 72 0076     test_fn_2: asciz "Star_Wars__Battle_of_Yavin_floyd_cmp.agm"
-       5F 57 61 72 
-       73 5F 5F 42 
-       61 74 74 6C 
-       65 5F 6F 66 
-       5F 59 61 76 
-       69 6E 5F 66 
+047328 61 5F 68 61 0076     test_fn_2: asciz "a_ha__Take_On_Me_short_floyd.agm"
+       5F 5F 54 61 
+       6B 65 5F 4F 
+       6E 5F 4D 65 
+       5F 73 68 6F 
+       72 74 5F 66 
        6C 6F 79 64 
-       5F 63 6D 70 
        2E 61 67 6D 
        00          
-047351 53 74 61 72 0077     test_fn_3: asciz "Star_Wars__Battle_of_Yavin_RGB_cmp.agm"
-       5F 57 61 72 
-       73 5F 5F 42 
-       61 74 74 6C 
-       65 5F 6F 66 
-       5F 59 61 76 
-       69 6E 5F 52 
-       47 42 5F 63 
-       6D 70 2E 61 
+047349 61 5F 68 61 0077     test_fn_3: asciz "a_ha__Take_On_Me_short_RGB.agm"
+       5F 5F 54 61 
+       6B 65 5F 4F 
+       6E 5F 4D 65 
+       5F 73 68 6F 
+       72 74 5F 52 
+       47 42 2E 61 
        67 6D 00    
-047378             0078     
-047378             0079     main:
-047378 CD DE 1B 04 0080         call vdu_cls
-04737C             0081     
-04737C CD 60 00 04 0082         call printInline
-047380 50 72 65 73 0083         asciz "Press a number key to play a file\r\n1: "
+047368             0078     
+047368             0079     main:
+047368 CD DE 1B 04 0080         call vdu_cls
+04736C             0081     
+04736C CD 60 00 04 0082         call printInline
+047370 50 72 65 73 0083         asciz "Press a number key to play a file\r\n1: "
        73 20 61 20 
        6E 75 6D 62 
        65 72 20 6B 
@@ -16819,136 +16815,136 @@ PC     Output      Line
        20 66 69 6C 
        65 0D 0A 31 
        3A 20 00    
-0473A7 21 12 73 04 0084         ld hl,test_fn_1
-0473AB CD 67 00 04 0085         call printString
-0473AF             0086     
-0473AF CD 60 00 04 0087         call printInline
-0473B3 0D 0A 32 3A 0088         asciz "\r\n2: "
+047397 21 12 73 04 0084         ld hl,test_fn_1
+04739B CD 67 00 04 0085         call printString
+04739F             0086     
+04739F CD 60 00 04 0087         call printInline
+0473A3 0D 0A 32 3A 0088         asciz "\r\n2: "
        20 00       
-0473B9 21 28 73 04 0089         ld hl,test_fn_2
-0473BD CD 67 00 04 0090         call printString
-0473C1             0091     
-0473C1 CD 60 00 04 0092         call printInline
-0473C5 0D 0A 33 3A 0093         asciz "\r\n3: "
+0473A9 21 28 73 04 0089         ld hl,test_fn_2
+0473AD CD 67 00 04 0090         call printString
+0473B1             0091     
+0473B1 CD 60 00 04 0092         call printInline
+0473B5 0D 0A 33 3A 0093         asciz "\r\n3: "
        20 00       
-0473CB 21 51 73 04 0094         ld hl,test_fn_3
-0473CF CD 67 00 04 0095         call printString
-0473D3             0096     
-0473D3             0097     @getkey:
-0473D3 CD C7 03 04 0098         call waitKeypress
-0473D7 FE 31       0099         cp '1'
-0473D9 CA ED 73 04 0100         jp z,@play_1
-0473DD FE 32       0101         cp '2'
-0473DF CA F5 73 04 0102         jp z,@play_2
-0473E3 FE 33       0103         cp '3'
-0473E5 CA FD 73 04 0104         jp z,@play_3
-0473E9 C3 D3 73 04 0105         jp @getkey
-0473ED             0106     
-0473ED             0107     @play_1:
-0473ED 11 12 73 04 0108         ld de,test_fn_1
-0473F1 C3 01 74 04 0109         jp @play
-0473F5             0110     
-0473F5             0111     @play_2:
-0473F5 11 28 73 04 0112         ld de,test_fn_2
-0473F9 C3 01 74 04 0113         jp @play
-0473FD             0114     
-0473FD             0115     @play_3:
-0473FD 11 51 73 04 0116         ld de,test_fn_3
-047401             0117     @play:
-047401             0118     ; a=2 and zero flag reset if good .agm file (a=1 if good .wav)
-047401             0119     ; hl points to ps_fil_struct
-047401             0120     ; iy points to ps_filinfo_struct,
-047401             0121     ; ps_wav_header and ps_agm_header structs populated
-047401 FD 21 00 01 0122         ld iy,ps_filinfo_struct
+0473BB 21 49 73 04 0094         ld hl,test_fn_3
+0473BF CD 67 00 04 0095         call printString
+0473C3             0096     
+0473C3             0097     @getkey:
+0473C3 CD C7 03 04 0098         call waitKeypress
+0473C7 FE 31       0099         cp '1'
+0473C9 CA DD 73 04 0100         jp z,@play_1
+0473CD FE 32       0101         cp '2'
+0473CF CA E5 73 04 0102         jp z,@play_2
+0473D3 FE 33       0103         cp '3'
+0473D5 CA ED 73 04 0104         jp z,@play_3
+0473D9 C3 C3 73 04 0105         jp @getkey
+0473DD             0106     
+0473DD             0107     @play_1:
+0473DD 11 12 73 04 0108         ld de,test_fn_1
+0473E1 C3 F1 73 04 0109         jp @play
+0473E5             0110     
+0473E5             0111     @play_2:
+0473E5 11 28 73 04 0112         ld de,test_fn_2
+0473E9 C3 F1 73 04 0113         jp @play
+0473ED             0114     
+0473ED             0115     @play_3:
+0473ED 11 49 73 04 0116         ld de,test_fn_3
+0473F1             0117     @play:
+0473F1             0118     ; a=2 and zero flag reset if good .agm file (a=1 if good .wav)
+0473F1             0119     ; hl points to ps_fil_struct
+0473F1             0120     ; iy points to ps_filinfo_struct,
+0473F1             0121     ; ps_wav_header and ps_agm_header structs populated
+0473F1 FD 21 00 01 0122         ld iy,ps_filinfo_struct
        09          
-047406 21 00 00 09 0123         ld hl,ps_fil_struct
-04740A             0124         ; ld de,test_fn ; de set above at @getkey
-04740A CD 05 70 04 0125         call ps_play_agm
-04740E             0126     
-04740E             0127     ; ; DEBUG
-04740E             0128     ;     call dumpFlags
-04740E             0129     ;     call dumpRegistersHex
-04740E             0130     ;     call printNewLine
-04740E             0131     ; ; DEBUG
-04740E             0132     
-04740E 28 06       0133         jr z,@main_end
-047410 FE 02       0134         cp 2
-047412 CC 22 70 04 0135         call z,ps_read_agm
-047416             0136     
-047416             0137     @main_end:
-047416             0138     ; return display to normal
-047416 CD 58 1B 04 0139         call vdu_cursor_on
-04741A             0140     
-04741A C9          0141         ret ; back to MOS
-04741B             0142     ; end main
-04741B             0143     
-04741B             0144     ; must be final include in program so file data does not stomp on program code or other data
-04741B             0145         include "files.inc"
-04741B             0001*    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
-04741B             0002*    
-04741B             0003*    ; buffer for loading files unrelated to audio
-04741B             0004*    ; e.g.: fonts, sprites, etc. (limited to 8k)
-04741B             0005*    filedata: equ 0xB7E000 ; address of onboard 8k sram
-04741B             0006*    
-04741B             0007*    bf_fil_struct: equ 0x06FF00 ;
-04741B             0008*    bf_fil_obj: equ 0x06FF00 ; 15 bytes: Object identifier
-04741B             0009*    bf_fil_flag: equ 0x06FF0F ; 1 bytes: File status flags
-04741B             0010*    bf_fil_err: equ 0x06FF10 ; 1 bytes: Abort flag (error code)
-04741B             0011*    bf_fil_fptr: equ 0x06FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
-04741B             0012*    bf_fil_clust: equ 0x06FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
-04741B             0013*    bf_fil_sect: equ 0x06FF19 ; 4 bytes: Sector number appearing in buf[] (0
-04741B             0014*    bf_fil_dir_sect: equ 0x06FF1D ; 4 bytes: Sector number containing the directory entry
-04741B             0015*    bf_fil_dir_ptr: equ 0x06FF21 ; 3 bytes: Pointer to the directory entry in the win[]
-04741B             0016*    
-04741B             0017*    
-04741B             0018*    bf_struct: equ 0x070000 ; browsing song jukebox info
-04741B             0019*    bf_file_idx: equ 0x070000 ; 1 bytes: Current file index in the directory page
-04741B             0020*    bf_dir_num_files: equ 0x070001 ; 3 bytes: Number of files/directories in the directory (virtually unlimited)
-04741B             0021*    bf_files_cur_pg: equ 0x070004 ; 3 bytes: Number of files/directories of the current directory page
-04741B             0022*    bf_files_last_pg: equ 0x070007 ; 3 bytes: Number of files/directories of the last directory page
-04741B             0023*    bf_page_cur: equ 0x07000A ; 3 bytes: Current directory page number
-04741B             0024*    bf_dir_num_pages: equ 0x07000D ; 3 bytes: Number of pages in the directory (virtually unlimited)
-04741B             0025*    bf_dir_path: equ 0x070010 ; 256 bytes: Path of the current directory
-04741B             0026*    bf_struct_size: equ 512
-04741B             0027*    
-04741B             0028*    bf_dir_struct: equ 0x070200 ; browsing song directory info
-04741B             0029*    bf_dir_obj: equ 0x070200 ; 15 bytes: Object identifier
-04741B             0030*    bf_dir_dptr: equ 0x07020F ; 4 bytes: Current read/write offset
-04741B             0031*    bf_dir_clust: equ 0x070213 ; 4 bytes: Current cluster
-04741B             0032*    bf_dir_sect: equ 0x070217 ; 4 bytes: Current sector (0:Read operation has terminated)
-04741B             0033*    bf_dir_dir: equ 0x07021B ; 3 bytes: Pointer to the directory item in the win[]
-04741B             0034*    bf_dir_fn: equ 0x07021E ; 12 bytes: SFN (in/out) {body[8],ext[3],status[1]}
-04741B             0035*    bf_dir_blk_ofs: equ 0x07022A ; 4 bytes: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
-04741B             0036*    
-04741B             0037*    bf_filinfo_ptrs: equ 0x070300 ; 768 bytes: List of filename pointers in the current directory page (256*3)
-04741B             0038*    bf_filinfo_ptrs_size: equ 768
-04741B             0039*    
-04741B             0040*    bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
-04741B             0041*    bf_dir_fil_list_size: equ 71168
-04741B             0042*    
-04741B             0043*    bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
-04741B             0044*    bf_agm_header: equ 0x081C4C ; 144 bytes: browsing song .agm file header
-04741B             0045*    
-04741B             0046*    ps_fil_struct: equ 0x090000 ;
-04741B             0047*    ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
-04741B             0048*    ps_fil_flag: equ 0x09000F ; 1 bytes: File status flags
-04741B             0049*    ps_fil_err: equ 0x090010 ; 1 bytes: Abort flag (error code)
-04741B             0050*    ps_fil_fptr: equ 0x090011 ; 4 bytes: File read/write pointer (Zeroed on file open)
-04741B             0051*    ps_fil_clust: equ 0x090015 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
-04741B             0052*    ps_fil_sect: equ 0x090019 ; 4 bytes: Sector number appearing in buf[] (0
-04741B             0053*    ps_fil_dir_sect: equ 0x09001D ; 4 bytes: Sector number containing the directory entry
-04741B             0054*    ps_fil_dir_ptr: equ 0x090021 ; 3 bytes: Pointer to the directory entry in the win[]
-04741B             0055*    
-04741B             0056*    ps_filinfo_struct: equ 0x090100 ;
-04741B             0057*    ps_filinfo_fsize: equ 0x090100 ; 4 bytes: File size
-04741B             0058*    ps_filinfo_fdate: equ 0x090104 ; 2 bytes: Modified date
-04741B             0059*    ps_filinfo_ftime: equ 0x090106 ; 2 bytes: Modified time
-04741B             0060*    ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
-04741B             0061*    ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
-04741B             0062*    ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
-04741B             0063*    
-04741B             0064*    ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
-04741B             0065*    ps_wav_data: equ 0x09034C ; virtually unlimited bytes:
-04741B             0066*    
-04741B             0067*    ps_agm_header: equ 0x09034C ; 144 bytes:
-04741B             0068*    ps_agm_data: equ 0x0903DC ; virtually unlimited bytes:
+0473F6 21 00 00 09 0123         ld hl,ps_fil_struct
+0473FA             0124         ; ld de,test_fn ; de set above at @getkey
+0473FA CD 05 70 04 0125         call ps_play_agm
+0473FE             0126     
+0473FE             0127     ; ; DEBUG
+0473FE             0128     ;     call dumpFlags
+0473FE             0129     ;     call dumpRegistersHex
+0473FE             0130     ;     call printNewLine
+0473FE             0131     ; ; DEBUG
+0473FE             0132     
+0473FE 28 06       0133         jr z,@main_end
+047400 FE 02       0134         cp 2
+047402 CC 22 70 04 0135         call z,ps_read_agm
+047406             0136     
+047406             0137     @main_end:
+047406             0138     ; return display to normal
+047406 CD 58 1B 04 0139         call vdu_cursor_on
+04740A             0140     
+04740A C9          0141         ret ; back to MOS
+04740B             0142     ; end main
+04740B             0143     
+04740B             0144     ; must be final include in program so file data does not stomp on program code or other data
+04740B             0145         include "files.inc"
+04740B             0001*    ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
+04740B             0002*    
+04740B             0003*    ; buffer for loading files unrelated to audio
+04740B             0004*    ; e.g.: fonts, sprites, etc. (limited to 8k)
+04740B             0005*    filedata: equ 0xB7E000 ; address of onboard 8k sram
+04740B             0006*    
+04740B             0007*    bf_fil_struct: equ 0x06FF00 ;
+04740B             0008*    bf_fil_obj: equ 0x06FF00 ; 15 bytes: Object identifier
+04740B             0009*    bf_fil_flag: equ 0x06FF0F ; 1 bytes: File status flags
+04740B             0010*    bf_fil_err: equ 0x06FF10 ; 1 bytes: Abort flag (error code)
+04740B             0011*    bf_fil_fptr: equ 0x06FF11 ; 4 bytes: File read/write pointer (Zeroed on file open)
+04740B             0012*    bf_fil_clust: equ 0x06FF15 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
+04740B             0013*    bf_fil_sect: equ 0x06FF19 ; 4 bytes: Sector number appearing in buf[] (0
+04740B             0014*    bf_fil_dir_sect: equ 0x06FF1D ; 4 bytes: Sector number containing the directory entry
+04740B             0015*    bf_fil_dir_ptr: equ 0x06FF21 ; 3 bytes: Pointer to the directory entry in the win[]
+04740B             0016*    
+04740B             0017*    
+04740B             0018*    bf_struct: equ 0x070000 ; browsing song jukebox info
+04740B             0019*    bf_file_idx: equ 0x070000 ; 1 bytes: Current file index in the directory page
+04740B             0020*    bf_dir_num_files: equ 0x070001 ; 3 bytes: Number of files/directories in the directory (virtually unlimited)
+04740B             0021*    bf_files_cur_pg: equ 0x070004 ; 3 bytes: Number of files/directories of the current directory page
+04740B             0022*    bf_files_last_pg: equ 0x070007 ; 3 bytes: Number of files/directories of the last directory page
+04740B             0023*    bf_page_cur: equ 0x07000A ; 3 bytes: Current directory page number
+04740B             0024*    bf_dir_num_pages: equ 0x07000D ; 3 bytes: Number of pages in the directory (virtually unlimited)
+04740B             0025*    bf_dir_path: equ 0x070010 ; 256 bytes: Path of the current directory
+04740B             0026*    bf_struct_size: equ 512
+04740B             0027*    
+04740B             0028*    bf_dir_struct: equ 0x070200 ; browsing song directory info
+04740B             0029*    bf_dir_obj: equ 0x070200 ; 15 bytes: Object identifier
+04740B             0030*    bf_dir_dptr: equ 0x07020F ; 4 bytes: Current read/write offset
+04740B             0031*    bf_dir_clust: equ 0x070213 ; 4 bytes: Current cluster
+04740B             0032*    bf_dir_sect: equ 0x070217 ; 4 bytes: Current sector (0:Read operation has terminated)
+04740B             0033*    bf_dir_dir: equ 0x07021B ; 3 bytes: Pointer to the directory item in the win[]
+04740B             0034*    bf_dir_fn: equ 0x07021E ; 12 bytes: SFN (in/out) {body[8],ext[3],status[1]}
+04740B             0035*    bf_dir_blk_ofs: equ 0x07022A ; 4 bytes: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+04740B             0036*    
+04740B             0037*    bf_filinfo_ptrs: equ 0x070300 ; 768 bytes: List of filename pointers in the current directory page (256*3)
+04740B             0038*    bf_filinfo_ptrs_size: equ 768
+04740B             0039*    
+04740B             0040*    bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
+04740B             0041*    bf_dir_fil_list_size: equ 71168
+04740B             0042*    
+04740B             0043*    bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
+04740B             0044*    bf_agm_header: equ 0x081C4C ; 144 bytes: browsing song .agm file header
+04740B             0045*    
+04740B             0046*    ps_fil_struct: equ 0x090000 ;
+04740B             0047*    ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
+04740B             0048*    ps_fil_flag: equ 0x09000F ; 1 bytes: File status flags
+04740B             0049*    ps_fil_err: equ 0x090010 ; 1 bytes: Abort flag (error code)
+04740B             0050*    ps_fil_fptr: equ 0x090011 ; 4 bytes: File read/write pointer (Zeroed on file open)
+04740B             0051*    ps_fil_clust: equ 0x090015 ; 4 bytes: Current cluster of fpter (invalid when fptr is 0)
+04740B             0052*    ps_fil_sect: equ 0x090019 ; 4 bytes: Sector number appearing in buf[] (0
+04740B             0053*    ps_fil_dir_sect: equ 0x09001D ; 4 bytes: Sector number containing the directory entry
+04740B             0054*    ps_fil_dir_ptr: equ 0x090021 ; 3 bytes: Pointer to the directory entry in the win[]
+04740B             0055*    
+04740B             0056*    ps_filinfo_struct: equ 0x090100 ;
+04740B             0057*    ps_filinfo_fsize: equ 0x090100 ; 4 bytes: File size
+04740B             0058*    ps_filinfo_fdate: equ 0x090104 ; 2 bytes: Modified date
+04740B             0059*    ps_filinfo_ftime: equ 0x090106 ; 2 bytes: Modified time
+04740B             0060*    ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
+04740B             0061*    ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
+04740B             0062*    ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
+04740B             0063*    
+04740B             0064*    ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
+04740B             0065*    ps_wav_data: equ 0x09034C ; virtually unlimited bytes:
+04740B             0066*    
+04740B             0067*    ps_agm_header: equ 0x09034C ; 144 bytes:
+04740B             0068*    ps_agm_data: equ 0x0903DC ; virtually unlimited bytes:

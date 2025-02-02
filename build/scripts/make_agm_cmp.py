@@ -153,7 +153,7 @@ def make_agm_cmp(
     # 5) Write .agm file
     target_agm_dir = os.path.dirname(target_agm_path)
     target_agm_basename = os.path.basename(target_agm_path).split(".")[0]
-    target_agm_path = os.path.join(target_agm_dir, f"{target_agm_basename}_cmp.agm")
+    target_agm_path = os.path.join(target_agm_dir, f"{target_agm_basename}.agm")
     print(f"Writing AGM to: {target_agm_path}")
     with open(target_agm_path, "wb") as agm_file:
         # Write WAV header + AGM header
@@ -166,30 +166,6 @@ def make_agm_cmp(
         # For each 1-second segment
         for sec in range(total_secs):
             seg_buffer = BytesIO()
-
-            # ---------------- AUDIO UNIT ----------------
-            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
-            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
-
-            # 2) Extract/pad the audio for this second
-            start_aud = sec * target_sample_rate
-            end_aud   = start_aud + target_sample_rate
-            unit_audio = audio_data[start_aud:end_aud]
-
-            if len(unit_audio) < target_sample_rate:
-                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
-
-            # 3) Write chunks
-            offset = 0
-            while offset < len(unit_audio):
-                chunk = unit_audio[offset : offset + chunksize]
-                offset += len(chunk)
-                # 4-byte size, then chunk data
-                seg_buffer.write(struct.pack("<I", len(chunk)))
-                seg_buffer.write(chunk)
-
-            # 4) End of audio unit => size=0
-            seg_buffer.write(struct.pack("<I", 0))
 
             # ---------------- VIDEO UNIT (with compression) ----------------
             # Write the 1-byte unit header mask for video.
@@ -218,6 +194,30 @@ def make_agm_cmp(
                     seg_buffer.write(chunk)
 
             # End of video unit: write a zero-length chunk.
+            seg_buffer.write(struct.pack("<I", 0))
+
+            # ---------------- AUDIO UNIT ----------------
+            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
+            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
+
+            # 2) Extract/pad the audio for this second
+            start_aud = sec * target_sample_rate
+            end_aud   = start_aud + target_sample_rate
+            unit_audio = audio_data[start_aud:end_aud]
+
+            if len(unit_audio) < target_sample_rate:
+                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
+
+            # 3) Write chunks
+            offset = 0
+            while offset < len(unit_audio):
+                chunk = unit_audio[offset : offset + chunksize]
+                offset += len(chunk)
+                # 4-byte size, then chunk data
+                seg_buffer.write(struct.pack("<I", len(chunk)))
+                seg_buffer.write(chunk)
+
+            # 4) End of audio unit => size=0
             seg_buffer.write(struct.pack("<I", 0))
 
             # -------------- FINALIZE SEGMENT --------------

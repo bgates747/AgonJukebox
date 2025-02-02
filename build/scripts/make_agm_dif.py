@@ -162,30 +162,6 @@ def make_agm_dif(
         for sec in range(total_secs):
             seg_buffer = BytesIO()
 
-            # ---------------- AUDIO UNIT ----------------
-            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
-            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
-
-            # 2) Extract/pad the audio for this second
-            start_aud = sec * target_sample_rate
-            end_aud   = start_aud + target_sample_rate
-            unit_audio = audio_data[start_aud:end_aud]
-
-            if len(unit_audio) < target_sample_rate:
-                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
-
-            # 3) Write chunks
-            offset = 0
-            while offset < len(unit_audio):
-                chunk = unit_audio[offset : offset + chunksize]
-                offset += len(chunk)
-                # 4-byte size, then chunk data
-                seg_buffer.write(struct.pack("<I", len(chunk)))
-                seg_buffer.write(chunk)
-
-            # 4) End of audio unit => size=0
-            seg_buffer.write(struct.pack("<I", 0))
-
             # ---------------- VIDEO UNIT (with difference scheme) ----------------
 
             # Write the 1-byte unit header mask for video.
@@ -231,6 +207,30 @@ def make_agm_dif(
                     seg_buffer.write(chunk)
 
             # End of video unit => write a zero-length chunk.
+            seg_buffer.write(struct.pack("<I", 0))
+
+            # ---------------- AUDIO UNIT ----------------
+            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
+            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
+
+            # 2) Extract/pad the audio for this second
+            start_aud = sec * target_sample_rate
+            end_aud   = start_aud + target_sample_rate
+            unit_audio = audio_data[start_aud:end_aud]
+
+            if len(unit_audio) < target_sample_rate:
+                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
+
+            # 3) Write chunks
+            offset = 0
+            while offset < len(unit_audio):
+                chunk = unit_audio[offset : offset + chunksize]
+                offset += len(chunk)
+                # 4-byte size, then chunk data
+                seg_buffer.write(struct.pack("<I", len(chunk)))
+                seg_buffer.write(chunk)
+
+            # 4) End of audio unit => size=0
             seg_buffer.write(struct.pack("<I", 0))
 
             # -------------- FINALIZE SEGMENT --------------
