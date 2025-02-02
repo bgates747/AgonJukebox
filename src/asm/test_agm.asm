@@ -72,9 +72,9 @@ init:
     ret
 ; end init
 
-test_fn_1: asciz "Bad_Apple_cmp.agm"
-test_fn_2: asciz "Bad_Apple_dif.agm"
-test_fn_3: asciz "Bad_Apple.agm"
+test_fn_1: asciz "Bad_Apple_RGB_cmp.agm"
+test_fn_2: asciz "Star_Wars__Battle_of_Yavin_floyd_cmp.agm"
+test_fn_3: asciz "Star_Wars__Battle_of_Yavin_RGB_cmp.agm"
 
 main:
     call vdu_cls

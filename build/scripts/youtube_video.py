@@ -31,7 +31,7 @@ from make_wav import (
 )
 import agonutils as au
 
-from play_agm import play_agm
+# from play_agm import play_agm
 
 # ============================================================
 #              YOUTUBE DOWNLOADER
@@ -44,16 +44,11 @@ def download_video():
     print("-------------------------------------------------")
     print(f"download_video: {youtube_url} To: {staged_video_path}")
 
-    # # List available formats
-    # command = ["yt-dlp", "-F", youtube_url]
-    # result = subprocess.run(command, capture_output=True, text=True)
-    # print(result.stdout)
-
     # Download video-only stream (video only; audio to be downloaded separately)
     command = [
         "yt-dlp",
         "--restrict-filenames",
-        "--format", "bestvideo[height>=720]",  # video only, no audio
+        "--format", f"bestvideo[height<={max_height}]",  # video only, no audio
         "--output", staged_video_path,
         youtube_url,
     ]
@@ -61,11 +56,10 @@ def download_video():
 
     if not os.path.exists(staged_video_path):
         raise RuntimeError(f"Download failed: {staged_video_path} was not created.")
-    
-    width, height = get_video_dimensions(staged_video_path)
+
     file_size = os.path.getsize(staged_video_path)
-    file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"  # Convert bytes to MB
-    print(f"Download completed. Video dimensions: {width}x{height} Size: {file_size_mb}")
+    file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"
+    print(f"Download completed. Size: {file_size_mb}")
     print("")
 
 
@@ -89,14 +83,13 @@ def download_audio():
 
     # Download audio-only stream and convert to WAV using yt-dlp.
     # This command tells yt-dlp to extract audio, convert it to WAV,
-    # force mono output, and set the sample rate to 48000 Hz.
     command = [
         "yt-dlp",
         "--restrict-filenames",
         "--extract-audio",
         "--audio-format", "wav",
         "--audio-quality", "0",  # best quality
-        "--postprocessor-args", "-ac 1 -ar 48000",
+        "--postprocessor-args", "-ac 1 -ar 16000",
         "--output", staged_audio_path,
         youtube_url,
     ]
@@ -109,7 +102,7 @@ def download_audio():
     file_size = os.path.getsize(staged_audio_path)
     file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"
 
-    print(f"Audio download completed. Sample rate capped at 48000Hz Size: {file_size_mb}")
+    print(f"Audio download completed. Sample rate capped at 16000Hz Size: {file_size_mb}")
     print("")
 
 def preprocess_audio():
@@ -186,108 +179,24 @@ def convert_audio():
     print(f"Finished audio processing: {target_audio_path}")
     print("")
 
-# ============================================================
-#              VIDEO RESIZING & FRAME EXTRACTION
-# ============================================================
-def get_video_dimensions(input_file):
-    """
-    Returns (width, height) as integers using ffprobe.
-    """
-    cmd = [
-        'ffprobe',
-        '-v', 'error',  # Suppress all but errors
-        '-select_streams', 'v:0',
-        '-show_entries', 'stream=width,height',
-        '-of', 'json',
-        input_file
-    ]
-    proc = subprocess.run(cmd, capture_output=True, text=True)
-    if proc.returncode != 0:
-        raise RuntimeError(f"ffprobe failed on {input_file}: {proc.stderr}")
 
-    info = json.loads(proc.stdout)
-    streams = info.get('streams')
-    if not streams:
-        raise ValueError("No video streams found.")
-    
-    w, h = int(streams[0].get('width')), int(streams[0].get('height'))
-    return w, h
-
-def extract_video():
-    """
-    Resizes video while preserving aspect ratio, displaying frame progress.
-    - Extracts frame count from FFmpeg output and updates progress dynamically.
-    """
-
-    # -- Get original aspect --
-    orig_w, orig_h = get_video_dimensions(staged_video_path)
-    if orig_h == 0:
-        raise ValueError("extract_video Original video height is 0?")
-
-    orig_aspect = orig_w / orig_h
-    target_aspect = target_width / target_height
-
-    # -- Decide how to scale in FFmpeg --
-    if orig_aspect > target_aspect:
-        # Original is "wider" => fix height, auto width
-        scale_filter = f"scale=-2:{target_height}"
-    else:
-        # Original is "taller" or narrower => fix width, auto height
-        scale_filter = f"scale={target_width}:-2"
-
-    print("-------------------------------------------------")
-    print(f"extract_video Resizing: {orig_w}x{orig_h} -> {target_width}x{target_height} (Preserving aspect)")
-
-    # Start FFmpeg process
-    process = subprocess.Popen(
-        [
-            "ffmpeg",
-            "-i", staged_video_path,
-            "-an",  # Disable audio
-            "-vf", scale_filter,
-            "-c:v", "libx264",
-            "-crf", "28",
-            "-preset", "fast",
-            "-y",  # Overwrite output
-            processed_video_path,
-        ],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-    )
-
-    # Regex pattern to extract frame count from FFmpeg logs
-    frame_pattern = re.compile(r"frame=\s*(\d+)")
-
-    # Read FFmpeg output in real-time
-    for line in iter(process.stderr.readline, ''):
-        match = frame_pattern.search(line)
-        if match:
-            frame_count = match.group(1)
-            sys.stdout.write(f"\rProcessing frame: {frame_count}")  # Overwrite the same line
-            sys.stdout.flush()
-
-    process.wait()  # Ensure FFmpeg completes
-
-    print(f"\nProcessed video saved: {processed_video_path}") 
-    print("")
-
+# -------------------------------------------------------------------
+# 1. Extract Frames Without Resizing
+# -------------------------------------------------------------------
 def extract_frames():
     """
-    Extract frames from the intermediate MP4 at the desired FPS.
-    - Does NOT scale further (assumes intermediate aspect-corrected size).
-    - Saves PNG frames while displaying real-time progress.
+    Extracts frames from the intermediate MP4 at the desired FPS and saves them as PNG files.
+    No scaling is applied—this ensures that the full-resolution frames are available for later processing.
     """
-
     # Clear out old frames
-    for f in glob.glob(f"{frames_directory}/*"):
+    for f in glob.glob(os.path.join(frames_directory, "*")):
         os.remove(f)
-
+    
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
     print("-------------------------------------------------")
-    print(f"extract_frames: Extracting frames at {frame_rate} FPS => {frames_directory}")
+    print(f"extract_frames: Extracting frames at {frame_rate} FPS to {frames_directory}")
 
-    # Start FFmpeg process
+    # Use ffmpeg to extract frames at the given FPS without any scaling.
     process = subprocess.Popen(
         [
             "ffmpeg",
@@ -295,7 +204,7 @@ def extract_frames():
             "-vf", f"fps={frame_rate}",
             "-pix_fmt", "rgba",
             "-start_number", "0",
-            "-y",
+            "-y",  # Overwrite output files without prompting
             output_pattern,
         ],
         stdout=subprocess.PIPE,
@@ -303,45 +212,90 @@ def extract_frames():
         text=True
     )
 
-    # Regex pattern to extract frame count from FFmpeg logs
-    frame_pattern = re.compile(r"frame=\s*\d+.*fps=.*")
-
-    # Read FFmpeg output in real-time
+    # (Optional) Show progress by reading ffmpeg stderr output.
+    frame_pattern = re.compile(r"frame=\s*\d+")
     for line in iter(process.stderr.readline, ''):
         match = frame_pattern.search(line)
         if match:
-            sys.stdout.write(f"\r{match.group(0)}")  # Overwrite the same line
+            sys.stdout.write(f"\r{match.group(0)}")
             sys.stdout.flush()
+    process.wait()
 
-    process.wait()  # Ensure FFmpeg completes
-
-    print("\nFrame extraction complete.") 
-    print("")
+    print("\nFrame extraction complete.\n")
 
 
-# ============================================================
-#       FRAME CROPPING AND COLOR PROCESSING (MODIFIED)
-# ============================================================
-#
-# In the original code each frame was simply center‐cropped to the
-# target dimensions. That fails to remove letterboxing (or pillarboxing)
-# – i.e. the black bars that pad a 4:3 image to 16:9.
-#
-# Below we add a helper function, remove_letterbox(), that uses a simple
-# threshold method to detect and remove large black borders. Then we
-# either center‐crop (if the remaining content is larger than the target)
-# or resize to force the final output to be exactly target_width x target_height.
-#
+# -------------------------------------------------------------------
+# 2. Process Frames: Crop, Resize, Palette Convert, and Convert to .rgba2
+# -------------------------------------------------------------------
+def process_frames():
+    """
+    Processes the previously extracted PNG frames by:
+      1) Removing letterboxing if detected.
+      2) Cropping or resizing the image to exactly target_width x target_height.
+      3) Converting the processed image to a custom palette.
+      4) Converting the palette-based PNG to a .rgba2 (8bpp) file.
+    
+    This separation lets you experiment with different cropping/resizing and palette conversion
+    parameters without re-extracting the frames (as long as the frame rate remains unchanged).
+    
+    Note: Letterbox detection is done on each PNG individually.
+          (If the first few frames are blank, detection might fail. In that case you may need
+           to either adjust the threshold/min_crop_ratio parameters in remove_letterbox() or
+           sample a frame further into the video.)
+    """
+    filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
+    total_frames = len(filenames)
 
+    print("-------------------------------------------------")
+    print(f"process_frames: Processing {total_frames} frames in {frames_directory}.")
+
+    for i, pngfile in enumerate(filenames, start=1):
+        pngpath = os.path.join(frames_directory, pngfile)
+        base = os.path.splitext(pngfile)[0]
+        rgba2_path = os.path.join(frames_directory, base + ".rgba2")
+
+        # --- 1) Load the extracted frame ---
+        img = Image.open(pngpath)
+
+        # --- 2) Remove letterbox (black borders) if present ---
+        content_img = remove_letterbox(img)
+
+        # --- 3) Adjust image to target dimensions ---
+        cw, ch = content_img.size
+        if cw >= target_width and ch >= target_height:
+            final_img = center_crop(content_img, target_width, target_height)
+        else:
+            # If the content is smaller than desired, upscale it
+            final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
+        # Optionally, overwrite the PNG with the processed image
+        final_img.save(pngpath)
+
+        # --- 4) Convert to your custom palette (in-place) ---
+        au.convert_to_palette(
+            pngpath,                  # src
+            pngpath,                  # output (overwrite)
+            palette_filepath,
+            palette_conversion_method,
+            transparent_rgb
+        )
+
+        # --- 5) Convert palette-based PNG to .rgba2 (8bpp) ---
+        au.img_to_rgba2(pngpath, rgba2_path)
+
+        print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
+    print("\nAll frames processed to .rgba2.\n")
+
+
+# Helper functions used in process_frames()
 def remove_letterbox(img, threshold=10, min_crop_ratio=0.9):
     """
     Detects and removes letterbox (black borders) from 'img'.
     It converts the image to grayscale, thresholds it, and computes the bounding
     box of non‑black pixels. If that bounding box is significantly smaller than the
-    full image (i.e. black bars are present), it crops to that region.
+    full image (indicating black bars), it crops to that region.
     """
     gray = img.convert("L")
-    # Create a binary image: pixels brighter than threshold become white
+    # Create a binary image: pixels brighter than threshold become white.
     binary = gray.point(lambda p: 255 if p > threshold else 0)
     bbox = binary.getbbox()
     if bbox:
@@ -363,56 +317,6 @@ def center_crop(img, final_width, final_height):
     bottom = top + final_height
     return img.crop((left, top, right, bottom))
 
-def process_frames():
-    """
-    1) For each PNG frame, remove letterbox (i.e. black borders) if present,
-       then adjust the image so that its final dimensions are exactly
-       target_width x target_height (by center cropping or resizing).
-    2) Convert to custom palette (in-place).
-    3) Convert to .rgba2 (8bpp).
-    """
-    filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
-    total_frames = len(filenames)
-
-    print("-------------------------------------------------")
-    print(f"process_frames found {total_frames} frames to process.")
-
-    for i, pngfile in enumerate(filenames, start=1):
-        pngpath = os.path.join(frames_directory, pngfile)
-        base = os.path.splitext(pngfile)[0]
-        rgba2_path = os.path.join(frames_directory, base + ".rgba2")
-
-        # --- 1) Load the frame ---
-        img = Image.open(pngpath)
-
-        # --- Remove letterbox (black borders) if present ---
-        content_img = remove_letterbox(img)
-
-        # --- Adjust image to target dimensions ---
-        cw, ch = content_img.size
-        if cw >= target_width and ch >= target_height:
-            final_img = center_crop(content_img, target_width, target_height)
-        else:
-            # If the content is smaller than desired, upscale it
-            final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
-        final_img.save(pngpath)  # Overwrite the PNG with the processed image
-
-        # --- 2) Convert to your custom palette in-place ---
-        au.convert_to_palette(
-            pngpath,                  # src
-            pngpath,                  # overwrite the same file
-            palette_filepath,
-            palette_conversion_method,
-            transparent_rgb
-        )
-
-        # --- 3) Convert that palette-based PNG to RGBA2 (8bpp) => .rgba2 ---
-        au.img_to_rgba2(pngpath, rgba2_path)
-
-        print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-
-    print("\nAll frames processed to .rgba2.")
-    print("")
 
 def delete_frames():
     print("-------------------------------------------------")
@@ -456,9 +360,6 @@ def do_all_the_things():
     if do_convert_audio:
         convert_audio()
 
-    if do_extract_video:
-        extract_video()
-
     if do_extract_frames:
         extract_frames()
 
@@ -466,10 +367,10 @@ def do_all_the_things():
         process_frames()
 
     if do_make_agm:
-        make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
 
     if do_delete_frames:
         delete_frames()
@@ -477,8 +378,8 @@ def do_all_the_things():
     if do_delete_processed_files:
         delete_processed_files()
 
-    if do_play_agm:
-        play_agm(target_agm_path)
+    # if do_play_agm:
+    #     play_agm(target_agm_path)
 
 # ============================================================
 #              EXAMPLE USAGE
@@ -492,12 +393,13 @@ if __name__ == "__main__":
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'rgb'
+    palette_conversion_method = 'RGB'
 
     # For your *no-rounding* design example:
-    target_width  = 640
+    target_width  = 320
     target_height = int(target_width * 0.75)  # 4:3 aspect ratio
-    # target_height = int(target_width / 2.35)  
+    # target_height = int(target_width / 2.35) 
+    max_height = 720 
     frame_rate    = 1
     bytes_per_sec = 60000
     target_sample_rate = 16000
@@ -526,7 +428,7 @@ if __name__ == "__main__":
     processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
     target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
-    target_agm_path = os.path.join(target_directory, f"{video_target_name}.agm")
+    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 
     do_download_video = False
@@ -534,7 +436,6 @@ if __name__ == "__main__":
     do_convert_audio = False
     do_compression   = False
     do_normalization = False
-    do_extract_video = False
     do_extract_frames = False
     do_process_frames = False
     do_make_agm = False
@@ -543,26 +444,25 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-# # Download group
-#     do_download_video = True
-#     do_download_audio = True
+# Download group
+    # do_download_video = True
+    # do_download_audio = True
 
 # # Extract audio group
 #     do_compression   = True
 #     do_normalization = True
 #     do_convert_audio = True
 
-# # Extract video group
-#     do_extract_video = True
-#     do_extract_frames = True
+# Extract video group
+    do_extract_frames = True
     do_process_frames = True
 
-# # Make AGM group
+# Make AGM group
     do_make_agm = True
 
-# Clean up group
-    # do_delete_frames = True
-    # do_delete_processed_files = True
+# # Clean up group
+#     do_delete_frames = True
+#     do_delete_processed_files = True
 
 # Play AGM group
     # do_play_agm = True

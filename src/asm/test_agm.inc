@@ -67,12 +67,12 @@ ps_read_agm:
     xor a
     call vdu_set_scaling
     call vdu_cursor_off
-; ; set graphics mode
-;     ; ld a,3 ; mode xor
-;     xor a ; regular gcol mode
-;     ld c,c_magenta+128 ; can be any foreground 
-;     call vdu_gcol
-;     call vdu_clg
+; set graphics mode
+    ; ld a,3 ; mode xor
+    xor a ; regular gcol mode
+    ld c,c_blue_dk+128 ; can be any foreground 
+    call vdu_gcol
+    call vdu_clg
 ; initialize command and data buffers
     call ps_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
