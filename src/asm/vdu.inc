@@ -529,7 +529,7 @@ vdu_consolidate_buffer:
 @end:
 
 ; load an image file to a buffer and make it a bitmap
-; inputs: a = image type ; bc,de image width,height ; hl = bufferId ; ix = file size ; iy = pointer to filename
+; inputs: a = image type ; bc,de image width,height ; hl = bufferId ; iy = pointer to filename
 vdu_load_img:
 ; back up image type and dimension parameters
     ld (bufferId0),hl

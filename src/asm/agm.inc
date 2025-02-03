@@ -130,27 +130,27 @@ pv_load_video_cmd_buffers:
     ld hl,pv_cmd_base_buffer
     ld a,(pv_frame_rate_last)
     ld l,a ; low byte = frame n (1-based)
-@cmd_loop:
+@clear_cmd_loop:
     push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
     dec l ; dec loop counter
-    jr nz,@cmd_loop
+    jr nz,@clear_cmd_loop
 
     ld hl,pv_img_base_buffer
     ld a,(pv_frame_rate_last)
     ld l,a ; low byte = frame n (1-based)
-@img_loop:
+@clear_img_loop:
     push hl ; save img buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
     dec l ; dec loop counter
-    jr nz,@img_loop
+    jr nz,@clear_img_loop
 
     ld de,(ps_wav_header+agm_width)
+    ld (pv_cmd_width),de
     dec de
     inc.s de ; clears ude
-    ld (pv_cmd_width),de
     ld hl,(screen_width)
     or a ; clear carry
     sbc hl,de
@@ -158,56 +158,48 @@ pv_load_video_cmd_buffers:
     ld (pv_cmd_x0),hl
 
     ld de,(ps_wav_header+agm_height)
+    ld (pv_cmd_height),de
+    ld a,1 ; format 1 = RGBA2222
+    ld (pv_cmd_height+2),a
     dec de
     inc.s de ; clears ude
-    ld (pv_cmd_height),de
     ld hl,(screen_height)
     or a ; clear carry
     sbc hl,de
     call hlu_div2
     ld (pv_cmd_y0),hl
 
-    ld a,0x01 ; format got stomped above
-    ld (pv_cmd_height+2),a
-
     ld a,(ps_wav_header+agm_frame_rate)
     ld (pv_frame_rate_last),a
-
-    ld hl,pv_cmd_base_buffer
+    ld hl,pv_img_base_buffer
     ld l,a
 
 @load_loop:
-    push hl ; save bufferId high byte and loop counter
+    push hl ; save command bufferId high byte and loop counter
 
-    ld (pv_img_buffer_0),hl
-    ld a,0x41
-    ld (pv_img_buffer_0+2),a
+    ld (pv_img_buffer_0),a
+    ld (pv_img_buffer_1),a
+    ld (pv_img_buffer_2),a
+    ld (pv_img_buffer_3),a
 
-    ld (pv_img_buffer_1),hl
-    ld a,0x17
-    ld (pv_img_buffer_1+2),a
+    ld a,h
+    ld (pv_img_buffer_0+1),a
+    ld (pv_img_buffer_1+1),a
+    ld (pv_img_buffer_2+1),a
+    ld (pv_img_buffer_3+1),a
 
-    ld (pv_img_buffer_2),hl
-    ld a,0x0E
-    ld (pv_img_buffer_2+2),a
-
-    ld (pv_img_buffer_3),hl
-    ld a,0x17
-    ld (pv_img_buffer_3+2),a
-
-    ld bc,pv_cmd_draw_end-pv_cmd_draw
+    dec h ; hl = cmd bufferId
     ld de,pv_cmd_draw
-    call vdu_write_block_to_buffer
-    pop hl
+    ld bc,pv_cmd_draw_end-pv_cmd_draw
+    call vdu_load_buffer
 
-    call printHexUHL
-    call printNewLine
-
-    dec l ; dec loop counter    
+    pop hl ; restore current command bufferId
+    dec l ; dec loop counter
     jr nz,@load_loop
 
-    ret
+    ret 
 ; end pv_load_video_cmd_buffers
+
 
 pv_cmd_base_buffer: equ 0x4000
 pv_img_base_buffer: equ 0x4100
