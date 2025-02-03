@@ -385,51 +385,6 @@ def do_all_the_things():
 #              EXAMPLE USAGE
 # ============================================================
 if __name__ == "__main__":
-    # Example usage with your chosen directories:
-    staging_directory   = "assets/video/staging"
-    processed_directory = "assets/video/processed"
-    frames_directory    = "assets/video/frames"
-    target_directory    = "tgt/video"
-
-    palette_filepath = 'assets/images/palettes/Agon64.gpl'
-    transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'RGB'
-
-    # For your *no-rounding* design example:
-    target_width  = 160
-    target_height = int(target_width * 0.75)  # 4:3 aspect ratio
-    # target_height = int(target_width / 2.35) 
-    max_height = 720 
-    frame_rate    = 1
-    bytes_per_sec = 60000
-    target_sample_rate = 16000
-    chunksize = bytes_per_sec // 60
-
-    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    # video_base_name = f'a_ha__Take_On_Me'
-
-    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    # video_base_name = f'Star_Wars__Battle_of_Yavin'
-
-    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
-    # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
-
-    youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
-    video_base_name = f'Bad_Apple'
-
-    # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
-
-    # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
-    # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
-    
-    video_target_name = f'{video_base_name}' #_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
-    staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
-    processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
-    staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
-    target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
-    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
-
-
     do_download_video = False
     do_download_audio = False
     do_convert_audio = False
@@ -441,6 +396,53 @@ if __name__ == "__main__":
     do_delete_frames = False
     do_delete_processed_files = False
     do_play_agm = False
+
+    # Example usage with your chosen directories:
+    staging_directory   = "assets/video/staging"
+    processed_directory = "assets/video/processed"
+    frames_directory    = "assets/video/frames"
+    target_directory    = "tgt/video"
+
+    target_width  = 160
+    # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
+
+    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # video_base_name = f'a_ha__Take_On_Me'
+
+    # youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
+    # video_base_name = f'Bad_Apple'
+
+    # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
+
+
+    target_height = int(target_width / 2.35) 
+
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
+
+    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
+    # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
+
+    # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
+    # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
+
+    palette_filepath = 'assets/images/palettes/Agon64.gpl'
+    transparent_rgb = (0, 0, 0, 0)
+    palette_conversion_method = 'floyd'
+
+    # For your *no-rounding* design example:
+    max_height = 720 
+    frame_rate    = 1
+    bytes_per_sec = 60000
+    target_sample_rate = 16000
+    chunksize = bytes_per_sec // 60
+    
+    video_target_name = f'{video_base_name}' #_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
+    staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
+    processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
+    staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
+    target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
+    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # ============================================================
 # Download group
