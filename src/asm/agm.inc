@@ -113,18 +113,40 @@ verify_agm:
     ret
 ; end verify_agm
 
-pv_cmd_buffer: equ 0x3004
-pv_img_buffer: equ 0x3005
-
+pv_frame_rate_last: db 1 ; last frame rate
+pv_frame_counter: db 1 ; frame counter (1-based)
 pv_set_video_buffers:
-    ld hl,pv_cmd_buffer
+    ld hl,pv_cmd_base_buffer
+    ld a,(pv_frame_counter)
+    ld l,a ; low byte = frame n (1-based)
     ld (ps_agm_cmd_bufferId),hl
-    ld hl,pv_img_buffer
+    inc h
     ld (ps_agm_data_bufferId),hl
     call vdu_clear_buffer
     ret
+; end pv_set_video_buffers
 
-pv_load_video_cmd_buffers:
+pv_load_video_cmd_buffers:   
+    ld hl,pv_cmd_base_buffer
+    ld a,(pv_frame_rate_last)
+    ld l,a ; low byte = frame n (1-based)
+@cmd_loop:
+    push hl ; save cmd buffer high byte and loop counter
+    call vdu_clear_buffer
+    pop hl
+    dec l ; dec loop counter
+    jr nz,@cmd_loop
+
+    ld hl,pv_img_base_buffer
+    ld a,(pv_frame_rate_last)
+    ld l,a ; low byte = frame n (1-based)
+@img_loop:
+    push hl ; save img buffer high byte and loop counter
+    call vdu_clear_buffer
+    pop hl
+    dec l ; dec loop counter
+    jr nz,@img_loop
+
     ld de,(ps_wav_header+agm_width)
     dec de
     inc.s de ; clears ude
@@ -145,34 +167,69 @@ pv_load_video_cmd_buffers:
     call hlu_div2
     ld (pv_cmd_y0),hl
 
-    ld a,1 ; format got stomped above
+    ld a,0x01 ; format got stomped above
     ld (pv_cmd_height+2),a
 
-    ld hl,pv_cmd_buffer
+    ld a,(ps_wav_header+agm_frame_rate)
+    ld (pv_frame_rate_last),a
+
+    ld hl,pv_cmd_base_buffer
+    ld l,a
+
+@load_loop:
+    push hl ; save bufferId high byte and loop counter
+
+    ld (pv_img_buffer_0),hl
+    ld a,0x41
+    ld (pv_img_buffer_0+2),a
+
+    ld (pv_img_buffer_1),hl
+    ld a,0x17
+    ld (pv_img_buffer_1+2),a
+
+    ld (pv_img_buffer_2),hl
+    ld a,0x0E
+    ld (pv_img_buffer_2+2),a
+
+    ld (pv_img_buffer_3),hl
+    ld a,0x17
+    ld (pv_img_buffer_3+2),a
+
     ld bc,pv_cmd_draw_end-pv_cmd_draw
     ld de,pv_cmd_draw
     call vdu_write_block_to_buffer
+    pop hl
+
+    call printHexUHL
+    call printNewLine
+
+    dec l ; dec loop counter    
+    jr nz,@load_loop
+
     ret
 ; end pv_load_video_cmd_buffers
+
+pv_cmd_base_buffer: equ 0x4000
+pv_img_base_buffer: equ 0x4100
 
 pv_cmd_draw:
 ; Command 65: Decompress a buffer
 ; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
                     db 23,0,0xA0
-                    dw pv_img_buffer
+pv_img_buffer_0:    dw 0x0000
                     db 65 ; decompress buffer
-                    dw pv_img_buffer
-                    
+pv_img_buffer_1:    dw 0x0000
+
 ; Command 14: Consolidate blocks in a buffer
 ; VDU 23, 0, &A0, bufferId; 14
                     db 23,0,0xA0 ; vdu buffered api command header
-                    dw pv_img_buffer
+pv_img_buffer_2:    dw 0x0000
                     db 14 ; consolidate blocks command
 
 ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
 ; inputs: hl=bufferId
                     db 23,27,0x20
-                    dw pv_img_buffer
+pv_img_buffer_3:    dw 0x0000
 
 ; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
 ; 1 	RGBA2222 (1-bytes per pixel)
@@ -181,14 +238,9 @@ pv_cmd_width:       dw 0x0000
 pv_cmd_height:      dw 0x0000
                     db 1 ; format
 
-; ; DEBUG FOR TESTING DIFFERENCING FRAMES WITH TRANSPARENCY
-; ; VDU 16: Clear graphics area (CLG)
-;                     db 16
-; ; END DEBUG
-
 ; VDU 25, mode, x; y;: PLOT command
                     db 25
                     db plot_bmp+dr_abs_fg ; 0xED
 pv_cmd_x0: 	        dw 0x0000
 pv_cmd_y0: 	        dw 0x0000
-pv_cmd_draw_end:
+pv_cmd_draw_end:    db 0x00 ; padding

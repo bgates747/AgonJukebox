@@ -27,6 +27,8 @@ ps_play_agm:
 segment_counter: db 0
 
 ps_read_agm:
+    jp @big ; DEBUG
+
 ; set screen mode according to video dimensions
     ld de,(ps_wav_header+agm_width)
     dec de
@@ -84,9 +86,6 @@ ps_read_agm:
     ld e,a
     call udiv24
     ex de,hl
-
-    ; call printDec ; DEBUG
-
     ld iy,tmr_test
     call tmr_set
 
@@ -95,7 +94,7 @@ ps_read_agm:
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,ps_agm_segment_hdr   ; target address
     FFSCALL ffs_fread
-    ; call print_segment_hdr ; DEBUG
+    call print_segment_hdr ; DEBUG
 
 ; check for end of file
     push bc ; bytes read
@@ -184,16 +183,16 @@ ps_read_agm:
 
 print_segment_hdr:
     PUSH_ALL
-    ; call vdu_home_cursor
-    ; call vdu_cls
+    call vdu_home_cursor
+    ; ; call vdu_cls
     ld ix,ps_agm_segment_hdr
-    call printInline
-    asciz "agm_segment_size_last: "
-    ld hl,(ix+agm_segment_size_last)
-    call printDec
-    call printNewLine
-    call printInline
-    asciz "agm_segment_size_this: "
+    ; call printInline
+    ; asciz "agm_segment_size_last: "
+    ; ld hl,(ix+agm_segment_size_last)
+    ; call printDec
+    ; call printNewLine
+    ; call printInline
+    ; asciz "agm_segment_size_this: "
     ld hl,(ix+agm_segment_size_this)
     call printDec
     call printNewLine
@@ -204,10 +203,9 @@ print_segment_hdr:
 
 print_unit_hdr:
     PUSH_ALL
-    ld ix,ps_agm_unit_hdr
     call printInline
     asciz "agm_unit_mask:         "
-    ld a,(ix+agm_unit_mask)
+    ld a,(ps_agm_unit_hdr+agm_unit_mask)
     call printBin8
     call printNewLine
     ; call DEBUG_WAITKEYPRESS
@@ -217,6 +215,7 @@ print_unit_hdr:
 
 print_buffers:
     PUSH_ALL
+    ; call vdu_home_cursor
     call printInline
     asciz "ps_agm_cmd_bufferId:     "
     ld hl,(ps_agm_cmd_bufferId)
