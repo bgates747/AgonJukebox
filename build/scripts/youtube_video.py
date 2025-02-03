@@ -393,7 +393,7 @@ if __name__ == "__main__":
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'floyd'
+    palette_conversion_method = 'RGB'
 
     # For your *no-rounding* design example:
     target_width  = 160
@@ -405,9 +405,8 @@ if __name__ == "__main__":
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
-    youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    video_base_name = f'a_ha__Take_On_Me'
-    video_base_name = f'a_ha__Take_On_Me_short'
+    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
+    # video_base_name = f'a_ha__Take_On_Me'
 
     # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     # video_base_name = f'Star_Wars__Battle_of_Yavin'
@@ -415,8 +414,8 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
 
-    # youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
-    # video_base_name = f'Bad_Apple'
+    youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
+    video_base_name = f'Bad_Apple'
 
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
 
@@ -444,14 +443,14 @@ if __name__ == "__main__":
     do_play_agm = False
 
 # ============================================================
-# # Download group
-#     do_download_video = True
-#     do_download_audio = True
+# Download group
+    do_download_video = True
+    do_download_audio = True
 
-# # Extract audio group
-#     do_compression   = True
-#     do_normalization = True
-#     do_convert_audio = True
+# Extract audio group
+    do_compression   = True
+    do_normalization = True
+    do_convert_audio = True
 
 # Extract video group
     do_extract_frames = True

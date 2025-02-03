@@ -122,7 +122,7 @@ def compute_stats(values):
 # -------------------------------------------------------------------
 # Main function: read AGM file, extract header info and segment stats, then plot.
 def main():
-    agm_filepath = "tgt/video/Star_Wars__Battle_of_Yavin_RGB_cmp.agm"
+    agm_filepath = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
     if not os.path.exists(agm_filepath):
         print(f"File {agm_filepath} not found.")
         sys.exit(1)
