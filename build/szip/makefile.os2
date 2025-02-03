@@ -1,0 +1,22 @@
+CC = gcc
+CFLAGS = -Zomf -O2 -Wall -fomit-frame-pointer -funroll-loops
+NAME = szip_111_OS2
+
+all: $(NAME).zip test
+szip.exe: bitmodel.c bitmodel.h comp.c port.h qsmodel.c qsmodel.h qsort_u4.c rangecod.c rangecod.h reorder.c reorder.h sz_bit.c sz_bit.h sz_err.h sz_mod4.c sz_mod4.h sz_srt.c sz_srt.h szip.c
+	$(CC) $(CFLAGS) comp.c -o szip.exe
+check.exe: check.c
+	$(CC) $(CFLAGS) check.c -o check.exe
+test: szip.exe check.exe
+	echo The following files had an error: >logfile
+	find . -type f -exec test {} logfile ';'
+	szip -d readme.sz | check readme.txt logfile
+	echo -- end of list -- >>logfile
+	more logfile
+fulltest: szip.exe check.exe
+	echo full test: The following files had an error: >logfile
+	find / -mtime +1 -type f -perm -4 -exec test {} logfile
+	echo -- end of list -- >>logfile
+	more logfile
+$(NAME).zip: szip.exe readme.txt techinfo.txt history.txt
+	zip $(NAME).zip szip.exe readme.txt techinfo.txt history.txt

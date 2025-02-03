@@ -1,0 +1,2 @@
+#!/bin/sh
+./szip -b1 "$1" | ./szip -d | ./check "$1" logfile

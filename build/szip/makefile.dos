@@ -1,0 +1,19 @@
+CFLAGS = -O6 -Wall -fomit-frame-pointer -funroll-loops
+
+%.exe : %
+
+all: szip
+clean:
+	del *.o
+	command /C for %f in (*.) do if exist %f.exe if exist %f.c del %f
+	del *.exe
+szip: szip.o ar.o sz_bit.o sz_model.o sz_sortt.o
+sunzip: sunzip.o sz_hash2.o ar.o sz_bit.o sz_model.o sz_sortt.o
+
+ar.o: ar.c ar.h sz_bit.h
+sz_bit.o: sz_bit.c sz_bit.h
+szip.o: szip.c sz_model.h sz_sortt.h
+sz_model.o: sz_model.c sz_model.h sz_bit.h ar.h
+sz_sortt.o: sz_sortt.h hash2.h
+sz_hash2.o : sz_hash2.c sz_hash2.h
+sunzip.o: sunzip.c sz_model.h sz_sortt.h
