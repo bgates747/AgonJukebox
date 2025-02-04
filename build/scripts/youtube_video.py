@@ -11,6 +11,7 @@ from make_agm import make_agm
 from make_agm_cmp import make_agm_cmp
 from make_agm_dif import make_agm_dif
 from make_agm_rle import make_agm_rle
+from make_agm_szip import make_agm_szip
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -368,9 +369,10 @@ def do_all_the_things():
 
     if do_make_agm:
         # make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
 
     if do_delete_frames:
         delete_frames()
@@ -404,6 +406,7 @@ if __name__ == "__main__":
     target_directory    = "tgt/video"
 
     target_width  = 160
+    
     # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
 
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
@@ -445,14 +448,14 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # ============================================================
-# Download group
-    do_download_video = True
-    do_download_audio = True
+# # Download group
+#     do_download_video = True
+#     do_download_audio = True
 
-# Extract audio group
-    do_compression   = True
-    do_normalization = True
-    do_convert_audio = True
+# # Extract audio group
+#     do_compression   = True
+#     do_normalization = True
+#     do_convert_audio = True
 
 # Extract video group
     do_extract_frames = True

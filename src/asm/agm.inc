@@ -209,7 +209,8 @@ pv_cmd_draw:
 ; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
                     db 23,0,0xA0
 pv_img_buffer_0:    dw 0x0000
-                    db 65 ; decompress buffer
+                    ; db 65 ; decompress buffer (TurboVega)
+                    db 67 ; decompress buffer (szip)
 pv_img_buffer_1:    dw 0x0000
 
 ; Command 14: Consolidate blocks in a buffer
