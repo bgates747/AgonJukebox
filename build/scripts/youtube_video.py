@@ -49,7 +49,8 @@ def download_video():
     command = [
         "yt-dlp",
         "--restrict-filenames",
-        "--format", f"bestvideo[height<={max_height}]",  # video only, no audio
+        # "--format", f"bestvideo[height<={max_height}]",  # video only, no audio
+        "--format", "mp4",
         "--output", staged_video_path,
         youtube_url,
     ]
@@ -260,6 +261,7 @@ def process_frames():
 
         # --- 2) Remove letterbox (black borders) if present ---
         content_img = remove_letterbox(img)
+        # content_img = img
 
         # --- 3) Adjust image to target dimensions ---
         cw, ch = content_img.size
@@ -412,7 +414,7 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
     # video_base_name = f'a_ha__Take_On_Me'
 
-    # youtube_url = "https://youtu.be/ThHvx5a9IYA" # Bad Apple
+    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
     # video_base_name = f'Bad_Apple'
 
     # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
@@ -448,14 +450,14 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # ============================================================
-# # Download group
-#     do_download_video = True
-#     do_download_audio = True
+# Download group
+    do_download_video = True
+    do_download_audio = True
 
-# # Extract audio group
-#     do_compression   = True
-#     do_normalization = True
-#     do_convert_audio = True
+# Extract audio group
+    do_compression   = True
+    do_normalization = True
+    do_convert_audio = True
 
 # Extract video group
     do_extract_frames = True
