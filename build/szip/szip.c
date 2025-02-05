@@ -28,7 +28,8 @@ static void usage()
     fprintf(stderr,"usage: szip [options] [inputfile [outputfile]]\n");
     fprintf(stderr,"option           meaning              default   range\n");
     fprintf(stderr,"-d               decompress\n");
-    fprintf(stderr,"-b<blocksize>    blocksize in 100kB   -b17      1-41\n");
+    // fprintf(stderr,"-b<blocksize>    blocksize in 100kB   -b17      1-41\n");
+    fprintf(stderr,"-b<blocksize>    blocksize in 100kB   -b1      1-41\n"); // default block size to minimum for ESP32-friendly decompression
     fprintf(stderr,"-o<order>        order of context     -o6       0, 3-255\n");
     fprintf(stderr,"-r<recordsize>   recordsize           -r1       1-127\n");
     fprintf(stderr,"-i               incremental          -i\n");
@@ -36,10 +37,6 @@ static void usage()
     fprintf(stderr,"options may be combined into one, like -r3i\n");
     exit(1);
 }
-
-/* Forward declarations */
-static void writeuint3(uint4 x);
-static uint4 readuint3();
 
 static int readnum(char **s, int min, int max)
 {	int j=0;
@@ -53,82 +50,68 @@ static int readnum(char **s, int min, int max)
 }
 
 /* parameter values */
-uint4 blocksize=1703936;
+// uint4 blocksize=1703936;
+uint4 blocksize = 32768; // 32 KB = 0x8000, ESP32-friendly default
 uint order=6, verbosity=0, compress=1;
 unsigned char recordsize=1;
 
-static void writeglobalheader(uint4 orig_size)
-{
-    /* Write magic bytes: SZ\012\004 */
+static void writeglobalheader()
+{   /* write magic SZ\012\004 */
     putchar(0x53);
     putchar(0x5a);
     putchar(0x0a);
     putchar(0x04);
-
-    /* Write version: 1.11 (stored as 0x01, 0x0b) */
-    putchar(0x01);
-    putchar(0x0b);
-
-    /* Write original file size as 3-byte value */
-    writeuint3(orig_size);
+    putchar(0x01); /* version mayor of first version using the format */
+    putchar(0x0b); /* version minor of first version using the format */
 }
+
 
 static void no_szip()
 {   fprintf(stderr, "probably not an szip file; could be szip version prior to 1.10\n");
     exit(1);
 }
 
-static uint4 readglobalheader()
-{
-    int ch, vmay;
-    uint4 orig_size;
-
+static void readglobalheader()
+{   int ch, vmay;
     ch = getchar();
-    if (ch == EOF) return 0;
-    if (ch == 0x42) {ungetc(ch, stdin); return 0;} /* Maybe blockheader */
+    if (ch == EOF) return;
+    if (ch == 0x42) {ungetc(ch, stdin); return;} /* maybe blockheader */
     if (ch != 0x53) no_szip();
     if (getchar() != 0x5a) no_szip();
     if (getchar() != 0x0a) no_szip();
     if (getchar() != 0x04) no_szip();
-
     vmay = getchar();
-    if (vmay == EOF || vmay == 0) no_szip();
+    if (vmay == EOF || vmay==0) no_szip();
     ch = getchar();
     if (ch == EOF) no_szip();
-
-    if (vmay > vmayor || (vmay == vmayor && ch > vminor))
-    {
-        fprintf(stderr, "This file is szip version %d.%d, this program is %d.%d.\n Please update\n",
-            vmay, ch, vmayor, vminor);
+    if (vmay>vmayor || (vmay==vmayor && ch>vminor))
+    {   fprintf(stderr, "This file is szip version %d.%d, this program is %d.%d.\n Please update\n",
+        vmay, ch, vmayor, vminor);
         exit(1);
     }
-
-    if (vmay == 1 && ch == 10)
-    {
-        fprintf(stderr, "This file is szip version 1.10ALPHAi");
+    if (vmay==1 && ch==10)
+    {   fprintf(stderr, "This file is szip version 1.10ALPHAi");
         fprintf(stderr, "A decoder is available at the website http://www.compressconsult.com");
         exit(1);
     }
-
-    /* Read original file size (3-byte value) */
-    orig_size = readuint3();
-    return orig_size;
 }
+
 
 static void writeuint3(uint4 x)
-{
-    putchar((char)((x >> 16) & 0xff));
-    putchar((char)((x >> 8) & 0xff));
-    putchar((char)(x & 0xff));
+{   putchar((char)((x>>16)&0xff));
+    putchar((char)((x>>8)&0xff));
+    putchar((char)(x&0xff));
 }
 
+
 static uint4 readuint3()
-{
-    uint4 x = getchar();
-    x = (x << 8) | getchar();
-    x = (x << 8) | getchar();
+{   uint4 x;
+    x = getchar();
+    x = x<<8 | getchar();
+    x = x<<8 | getchar();
     return x;
 }
+
 
 static uint writeblockdir(uint4 buflen)
 {   /* write magic */
@@ -345,151 +328,131 @@ static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 }
 
 
-static void compressit(const char *infilename, const char *outfilename)
-{
-    unsigned char *inoutbuffer;
-    uint4 orig_size = 0;
-    FILE *input = stdin;
+static void compressit()
+{   unsigned char *inoutbuffer;
 
-    /* Open input file if specified */
-    if (infilename)
-    {
-        input = fopen(infilename, "rb");
-        if (!input)
-        {
-            fprintf(stderr, "Error: Cannot open input file %s\n", infilename);
-            exit(1);
-        }
-    }
+    inoutbuffer = (unsigned char*) malloc(blocksize+order+1);
+	if (inoutbuffer==NULL)
+	{	fprintf(stderr, "memory allocation error\n");
+		exit(1);
+	}
 
-    /* Determine original file size */
-    fseek(input, 0, SEEK_END);
-    orig_size = ftell(input);
-    fseek(input, 0, SEEK_SET);
+    writeglobalheader();
 
-    inoutbuffer = (unsigned char*) malloc(blocksize + order + 1);
-    if (inoutbuffer == NULL)
-    {
-        fprintf(stderr, "memory allocation error\n");
-        exit(1);
-    }
-
-    /* Open output file if specified */
-    if (outfilename)
-    {
-        freopen(outfilename, "wb", stdout);
-    }
-
-    /* Write global header with original file size */
-    writeglobalheader(orig_size);
-
-    uint4 compressed_size = 0;
     while (1)
-    {
-        uint4 buflen;
+    {   uint4 buflen;
         uint i;
-        buflen = fread((char *)inoutbuffer, 1, (size_t)blocksize, input);
+        buflen = fread( (char *)inoutbuffer, 1, (size_t)blocksize, stdin);
         if (buflen == 0) break;
 
         i = writeblockdir(buflen);
 
-        if (buflen <= order || buflen <= 5)
+        if (buflen<=order || buflen<=5)
             writestorblock(i, buflen, inoutbuffer);
         else
             writeszipblock(i, buflen, inoutbuffer);
 
-        compressed_size += buflen;  // Track compressed size
-
-        if (verbosity & 1) fprintf(stderr, " done\n");
-    }
-
+		if (verbosity&1) fprintf(stderr," done\n");
+	}
     free(inoutbuffer);
-    if (infilename) fclose(input);
 }
 
 
 static void decompressit()
-{
-    unsigned char *inoutbuffer = NULL;
-    uint4 orig_size;
+{   unsigned char *inoutbuffer=NULL;
 
     blocksize = 0;
-    orig_size = readglobalheader();
-    fprintf(stderr, "Original file size: %u bytes\n", orig_size);  // Log size info
+    readglobalheader();
 
     while (1)
-    {
-        uint4 blocklen;
+    {   uint4 blocklen;
         uint dirsize;
         int ch;
         dirsize = readblockdir(&blocklen);
-        if (dirsize == 0) break;
-        if (blocklen > blocksize)
-        {
-            if (inoutbuffer != NULL)
+        if (dirsize==0) break;
+        if (blocklen>blocksize)
+        {   if (inoutbuffer != NULL)
                 free(inoutbuffer);
-            inoutbuffer = (unsigned char*) malloc(blocklen);
+            inoutbuffer = (unsigned char *) malloc(blocklen);
             blocksize = blocklen;
-            if (inoutbuffer == NULL)
-            {
-                fprintf(stderr, "memory allocation error\n");
-                exit(1);
-            }
+        	if (inoutbuffer==NULL)
+        	{	fprintf(stderr, "memory allocation error\n");
+        		exit(1);
+	        }
         }
         ch = getchar();
-        if (ch == 0)
-            readstorblock(dirsize + 1, blocklen, inoutbuffer);
-        else if (ch == 1)
-            readszipblock(dirsize + 1, blocklen, inoutbuffer);
+        if (ch==0)
+            readstorblock(dirsize+1, blocklen, inoutbuffer);
+        else if (ch==1)
+            readszipblock(dirsize+1, blocklen, inoutbuffer);
         else
             no_szip();
-
-        if (verbosity & 1) fprintf(stderr, " done\n");
-    }
-
+		if (verbosity&1) fprintf(stderr," done\n");
+	}
     free(inoutbuffer);
 }
 
-int main(int argc, char *argv[])
-{
-    char *infilename = NULL, *outfilename = NULL;
+
+int main( int argc, char *argv[] )
+{	char *infilename=NULL, *outfilename=NULL;
     uint i;
 
-    for (i = 1; i < (unsigned)argc; i++)
-    {
-        char *s = argv[i];
-        if (*s == '-')
-        {
-            s++;
-            while (*s)
-                switch (*(s++))
-                {
-                    case 'o': { order = readnum(&s, 0, 255);
-                                if (order == 1 || order == 2) usage();
-                                break; }
-                    case 'r': { recordsize = (recordsize & 0x80) |
-                                  readnum(&s, 1, 255); break; }
-                    case 'b': { blocksize = (100000 * readnum(&s, 1, 41) + 0x7fff) & 0x7fff8000L; break; }
-                    case 'i': { recordsize |= 0x80; break; }
-                    case 'v': { verbosity = readnum(&s, 0, 255); break; }
-                    case 'd': { compress = 0; break; }
-                    default: usage();
-                }
-        }
-        else if (infilename == NULL)
-            infilename = s;
-        else if (outfilename == NULL)
-            outfilename = s;
-        else
-            usage();
+    for (i=1; i<(unsigned)argc; i++)
+	{	char *s=argv[i];
+	    if (*s == '-')
+		{	s++;
+			while (*s)
+				switch (*(s++))
+				{	case 'o': {order = readnum(&s,0,255); 
+								  if(order==1 || order==2) usage(); break;}
+					case 'r': {recordsize = (recordsize & 0x80) | 
+								  readnum(&s,1,255); break;}
+					// case 'b': {blocksize = (100000*readnum(&s,1,41)+0x7fff) & 0x7fff8000L; break;}
+                    case 'b': { // modification for ESP32-friendly block size
+                        uint custom_size = readnum(&s, 1, 41) * 100000; // User-specified size in 100 KB units
+                        if (custom_size < 32768) { // Ensure blocksize never goes below 32 KB
+                            custom_size = 32768;
+                        }
+                        blocksize = (custom_size + 0x7fff) & 0x7FFF8000L; // Align to 32 KB boundary
+                        break;
+                    } // end modification for ESP32-friendly block size
+					case 'i': {recordsize |= 0x80; break;}
+                    case 'v': {verbosity = readnum(&s,0,255); break;}
+                    case 'd': {compress = 0; break;}
+					default: usage();
+				}
+		} else if (infilename == NULL)
+			infilename = s;
+		else if (outfilename == NULL)
+			outfilename = s;
+		else
+			usage();
+	}
+
+	if (verbosity) fprintf( stderr, "szip Version %d.%d on ", vmayor, vminor);
+
+    if ( infilename == NULL )
+    {   if (verbosity) fprintf( stderr, "stdin" );}
+	else
+	{	freopen( infilename, "rb", stdin );
+        if (verbosity) fprintf( stderr, "%s", infilename );
+    }
+    if ( outfilename == NULL )
+    {   if (verbosity) fprintf( stderr, " to stdout\n" );}
+	else
+	{	freopen( outfilename, "wb", stdout );
+        if (verbosity) fprintf( stderr, " to %s\n", outfilename );
     }
 
-    if (verbosity) fprintf(stderr, "szip Version %d.%d\n", vmayor, vminor);
+#ifndef unix
+    setmode( fileno( stdin ), O_BINARY );
+    setmode( fileno( stdout ), O_BINARY );
+#endif
 
     if (compress)
-        compressit(infilename, outfilename);
+        compressit();
     else
         decompressit();
 
-    return 0;
+	return 0;
 }

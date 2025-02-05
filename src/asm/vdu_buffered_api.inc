@@ -201,3 +201,21 @@ vdu_decompress_buffer:
            db 65 ; decompress buffer
 @sourceBufferId: dw 0x0000
 @end:     db 0x00 ; padding
+
+; Command 67: Decompress a buffer (szip)
+; VDU 23, 0, &A0, targetBufferId; 67, sourceBufferId;
+; inputs: hl = sourceBufferId, de = targetBufferId
+vdu_decompress_buffer_szip:
+    ld (@sourceBufferId),hl
+    ld (@targetBufferId),de
+    ld a,67 ; decompress buffer
+    ld (@sourceBufferId-1),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:     db 23,0,0xA0
+@targetBufferId: dw 0x0000
+           db 67 ; decompress buffer (szip)
+@sourceBufferId: dw 0x0000
+@end:     db 0x00 ; padding
