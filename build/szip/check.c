@@ -4,7 +4,7 @@ reports filename to logfile if not equal */
 #include <stdio.h>
 #include <stdlib.h>
 #ifndef unix
-#include <io.h>
+// #include <io.h>
 #include <fcntl.h>
 #endif
 

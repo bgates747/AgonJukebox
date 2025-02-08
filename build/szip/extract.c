@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #ifndef unix
-#include <io.h>
+// #include <io.h>
 #include <fcntl.h>
 #endif
 

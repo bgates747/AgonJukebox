@@ -2,6 +2,8 @@ import os
 import struct
 import subprocess
 import tempfile
+import math
+from io import BytesIO
 
 # ------------------- Unit Header Mask Definitions -------------------
 # Bit definitions (using binary for clarity):
@@ -14,7 +16,7 @@ VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_TBV
 # --------------------------------------------------------------------
 
 # Path to the local `compress` executable
-COMPRESS_EXECUTABLE = "./build/szip/szip"
+COMPRESS_EXECUTABLE = "szip"
 
 def compress_frame_data(frame_bytes, frame_idx, total_frames):
     """
@@ -68,11 +70,6 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
             os.remove(compressed_path)
             
     return compressed_bytes
-
-import os
-import math
-import struct
-from io import BytesIO
 
 def make_agm_szip(
     frames_directory,

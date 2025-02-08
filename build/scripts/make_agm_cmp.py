@@ -2,6 +2,8 @@ import os
 import struct
 import subprocess
 import tempfile
+import math
+from io import BytesIO
 
 # ------------------- Unit Header Mask Definitions -------------------
 # Bit definitions (using binary for clarity):
@@ -68,11 +70,6 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
             os.remove(compressed_path)
             
     return compressed_bytes
-
-import os
-import math
-import struct
-from io import BytesIO
 
 def make_agm_cmp(
     frames_directory,

@@ -9,7 +9,7 @@ static char vmayor=1, vminor=12;
 #include <stdio.h>
 #include <stdlib.h>
 #ifndef unix
-#include <io.h>
+// #include <io.h>
 #include <fcntl.h>
 #endif
 #include <string.h>
