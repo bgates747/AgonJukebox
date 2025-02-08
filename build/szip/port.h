@@ -1,6 +1,8 @@
 #if !defined port_h
 #define port_h
 
+typedef unsigned int uint;
+
 #if defined GCC
 #define Inline inline
 #else
