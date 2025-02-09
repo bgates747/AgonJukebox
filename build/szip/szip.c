@@ -61,8 +61,8 @@ static void writeglobalheader()
     putchar(0x5a);
     putchar(0x0a);
     putchar(0x04);
-    putchar(0x01); /* version mayor of first version using the format */
-    putchar(0x0b); /* version minor of first version using the format */
+    putchar(vmayor); /* version mayor of first version using the format */
+    putchar(vminor); /* version minor of first version using the format */
 }
 
 
@@ -244,6 +244,8 @@ static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 
 	memset(charcount, 0, 256*sizeof(uint4));
     initmodel(&m, -1, &recordsize);
+
+    fprintf( stderr, "readszipblock: order %d, recordsize %d\n", order, recordsize); // DEBUG
 
     if (verbosity&1)
     {   if (order != 6)
