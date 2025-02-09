@@ -16,7 +16,7 @@ def process_rgba2_files(dir_path):
 
         # Compress file using szip
         compressed_file = f"{file_path}.szip"
-        subprocess.run(["szip", "-b1", file_path, compressed_file], check=True)
+        subprocess.run(["szip", "-b1", "-v0", file_path, compressed_file], check=True)
 
         # Generate hex dump of compressed file
         with open(f"{compressed_file}.txt", "w") as hex_out:
@@ -24,7 +24,7 @@ def process_rgba2_files(dir_path):
 
         # Decompress file using szip
         decompressed_file = f"{compressed_file}.rgba2"
-        subprocess.run(["szip", "-d", compressed_file, decompressed_file], check=True)
+        subprocess.run(["szip", "-d", "-v0", compressed_file, decompressed_file], check=True)
 
         # Generate hex dump of decompressed file
         with open(f"{decompressed_file}.txt", "w") as hex_out:

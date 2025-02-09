@@ -1,4 +1,5 @@
 #include "port.h"
+#include <stdlib.h>
 
 #define swap(x,y) {uint4 tmp = *(x); *(x) = *(y); *(y) = tmp;}
 
