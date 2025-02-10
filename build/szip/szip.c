@@ -245,8 +245,6 @@ static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 	memset(charcount, 0, 256*sizeof(uint4));
     initmodel(&m, -1, &recordsize);
 
-    fprintf( stderr, "readszipblock: order %d, recordsize %d\n", order, recordsize); // DEBUG
-
     if (verbosity&1)
     {   if (order != 6)
             fprintf( stderr, "-o%d ",order);
