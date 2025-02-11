@@ -15,9 +15,6 @@ AGM_UNIT_CMP_TBV = 0b00001000  # Bits 3-4: TurboVega compression (bit 3 set)
 VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_TBV
 # --------------------------------------------------------------------
 
-# Path to the local `compress` executable
-COMPRESS_EXECUTABLE = "szip"
-
 def compress_frame_data(frame_bytes, frame_idx, total_frames):
     """
     Compress the raw frame data using an external compressor.
@@ -42,23 +39,25 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
         temp_compressed.close()
         compressed_path = temp_compressed.name
 
-        # Run the external compression executable.
-        result = subprocess.run(
-            [COMPRESS_EXECUTABLE, raw_path, compressed_path],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-
-        # Optionally, extract and print compression info (e.g. from the second line).
-        output_lines = result.stdout.split("\n")
-        if len(output_lines) > 1:
-            compression_info = output_lines[1].strip()
-        else:
-            compression_info = "Compression output missing"
-        print(f"[Frame {frame_idx+1}/{total_frames}] {compression_info}", end="\r", flush=True)
+        # Run the compression command.
+        subprocess.run(["szip", "-b1", "-v0", "-r1", raw_path, compressed_path], check=True)
 
         # Read the compressed file.
+        compressed_size = os.path.getsize(compressed_path)
+        original_size = len(frame_bytes)
+
+        # Calculate compression ratio
+        compression_ratio = 100.0 * compressed_size / original_size if original_size > 0 else 0.0
+
+        # Print progress without newlines.
+        print(
+            f"\rszipped frame {frame_idx + 1} of {total_frames}, "
+            f"{original_size} bytes -> {compressed_size} bytes, "
+            f"{compression_ratio:.1f}%",
+            end="",
+            flush=True
+        )
+
         with open(compressed_path, "rb") as f_in:
             compressed_bytes = f_in.read()
 
@@ -68,7 +67,7 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
             os.remove(temp_raw.name)
         if os.path.exists(compressed_path):
             os.remove(compressed_path)
-            
+
     return compressed_bytes
 
 def make_agm_szip(

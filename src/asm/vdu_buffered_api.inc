@@ -168,7 +168,7 @@ vdu_call_buffer_offset:
 ; Command 64: Compress a buffer
 ; VDU 23, 0, &A0, targetBufferId; 64, sourceBufferId;
 ; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_compress_buffer:
+vdu_compress_buffer_tvc:
     ld (@sourceBufferId),hl
     ld (@targetBufferId),de
     ld a,64 ; compress buffer
@@ -187,7 +187,7 @@ vdu_compress_buffer:
 ; Command 65: Decompress a buffer
 ; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
 ; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_decompress_buffer:
+vdu_decompress_buffer_tvc:
     ld (@sourceBufferId),hl
     ld (@targetBufferId),de
     ld a,65 ; decompress buffer
