@@ -407,7 +407,7 @@ if __name__ == "__main__":
     frames_directory    = "assets/video/frames"
     target_directory    = "tgt/video"
 
-    target_width  = 160
+    target_width  = 320
     
     # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
 
@@ -450,21 +450,21 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # ============================================================
-# Download group
-    do_download_video = True
-    do_download_audio = True
+# # Download group
+#     do_download_video = True
+#     do_download_audio = True
 
-# Extract audio group
-    do_compression   = True
-    do_normalization = True
-    do_convert_audio = True
+# # Extract audio group
+#     do_compression   = True
+#     do_normalization = True
+#     do_convert_audio = True
 
 # Extract video group
     do_extract_frames = True
     do_process_frames = True
 
 # Make AGM group
-    do_make_agm = True
+    # do_make_agm = True
 
 # # Clean up group
 #     do_delete_frames = True

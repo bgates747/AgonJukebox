@@ -437,7 +437,11 @@ void sz_encode(sz_model *m, uint symbol, uint4 runlength)
         tmp->sy_f = tmp->weight;
         MOD.newest = tmp;
     }
+#ifdef MODELGLOBAL
     finishupdate(M,symbol);
+#else
+    finishupdate(m,symbol);
+#endif
 }
 
 
