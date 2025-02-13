@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 import agonutils as au
+import numpy as np
 
 def crop_images_fixed_size(img, target_width=1920, target_height=1280):
     """
@@ -79,8 +80,43 @@ def crop_images(img, target_aspect_ratio=(4, 3)):
 def scale_image(image, target_width, target_height):
     return image.resize((target_width, target_height), Image.BICUBIC)
 
-def process_images(staging_directory, processed_directory, palette_filepath, transparent_rgb, screen_width, screen_height, palette_conversion_method, agon_rgba_type):
+def rgba2222_to_grayscale(rgba2_filepath, output_png_filepath, width, height):
+    """
+    Reads a raw RGBA2222 file and saves it as an 8-bit grayscale PNG.
+    
+    Each byte in the raw file represents a single pixel, which we interpret
+    as an 8-bit grayscale value. This ensures that when unpacked on the target
+    system, the grayscale values are natively interpreted as RGBA2222.
 
+    Parameters:
+    - rgba2_filepath (str): Path to the input RGBA2222 raw byte file.
+    - output_png_filepath (str): Path to save the output grayscale PNG.
+    - width (int): Image width in pixels.
+    - height (int): Image height in pixels.
+    
+    Returns:
+    - None (saves a PNG file to the output path).
+    """
+    # Read the raw binary data
+    with open(rgba2_filepath, "rb") as f:
+        data = f.read()
+
+    # Ensure we have exactly width * height bytes
+    expected_size = width * height
+    if len(data) != expected_size:
+        raise ValueError(f"File size mismatch: Expected {expected_size} bytes, got {len(data)} bytes.")
+
+    # Convert raw bytes into a NumPy array (shape: height x width)
+    grayscale_array = np.frombuffer(data, dtype=np.uint8).reshape((height, width))
+
+    # Save as an 8-bit grayscale PNG
+    img = Image.fromarray(grayscale_array, mode="L")
+    img.save(output_png_filepath, "PNG")
+
+    print(f"Saved grayscale PNG: {output_png_filepath}")
+
+
+def process_images(staging_directory, processed_directory, palette_filepath, transparent_rgb, screen_width, screen_height, palette_conversion_method, agon_rgba_type):
 
     os.makedirs(target_directory, exist_ok=True)
     os.makedirs(processed_directory, exist_ok=True)
@@ -131,12 +167,13 @@ def process_images(staging_directory, processed_directory, palette_filepath, tra
 
         au.convert_to_palette(output_image_filepath_png, output_image_filepath_png, palette_filepath, palette_conversion_method, transparent_rgb)
 
-        if agon_rgba_type == 1:
-            rgba_filepath = f'{target_directory}/{file_name}.rgba2'
-            au.img_to_rgba2(output_image_filepath_png, rgba_filepath)
-        else:
-            rgba_filepath = f'{target_directory}/{file_name}.rgba8'
-            au.img_to_rgba8(output_image_filepath_png, rgba_filepath)
+        rgba_filepath = f'{target_directory}/{file_name}.rgba2'
+        au.img_to_rgba2(output_image_filepath_png, rgba_filepath)
+
+        # Convert RGBA2222 raw bytes to an 8-bit grayscale PNG
+        grayscale_filepath = f'{target_directory}/{file_name}.rgba2.png'
+        rgba2222_to_grayscale(rgba_filepath, grayscale_filepath, screen_width, screen_height)
+
 
 if __name__ == '__main__':
     staging_directory =         'assets/images/staging'

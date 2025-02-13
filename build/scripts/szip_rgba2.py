@@ -131,7 +131,7 @@ def do_compression(dir_path):
         print(f"Finished: {file_name}")
 
 if __name__ == "__main__":
-    # dir_path = "tgt/images"
-    dir_path = "assets/video/frames"
-    # do_compression(dir_path)
-    benchmark_rgba2_files(dir_path)
+    dir_path = "tgt/images"
+    # dir_path = "assets/video/frames"
+    do_compression(dir_path)
+    # benchmark_rgba2_files(dir_path)
