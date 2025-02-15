@@ -53,7 +53,7 @@ agm_unit_cmp_typ:  equ %00011000  ; bits 3-4, compression type with the followin
 agm_unit_cmp_non:  equ %00000000  ; no compression (bits 3,4 clear)
 agm_unit_cmp_tbv:  equ %00001000  ; TurboVega compression (bit 3 set)
 agm_unit_cmp_rle:  equ %00010000  ; Run-Length Encoding (bit 4 set)
-agm_unit_cmp_res:  equ %00011000  ; Reserved for future use (bits 3,4 set)
+agm_unit_cmp_szp:  equ %00011000  ; Szip compression (bits 3,4 set)
 
 ; chunk header (for each chunk of a unit)
 agm_chunk_size: equ 0        ; 4 bytes: size of the chunk (excluding chunk header); 0 = end of unit
@@ -179,13 +179,13 @@ pv_load_video_cmd_buffers:
 
     ld (pv_img_buffer_0),a
     ld (pv_img_buffer_1),a
-    ; ld (pv_img_buffer_2),a
+    ld (pv_img_buffer_2),a
     ld (pv_img_buffer_3),a
 
     ld a,h
     ld (pv_img_buffer_0+1),a
     ld (pv_img_buffer_1+1),a
-    ; ld (pv_img_buffer_2+1),a
+    ld (pv_img_buffer_2+1),a
     ld (pv_img_buffer_3+1),a
 
     dec h ; hl = cmd bufferId
@@ -213,11 +213,11 @@ pv_img_buffer_0:    dw 0x0000
                     db 67 ; decompress buffer (szip)
 pv_img_buffer_1:    dw 0x0000
 
-; ; Command 14: Consolidate blocks in a buffer
-; ; VDU 23, 0, &A0, bufferId; 14
-;                     db 23,0,0xA0 ; vdu buffered api command header
-; pv_img_buffer_2:    dw 0x0000
-;                     db 14 ; consolidate blocks command
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+                    db 23,0,0xA0 ; vdu buffered api command header
+pv_img_buffer_2:    dw 0x0000
+                    db 14 ; consolidate blocks command
 
 ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
 ; inputs: hl=bufferId

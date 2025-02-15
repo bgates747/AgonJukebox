@@ -79,6 +79,8 @@ ps_read_agm:
     call ps_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
 @next_segment:
+    ; call vdu_cls ; DEBUG
+    
 ; set up a frame timer
     ld hl,120
     ld a,(ps_wav_header+agm_frame_rate)
@@ -94,7 +96,7 @@ ps_read_agm:
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,ps_agm_segment_hdr   ; target address
     FFSCALL ffs_fread
-    call print_segment_hdr ; DEBUG
+    ; call print_segment_hdr ; DEBUG
 
 ; check for end of file
     push bc ; bytes read

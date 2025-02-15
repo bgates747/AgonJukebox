@@ -9,10 +9,10 @@ from io import BytesIO
 # Bit definitions (using binary for clarity):
 AGM_UNIT_TYPE    = 0b10000000  # Bit 7: 1 = video, 0 = audio
 AGM_UNIT_GCOL    = 0b00000111  # Bits 0-2: GCOL plotting mode (set to 0 here)
-AGM_UNIT_CMP_TBV = 0b00001000  # Bits 3-4: TurboVega compression (bit 3 set)
+AGM_UNIT_CMP_SZP = 0b00011000  # Bits 3-4: szip compression (bits 3,4 set)
 
 # Final video unit mask: video type OR TurboVega compression.
-VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_TBV
+VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_SZP
 # --------------------------------------------------------------------
 
 def compress_frame_data(frame_bytes, frame_idx, total_frames):
@@ -105,7 +105,6 @@ def make_agm_szip(
 
     # Masks (bit7=1 => video; bit7=0 => audio)
     AUDIO_MASK = 0x00  # 0b00000000
-    VIDEO_MASK = 0x80  # 0b10000000
 
     # 1) Gather frames
     frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith(".rgba2"))

@@ -422,8 +422,8 @@ if __name__ == "__main__":
 
     target_height = int(target_width / 2.35) 
 
-    # youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    # video_base_name = f'Star_Wars__Battle_of_Yavin'
+    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
 
     # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
     # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
@@ -431,8 +431,8 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
     # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
 
-    youtube_url = "https://youtu.be/vrHeuwO5agw" # The Terminator
-    video_base_name = f'The_Terminator'
+    # youtube_url = "https://youtu.be/vrHeuwO5agw" # The Terminator
+    # video_base_name = f'The_Terminator'
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
@@ -453,18 +453,18 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # ============================================================
-# Download group
-    do_download_video = True
-    do_download_audio = True
+# # Download group
+#     do_download_video = True
+#     do_download_audio = True
 
-# Extract audio group
-    do_compression   = True
-    do_normalization = True
-    do_convert_audio = True
+# # Extract audio group
+#     do_compression   = True
+#     do_normalization = True
+#     do_convert_audio = True
 
-# Extract video group
-    do_extract_frames = True
-    do_process_frames = True
+# # Extract video group
+#     do_extract_frames = True
+#     do_process_frames = True
 
 # Make AGM group
     do_make_agm = True

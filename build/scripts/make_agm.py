@@ -14,31 +14,46 @@ def make_agm(
     chunksize
 ):
     """
-    Creates an AGM file with the following structure:
-      - 76-byte WAV header (with 'agm' marker at offset 12..14).
-      - 68-byte AGM header.
-      - For each 1-second segment:
-          - 8-byte segment header (lastSegmentSize, thisSegmentSize).
-          - Audio unit: 1 byte mask (bit7=0), then multiple:
-              * <I=chunk_size> + chunk_data
-              * A 0 for chunk_size indicates end of audio unit.
-          - Video unit: 1 byte mask (bit7=1), then multiple:
-              * <I=chunk_size> + chunk_data
-              * A 0 for chunk_size indicates end of video unit.
-              
-    The width and height fields in the AGM header are now 16-bit integers.
-    Note: The header size remains 68 bytes by reducing the reserved space.
+    Creates an AGM file with this structure:
+      - 76-byte WAV header (with 'agm' marker inserted at offset 12..14).
+      - 68-byte AGM header:
+          * b"AGNMOV" (6 bytes)
+          * version (1 byte)
+          * width (2 bytes, little-endian)
+          * height (2 bytes, little-endian)
+          * frame_rate (1 byte)
+          * total_frames (4 bytes, little-endian)
+          * total_secs (4 bytes, little-endian)
+          * 48-byte reserved padding
+      - Then, for each 1-second segment:
+          * 8-byte segment header (<II: lastSegmentSize, thisSegmentSize)
+          * AUDIO unit (mask bit7=0 => 0x00)
+             - multiple chunks: <I=chunk_size> + chunk_data
+             - ends with chunk_size=0
+          * VIDEO unit (mask bit7=1 => 0x80, no compression => bits3-4=0, bits0-2=0 => gcol=0)
+             - multiple frames in this second (either real or blank)
+             - each frame chunked: <I=chunk_size> + chunk_data
+             - ends with chunk_size=0
     """
+
     WAV_HEADER_SIZE = 76
     AGM_HEADER_SIZE = 68
-    # Original format was: "<6sBBBBII50x"
-    # We now use 16-bit width and height ("H") instead of 8-bit ("B") for each.
-    # The size increase is offset by reducing the reserved padding from 50 to 48 bytes.
+
+    # Updated AGM header with 16-bit width/height
     agm_header_fmt  = "<6sBHHBII48x"
 
-    # Masks (bit7=1 => video; bit7=0 => audio)
-    AUDIO_MASK = 0x00  # 0b00000000
-    VIDEO_MASK = 0x80  # 0b10000000
+    # -----------------------------------------
+    #  Mask Format (agm_unit_mask):
+    #    bit7 = 0 => audio, 1 => video
+    #    bits3..4 => compression type
+    #       00 => no compression
+    #       01 => TurboVega
+    #       10 => RLE
+    #       11 => Szip
+    #    bits0..2 => GCOL mode (for video)
+    # -----------------------------------------
+    AUDIO_MASK = 0x00  # (bit7=0, no compression=0, gcol=0 => 0)
+    VIDEO_MASK = 0x80  # (bit7=1, no compression=0, gcol=0 => 0x80)
 
     # 1) Gather frames
     frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith(".rgba2"))
@@ -93,8 +108,8 @@ def make_agm(
         for sec in range(total_secs):
             seg_buffer = BytesIO()
 
-            # ---------------- AUDIO UNIT ----------------
-            # 1) Write 1 byte mask => audio = bit7=0 => 0x00
+            # ================ AUDIO UNIT ================
+            # 1) Write 1-byte audio mask (bit7=0 => 0x00)
             seg_buffer.write(struct.pack("<B", AUDIO_MASK))
 
             # 2) Extract/pad the audio for this second
@@ -110,15 +125,16 @@ def make_agm(
             while offset < len(unit_audio):
                 chunk = unit_audio[offset : offset + chunksize]
                 offset += len(chunk)
-                # 4-byte size, then chunk data
+                # 4-byte chunk size
                 seg_buffer.write(struct.pack("<I", len(chunk)))
+                # chunk data
                 seg_buffer.write(chunk)
 
-            # 4) End of audio unit => size=0
+            # End audio unit => chunk_size=0
             seg_buffer.write(struct.pack("<I", 0))
 
-            # ---------------- VIDEO UNIT ----------------
-            # 1) Write 1 byte mask => video = bit7=1 => 0x80
+            # ================ VIDEO UNIT ================
+            # 1) Write 1-byte video mask (bit7=1 => 0x80, no compression => bits3..4=0)
             seg_buffer.write(struct.pack("<B", VIDEO_MASK))
 
             # 2) For each frame in this second
@@ -140,19 +156,17 @@ def make_agm(
                     seg_buffer.write(struct.pack("<I", len(chunk)))
                     seg_buffer.write(chunk)
 
-            # 4) End of video unit => size=0
+            # End video unit => chunk_size=0
             seg_buffer.write(struct.pack("<I", 0))
 
-            # -------------- FINALIZE SEGMENT --------------
+            # ========== FINALIZE SEGMENT ==========
             segment_data = seg_buffer.getvalue()
             segment_size_this = len(segment_data)
 
-            # Write 8-byte segment header first
+            # 8-byte segment header: (lastSegmentSize, thisSegmentSize)
             agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
-            # Then the segment data
             agm_file.write(segment_data)
 
-            # Update for next
             segment_size_last = segment_size_this
 
         print("AGM file creation complete.\n")
