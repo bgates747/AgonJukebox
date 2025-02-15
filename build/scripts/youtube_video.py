@@ -12,6 +12,7 @@ from make_agm_cmp import make_agm_cmp
 from make_agm_dif import make_agm_dif
 from make_agm_rle import make_agm_rle
 from make_agm_szip import make_agm_szip
+from make_agm_jpeg import make_agm_jpeg
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -257,11 +258,10 @@ def process_frames():
         rgba2_path = os.path.join(frames_directory, base + ".rgba2")
 
         # --- 1) Load the extracted frame ---
-        img = Image.open(pngpath)
+        content_img = Image.open(pngpath)
 
         # --- 2) Remove letterbox (black borders) if present ---
-        content_img = remove_letterbox(img)
-        # content_img = img
+        if do_remove_letterbox: content_img = remove_letterbox(content_img)
 
         # --- 3) Adjust image to target dimensions ---
         cw, ch = content_img.size
@@ -375,6 +375,7 @@ def do_all_the_things():
         # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm_jpeg(frames_directory,target_audio_path,target_agm_path,target_width,target_height,frame_rate,target_sample_rate,chunksize,quality,optimize)
 
     if do_delete_frames:
         delete_frames()
@@ -407,7 +408,12 @@ if __name__ == "__main__":
     frames_directory    = "assets/video/frames"
     target_directory    = "tgt/video"
 
-    target_width  = 320
+    target_width  = 512
+    do_remove_letterbox = True
+
+    # For jpeg encoding only
+    quality = 50
+    optimize = True
     
     # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
 
@@ -436,7 +442,7 @@ if __name__ == "__main__":
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'floyd'
+    palette_conversion_method = 'RGB'
 
     # For your *no-rounding* design example:
     max_height = 720 
@@ -463,8 +469,8 @@ if __name__ == "__main__":
 #     do_convert_audio = True
 
 # # Extract video group
-#     do_extract_frames = True
-#     do_process_frames = True
+    do_extract_frames = True
+    do_process_frames = True
 
 # Make AGM group
     do_make_agm = True

@@ -20,7 +20,7 @@ SEGMENT_HEADER_SIZE = 8  # (lastSegmentSize, thisSegmentSize) => 8 bytes total
 # 0b11 = 3 => Szip
 COMP_NONE = 0
 COMP_TBV  = 1
-COMP_RLE  = 2
+COMP_JPG  = 2
 COMP_SZIP = 3
 
 def parse_agm_header(header_bytes):
@@ -133,12 +133,59 @@ def decompress_turbovega_to_ram(compressed_data):
 
     return raw
 
-def decompress_rle_to_ram(compressed_data):
+def decompress_jpg_to_ram(compressed_data):
     """
-    Stub for RLE decompression.
-    For now, raise NotImplementedError.
+    Decompress JPEG-compressed video unit data.
+    
+    The compressed_data is expected to be a concatenation of JPEG images.
+    Each JPEG image should begin with the SOI marker (0xFFD8) and end
+    with the EOI marker (0xFFD9). This function decompresses each JPEG image
+    using Pillow and concatenates the resulting raw grayscale frame data.
+    
+    Returns:
+      bytes: The concatenated raw frame data (each frame is assumed to be
+             width*height bytes in grayscale).
     """
-    raise NotImplementedError("RLE decompression not yet implemented.")
+    from PIL import Image
+    from io import BytesIO
+
+    frames = []
+    data_len = len(compressed_data)
+    index = 0
+
+    while index < data_len:
+        # Locate the start-of-image marker (0xFFD8)
+        soi_index = compressed_data.find(b'\xff\xd8', index)
+        if soi_index == -1:
+            break
+
+        # Locate the end-of-image marker (0xFFD9) starting from the SOI index
+        eoi_index = compressed_data.find(b'\xff\xd9', soi_index)
+        if eoi_index == -1:
+            break
+
+        # Extract the complete JPEG image data (include the EOI marker)
+        jpeg_data = compressed_data[soi_index:eoi_index+2]
+
+        # Decompress the JPEG image using Pillow
+        try:
+            with BytesIO(jpeg_data) as jpeg_buffer:
+                with Image.open(jpeg_buffer) as img:
+                    # Ensure the image is in grayscale mode ("L")
+                    if img.mode != "L":
+                        img = img.convert("L")
+                    # Convert the image to raw bytes
+                    raw_frame = img.tobytes()
+                    frames.append(raw_frame)
+        except Exception as e:
+            print(f"Error decompressing JPEG frame: {e}")
+
+        # Advance index past this JPEG image for the next iteration
+        index = eoi_index + 2
+
+    # Concatenate all decompressed frames into one bytes object
+    return b"".join(frames)
+
 
 def play_agm(filepath):
     """
@@ -152,7 +199,7 @@ def play_agm(filepath):
            - Check bits3..4 for compression type:
              00 => no compression
              01 => TurboVega
-             10 => RLE
+             10 => jpg
              11 => Szip
     Then parse frames from either raw or decompressed data.
     """
@@ -184,7 +231,7 @@ def play_agm(filepath):
               f"Sample Rate: {sample_rate} Hz\n")
 
         # Initialize pygame window
-        screen = pygame.display.set_mode((width * 4, height * 4))
+        screen = pygame.display.set_mode((width * SCALE_FACTOR, height * SCALE_FACTOR))
         pygame.display.set_caption("AGM Video Player")
 
         frame_idx = 0
@@ -252,13 +299,13 @@ def play_agm(filepath):
                             # No compression => raw RGBA2 frames
                             raw_frames = video_unit_buffer
                         elif comp_type == COMP_TBV:
-                            print("TurboVega compression stub.")
+                            print("Doing TurboVega decompression.")
                             raw_frames = decompress_turbovega_to_ram(video_unit_buffer)
-                        elif comp_type == COMP_RLE:
-                            print("RLE compression stub.")
-                            raw_frames = decompress_rle_to_ram(video_unit_buffer)
+                        elif comp_type == COMP_JPG:
+                            print("Doing JPEG decompression.")
+                            raw_frames = decompress_jpg_to_ram(video_unit_buffer)
                         elif comp_type == COMP_SZIP:
-                            print("SZIP compression => calling szip -d externally.")
+                            print("Doing SZIP decompression.")
                             raw_frames = decompress_szip_to_ram(video_unit_buffer)
                         else:
                             raw_frames = b""
@@ -287,7 +334,7 @@ def play_agm(filepath):
 
                             # Scale 4x, display
                             screen.blit(
-                                pygame.transform.scale(frame_surface, (width * 4, height * 4)), 
+                                pygame.transform.scale(frame_surface, (width * SCALE_FACTOR, height * SCALE_FACTOR)), 
                                 (0, 0)
                             )
                             pygame.display.flip()
@@ -349,9 +396,13 @@ def play_agm(filepath):
     if os.path.exists(temp_wav):
         os.remove(temp_wav)
 
+SCALE_FACTOR = 1
+
 # Quick test if needed
 if __name__ == "__main__":
     agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
+    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
+    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_RGB.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:
