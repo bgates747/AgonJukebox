@@ -7,7 +7,7 @@
 #include "bitmodel.h"
 #include "rangecod.h"
 
-#define ALPHABETSIZE 256
+#define ALPHABETSIZE 64
 #define CACHESIZE 32
 #define MTFSIZE 20
 #define MTFHISTSIZE 256  /* must pe power of 2 */

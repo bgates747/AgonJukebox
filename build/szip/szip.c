@@ -234,7 +234,7 @@ static void writeszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 
 static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 {   unsigned char *tmp;
-    uint4 indexlast, charcount[256], bytesleft;
+    uint4 indexlast, charcount[ALPHABETSIZE], bytesleft;
 #ifndef MODELGLOBAL
     sz_model m;
 #endif
@@ -242,7 +242,7 @@ static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
     indexlast = readuint3();
     order = getchar();
 
-	memset(charcount, 0, 256*sizeof(uint4));
+	memset(charcount, 0, ALPHABETSIZE*sizeof(uint4));
     initmodel(&m, -1, &recordsize);
 
     if (verbosity&1)
@@ -329,66 +329,131 @@ static void readszipblock(uint dirsize, uint4 buflen, unsigned char *buffer)
 
 
 static void compressit()
-{   unsigned char *inoutbuffer;
+{
+    unsigned char *inoutbuffer;
 
-    inoutbuffer = (unsigned char*) malloc(blocksize+order+1);
-	if (inoutbuffer==NULL)
-	{	fprintf(stderr, "memory allocation error\n");
-		exit(1);
-	}
+    /* Allocate enough space for one block plus 'order' extra bytes */
+    inoutbuffer = (unsigned char*) malloc(blocksize + order + 1);
+    if (inoutbuffer == NULL) {
+        fprintf(stderr, "memory allocation error\n");
+        exit(1);
+    }
 
+    /* Write the file-global header */
     writeglobalheader();
 
     while (1)
-    {   uint4 buflen;
+    {
+        uint4 buflen;
         uint i;
-        buflen = fread( (char *)inoutbuffer, 1, (size_t)blocksize, stdin);
-        if (buflen == 0) break;
 
+        /* Read up to 'blocksize' bytes from stdin */
+        buflen = fread((char *)inoutbuffer, 1, (size_t)blocksize, stdin);
+        if (buflen == 0)  /* End of input? */
+            break;
+
+#if ALPHABETSIZE == 64
+        /*
+         * LOSSY step: Discard the top two bits of each byte,
+         * so any 8-bit value is masked to [0..63].
+         * This means inoutbuffer[i] = inoutbuffer[i] & 0x3F.
+         */
+        for (i = 0; i < buflen; i++) {
+            inoutbuffer[i] &= 0x3F;
+        }
+#endif
+
+        /* Write a small directory/header chunk with the block length */
         i = writeblockdir(buflen);
 
-        if (buflen<=order || buflen<=5)
+        /* If block is too small, just store it raw. Otherwise, compress. */
+        if (buflen <= order || buflen <= 5)
             writestorblock(i, buflen, inoutbuffer);
         else
             writeszipblock(i, buflen, inoutbuffer);
 
-		if (verbosity&1) fprintf(stderr," done\n");
-	}
+        if (verbosity & 1)
+            fprintf(stderr, " done\n");
+    }
+
     free(inoutbuffer);
 }
 
-
 static void decompressit()
-{   unsigned char *inoutbuffer=NULL;
+{
+    unsigned char *inoutbuffer = NULL;
 
+    /* Initially, we have no allocated block */
     blocksize = 0;
+
+    /* Read the global file header (e.g., magic bytes) */
     readglobalheader();
 
     while (1)
-    {   uint4 blocklen;
-        uint dirsize;
-        int ch;
+    {
+        uint4 blocklen;
+        uint  dirsize;
+        int   ch;
+
+        /* Read directory info (block header) */
         dirsize = readblockdir(&blocklen);
-        if (dirsize==0) break;
-        if (blocklen>blocksize)
-        {   if (inoutbuffer != NULL)
+        if (dirsize == 0)
+            break;  /* no more blocks */
+
+        /* Ensure our buffer is large enough for this block */
+        if (blocklen > blocksize) {
+            if (inoutbuffer != NULL)
                 free(inoutbuffer);
-            inoutbuffer = (unsigned char *) malloc(blocklen);
-            blocksize = blocklen;
-        	if (inoutbuffer==NULL)
-        	{	fprintf(stderr, "memory allocation error\n");
-        		exit(1);
-	        }
+
+            inoutbuffer = (unsigned char *)malloc(blocklen);
+            blocksize   = blocklen;
+
+            if (inoutbuffer == NULL) {
+                fprintf(stderr, "memory allocation error\n");
+                exit(1);
+            }
         }
+
+        /* Read which type of block it is (stored = 0, szip-compressed = 1, etc.) */
         ch = getchar();
-        if (ch==0)
-            readstorblock(dirsize+1, blocklen, inoutbuffer);
-        else if (ch==1)
-            readszipblock(dirsize+1, blocklen, inoutbuffer);
-        else
-            no_szip();
-		if (verbosity&1) fprintf(stderr," done\n");
-	}
+        if (ch == 0) {
+            /* Stored block -> read raw data into 'inoutbuffer' */
+            readstorblock(dirsize + 1, blocklen, inoutbuffer);
+        }
+        else if (ch == 1) {
+            /* Szip-compressed block -> decode into 'inoutbuffer' */
+            readszipblock(dirsize + 1, blocklen, inoutbuffer);
+        }
+        else {
+            no_szip();  /* unrecognized block type */
+        }
+
+        /* If we are using a 64-symbol “compressed” alphabet,
+         * and we want to expand back to e.g. top-two-bits=1,
+         * we can do something like:  inout[i] |= 0xC0;
+         * This is lossy: we no longer know the original bits! 
+         * We are simply forcing them to 1 1.
+         */
+#if ALPHABETSIZE == 64
+        {
+            uint i;
+            for (i = 0; i < blocklen; i++) {
+                /* Force the top two bits to 1, so [0..63] becomes [192..255] */
+                inoutbuffer[i] |= 0xC0;
+            }
+        }
+#endif
+
+        /* Now write the (possibly bit-twiddled) data to stdout */
+        if (fwrite(inoutbuffer, 1, blocklen, stdout) != blocklen) {
+            fprintf(stderr, "Error writing output\n");
+            exit(1);
+        }
+
+        if (verbosity & 1)
+            fprintf(stderr, " done\n");
+    }
+
     free(inoutbuffer);
 }
 
