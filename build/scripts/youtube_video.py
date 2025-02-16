@@ -408,7 +408,7 @@ if __name__ == "__main__":
     frames_directory    = "assets/video/frames"
     target_directory    = "tgt/video"
 
-    target_width  = 512
+    target_width  = 320
     do_remove_letterbox = True
 
     # For jpeg encoding only
@@ -442,7 +442,7 @@ if __name__ == "__main__":
 
     palette_filepath = 'assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'RGB'
+    palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
     max_height = 720 
