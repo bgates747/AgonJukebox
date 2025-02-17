@@ -7,12 +7,7 @@ import json
 from PIL import Image
 import re
 import sys
-from make_agm import make_agm
-from make_agm_cmp import make_agm_cmp
-from make_agm_dif import make_agm_dif
-from make_agm_rle import make_agm_rle
-from make_agm_szip import make_agm_szip
-from make_agm_jpeg import make_agm_jpeg
+from make_agm_agz import make_agm_agz
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -232,19 +227,12 @@ def extract_frames():
 # -------------------------------------------------------------------
 def process_frames():
     """
-    Processes the previously extracted PNG frames by:
-      1) Removing letterboxing if detected.
-      2) Cropping or resizing the image to exactly target_width x target_height.
-      3) Converting the processed image to a custom palette.
-      4) Converting the palette-based PNG to a .rgba2 (8bpp) file.
-    
-    This separation lets you experiment with different cropping/resizing and palette conversion
-    parameters without re-extracting the frames (as long as the frame rate remains unchanged).
-    
-    Note: Letterbox detection is done on each PNG individually.
-          (If the first few frames are blank, detection might fail. In that case you may need
-           to either adjust the threshold/min_crop_ratio parameters in remove_letterbox() or
-           sample a frame further into the video.)
+    - Removes letterboxing if requested.
+    - Crops/resizes to (target_width x target_height).
+    - Saves final image as PNG (optional overwrite).
+    - Then writes out two .rgba2 files:
+        1) No-dither  (method="RGB")  => suffix "_nodither.rgba2"
+        2) Dithered   (method=palette_conversion_method) => suffix "_dithered.rgba2"
     """
     filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
     total_frames = len(filenames)
@@ -255,80 +243,74 @@ def process_frames():
     for i, pngfile in enumerate(filenames, start=1):
         pngpath = os.path.join(frames_directory, pngfile)
         base = os.path.splitext(pngfile)[0]
-        rgba2_path = os.path.join(frames_directory, base + ".rgba2")
 
         # --- 1) Load the extracted frame ---
         content_img = Image.open(pngpath)
 
         # --- 2) Remove letterbox (black borders) if present ---
-        if do_remove_letterbox: content_img = remove_letterbox(content_img)
+        if do_remove_letterbox:
+            content_img = remove_letterbox(content_img)
 
         # --- 3) Adjust image to target dimensions ---
         cw, ch = content_img.size
         if cw >= target_width and ch >= target_height:
             final_img = center_crop(content_img, target_width, target_height)
         else:
-            # If the content is smaller than desired, upscale it
             final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
-        # Optionally, overwrite the PNG with the processed image
+
+        # Optionally overwrite the PNG with the processed image
         final_img.save(pngpath)
 
-        # --- 4) Convert to your custom palette (in-place) ---
+        # --- 4a) Convert to NO-DITHER palette-based PNG ---
+        nodither_png = os.path.join(frames_directory, base + "_nodither.png")
+        shutil.copy(pngpath, nodither_png)  # copy our cropped PNG to a new name
         au.convert_to_palette(
-            pngpath,                  # src
-            pngpath,                  # output (overwrite)
+            nodither_png,
+            nodither_png,
             palette_filepath,
-            palette_conversion_method,
+            "RGB",  # no dithering
             transparent_rgb
         )
+        # Then convert that PNG => .rgba2
+        nodither_rgba2 = os.path.join(frames_directory, base + "_nodither.rgba2")
+        au.img_to_rgba2(nodither_png, nodither_rgba2)
 
-        # --- 5) Convert palette-based PNG to .rgba2 (8bpp) ---
-        au.img_to_rgba2(pngpath, rgba2_path)
+        # --- 4b) Convert to DITHERED palette-based PNG ---
+        dither_png = os.path.join(frames_directory, base + "_dithered.png")
+        shutil.copy(pngpath, dither_png)
+        au.convert_to_palette(
+            dither_png,
+            dither_png,
+            palette_filepath,
+            palette_conversion_method,  # e.g. "floyd"
+            transparent_rgb
+        )
+        # Then convert that PNG => .rgba2
+        dithered_rgba2 = os.path.join(frames_directory, base + "_dithered.rgba2")
+        au.img_to_rgba2(dither_png, dithered_rgba2)
 
-        print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-    print("\nAll frames processed to .rgba2.\n")
-
+        print(f"Frame {i}/{total_frames} => {nodither_rgba2} / {dithered_rgba2}", end='\r')
+    print("\nAll frames processed to .rgba2 (no-dither & dithered).\n")
 
 # Helper functions used in process_frames()
-# def remove_letterbox(img, threshold=10, min_crop_ratio=0.9):
-#     """
-#     Detects and removes letterbox (black borders) from 'img'.
-#     It converts the image to grayscale, thresholds it, and computes the bounding
-#     box of non‑black pixels. If that bounding box is significantly smaller than the
-#     full image (indicating black bars), it crops to that region.
-#     """
-#     gray = img.convert("L")
-#     # Create a binary image: pixels brighter than threshold become white.
-#     binary = gray.point(lambda p: 255 if p > threshold else 0)
-#     bbox = binary.getbbox()
-#     if bbox:
-#         crop_width = bbox[2] - bbox[0]
-#         crop_height = bbox[3] - bbox[1]
-#         # Only crop if the detected content is significantly smaller than the full image.
-#         if crop_width < img.width * min_crop_ratio or crop_height < img.height * min_crop_ratio:
-#             return img.crop(bbox)
-#     return img
-
-def remove_letterbox(img):
+def remove_letterbox(img, threshold=10, min_crop_ratio=0.9):
     """
-    Center-crops the image vertically so that its aspect ratio matches
-    the desired ratio (target_width:target_height). It keeps the full
-    horizontal width and crops the top and bottom equally.
+    Detects and removes letterbox (black borders) from 'img'.
+    It converts the image to grayscale, thresholds it, and computes the bounding
+    box of non‑black pixels. If that bounding box is significantly smaller than the
+    full image (indicating black bars), it crops to that region.
     """
-    width, height = img.size
-    # Compute desired aspect ratio (width / height)
-    desired_aspect = target_width / target_height
-    # Calculate the new height using the full width
-    new_height = int(width / desired_aspect)
-    
-    # If the computed new height exceeds the image height, return the original
-    if new_height > height:
-        return img
-
-    top = (height - new_height) // 2
-    bottom = top + new_height
-    return img.crop((0, top, width, bottom))
-
+    gray = img.convert("L")
+    # Create a binary image: pixels brighter than threshold become white.
+    binary = gray.point(lambda p: 255 if p > threshold else 0)
+    bbox = binary.getbbox()
+    if bbox:
+        crop_width = bbox[2] - bbox[0]
+        crop_height = bbox[3] - bbox[1]
+        # Only crop if the detected content is significantly smaller than the full image.
+        if crop_width < img.width * min_crop_ratio or crop_height < img.height * min_crop_ratio:
+            return img.crop(bbox)
+    return img
 
 def center_crop(img, final_width, final_height):
     """
@@ -391,21 +373,12 @@ def do_all_the_things():
         process_frames()
 
     if do_make_agm:
-        # make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_jpeg(frames_directory,target_audio_path,target_agm_path,target_width,target_height,frame_rate,target_sample_rate,chunksize,quality,optimize)
-
+        make_agm_agz(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
     if do_delete_frames:
         delete_frames()
 
     if do_delete_processed_files:
         delete_processed_files()
-
-    # if do_play_agm:
-    #     play_agm(target_agm_path)
 
 # ============================================================
 #              EXAMPLE USAGE
@@ -421,7 +394,6 @@ if __name__ == "__main__":
     do_make_agm = False
     do_delete_frames = False
     do_delete_processed_files = False
-    do_play_agm = False
 
     # Example usage with your chosen directories:
     staging_directory   = "/home/smith/Agon/mystuff/assets/video/staging"
@@ -432,43 +404,19 @@ if __name__ == "__main__":
     target_width  = 320
     do_remove_letterbox = True
 
-    # For jpeg encoding only
-    quality = 50
-    optimize = True
-    
-    # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
-
-    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    # video_base_name = f'a_ha__Take_On_Me'
-
-    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
-    # video_base_name = f'Bad_Apple'
-
-    # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
-
-
     target_height = int(target_width / 2.35) 
 
     youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
     video_base_name = f'Star_Wars__Battle_of_Yavin'
 
-    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
-    # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
-
-    # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
-    # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
-
-    # youtube_url = "https://youtu.be/vrHeuwO5agw" # The Terminator
-    # video_base_name = f'The_Terminator'
-
-    palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon63.gpl'
+    palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'bayer'
+    palette_conversion_method = 'floyd'
 
     # For your *no-rounding* design example:
     max_height = 720 
-    frame_rate    = 8
-    bytes_per_sec = 60000
+    frame_rate    = 30
+    bytes_per_sec = 60000*frame_rate
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
     
@@ -489,18 +437,15 @@ if __name__ == "__main__":
 #     do_normalization = True
 #     do_convert_audio = True
 
-# # Extract video group
+# Extract video group
     do_extract_frames = True
     do_process_frames = True
 
-# # Make AGM group
-#     do_make_agm = True
+# Make AGM group
+    do_make_agm = True
 
 # # Clean up group
 #     do_delete_frames = True
 #     do_delete_processed_files = True
-
-# Play AGM group
-    # do_play_agm = True
 
     do_all_the_things()

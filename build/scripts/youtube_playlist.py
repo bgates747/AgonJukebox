@@ -33,7 +33,7 @@ def download_youtube_playlist(playlist_url, output_dir):
 
 if __name__ == "__main__":
     playlist_url = "https://www.youtube.com/playlist?list=PLpoUYdDxb6P4-KapXl76dLxXVVJYkQK12"
-    output_directory = "assets/sound/music/staging"
+    output_directory = "/home/smith/Agon/mystuff/assets/sound/music/staging"
     try:
         download_youtube_playlist(playlist_url, output_directory)
     except Exception as e:

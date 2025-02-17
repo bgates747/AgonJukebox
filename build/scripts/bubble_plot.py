@@ -65,7 +65,7 @@ def plot_bubble_chart(df):
     plt.show()
 
 def main():
-    dir_path = "assets/video/frames"
+    dir_path = "/home/smith/Agon/mystuff/assets/video/frames"
     df = load_data_from_file(dir_path)
     
     if df.empty:

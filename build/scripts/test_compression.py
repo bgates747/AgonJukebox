@@ -6,7 +6,7 @@ from pathlib import Path
 
 def main():
     # Define the directory with the asset frames
-    frames_dir = Path("assets/video/frames")
+    frames_dir = Path("/home/smith/Agon/mystuff/assets/video/frames")
     # Get all files ending with .rgba2 in the directory
     rgba2_files = list(frames_dir.glob("*.rgba2"))
     

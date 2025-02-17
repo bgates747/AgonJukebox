@@ -16,7 +16,7 @@ VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_TBV
 # --------------------------------------------------------------------
 
 # Path to the local `compress` executable
-COMPRESS_EXECUTABLE = "./agon-utils/src/rlecompress"
+COMPRESS_EXECUTABLE = "./agon-utils/src/agz"
 
 def compress_frame_data(frame_bytes, frame_idx, total_frames):
     """

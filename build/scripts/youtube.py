@@ -40,6 +40,6 @@ if __name__ == "__main__":
     # youtube_url = 'https://youtu.be/RKexLWM33SI'
     # youtube_url = 'https://soundcloud.com/tonedef71/the-divided-states-of-america'
     youtube_url = 'https://youtu.be/FEacDWPWfJU'
-    output_directory = 'assets/sound/music/staging'
+    output_directory = '/home/smith/Agon/mystuff/assets/sound/music/staging'
     # get_youtube_audio_sections(youtube_url, output_directory)
     get_youtube_audio_single(youtube_url, output_directory)

@@ -138,6 +138,6 @@ def do_compression(dir_path):
 
 if __name__ == "__main__":
     # dir_path = "tgt/video"
-    dir_path = "assets/video/frames"
+    dir_path = "/home/smith/Agon/mystuff/assets/video/frames"
     do_compression(dir_path)
     # benchmark_rgba2_files(dir_path)

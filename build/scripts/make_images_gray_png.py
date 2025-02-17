@@ -176,10 +176,10 @@ def process_images(staging_directory, processed_directory, palette_filepath, tra
 
 
 if __name__ == '__main__':
-    staging_directory =         'assets/images/staging'
-    processed_directory =  'assets/images/processed'
+    staging_directory =         '/home/smith/Agon/mystuff/assets/images/staging'
+    processed_directory =  '/home/smith/Agon/mystuff/assets/images/processed'
     target_directory =       'tgt/images'
-    palette_filepath =      'assets/images/palettes/Agon64.gpl'
+    palette_filepath =      '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
     screen_width = 240
     screen_height = 180

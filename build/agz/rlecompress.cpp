@@ -1,5 +1,5 @@
-// agz.cpp
-// Compile with: g++ -std=c++17 -O2 -o agz agz.cpp
+// rlecompress.cpp
+// Compile with: g++ -std=c++17 -O2 -o rlecompress rlecompress.cpp
 
 #include <iostream>
 #include <fstream>
@@ -54,7 +54,7 @@ std::vector<uint8_t> encodeRLE(const std::vector<uint8_t>& input) {
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        std::cerr << "Usage: agz <src file> <tgt file>\n";
+        std::cerr << "Usage: rlecompress <src file> <tgt file>\n";
         return 1;
     }
     const char* srcFile = argv[1];

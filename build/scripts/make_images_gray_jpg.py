@@ -28,4 +28,4 @@ def convert_rgba2_to_jpeg(input_path, output_path, width=320, height=136):
         print(f"Error: {e}")
 
 # Example usage
-convert_rgba2_to_jpeg("assets/video/frames/frame_00009.rgba2", "assets/video/frames/frame_00009.jpg")
+convert_rgba2_to_jpeg("/home/smith/Agon/mystuff/assets/video/frames/frame_00009.rgba2", "/home/smith/Agon/mystuff/assets/video/frames/frame_00009.jpg")

@@ -6,6 +6,7 @@ from struct import unpack
 from io import BytesIO
 import subprocess
 import tempfile
+import numpy as np
 
 import agonutils as au  # for rgba2_to_img, etc.
 
@@ -16,11 +17,11 @@ SEGMENT_HEADER_SIZE = 8  # (lastSegmentSize, thisSegmentSize) => 8 bytes total
 # For convenience, define compression bit masks (bits 3..4)
 # 0b00 = 0 => no compression
 # 0b01 = 1 => TurboVega
-# 0b10 = 2 => RLE
+# 0b10 = 2 => AGZ
 # 0b11 = 3 => Szip
 COMP_NONE = 0
 COMP_TBV  = 1
-COMP_JPG  = 2
+COMP_AGZ  = 2
 COMP_SZIP = 3
 
 def parse_agm_header(header_bytes):
@@ -133,81 +134,31 @@ def decompress_turbovega_to_ram(compressed_data):
 
     return raw
 
-def decompress_jpg_to_ram(compressed_data):
+def apply_agz_diff_inplace(prev_frame_data, diff_frame_data):
     """
-    Decompress JPEG-compressed video unit data.
-    
-    The compressed_data is expected to be a concatenation of JPEG images.
-    Each JPEG image should begin with the SOI marker (0xFFD8) and end
-    with the EOI marker (0xFFD9). This function decompresses each JPEG image
-    using Pillow and concatenates the resulting raw grayscale frame data.
-    
-    Returns:
-      bytes: The concatenated raw frame data (each frame is assumed to be
-             width*height bytes in grayscale).
+    Interprets 'diff_frame_data' (8-bit palette indexes) as a difference:
+       - 0 => unchanged => keep old pixel
+       - nonzero => new pixel => override old pixel
+    We do this in-place on 'prev_frame_data', using numpy for speed.
     """
-    from PIL import Image
-    from io import BytesIO
-
-    frames = []
-    data_len = len(compressed_data)
-    index = 0
-
-    while index < data_len:
-        # Locate the start-of-image marker (0xFFD8)
-        soi_index = compressed_data.find(b'\xff\xd8', index)
-        if soi_index == -1:
-            break
-
-        # Locate the end-of-image marker (0xFFD9) starting from the SOI index
-        eoi_index = compressed_data.find(b'\xff\xd9', soi_index)
-        if eoi_index == -1:
-            break
-
-        # Extract the complete JPEG image data (include the EOI marker)
-        jpeg_data = compressed_data[soi_index:eoi_index+2]
-
-        # Decompress the JPEG image using Pillow
-        try:
-            with BytesIO(jpeg_data) as jpeg_buffer:
-                with Image.open(jpeg_buffer) as img:
-                    # Ensure the image is in grayscale mode ("L")
-                    if img.mode != "L":
-                        img = img.convert("L")
-                    # Convert the image to raw bytes
-                    raw_frame = img.tobytes()
-                    frames.append(raw_frame)
-        except Exception as e:
-            print(f"Error decompressing JPEG frame: {e}")
-
-        # Advance index past this JPEG image for the next iteration
-        index = eoi_index + 2
-
-    # Concatenate all decompressed frames into one bytes object
-    return b"".join(frames)
+    # Both are width*height in size
+    arr_prev = np.frombuffer(prev_frame_data, dtype=np.uint8)  # read/write view
+    arr_diff = np.frombuffer(diff_frame_data, dtype=np.uint8)   # read-only
+    mask = (arr_diff != 0)
+    arr_prev[mask] = arr_diff[mask]
+    # Now prev_frame_data is updated in-place with the new final frame.
 
 
 def play_agm(filepath):
     """
-    Reads the .agm file with units:
-      - WAV header (76 bytes) + "agm" marker
-      - AGM header (68 bytes)
-      - Multiple segments:
-         * 8-byte segment header <II>
-         * Audio unit (mask bit7=0), chunked data => chunk_size=0 ends
-         * Video unit (mask bit7=1), chunked data => chunk_size=0 ends
-           - Check bits3..4 for compression type:
-             00 => no compression
-             01 => TurboVega
-             10 => jpg
-             11 => Szip
-    Then parse frames from either raw or decompressed data.
+    Playback an .agm file chunk by chunk, capturing audio + video frames.
+    For the AGZ compression (bits3..4 == 3), we interpret the data as
+    difference frames, applying zeros as transparent (no change).
     """
     pygame.init()
     clock = pygame.time.Clock()
     temp_wav = "temp_audio.wav"
 
-    # Open .agm file
     with open(filepath, "rb") as f:
         # 1) Read WAV header & AGM header
         wav_header = f.read(WAV_HEADER_SIZE)
@@ -234,11 +185,13 @@ def play_agm(filepath):
         screen = pygame.display.set_mode((width * SCALE_FACTOR, height * SCALE_FACTOR))
         pygame.display.set_caption("AGM Video Player")
 
-        frame_idx = 0
+        # We'll store the "fully reconstructed" 8-bit frame here
+        # (width * height). Start with all zeros => black/empty.
+        prev_frame_data = bytearray(width * height)
 
+        frame_idx = 0
         # 3) Read segments until we run out
         while True:
-            # Read next segment header (8 bytes)
             seg_header = f.read(SEGMENT_HEADER_SIZE)
             if len(seg_header) < SEGMENT_HEADER_SIZE:
                 print("End of file (no more segment headers).")
@@ -246,13 +199,11 @@ def play_agm(filepath):
 
             seg_size_last, seg_size_this = struct.unpack("<II", seg_header)
             if seg_size_this == 0:
-                # Usually signals no more segments or abnormal data
-                print(f"\nSegment size=0 => skipping.")
+                print(f"\nSegment size=0 => skipping or end.")
                 continue
 
             print(f"\nSegment: lastSize={seg_size_last}, thisSize={seg_size_this}")
 
-            # Read this segment's data
             segment_data = f.read(seg_size_this)
             if len(segment_data) < seg_size_this:
                 print("File ended unexpectedly in the middle of a segment.")
@@ -260,11 +211,10 @@ def play_agm(filepath):
 
             seg_stream = BytesIO(segment_data)
 
-            # There should be 2 units each segment: audio + video (but we'll parse generically)
+            # Typically: 1 video unit + 1 audio unit in each segment
             while seg_stream.tell() < seg_size_this:
                 unit_mask_b = seg_stream.read(1)
                 if not unit_mask_b:
-                    # no more data in this segment
                     break
                 unit_mask = unit_mask_b[0]
 
@@ -282,80 +232,98 @@ def play_agm(filepath):
                             break
                         csize = struct.unpack("<I", csize_data)[0]
                         if csize == 0:
-                            # End of video unit
                             print("End of VIDEO unit.\n")
                             break
 
                         chunk_data = seg_stream.read(csize)
                         if len(chunk_data) < csize:
-                            # File truncated or segment malformed, pad with zeros
+                            # truncated => pad
                             chunk_data += b"\x00" * (csize - len(chunk_data))
 
                         video_unit_buffer += chunk_data
 
-                    if len(video_unit_buffer) > 0:
-                        # Decompress if needed
-                        if comp_type == COMP_NONE:
-                            # No compression => raw RGBA2 frames
-                            raw_frames = video_unit_buffer
-                        elif comp_type == COMP_TBV:
-                            print("Doing TurboVega decompression.")
-                            raw_frames = decompress_turbovega_to_ram(video_unit_buffer)
-                        elif comp_type == COMP_JPG:
-                            print("Doing JPEG decompression.")
-                            raw_frames = decompress_jpg_to_ram(video_unit_buffer)
-                        elif comp_type == COMP_SZIP:
-                            print("Doing SZIP decompression.")
-                            raw_frames = decompress_szip_to_ram(video_unit_buffer)
+                    # Decompress or interpret
+                    frame_size = width * height
+                    if comp_type == COMP_NONE:
+                        # raw frames => for demonstration, we assume 1-second chunk => fps frames
+                        # each frame is exactly 'frame_size' bytes
+                        raw_frames = video_unit_buffer
+                    elif comp_type == COMP_TBV:
+                        # example: old TurboVega path
+                        raw_frames = decompress_turbovega_to_ram(video_unit_buffer)
+                    elif comp_type == COMP_SZIP:
+                        # example: old SZIP path
+                        raw_frames = decompress_szip_to_ram(video_unit_buffer)
+                    elif comp_type == COMP_AGZ:
+                        # We'll treat "bits3..4 == 3" as AGZ difference frames
+                        # In many .agm encoders, each "frame" might be stored sequentially,
+                        # so we can read them in multiples of 'frame_size' from the decompressed data.
+                        # HOWEVER, your "AGZ" isn't standard; you've stored difference data *directly*
+                        # in the .agm. If so, there's no separate decompress step. It's already RLE
+                        # expanded. For a minimal approach, we'll assume 'video_unit_buffer' is *already*
+                        # the raw difference frames (width*height * fps).
+                        # In a real design, you'd do RLE decode here if your AGZ was truly compressed data.
+                        
+                        # For demonstration, let's assume your 'agz' tool left them as raw difference frames:
+                        raw_frames = video_unit_buffer
+                    else:
+                        print("Unknown compression type, ignoring video.")
+                        raw_frames = b""
+
+                    # Now parse out 'fps' frames from 'raw_frames'
+                    offset = 0
+                    for _ in range(fps):
+                        if (offset + frame_size) > len(raw_frames):
+                            print("No more frames to extract from video data.")
+                            break
+                        diff_frame = raw_frames[offset: offset + frame_size]
+                        offset += frame_size
+
+                        # If comp_type == AGZ => interpret 'diff_frame' as a difference
+                        #  - For each pixel: if diff_frame[i] != 0 => override old pixel
+                        # We do that in a single numpy operation:
+                        if comp_type == COMP_AGZ:
+                            apply_agz_diff_inplace(prev_frame_data, diff_frame)
                         else:
-                            raw_frames = b""
+                            # If no difference approach => we just treat it as the new final
+                            prev_frame_data[:] = diff_frame
 
-                        # Each frame = width * height bytes
-                        offset = 0
-                        frame_size = width * height
-                        for _ in range(fps):
-                            if offset + frame_size > len(raw_frames):
-                                print("No more frames to extract from video data.")
-                                break
-                            one_frame = raw_frames[offset : offset + frame_size]
-                            offset += frame_size
+                        # Now 'prev_frame_data' is the final frame (8-bit indexes) we want to display.
+                        # Convert to .rgba2 => PNG => load into pygame
+                        rgba2_path = "temp_frame.rgba2"
+                        with open(rgba2_path, "wb") as tmpf:
+                            tmpf.write(prev_frame_data)
 
-                            # Convert RGBA2 raw to a PNG or surface
-                            rgba2_path = "temp_frame.rgba2"
-                            with open(rgba2_path, "wb") as tmpf:
-                                tmpf.write(one_frame)
+                        png_out = "temp_frame.png"
+                        au.rgba2_to_img(rgba2_path, png_out, width, height)
+                        os.remove(rgba2_path)
 
-                            png_out = "temp_frame.png"
-                            au.rgba2_to_img(rgba2_path, png_out, width, height)
+                        frame_surface = pygame.image.load(png_out)
+                        os.remove(png_out)
 
-                            os.remove(rgba2_path)
-                            frame_surface = pygame.image.load(png_out)
-                            os.remove(png_out)
+                        # Show in pygame
+                        screen.blit(
+                            pygame.transform.scale(frame_surface, (width * SCALE_FACTOR, height * SCALE_FACTOR)),
+                            (0, 0)
+                        )
+                        pygame.display.flip()
 
-                            # Scale 4x, display
-                            screen.blit(
-                                pygame.transform.scale(frame_surface, (width * SCALE_FACTOR, height * SCALE_FACTOR)), 
-                                (0, 0)
-                            )
-                            pygame.display.flip()
+                        frame_idx += 1
+                        if frame_idx >= total_frames:
+                            print("Reached total_frames => stopping video playback.")
+                            break
 
-                            frame_idx += 1
-                            if frame_idx >= total_frames:
-                                print("Reached total_frames => stopping video playback.")
-                                break
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                                if os.path.exists(temp_wav):
+                                    os.remove(temp_wav)
+                                return
 
-                            # Allow quit
-                            for event in pygame.event.get():
-                                if event.type == pygame.QUIT:
-                                    pygame.quit()
-                                    if os.path.exists(temp_wav):
-                                        os.remove(temp_wav)
-                                    return
+                        clock.tick(fps)
 
-                            clock.tick(fps)
-
-                            if frame_idx >= total_frames:
-                                break
+                        if frame_idx >= total_frames:
+                            break
 
                 else:
                     # Audio unit
@@ -368,18 +336,15 @@ def play_agm(filepath):
                             break
                         csize = struct.unpack("<I", csize_data)[0]
                         if csize == 0:
-                            # End of audio unit
                             print("End of AUDIO unit.\n")
                             break
 
                         chunk_data = seg_stream.read(csize)
                         if len(chunk_data) < csize:
                             chunk_data += b"\x00" * (csize - len(chunk_data))
-
                         audio_buffer += chunk_data
 
-                    # Now play that second of audio
-                    # The encoder wrote up to 1 second => sample_rate bytes
+                    # That is up to 1 second of audio => sample_rate bytes
                     if audio_buffer:
                         create_wav_file(audio_buffer[:sample_rate], sample_rate, temp_wav)
                         snd = pygame.mixer.Sound(temp_wav)
@@ -390,7 +355,6 @@ def play_agm(filepath):
                 break
 
         print("\nPlayback completed.")
-        f.close()
 
     pygame.quit()
     if os.path.exists(temp_wav):
@@ -400,7 +364,7 @@ SCALE_FACTOR = 1
 
 # Quick test if needed
 if __name__ == "__main__":
-    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
+    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd_agz.agm"
     # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
     # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_RGB.agm"
     if not os.path.exists(agm_path):

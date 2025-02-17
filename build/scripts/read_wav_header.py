@@ -39,7 +39,7 @@ def read_wav_header(file_path):
     print("Data Size:          ", data_size)
 
 # Test the function with the given file path
-file_path = 'assets/video/staging/Star_Wars__Battle_of_Yavin.wav'
+file_path = '/home/smith/Agon/mystuff/assets/video/staging/Star_Wars__Battle_of_Yavin.wav'
 print(f"{file_path}:")
 read_wav_header(file_path)
 print("\r\n")

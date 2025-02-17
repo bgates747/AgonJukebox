@@ -275,7 +275,7 @@ if __name__ == '__main__':
     # sample_rate = 15360 # (256*60)
     # sample_rate = -1 # Use the source file's sample rate
     sample_rate = 6000
-    src_dir = 'assets/sound/music/staging'
+    src_dir = '/home/smith/Agon/mystuff/assets/sound/music/staging'
     tgt_dir = 'tgt/music'
 
     do_compression = True

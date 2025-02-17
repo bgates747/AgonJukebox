@@ -335,13 +335,20 @@ def rgba2_to_img(src_file_path, dim_x, dim_y):
     return image
 
 if __name__ == "__main__":
-    rgba2_file = "src/images/logo.rgba2"
-    png_file = "src/images/logo.png"
-    pil_img = Image.open(png_file)
-    transparent_color = None 
-    pil_img = convert_to_agon_palette(pil_img, 64, 'RGB', transparent_color)
-    img_to_rgba2(pil_img, rgba2_file)
-    height = pil_img.height
-    width = pil_img.width
+    # rgba2_file = "src/images/logo.rgba2"
+    # png_file = "src/images/logo.png"
+    # pil_img = Image.open(png_file)
+    # transparent_color = None 
+    # pil_img = convert_to_agon_palette(pil_img, 64, 'RGB', transparent_color)
+    # img_to_rgba2(pil_img, rgba2_file)
+    # height = pil_img.height
+    # width = pil_img.width
+    # pil_img2 = rgba2_to_img(rgba2_file, width, height)
+    # pil_img2.save(png_file)
+
+
+    rgba2_file = "/home/smith/Agon/mystuff/assets/video/frames/frame_00000.rgba2"
+    width = 320
+    height = 136
     pil_img2 = rgba2_to_img(rgba2_file, width, height)
-    pil_img2.save(png_file)
+    pil_img2.show()

@@ -68,7 +68,7 @@ def pretty_print_metadata(metadata, video_path):
     print()
 
 def main():
-    video_path = "assets/video/staging/Star_Wars__Battle_of_Yavin.mp4"
+    video_path = "/home/smith/Agon/mystuff/assets/video/staging/Star_Wars__Battle_of_Yavin.mp4"
     metadata = get_video_metadata(video_path)
     pretty_print_metadata(metadata, video_path)
 
