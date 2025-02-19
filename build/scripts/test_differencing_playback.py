@@ -129,7 +129,7 @@ def view_diff_images(diff_dir, frame_rate, scale_factor):
 
 if __name__ == "__main__":
     noDitherMethod = 'RGB'  # e.g. "bayer" or "RGB"
-    dither_method  = 'bayer' # final dithering
+    dither_method  = 'floyd' # final dithering
     diff_dir       = f'/home/smith/Agon/mystuff/assets/video/diffs_{noDitherMethod}_{dither_method}'
     frame_rate     = 8   # frames per second
     scale_factor   = 2   # scale images by 2x

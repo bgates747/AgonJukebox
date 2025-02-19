@@ -189,8 +189,10 @@ def convert_audio():
 def extract_frames():
     """
     Extracts frames from the intermediate MP4 at the desired FPS and saves them as PNG files.
+    Only the first minute of video is extracted.
     No scaling is applied—this ensures that the full-resolution frames are available for later processing.
     """
+
     # Clear out old frames
     for f in glob.glob(os.path.join(frames_directory, "*")):
         os.remove(f)
@@ -199,15 +201,16 @@ def extract_frames():
     print("-------------------------------------------------")
     print(f"extract_frames: Extracting frames at {frame_rate} FPS to {frames_directory}")
 
-    # Use ffmpeg to extract frames at the given FPS without any scaling.
+    # Use ffmpeg to extract only the first minute (-t 60) at the given FPS without any scaling.
     process = subprocess.Popen(
         [
             "ffmpeg",
             "-i", processed_video_path,
+            "-t", "60",                  # Limit extraction to the first 60 seconds
             "-vf", f"fps={frame_rate}",
             "-pix_fmt", "rgba",
             "-start_number", "0",
-            "-y",  # Overwrite output files without prompting
+            "-y",                        # Overwrite output files without prompting
             output_pattern,
         ],
         stdout=subprocess.PIPE,
@@ -467,7 +470,7 @@ if __name__ == "__main__":
 
     # For your *no-rounding* design example:
     max_height = 720 
-    frame_rate    = 8
+    frame_rate    = 30
     bytes_per_sec = 60000
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60

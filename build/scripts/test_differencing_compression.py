@@ -239,7 +239,7 @@ if __name__ == "__main__":
     end_png        = '/home/smith/Agon/mystuff/assets/video/frames/frame_99999.png'
     working_dir    = '/home/smith/Agon/mystuff/assets/video/working'
     noDitherMethod = 'RGB'   # e.g. "bayer" or "RGB"
-    dither_method  = 'bayer'  # final dithering
+    dither_method  = 'floyd'  # final dithering
     diff_dir       = f'/home/smith/Agon/mystuff/assets/video/diffs_{noDitherMethod}_{dither_method}'
     T              = 5        # frames to wait before forced refresh
 
