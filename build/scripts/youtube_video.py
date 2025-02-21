@@ -199,7 +199,7 @@ def extract_frames():
     
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
     print("-------------------------------------------------")
-    print(f"extract_frames: Extracting frames at {frame_rate} FPS to {frames_directory}")
+    print(f"Extracting frames at {frame_rate} FPS to {frames_directory}")
 
     # Use ffmpeg to extract only the first minute (-t 60) at the given FPS without any scaling.
     process = subprocess.Popen(
@@ -290,27 +290,6 @@ def process_frames():
 
         print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
     print("\nAll frames processed to .rgba2.\n")
-
-
-# Helper functions used in process_frames()
-# def remove_letterbox(img, threshold=10, min_crop_ratio=0.9):
-#     """
-#     Detects and removes letterbox (black borders) from 'img'.
-#     It converts the image to grayscale, thresholds it, and computes the bounding
-#     box of non‑black pixels. If that bounding box is significantly smaller than the
-#     full image (indicating black bars), it crops to that region.
-#     """
-#     gray = img.convert("L")
-#     # Create a binary image: pixels brighter than threshold become white.
-#     binary = gray.point(lambda p: 255 if p > threshold else 0)
-#     bbox = binary.getbbox()
-#     if bbox:
-#         crop_width = bbox[2] - bbox[0]
-#         crop_height = bbox[3] - bbox[1]
-#         # Only crop if the detected content is significantly smaller than the full image.
-#         if crop_width < img.width * min_crop_ratio or crop_height < img.height * min_crop_ratio:
-#             return img.crop(bbox)
-#     return img
 
 def remove_letterbox(img):
     """
