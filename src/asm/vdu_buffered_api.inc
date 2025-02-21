@@ -219,3 +219,22 @@ vdu_decompress_buffer_szip:
            db 67 ; decompress buffer (szip)
 @sourceBufferId: dw 0x0000
 @end:     db 0x00 ; padding
+
+
+; Command 69: Decompress a buffer (simz)
+; VDU 23, 0, &A0, targetBufferId; 69, sourceBufferId;
+; inputs: hl = sourceBufferId, de = targetBufferId
+vdu_decompress_buffer_simz:
+    ld (@sourceBufferId),hl
+    ld (@targetBufferId),de
+    ld a,69 ; decompress buffer
+    ld (@sourceBufferId-1),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:     db 23,0,0xA0
+@targetBufferId: dw 0x0000
+           db 67 ; decompress buffer (simz)
+@sourceBufferId: dw 0x0000
+@end:     db 0x00 ; padding
