@@ -85,15 +85,7 @@ def compute_frame_difference(oldFinal: bytes, newFinal: bytes) -> bytes:
         diff[i] = 0 if (oldFinal[i] == newFinal[i]) else newFinal[i]
     return diff
 
-def dither_diff_test(
-    start_png      = '/home/smith/Agon/mystuff/assets/video/frames/frame_00010.png',
-    end_png        = '/home/smith/Agon/mystuff/assets/video/frames/frame_00020.png',
-    working_dir    = '/home/smith/Agon/mystuff/assets/video/working',
-    diff_dir        = '/home/smith/Agon/mystuff/assets/video/diffs',
-    noDitherMethod = 'bayer',   # e.g. "bayer" or "RGB"
-    dither_method  = 'floyd',   # e.g. "floyd", "bayer", etc.
-    T              = 5          # # consecutive frames before forcing new dither
-):
+def dither_diff_test():
     """
     Reads frames from the directory containing start_png and end_png, 
     from start index to end index inclusive. For each .png:
@@ -241,4 +233,4 @@ if __name__ == "__main__":
     diff_dir        = f'/home/smith/Agon/mystuff/assets/video/diffs_{noDitherMethod}_{dither_method}'
     T              = 5        # frames to wait before forced refresh
 
-    dither_diff_test(start_png, end_png, working_dir, diff_dir, noDitherMethod, dither_method, T)
+    dither_diff_test()
