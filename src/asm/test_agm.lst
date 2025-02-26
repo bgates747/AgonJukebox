@@ -7151,7 +7151,7 @@ PC     Output      Line
 042025             0168*    ; Command 64: Compress a buffer
 042025             0169*    ; VDU 23, 0, &A0, targetBufferId; 64, sourceBufferId;
 042025             0170*    ; inputs: hl = sourceBufferId, de = targetBufferId
-042025             0171*    vdu_compress_buffer_tvc:
+042025             0171*    vdu_compress_buffer:
 042025 22 45 20 04 0172*        ld (@sourceBufferId),hl
 042029 ED 53 42 20 0173*        ld (@targetBufferId),de
        04          

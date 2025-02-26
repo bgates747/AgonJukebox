@@ -94,7 +94,7 @@ main:
 
     ld hl,pv_img_base_buffer ; bufferId
     ld de,pv_img_base_buffer ; bufferId
-    call vdu_compress_buffer_tvc
+    call vdu_compress_buffer
 
     ld hl,pv_img_base_buffer
 

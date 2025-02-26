@@ -168,7 +168,7 @@ vdu_call_buffer_offset:
 ; Command 64: Compress a buffer
 ; VDU 23, 0, &A0, targetBufferId; 64, sourceBufferId;
 ; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_compress_buffer_tvc:
+vdu_compress_buffer:
     ld (@sourceBufferId),hl
     ld (@targetBufferId),de
     ld a,64 ; compress buffer
@@ -187,7 +187,7 @@ vdu_compress_buffer_tvc:
 ; Command 65: Decompress a buffer
 ; VDU 23, 0, &A0, targetBufferId; 65, sourceBufferId;
 ; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_decompress_buffer_tvc:
+vdu_decompress_buffer:
     ld (@sourceBufferId),hl
     ld (@targetBufferId),de
     ld a,65 ; decompress buffer
@@ -199,42 +199,5 @@ vdu_decompress_buffer_tvc:
 @cmd:     db 23,0,0xA0
 @targetBufferId: dw 0x0000
            db 65 ; decompress buffer
-@sourceBufferId: dw 0x0000
-@end:     db 0x00 ; padding
-
-; Command 67: Decompress a buffer (szip)
-; VDU 23, 0, &A0, targetBufferId; 67, sourceBufferId;
-; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_decompress_buffer_szip:
-    ld (@sourceBufferId),hl
-    ld (@targetBufferId),de
-    ld a,67 ; decompress buffer
-    ld (@sourceBufferId-1),a
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd:     db 23,0,0xA0
-@targetBufferId: dw 0x0000
-           db 67 ; decompress buffer (szip)
-@sourceBufferId: dw 0x0000
-@end:     db 0x00 ; padding
-
-
-; Command 69: Decompress a buffer (simz)
-; VDU 23, 0, &A0, targetBufferId; 69, sourceBufferId;
-; inputs: hl = sourceBufferId, de = targetBufferId
-vdu_decompress_buffer_simz:
-    ld (@sourceBufferId),hl
-    ld (@targetBufferId),de
-    ld a,69 ; decompress buffer
-    ld (@sourceBufferId-1),a
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd:     db 23,0,0xA0
-@targetBufferId: dw 0x0000
-           db 67 ; decompress buffer (simz)
 @sourceBufferId: dw 0x0000
 @end:     db 0x00 ; padding

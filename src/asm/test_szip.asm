@@ -72,95 +72,135 @@ init:
     ret
 ; end init
 
-; test_fn_1: asciz "a_ha__Take_On_Me_floyd.agm"
-; test_fn_2: asciz "Bad_Apple_floyd.agm"
-; test_fn_3: asciz "Star_Wars__Battle_of_Yavin_floyd.agm"
-
-test_file: asciz "rainbow_swirl.rgba2"
-test_file_szip: asciz "rainbow_swirl.rgba2.szip"
-test_file_tvc: asciz "rainbow_swirl.rgba2.tvc"
-
-image_width: equ 240
-image_height: equ 180
-
+image_width: equ 320
+image_height: equ 136
+test_file: asciz "frame_01200.rgba2"
+test_file_tvc: asciz "frame_01200.rgba2.tvc"
+test_file_szip: asciz "frame_01200.rgba2.szip"
+test_file_rle2: asciz "frame_01200.rgba2.rle2"
+test_file_srle2: asciz "frame_01200.rgba2.srle2"
 img_bufferId: equ 256
 tvc_bufferId: equ 257
-szip_bufferId: equ 258
+rle2_bufferId_dat: equ 259 ; equ 258
+rle2_bufferId: equ 259
+szip_bufferId: equ 260
+srle2_bufferId: equ 261
 
 main:
     call vdu_cls
 
-    ; jp @test_tvc
+    jp @test_tvc
 
-; ; test uncompressed
-;     ld a,1 ; rgba2
-;     ld bc,image_width
-;     ld de,image_height
-;     ld hl,img_bufferId ; bufferId
-;     ld iy,test_file
-;     call vdu_load_img
-;     ld bc,0 ; x
-;     ld de,8 ; y
-;     call vdu_plot_bmp
-
-; test szipped
-    ld hl,tvc_bufferId ; bufferId
-    call vdu_clear_buffer
-    ld hl,tvc_bufferId ; bufferId
-    ld iy,test_file_szip
-    call vdu_load_buffer_from_file
-
-    ld hl,tvc_bufferId ; source bufferId
-    ld de,tvc_bufferId ; target bufferId
-    call vdu_decompress_buffer_szip
-
-    ld hl,tvc_bufferId ; bufferId
-    call vdu_consolidate_buffer
-
-    ld hl,tvc_bufferId ; bufferId
-    call vdu_buff_select
-
+; test uncompressed
     ld a,1 ; rgba2
     ld bc,image_width
     ld de,image_height
-    ld hl,tvc_bufferId ; bufferId
-    call vdu_bmp_create
-
+    ld hl,img_bufferId 
+    ld iy,test_file
+    call vdu_load_img
     ld bc,0 ; x
     ld de,8 ; y
     call vdu_plot_bmp
 
-    ; jp @main_end
-
-; test tvc
 @test_tvc:
-    ld hl,szip_bufferId ; bufferId
+    ld hl,tvc_bufferId 
     call vdu_clear_buffer
-    ld hl,szip_bufferId ; bufferId
+    ld hl,tvc_bufferId 
     ld iy,test_file_tvc
     call vdu_load_buffer_from_file
 
-    ld hl,szip_bufferId ; source bufferId
-    ld de,szip_bufferId ; target bufferId
-    call vdu_decompress_buffer_tvc
+    ld hl,tvc_bufferId ; source bufferId
+    ld de,tvc_bufferId ; target bufferId
+    call vdu_decompress_buffer
 
-    ld hl,szip_bufferId ; bufferId
-    call vdu_consolidate_buffer
-
-    ld hl,szip_bufferId ; bufferId
+    ld hl,tvc_bufferId 
     call vdu_buff_select
 
     ld a,1 ; rgba2
     ld bc,image_width
     ld de,image_height
-    ld hl,szip_bufferId ; bufferId
+    ld hl,tvc_bufferId 
+    call vdu_bmp_create
+
+    ld bc,512-image_width-1 ; x
+    ld de,8 ; y
+    call vdu_plot_bmp
+@test_rle2:
+    ld hl,rle2_bufferId_dat 
+    call vdu_clear_buffer
+    ld hl,rle2_bufferId_dat 
+    ld iy,test_file_rle2
+    call vdu_load_buffer_from_file
+
+    ld hl,rle2_bufferId_dat ; source bufferId
+    ld de,rle2_bufferId ; target bufferId
+    call vdu_decompress_buffer
+
+    ld hl,rle2_bufferId 
+    call vdu_buff_select
+
+    ld a,1 ; rgba2
+    ld bc,image_width
+    ld de,image_height
+    ld hl,rle2_bufferId 
+    call vdu_bmp_create
+
+    ld bc,0 ; x
+    ld de,384-image_height-1 ; y
+    call vdu_plot_bmp
+@test_szip:
+    ld hl,szip_bufferId 
+    call vdu_clear_buffer
+    ld hl,szip_bufferId 
+    ld iy,test_file_szip
+    call vdu_load_buffer_from_file
+
+    ld hl,szip_bufferId ; source bufferId
+    ld de,szip_bufferId ; target bufferId
+    call vdu_decompress_buffer
+
+    ld hl,szip_bufferId 
+    call vdu_buff_select
+
+    ld a,1 ; rgba2
+    ld bc,image_width
+    ld de,image_height
+    ld hl,szip_bufferId 
     call vdu_bmp_create
 
     ld bc,512-image_width-1 ; x
     ld de,384-image_height-1 ; y
     call vdu_plot_bmp
 
-    ; call waitKeypress
+@test_srle2:
+    ld hl,srle2_bufferId
+    call vdu_clear_buffer
+    ld hl,srle2_bufferId 
+    ld iy,test_file_srle2
+    call vdu_load_buffer_from_file
+
+    ; szip decompression to rle2
+    ld hl,srle2_bufferId ; source bufferId
+    ld de,srle2_bufferId ; target bufferId
+    call vdu_decompress_buffer
+
+    ; rle2 decompression to rgba2 original
+    ld hl,srle2_bufferId ; source bufferId
+    ld de,srle2_bufferId ; target bufferId
+    call vdu_decompress_buffer
+
+    ld hl,srle2_bufferId 
+    call vdu_buff_select
+
+    ld a,1 ; rgba2
+    ld bc,image_width
+    ld de,image_height
+    ld hl,srle2_bufferId 
+    call vdu_bmp_create
+
+    ld bc,0 ; x
+    ld de,8 ; y
+    call vdu_plot_bmp
 
 @main_end:
 ; return display to normal
