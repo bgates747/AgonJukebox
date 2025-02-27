@@ -201,16 +201,16 @@ def extract_frames():
     print("-------------------------------------------------")
     print(f"Extracting frames at {frame_rate} FPS to {frames_directory}")
 
-    # Use ffmpeg to extract only the first minute (-t 60) at the given FPS without any scaling.
     process = subprocess.Popen(
         [
             "ffmpeg",
+            "-ss", "02:30",          # Seek to 2 minutes 30 seconds
             "-i", processed_video_path,
-            "-t", "60",                  # Limit extraction to the first 60 seconds
-            "-vf", f"fps={frame_rate}",
+            "-t", "60",              # Extract 60 seconds of frames
+            "-vf", f"fps={frame_rate}",  # Ensure frame rate is considered
             "-pix_fmt", "rgba",
             "-start_number", "0",
-            "-y",                        # Overwrite output files without prompting
+            "-y",                    # Overwrite output files without prompting
             output_pattern,
         ],
         stdout=subprocess.PIPE,
