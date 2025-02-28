@@ -13,6 +13,7 @@ from make_agm_dif import make_agm_dif
 from make_agm_rle import make_agm_rle
 from make_agm_szip import make_agm_szip
 from make_agm_jpeg import make_agm_jpeg
+from make_agm_srl2 import make_agm_srle2
 
 # -------------------------------------------------------------------
 # External utilities:
@@ -204,9 +205,9 @@ def extract_frames():
     process = subprocess.Popen(
         [
             "ffmpeg",
-            "-ss", "02:30",          # Seek to 2 minutes 30 seconds
+            # "-ss", "02:30",          # Seek to 2 minutes 30 seconds
             "-i", processed_video_path,
-            "-t", "60",              # Extract 60 seconds of frames
+            # "-t", "60",              # Extract 60 seconds of frames
             "-vf", f"fps={frame_rate}",  # Ensure frame rate is considered
             "-pix_fmt", "rgba",
             "-start_number", "0",
@@ -377,8 +378,10 @@ def do_all_the_things():
         # make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+        # make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
         # make_agm_jpeg(frames_directory,target_audio_path,target_agm_path,target_width,target_height,frame_rate,target_sample_rate,chunksize,quality,optimize)
+        make_agm_srle2(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+
 
     if do_delete_frames:
         delete_frames()
@@ -443,13 +446,13 @@ if __name__ == "__main__":
     # youtube_url = "https://youtu.be/vrHeuwO5agw" # The Terminator
     # video_base_name = f'The_Terminator'
 
-    palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon63.gpl'
+    palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
     palette_conversion_method = 'bayer'
 
     # For your *no-rounding* design example:
     max_height = 720 
-    frame_rate    = 30
+    frame_rate    = 10
     bytes_per_sec = 60000
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
@@ -461,22 +464,22 @@ if __name__ == "__main__":
     target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
-# ============================================================
+# # ============================================================
 # # Download group
 #     do_download_video = True
 #     do_download_audio = True
 
-# # Extract audio group
-#     do_compression   = True
-#     do_normalization = True
-#     do_convert_audio = True
+# Extract audio group
+    do_compression   = True
+    do_normalization = True
+    do_convert_audio = True
 
-# # Extract video group
+# Extract video group
     do_extract_frames = True
     do_process_frames = True
 
-# # Make AGM group
-#     do_make_agm = True
+# Make AGM group
+    do_make_agm = True
 
 # # Clean up group
 #     do_delete_frames = True
