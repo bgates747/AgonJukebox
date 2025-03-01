@@ -51,8 +51,6 @@ def download_video(staged_video_path):
 # ============================================================
 
 def download_audio(staged_audio_path, audio_sample_rate):
-    os.makedirs(processed_directory, exist_ok=True)
-
     # Remove any existing file first.
     if os.path.exists(staged_audio_path):
         os.remove(staged_audio_path)
@@ -159,35 +157,49 @@ def convert_audio(staged_audio_path, target_audio_path):
 
 
 # -------------------------------------------------------------------
-# 1. Extract Frames Without Resizing
+# 1. Process Frames
 # -------------------------------------------------------------------
-def extract_frames(staged_video_path, seek_time, duration, frame_rate):
-    # Clear out old frames
+
+def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate):
+    """
+    Extract frames from the video (using ffmpeg) and process each frame:
+      - Optionally remove letterboxing.
+      - Resize to target dimensions.
+      - Convert to the custom palette.
+      - Convert to RGBA2 format.
+    The resulting RGBA2 data from all frames is concatenated into a single .frames file 
+    in staging_directory. The naming convention follows the target_agm_path (using 
+    video_base_name and palette_conversion_method) but placed in staging_directory.
+    
+    Intermediate .png files are created temporarily and then deleted.
+    """
+    # Clear out any existing files in the frames_directory.
     for f in glob.glob(os.path.join(frames_directory, "*")):
         os.remove(f)
     
+    # Extract frames as PNG images in frames_directory.
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
     print("-------------------------------------------------")
-    print(f"Extracting frames at {frame_rate} FPS to {frames_directory}")
-
+    print(f"Extracting frames at {frame_rate} FPS to temporary folder: {frames_directory}")
+    
     process = subprocess.Popen(
         [
             "ffmpeg",
             "-ss", seek_time,
             "-i", staged_video_path,
-            "-t", f"{duration}",
+            "-t", str(duration),
             "-vf", f"fps={frame_rate}",
             "-pix_fmt", "rgba",
             "-start_number", "0",
-            "-y",  # Overwrite output files without prompting
+            "-y",  # Overwrite without prompting
             output_pattern,
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
-
-    # (Optional) Show progress by reading ffmpeg stderr output.
+    
+    # Optional: Show progress from ffmpeg stderr.
     frame_pattern = re.compile(r"frame=\s*\d+")
     for line in iter(process.stderr.readline, ''):
         match = frame_pattern.search(line)
@@ -195,51 +207,58 @@ def extract_frames(staged_video_path, seek_time, duration, frame_rate):
             sys.stdout.write(f"\r{match.group(0)}")
             sys.stdout.flush()
     process.wait()
-
     print("\nFrame extraction complete.\n")
-
-
-# -------------------------------------------------------------------
-# 2. Process Frames: Crop, Resize, Palette Convert, and Convert to .rgba2
-# -------------------------------------------------------------------
-def process_frames():
+    
+    # Prepare output .frames file in staging_directory.
+    output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
     filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
     total_frames = len(filenames)
+    
+    with open(output_frames_path, "wb") as out_file:
+        print(f"Processing {total_frames} frames and writing to {output_frames_path}")
+        for i, pngfile in enumerate(filenames, start=1):
+            pngpath = os.path.join(frames_directory, pngfile)
+            # Load the extracted frame.
+            content_img = Image.open(pngpath)
+            
+            # Remove letterbox if enabled.
+            if do_remove_letterbox:
+                content_img = remove_letterbox(content_img)
+            
+            # Resize directly to the target dimensions.
+            final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
+            
+            # Save the processed image to a temporary .png file.
+            temp_png_path = os.path.join(staging_directory, "temp_frame.png")
+            final_img.save(temp_png_path)
+            
+            # Convert the temporary PNG to the custom palette.
+            au.convert_to_palette(
+                temp_png_path,      # src
+                temp_png_path,      # output (overwrite)
+                palette_filepath,
+                palette_conversion_method,
+                transparent_rgb
+            )
+            
+            # Convert the palette-based PNG to a temporary .rgba2 file.
+            temp_rgba2_path = os.path.join(staging_directory, "temp_frame.rgba2")
+            au.img_to_rgba2(temp_png_path, temp_rgba2_path)
+            
+            # Read the RGBA2 data and append it to the output file.
+            with open(temp_rgba2_path, "rb") as f_rgba2:
+                rgba2_data = f_rgba2.read()
+            out_file.write(rgba2_data)
+            
+            print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
+            
+            # Clean up temporary files.
+            os.remove(temp_png_path)
+            os.remove(temp_rgba2_path)
+            os.remove(pngpath)
+    
+    print(f"\nAll frames processed and combined into {output_frames_path}.")
 
-    print("-------------------------------------------------")
-    print(f"process_frames: Processing {total_frames} frames in {frames_directory}.")
-
-    for i, pngfile in enumerate(filenames, start=1):
-        pngpath = os.path.join(frames_directory, pngfile)
-        base = os.path.splitext(pngfile)[0]
-        rgba2_path = os.path.join(frames_directory, base + ".rgba2")
-
-        # 1) Load the extracted frame.
-        content_img = Image.open(pngpath)
-
-        # 2) If letterbox removal is enabled, remove letterboxing;
-        #    otherwise assume the image already has the proper aspect ratio.
-        if do_remove_letterbox:
-            content_img = remove_letterbox(content_img)
-
-        # 3) Resize directly to the target dimensions without cropping.
-        final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
-        final_img.save(pngpath)
-
-        # 4) Convert to your custom palette (in-place).
-        au.convert_to_palette(
-            pngpath,                  # src
-            pngpath,                  # output (overwrite)
-            palette_filepath,
-            palette_conversion_method,
-            transparent_rgb
-        )
-
-        # 5) Convert the palette-based PNG to .rgba2 (8bpp).
-        au.img_to_rgba2(pngpath, rgba2_path)
-
-        print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-    print("\nAll frames processed to .rgba2.\n")
 
 def remove_letterbox(img):
     width, height = img.size
@@ -276,17 +295,17 @@ def do_all_the_things():
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
     target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
+    output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
 
     # download_video(staged_video_path)
     # download_audio(staged_audio_path, target_sample_rate)
 
-    preprocess_audio(staged_audio_path)
-    convert_audio(staged_audio_path, target_audio_path)
+    # preprocess_audio(staged_audio_path)
+    # convert_audio(staged_audio_path, target_audio_path)
 
-    extract_frames(staged_video_path, seek_time, duration, frame_rate)
-    process_frames()
+    extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate)
 
-    make_agm_srle2(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+    make_agm_srle2(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
     
     # delete_frames()
 
@@ -295,13 +314,12 @@ def do_all_the_things():
 # ============================================================
 if __name__ == "__main__":
     staging_directory   = "/home/smith/Agon/mystuff/assets/video/staging"
-    processed_directory = "/home/smith/Agon/mystuff/assets/video/processed"
     frames_directory    = "/home/smith/Agon/mystuff/assets/video/frames"
     target_directory    = "tgt/video"
 
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'floyd'
+    palette_conversion_method = 'bayer'
 
     bytes_per_sec = 60000
     target_sample_rate = 16000
@@ -309,13 +327,16 @@ if __name__ == "__main__":
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
-    target_width  = 320
-    target_height = int(target_width / 2.35) 
-    do_remove_letterbox = True
-
     seek_time = "00:05:00"
     duration  = 60
-    frame_rate    = 30
+    frame_rate    = 10
 
+    target_width  = 240
+    target_height = int(target_width / 2.35)
+    do_remove_letterbox = True
 
+    target_height = (target_height + 2) & ~2  # Round up to nearest multiple of 2
+
+    # target_width  = (target_width  + 7) & ~7  # Round up to nearest multiple of 8
+    # target_height = (target_height + 7) & ~7  # Same for height
     do_all_the_things()

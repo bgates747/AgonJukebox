@@ -73,7 +73,7 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
     return compressed_bytes
 
 def make_agm_srle2(
-    frames_directory,
+    frames_file,
     target_audio_path,
     target_agm_path,
     target_width,
@@ -103,6 +103,9 @@ def make_agm_srle2(
     
     The width and height fields in the AGM header are now 16-bit integers.
     Note: The header size remains 68 bytes by reducing the reserved padding.
+    
+    THIS VERSION READS THE FRAMES FROM A SINGLE .frames FILE in frames_file,
+    which was created by concatenating the processed .rgba2 data.
     """
     WAV_HEADER_SIZE = 76
     AGM_HEADER_SIZE = 68
@@ -112,11 +115,15 @@ def make_agm_srle2(
     # Masks (bit7=1 => video; bit7=0 => audio)
     AUDIO_MASK = 0x00  # 0b00000000
 
-    # 1) Gather frames
-    frame_files = sorted(f for f in os.listdir(frames_directory) if f.endswith(".rgba2"))
-    total_frames = len(frame_files)
+    # 1) Gather frames from the .frames file.
+    if not os.path.exists(frames_file):
+        raise RuntimeError(f"Frames file not found: {frames_file}")
+    with open(frames_file, "rb") as f:
+        frames_data = f.read()
+    frame_size = target_width * target_height
+    total_frames = len(frames_data) // frame_size
     print("-------------------------------------------------")
-    print(f"make_agm: Found {total_frames} frames in {frames_directory}")
+    print(f"make_agm: Found {total_frames} frames in {frames_file}")
 
     # 2) Read audio + fix header
     with open(target_audio_path, "rb") as wf:
@@ -187,13 +194,13 @@ def make_agm_srle2(
                 frames_in_segment = []
                 for _ in range(frame_rate):
                     if frame_idx < total_frames:
-                        frame_path = os.path.join(frames_directory, frame_files[frame_idx])
-                        with open(frame_path, "rb") as f_in:
-                            frame_bytes = f_in.read()
+                        start = frame_idx * frame_size
+                        end = start + frame_size
+                        frame_bytes = frames_data[start:end]
                         frame_idx += 1
                     else:
                         # No frames left => use a blank frame.
-                        frame_bytes = b"\x00" * (target_width * target_height)
+                        frame_bytes = b"\x00" * frame_size
                     frames_in_segment.append(frame_bytes)
                 # Concatenate raw data for all frames in this second.
                 segment_raw_data = b"".join(frames_in_segment)

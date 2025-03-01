@@ -282,10 +282,12 @@ def play_agm(filepath):
     if os.path.exists(temp_wav):
         os.remove(temp_wav)
 
-SCALE_FACTOR = 3
+SCALE_FACTOR = 2
 
 if __name__ == "__main__":
     agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
+    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
+    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_rgb.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:
