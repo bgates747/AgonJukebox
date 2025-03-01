@@ -23,8 +23,6 @@ AGM_UNIT_TYPE      = 0b10000000  # Bit 7: video unit
 AGM_UNIT_CMP_SRLE2 = 0b00011000  # Bits 3-4: SRLE2 compression (should equal 3)
 VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_SRLE2
 
-SCALE_FACTOR = 1
-
 def parse_agm_header(header_bytes):
     """
     Parse the 68-byte AGM header with 16-bit width/height fields:
@@ -284,8 +282,10 @@ def play_agm(filepath):
     if os.path.exists(temp_wav):
         os.remove(temp_wav)
 
+SCALE_FACTOR = 3
+
 if __name__ == "__main__":
-    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
+    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:

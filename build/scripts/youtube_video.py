@@ -452,7 +452,7 @@ if __name__ == "__main__":
 
     # For your *no-rounding* design example:
     max_height = 720 
-    frame_rate    = 10
+    frame_rate    = 30
     bytes_per_sec = 60000
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
@@ -465,9 +465,9 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
 # # ============================================================
-# # Download group
-#     do_download_video = True
-#     do_download_audio = True
+# Download group
+    do_download_video = True
+    do_download_audio = True
 
 # Extract audio group
     do_compression   = True

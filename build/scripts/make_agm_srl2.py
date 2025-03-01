@@ -96,6 +96,11 @@ def make_agm_srle2(
               * <I=chunk_size> + chunk_data
               * A 0 for chunk_size indicates end of audio unit.
               
+    Additionally, writes a CSV file recording per-segment video data.
+    The CSV file will have a file header with frame_size, frame_rate, and audio_rate,
+    and then for each segment, a row with time (sec) and compressed video unit size.
+    The CSV file is named: <agm_basename>.agm_<frame_rate:03d>.csv in the same directory.
+    
     The width and height fields in the AGM header are now 16-bit integers.
     Note: The header size remains 68 bytes by reducing the reserved padding.
     """
@@ -146,87 +151,103 @@ def make_agm_srle2(
         total_secs_      # 4 bytes
     )
 
-    # 5) Write .agm file
+    # Prepare output file paths in the target directory.
     target_agm_dir = os.path.dirname(target_agm_path)
     target_agm_basename = os.path.basename(target_agm_path).split(".")[0]
     target_agm_path = os.path.join(target_agm_dir, f"{target_agm_basename}.agm")
+    csv_filename = os.path.join(target_agm_dir, f"{target_agm_basename}.agm_{frame_rate:03d}.csv")
+    
     print(f"Writing AGM to: {target_agm_path}")
-    with open(target_agm_path, "wb") as agm_file:
-        # Write WAV header + AGM header
-        agm_file.write(wav_header)
-        agm_file.write(agm_header)
+    print(f"Writing CSV data to: {csv_filename}")
 
-        segment_size_last = 0
-        frame_idx = 0
+    # Open the CSV file and write header.
+    with open(csv_filename, "w") as csv_file:
+        csv_file.write("frame_size,frame_rate,audio_rate\n")
+        csv_file.write(f"{target_width * target_height},{frame_rate},{target_sample_rate}\n")
+        csv_file.write("time_sec,compressed_video_bytes\n")
 
-        # For each 1-second segment
-        for sec in range(total_secs):
-            seg_buffer = BytesIO()
+        # 5) Write .agm file
+        with open(target_agm_path, "wb") as agm_file:
+            # Write WAV header + AGM header.
+            agm_file.write(wav_header)
+            agm_file.write(agm_header)
 
-            # ---------------- VIDEO UNIT (with compression) ----------------
-            # Write the 1-byte unit header mask for video.
-            seg_buffer.write(struct.pack("<B", VIDEO_MASK))
+            segment_size_last = 0
+            frame_idx = 0
 
-            # Instead of compressing each frame individually, gather all frames for this second.
-            frames_in_segment = []
-            for _ in range(frame_rate):
-                if frame_idx < total_frames:
-                    frame_path = os.path.join(frames_directory, frame_files[frame_idx])
-                    with open(frame_path, "rb") as f_in:
-                        frame_bytes = f_in.read()
-                    frame_idx += 1
-                else:
-                    # No frames left => use a blank frame.
-                    frame_bytes = b"\x00" * (target_width * target_height)
-                frames_in_segment.append(frame_bytes)
-            # Concatenate raw data for all frames in this second.
-            segment_raw_data = b"".join(frames_in_segment)
+            # For each 1-second segment.
+            for sec in range(total_secs):
+                seg_buffer = BytesIO()
 
-            # Compress the entire second's worth of frames in one go.
-            compressed_segment_bytes = compress_frame_data(segment_raw_data, frame_idx - 1, total_frames)
-            
-            # Write the compressed data in chunks.
-            off = 0
-            while off < len(compressed_segment_bytes):
-                chunk = compressed_segment_bytes[off : off + chunksize]
-                off += len(chunk)
-                seg_buffer.write(struct.pack("<I", len(chunk)))
-                seg_buffer.write(chunk)
-            # End of video unit: write a zero-length chunk.
-            seg_buffer.write(struct.pack("<I", 0))
+                # ---------------- VIDEO UNIT (with compression) ----------------
+                # Write the 1-byte unit header mask for video.
+                seg_buffer.write(struct.pack("<B", VIDEO_MASK))
 
-            # ---------------- AUDIO UNIT ----------------
-            # 1) Write 1 byte mask => audio unit (bit7=0 => 0x00)
-            seg_buffer.write(struct.pack("<B", AUDIO_MASK))
+                # Gather all frames for this second.
+                frames_in_segment = []
+                for _ in range(frame_rate):
+                    if frame_idx < total_frames:
+                        frame_path = os.path.join(frames_directory, frame_files[frame_idx])
+                        with open(frame_path, "rb") as f_in:
+                            frame_bytes = f_in.read()
+                        frame_idx += 1
+                    else:
+                        # No frames left => use a blank frame.
+                        frame_bytes = b"\x00" * (target_width * target_height)
+                    frames_in_segment.append(frame_bytes)
+                # Concatenate raw data for all frames in this second.
+                segment_raw_data = b"".join(frames_in_segment)
 
-            # 2) Extract/pad the audio for this second
-            start_aud = sec * target_sample_rate
-            end_aud   = start_aud + target_sample_rate
-            unit_audio = audio_data[start_aud:end_aud]
+                # Compress the entire second's worth of frames in one go.
+                compressed_segment_bytes = compress_frame_data(segment_raw_data, frame_idx - 1, total_frames)
+                
+                # Write compressed video unit data in chunks.
+                off = 0
+                while off < len(compressed_segment_bytes):
+                    chunk = compressed_segment_bytes[off : off + chunksize]
+                    off += len(chunk)
+                    seg_buffer.write(struct.pack("<I", len(chunk)))
+                    seg_buffer.write(chunk)
+                # End of video unit: write a zero-length chunk.
+                seg_buffer.write(struct.pack("<I", 0))
 
-            if len(unit_audio) < target_sample_rate:
-                unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
+                # ---------------- AUDIO UNIT ----------------
+                # Write the 1-byte mask for audio (bit7=0 => 0x00).
+                seg_buffer.write(struct.pack("<B", AUDIO_MASK))
 
-            # 3) Write audio chunks
-            offset = 0
-            while offset < len(unit_audio):
-                chunk = unit_audio[offset : offset + chunksize]
-                offset += len(chunk)
-                seg_buffer.write(struct.pack("<I", len(chunk)))
-                seg_buffer.write(chunk)
-            # 4) End of audio unit => size=0
-            seg_buffer.write(struct.pack("<I", 0))
+                # Extract/pad the audio for this second.
+                start_aud = sec * target_sample_rate
+                end_aud   = start_aud + target_sample_rate
+                unit_audio = audio_data[start_aud:end_aud]
 
-            # -------------- FINALIZE SEGMENT --------------
-            segment_data = seg_buffer.getvalue()
-            segment_size_this = len(segment_data)
+                if len(unit_audio) < target_sample_rate:
+                    unit_audio += b"\x00" * (target_sample_rate - len(unit_audio))
 
-            # Write 8-byte segment header first (previous segment size, current segment size)
-            agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
-            # Then the segment data
-            agm_file.write(segment_data)
+                # Write audio chunks.
+                offset = 0
+                while offset < len(unit_audio):
+                    chunk = unit_audio[offset : offset + chunksize]
+                    offset += len(chunk)
+                    seg_buffer.write(struct.pack("<I", len(chunk)))
+                    seg_buffer.write(chunk)
+                # End of audio unit: size=0.
+                seg_buffer.write(struct.pack("<I", 0))
 
-            # Update for next segment
-            segment_size_last = segment_size_this
+                # -------------- FINALIZE SEGMENT --------------
+                segment_data = seg_buffer.getvalue()
+                segment_size_this = len(segment_data)
+
+                # Write 8-byte segment header (previous segment size, current segment size)
+                agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
+                # Then the segment data.
+                agm_file.write(segment_data)
+
+                # Write CSV row for this segment.
+                # We record the segment time (sec) and the compressed video unit size (in bytes).
+                csv_file.write(f"{sec},{len(compressed_segment_bytes)}\n")
+
+                # Update for next segment.
+                segment_size_last = segment_size_this
 
         print("AGM file creation complete.\n")
+    print(f"CSV data written to: {csv_filename}")
