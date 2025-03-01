@@ -127,10 +127,11 @@ def read_next_segment(f):
 
 def process_segment(segment_data, width, height, fps):
     """
-    Process one segment (assumed to represent one second of video & audio).
-    Unpacks the video unit, decompresses it, and splits it into individual frames.
+    Process one segment (assumed to represent one frame of video & audio).
+    Unpacks the video unit, decompresses it, and extracts a single frame.
     Also extracts the audio unit data.
-    Returns (frames, audio_data) where frames is a list of bytes (each frame is width*height bytes).
+    Returns (frames, audio_data) where frames is a list containing one frame 
+    (each frame is width*height bytes).
     """
     seg_stream = BytesIO(segment_data)
     # --- Process video unit ---
@@ -153,23 +154,17 @@ def process_segment(segment_data, width, height, fps):
         print("Unsupported video compression type.")
         raw_video_data = b""
     frame_size = width * height
-    frames = []
-    total_bytes = len(raw_video_data)
-    expected_bytes = fps * frame_size
-    if total_bytes < expected_bytes:
-        num_frames = total_bytes // frame_size
+    # Expect exactly one frame's worth of data.
+    if len(raw_video_data) < frame_size:
+        frame_data = raw_video_data + b"\x00" * (frame_size - len(raw_video_data))
     else:
-        num_frames = fps
-    for i in range(num_frames):
-        start = i * frame_size
-        end = start + frame_size
-        frames.append(raw_video_data[start:end])
+        frame_data = raw_video_data[:frame_size]
+    frames = [frame_data]
+    
     # --- Process audio unit ---
-    # Read next byte: should be the audio unit mask.
     audio_unit_mask_byte = seg_stream.read(1)
     audio_buffer = b""
     if audio_unit_mask_byte:
-        # Normally, audio unit mask is 0x00.
         while True:
             csize_data = seg_stream.read(4)
             if len(csize_data) < 4:
@@ -182,11 +177,11 @@ def process_segment(segment_data, width, height, fps):
 
 def play_agm(filepath):
     """
-    Play an AGM file using the new segment logic:
-      - For each segment (one second of video/audio):
-          * Unpack and decompress the entire video unit into individual frames.
-          * Extract the audio unit.
-      - Start audio playback immediately and display the video frames at the correct frame rate.
+    Play an AGM file using the updated segment logic:
+      - For each segment (one frame of video/audio):
+          * Unpack and decompress the video unit to obtain a single frame.
+          * Extract the corresponding audio unit.
+      - Start audio playback immediately and display the frame for the correct frame duration.
       - While one segment is playing, prefetch and process the next segment in a background thread.
     """
     pygame.init()
@@ -242,7 +237,7 @@ def play_agm(filepath):
                 snd = pygame.mixer.Sound(temp_wav)
                 snd.play()
 
-            # Display each frame for 1/fps seconds.
+            # Display the single frame for 1/fps seconds.
             for frame_data in frames:
                 # Convert raw frame (RGBA2 format) to an image.
                 temp_rgba2 = "temp_frame.rgba2"
@@ -285,8 +280,8 @@ def play_agm(filepath):
 SCALE_FACTOR = 2
 
 if __name__ == "__main__":
-    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
-    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
+    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
+    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
     # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_rgb.agm"
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")

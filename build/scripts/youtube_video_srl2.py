@@ -6,7 +6,7 @@ import shutil
 from PIL import Image
 import re
 import sys
-from make_agm_srl2 import make_agm_srle2
+from make_agm_srle2 import make_agm_srle2
 
 from make_wav import (
     compress_dynamic_range,
