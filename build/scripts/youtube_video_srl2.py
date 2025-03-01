@@ -321,7 +321,7 @@ if __name__ == "__main__":
     transparent_rgb = (0, 0, 0, 0)
     palette_conversion_method = 'bayer'
 
-    bytes_per_sec = 60000
+    bytes_per_sec = 57600
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
 
