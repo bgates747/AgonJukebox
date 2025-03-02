@@ -30,6 +30,8 @@ ps_chunks_per_second: equ 60 ; number of chunks to load per second
 ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
 ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
 ps_media_type: db 0 ; 1 = .wav, 2 = .agm
+media_type_wav: equ 1
+media_type_agm: equ 2
 
 ps_agm_segment_hdr: blkb agm_segment_hdr_size,0
 ps_agm_unit_hdr: blkb agm_unit_hdr_size,0
@@ -37,7 +39,7 @@ ps_agm_chunk_hdr: blkb agm_chunk_hdr_size,0
 
 ps_agm_data_bufferId: dl 0
 ps_agm_cmd_bufferId: dl 0
-
+read_media_routine: dl 0 ; address of the media read function
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -72,6 +74,15 @@ play_song:
     ld hl,ps_filinfo_fname
     call printString ; print the song filename
 
+; branch on .wav or .agm
+    ld a,(ps_media_type)
+    cp media_type_wav
+    jp nz,agm_play ; not .wav so try .agm
+
+; set read_media_routine
+    ld hl,ps_read_sample
+    ld (read_media_routine),hl
+
 ; compute the song duration from the file size and sample rate and print it
 ; technically we should account for the .wav header, but at 76 bytes it's negligible
     call vp_duration ; set viewport to duration window
@@ -84,11 +95,6 @@ play_song:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
-
-; branch on .wav or .agm
-    ld a,(ps_media_type) ; restore filetype
-    dec a ; zero means .wav
-    jp nz,ps_play_agm ; not .wav so play .agm
 
 ; compute the chunksize
     ld hl,(ps_wav_header+wav_sample_rate)
@@ -103,7 +109,6 @@ play_song:
 ; reset the chunk counter
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
-play_agm_return:
 ; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
@@ -119,13 +124,6 @@ play_agm_return:
 ; and exit app will return to main from there as well
     jp get_input
 ; end play_song
-
-; this is called by the PRT timer interrupt
-ps_read_media:
-    ld a,(ps_media_type)
-    dec a ; zero means .wav
-    jp nz,ps_read_agm ; not .wav so read .agm
-; fall through to ps_read_sample
 
 ; read the next chunk of sound data from the file
 ; and upload it to the sample buffer
@@ -164,16 +162,13 @@ ps_read_sample:
     ld a,(ps_wav_chunk_counter)
     dec a
     ld (ps_wav_chunk_counter),a
-    ret nz ; not zero so not time to play the buffer
+    jp nz,ps_prt_irq_return ; not time to play sample, so back to interrupt handler
 ; reset the chunk counter and play the buffer
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
     jp ps_play_sample
-; ; DEBUG ; MAKES THE POPPING BETWEEN SAMPLES WORSE SO THAT PROBLEM IS ELSEWHERE
-;     call ps_play_sample
-;     call ps_read_sample
-; ; END DEBUG
 ; end ps_read_sample
+
 ps_update_playbar:
 ; set viewport to playbar
     call vp_elapsed
@@ -214,8 +209,9 @@ ps_play_sample:
     call vdu_call_buffer
 ; flip the sample and command buffers
     call ps_set_audio_buffers
-    ret
+    jp ps_prt_irq_return ; back to interrupt handler
 ; end ps_play_sample
+
 ps_set_audio_buffers:
 ; flip the command and sample buffers and clear the new sample buffer
     ld a,(ps_channel)

@@ -238,59 +238,98 @@ pv_cmd_x0: 	        dw 0x0000
 pv_cmd_y0: 	        dw 0x0000
 pv_cmd_draw_end:    db 0x00 ; padding
 
+unit_counter: db 0 ; number of units left to read in the current segment
+
 ; inputs:
 ;     iy = pointer to a filinfo struct
 ;     hl = pointer to a fil struct
 ;     de = pointer to a zero-terminated filename
-; returns:
-;     a=2 and zero flag reset if good .agm file (a=1 if good .wav)
-;     hl points to ps_fil_struct
-;     iy points to ps_filinfo_struct, 
-;     ps_wav_header and ps_agm_header structs populated
-;     if success, an open file with read cursor set to first block of data, otherwise file closed
-ps_play_agm:
+;     a  = (ps_media_type)
+agm_play:
 ; verify valid .wav or .agm file
-    push iy
-    ld iy,ps_wav_header
-    call verify_wav
-    jp z,@bad
-
-; good file so set up to play it
+    cp media_type_agm ; a was set by play_song
+    jp nz,agm_close_file
+; set read_media_routine
+    ld hl,agm_read_chunk
+    ld (read_media_routine),hl
+; compute the song duration in hh:mm:ss format and print it
+    call vp_duration ; set viewport to duration window
+    ld hl,(ps_wav_header+agm_audio_seconds) ; ls 24 bits of duration is sufficient and all we're prepared for
+    call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
+    call printString ; print the duration
 ; initialize command and data buffers
     call ps_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
+; reset the playbar counter to zero
+    ld hl,0
+    ld (ps_playhead),hl
+ ; this is crucial so that the next sound played is at new position
+    call ps_set_audio_buffers        
+; set ps_mode_playing
+    ld hl,ps_mode
+    set ps_mode_playing,(hl)
+; enable interrupts and start the PRT timer
+    call ps_prt_start
+; jump to user input loop (enables interrupts)
+; the play sample interrupt will return to there
+; and exit app will return to main from there as well
+    jp get_input
+; fall through to agm_next_segment
+; end agm_play
 
-; initialize frame counters
+agm_next_segment:
+; read the next segment header
+    ld hl,ps_fil_struct
+    ld bc,agm_segment_hdr_size ; bytes to read
+    ld de,ps_agm_segment_hdr   ; target address
+    FFSCALL ffs_fread
+    ; call agm_print_segment_hdr ; DEBUG
+; check for end of file
+    push bc ; bytes read
+    pop hl
+    SIGN_HLU
+    jp z,agm_close_file
+; more to play so reset the unit counter and fall through to agm_next_unit
+    ld a,(ps_wav_header+agm_frame_rate)
+    inc a ; include audio unit
+    ld (unit_counter),a
+; end agm_next_segment
 
+agm_next_unit:
+; read the unit header
+    ld hl,ps_fil_struct
+    ld bc,agm_unit_hdr_size ; bytes to read
+    ld de,ps_agm_unit_hdr   ; target address
+    FFSCALL ffs_fread
+    ; call agm_print_unit_hdr ; DEBUG
+; set data and command bufferIds based on the unit type
+    ld a,(ps_agm_unit_hdr+agm_unit_mask)
+    and agm_unit_type
+    jp nz,@is_video
+    call ps_set_audio_buffers ; audio unit
+    jp agm_read_chunk
+@is_video:
+    call pv_set_video_buffers ; video unit
+; fall through to agm_read_chunk
+; end agm_next_unit
 
-; setup done so return success
-    ld a,1
-    inc a ; .agm file is 2, resets zero flag
-    jp @done
-
-@bad: ; not a good file so close it and return failure
-    push af ; save zero flag and a
-    FFSCALL ffs_fclose ; close the file
-    pop af ; restore zero flag and a for return
-@done:
-    pop iy
-    ret
-; end test_agm_open_file
-
-unit_counter: db 0 ; number of units remaining to read in the current segment
-
-ps_read_agm:
+agm_read_chunk:
 ; read the next chunk header
     ld hl,ps_fil_struct
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,ps_agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
-    ; call print_chunk_hdr ; DEBUG
-; check chunk size for zero
+    ; call agm_print_chunk_hdr ; DEBUG
+; check chunk size for zero, indicating end of unit
     ld hl,(ps_agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU
-    jp z,@next_unit
-; read the next chunk of data from the SD card to RAM
+    jp nz,@read_chunk
+; end of unit so decrement unit_counter and check for end of segment
+    ld hl,unit_counter
+    dec (hl)
+    jp nz,agm_next_unit ; more units in this segment to read
+    jp agm_next_segment ; end of segment so read the next one
+@read_chunk: ; read the next chunk of data from the SD card to RAM
     push hl
     pop bc ; bc = bytes to read
     ld hl,ps_fil_struct
@@ -302,57 +341,13 @@ ps_read_agm:
     call vdu_load_buffer
     jp get_input
 
-@next_unit:
-; execute the unit command buffer
-    ld hl,(ps_agm_cmd_bufferId) ; bufferId
-    call vdu_call_buffer
-; bump the unit counter
-    ld a,(unit_counter)
-    dec a
-    jp z,@next_segment
-    ld (unit_counter),a
-; read the unit header
-    ld hl,ps_fil_struct
-    ld bc,agm_unit_hdr_size ; bytes to read
-    ld de,ps_agm_unit_hdr   ; target address
-    FFSCALL ffs_fread
-    ; call print_unit_hdr ; DEBUG
-; set data and command bufferIds based on the unit type
-    ld a,(ps_agm_unit_hdr+agm_unit_mask)
-    and agm_unit_type
-    jp nz,@is_video
-    call ps_set_audio_buffers ; audio unit
-    jp ps_read_agm
-@is_video:
-    call pv_set_video_buffers ; video unit
-    jp ps_read_agm
-
-@next_segment:
-; read the next segment header
-    ld hl,ps_fil_struct
-    ld bc,agm_segment_hdr_size ; bytes to read
-    ld de,ps_agm_segment_hdr   ; target address
-    FFSCALL ffs_fread
-    ; call print_segment_hdr ; DEBUG
-; check for end of file
-    push bc ; bytes read
-    pop hl
-    SIGN_HLU
-    jp z,@done
-; more to play so reset the unit counter and read the next chunk
-    ld a,(ps_wav_header+agm_frame_rate)
-    inc a ; include audio unit
-    ld (unit_counter),a
-    jp ps_read_agm
-@done: ; close the file
+agm_close_file: 
+; close the file
     ld hl,ps_fil_struct
     FFSCALL ffs_fclose
     jp get_input
-; end ps_read_agm
 
-
-
-print_segment_hdr:
+agm_print_segment_hdr:
     PUSH_ALL
     call vdu_home_cursor
     ; ; call vdu_cls
@@ -370,9 +365,9 @@ print_segment_hdr:
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
-; end print_segment_hdr
+; end agm_print_segment_hdr
 
-print_unit_hdr:
+agm_print_unit_hdr:
     PUSH_ALL
     call printInline
     asciz "agm_unit_mask:         "
@@ -382,9 +377,9 @@ print_unit_hdr:
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
-; end print_unit_hdr
+; end agm_print_unit_hdr
 
-print_buffers:
+agm_print_buffers:
     PUSH_ALL
     ; call vdu_home_cursor
     call printInline
@@ -400,9 +395,9 @@ print_buffers:
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
-; end print_chunk_hdr
+; end agm_print_chunk_hdr
 
-print_chunk_hdr:
+agm_print_chunk_hdr:
     PUSH_ALL
     ld ix,ps_agm_chunk_hdr
     call printInline
@@ -413,4 +408,4 @@ print_chunk_hdr:
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
-; end print_chunk_hdr
+; end agm_print_chunk_hdr
