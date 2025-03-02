@@ -55,9 +55,8 @@ exit:
     include "sort.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
+    
     include "debug.inc"
-
-    include "test_agm.inc"
 
 ; --- MAIN PROGRAM FILE ---
 init:
