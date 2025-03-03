@@ -118,6 +118,8 @@ play_song:
     ld hl,ps_mode
     set ps_mode_playing,(hl)
 ; enable interrupts and start the PRT timer
+    ld hl,72000/ps_chunks_per_second
+    ld (ps_prt_reload),hl
     call ps_prt_start
 ; jump to user input loop (enables interrupts)
 ; the play sample interrupt will return to there
@@ -162,7 +164,7 @@ ps_read_sample:
     ld a,(ps_wav_chunk_counter)
     dec a
     ld (ps_wav_chunk_counter),a
-    jp nz,ps_prt_irq_return ; not time to play sample, so back to interrupt handler
+    ret nz ; not time to play sample, so back to interrupt handler
 ; reset the chunk counter and play the buffer
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
@@ -209,7 +211,7 @@ ps_play_sample:
     call vdu_call_buffer
 ; flip the sample and command buffers
     call ps_set_audio_buffers
-    jp ps_prt_irq_return ; back to interrupt handler
+    ret ; back to interrupt handler
 ; end ps_play_sample
 
 ps_set_audio_buffers:

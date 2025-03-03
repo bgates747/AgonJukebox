@@ -61,11 +61,10 @@ ps_prt_irq_handler:
     in0 a,(TMR1_CTL+TMR_REG_CTL)
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
-	jp z,ps_prt_irq_return ; playback not active so return without doing anything
+	jp z,@done ; playback not active so return without doing anything
 	ld hl,(read_media_routine)
-    jp (hl)
-; all read media routines must jp back here for proper interrupt handling
-ps_prt_irq_return:
+    CALL_HL
+@done:
     exx
     ex af,af'
     ei
