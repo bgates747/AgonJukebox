@@ -243,7 +243,7 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
             
             # Convert the palette-based PNG to a temporary .rgba2 file.
             temp_rgba2_path = os.path.join(staging_directory, "temp_frame.rgba2")
-            au.img_to_rgba2(temp_png_path, temp_rgba2_path)
+            au.img_to_rgba2(temp_png_path, temp_rgba2_path, palette_filepath, palette_conversion_method, transparent_rgb)
             
             # Read the RGBA2 data and append it to the output file.
             with open(temp_rgba2_path, "rb") as f_rgba2:

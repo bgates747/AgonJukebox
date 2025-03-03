@@ -280,7 +280,7 @@ def play_agm(filepath):
 SCALE_FACTOR = 2
 
 if __name__ == "__main__":
-    # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
+    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_floyd.agm"
     agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
     # agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_rgb.agm"
     if not os.path.exists(agm_path):
