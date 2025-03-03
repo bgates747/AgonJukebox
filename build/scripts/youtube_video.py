@@ -3,28 +3,12 @@ import os
 import subprocess
 import glob
 import shutil
-import json
 from PIL import Image
 import re
 import sys
-from make_agm import make_agm
-from make_agm_cmp import make_agm_cmp
-from make_agm_dif import make_agm_dif
-from make_agm_rle import make_agm_rle
-from make_agm_szip import make_agm_szip
-from make_agm_jpeg import make_agm_jpeg
-from make_agm_srl2 import make_agm_srle2
+from make_agm_srle2 import make_agm_srle2
+from make_agm_tvc import make_agm_tvc
 
-# -------------------------------------------------------------------
-# External utilities:
-#   "yt-dlp" for YouTube downloads
-#   "ffmpeg" for audio/video extraction
-# And your Python modules:
-#   make_wav.py (with compress_dynamic_range, etc.)
-#   agonutils.py (with palette conversion, etc.)
-#
-# Adjust as needed to import your local modules.
-# -------------------------------------------------------------------
 from make_wav import (
     compress_dynamic_range,
     normalize_audio,
@@ -34,24 +18,20 @@ from make_wav import (
 )
 import agonutils as au
 
-# from play_agm import play_agm
-
 # ============================================================
 #              YOUTUBE DOWNLOADER
 # ============================================================
 
-def download_video():
+def download_video(staged_video_path):
     if os.path.exists(staged_video_path):
         os.remove(staged_video_path)
 
     print("-------------------------------------------------")
     print(f"download_video: {youtube_url} To: {staged_video_path}")
 
-    # Download video-only stream (video only; audio to be downloaded separately)
     command = [
         "yt-dlp",
         "--restrict-filenames",
-        # "--format", f"bestvideo[height<={max_height}]",  # video only, no audio
         "--format", "mp4",
         "--output", staged_video_path,
         youtube_url,
@@ -71,13 +51,7 @@ def download_video():
 #              AUDIO EXTRACTION
 # ============================================================
 
-def download_audio():
-    """
-    Downloads audio from the YouTube video as 16-bit PCM WAV in mono,
-    capping the sample rate at 48000 Hz.
-    """
-    os.makedirs(processed_directory, exist_ok=True)
-
+def download_audio(staged_audio_path, audio_sample_rate):
     # Remove any existing file first.
     if os.path.exists(staged_audio_path):
         os.remove(staged_audio_path)
@@ -85,15 +59,13 @@ def download_audio():
     print("-------------------------------------------------")
     print(f"download_audio to {staged_audio_path}")
 
-    # Download audio-only stream and convert to WAV using yt-dlp.
-    # This command tells yt-dlp to extract audio, convert it to WAV,
     command = [
         "yt-dlp",
         "--restrict-filenames",
         "--extract-audio",
         "--audio-format", "wav",
         "--audio-quality", "0",  # best quality
-        "--postprocessor-args", "-ac 1 -ar 16000",
+        "--postprocessor-args", f"-ac 1 -ar {audio_sample_rate}",
         "--output", staged_audio_path,
         youtube_url,
     ]
@@ -109,73 +81,74 @@ def download_audio():
     print(f"Audio download completed. Sample rate capped at 16000Hz Size: {file_size_mb}")
     print("")
 
-def preprocess_audio():
-    """
-    Performs optional processing on the staged_audio_path file:
-      - If do_compression is True, applies dynamic range compression.
-      - If do_normalization is True, applies loudness normalization.
-    
-    This function operates on the file specified by staged_audio_path and uses a
-    temporary file located in staging_directory ("temp.wav").
-    """
+def preprocess_audio(staged_audio_path):
     # Define codec as 16-bit PCM little-endian signed.
     codec = "pcm_s16le"
 
-    if do_compression or do_normalization:
-        temp_path = os.path.join(staging_directory, "temp.wav")
+    temp_path = os.path.join(staging_directory, "temp.wav")
 
-        # Remove any existing temporary file.
-        if os.path.exists(temp_path):
-            os.remove(temp_path)
+    # Remove any existing temporary file.
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
 
-        # Dynamic Range Compression
-        if do_compression:
-            print("Applying dynamic range compression...")
-            shutil.copy(staged_audio_path, temp_path)
-            compress_dynamic_range(temp_path, staged_audio_path, codec)
-            os.remove(temp_path)
+    # Dynamic Range Compression
+    print("Applying dynamic range compression...")
+    shutil.copy(staged_audio_path, temp_path)
+    compress_dynamic_range(temp_path, staged_audio_path, codec)
+    os.remove(temp_path)
 
-            # Report status after compression
-            compressed_sample_rate, compressed_codec = get_audio_metadata(staged_audio_path)
-            print(f"After compression - Sample rate: {compressed_sample_rate} Hz, Codec: {compressed_codec}")
+    # Report status after compression
+    compressed_sample_rate, compressed_codec = get_audio_metadata(staged_audio_path)
+    print(f"After compression - Sample rate: {compressed_sample_rate} Hz, Codec: {compressed_codec}")
 
-        # Loudness Normalization
-        if do_normalization:
-            print("Applying loudness normalization...")
-            shutil.copy(staged_audio_path, temp_path)
-            normalize_audio(temp_path, staged_audio_path, codec)
-            os.remove(temp_path)
+    # Loudness Normalization
+    print("Applying loudness normalization...")
+    shutil.copy(staged_audio_path, temp_path)
+    normalize_audio(temp_path, staged_audio_path, codec)
+    os.remove(temp_path)
 
-            # Report status after normalization
-            normalized_sample_rate, normalized_codec = get_audio_metadata(staged_audio_path)
-            print(f"After normalization - Sample rate: {normalized_sample_rate} Hz, Codec: {normalized_codec}")
+    # Report status after normalization
+    normalized_sample_rate, normalized_codec = get_audio_metadata(staged_audio_path)
+    print(f"After normalization - Sample rate: {normalized_sample_rate} Hz, Codec: {normalized_codec}")
 
     print("")
 
 # ============================================================
 #              AUDIO CONVERSION
 # ============================================================
-def convert_audio():
-    """
-    Converts an audio file (e.g. MP3) into 8-bit unsigned PCM `.wav`.
-    Resamples to `target_sample_rate` if needed, optionally compresses & normalizes.
-    """
-    temp_path = os.path.join(staging_directory, "temp.wav")
 
+def convert_audio(staged_audio_path, target_audio_path):
+    # First, trim the full audio to the desired segment using ffmpeg.
+    trimmed_audio_path = os.path.join(staging_directory, "trimmed.wav")
+    if os.path.exists(trimmed_audio_path):
+        os.remove(trimmed_audio_path)
     print("-------------------------------------------------")
-    print(f"convert_audio: {staged_audio_path}")
+    print(f"Trimming audio from {staged_audio_path} starting at {seek_time} for duration {duration}")
+    command = [
+        "ffmpeg",
+        "-y",
+        "-ss", seek_time,
+        "-t", f"{duration}",
+        "-i", staged_audio_path,
+        trimmed_audio_path
+    ]
+    subprocess.run(command, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True)
+    
+    # Now process the trimmed audio.
+    temp_path = os.path.join(staging_directory, "temp.wav")
+    print(f"convert_audio: {trimmed_audio_path}")
     if os.path.exists(temp_path):
         os.remove(temp_path)
 
-    # 1) Get metadata
-    _, codec = get_audio_metadata(staged_audio_path)
+    # 1) Get metadata from the trimmed audio.
+    _, codec = get_audio_metadata(trimmed_audio_path)
 
-    # 2) Resample
-    shutil.copy(staged_audio_path, temp_path)
+    # 2) Resample the trimmed audio.
+    shutil.copy(trimmed_audio_path, temp_path)
     resample_wav(temp_path, target_audio_path, target_sample_rate, codec)
     os.remove(temp_path)
 
-    # 3) Convert to 8-bit unsigned PCM
+    # 3) Convert to 8-bit unsigned PCM.
     shutil.copy(target_audio_path, temp_path)
     convert_to_unsigned_pcm_wav(temp_path, target_audio_path, target_sample_rate)
     os.remove(temp_path)
@@ -185,41 +158,49 @@ def convert_audio():
 
 
 # -------------------------------------------------------------------
-# 1. Extract Frames Without Resizing
+# 1. Process Frames
 # -------------------------------------------------------------------
-def extract_frames():
-    """
-    Extracts frames from the intermediate MP4 at the desired FPS and saves them as PNG files.
-    Only the first minute of video is extracted.
-    No scaling is applied—this ensures that the full-resolution frames are available for later processing.
-    """
 
-    # Clear out old frames
+def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate):
+    """
+    Extract frames from the video (using ffmpeg) and process each frame:
+      - Optionally remove letterboxing.
+      - Resize to target dimensions.
+      - Convert to the custom palette.
+      - Convert to RGBA2 format.
+    The resulting RGBA2 data from all frames is concatenated into a single .frames file 
+    in staging_directory. The naming convention follows the target_agm_path (using 
+    video_base_name and palette_conversion_method) but placed in staging_directory.
+    
+    Intermediate .png files are created temporarily and then deleted.
+    """
+    # Clear out any existing files in the frames_directory.
     for f in glob.glob(os.path.join(frames_directory, "*")):
         os.remove(f)
     
+    # Extract frames as PNG images in frames_directory.
     output_pattern = os.path.join(frames_directory, "frame_%05d.png")
     print("-------------------------------------------------")
-    print(f"Extracting frames at {frame_rate} FPS to {frames_directory}")
-
+    print(f"Extracting frames at {frame_rate} FPS to temporary folder: {frames_directory}")
+    
     process = subprocess.Popen(
         [
             "ffmpeg",
-            # "-ss", "02:30",          # Seek to 2 minutes 30 seconds
-            "-i", processed_video_path,
-            # "-t", "60",              # Extract 60 seconds of frames
-            "-vf", f"fps={frame_rate}",  # Ensure frame rate is considered
+            "-ss", seek_time,
+            "-i", staged_video_path,
+            "-t", str(duration),
+            "-vf", f"fps={frame_rate}",
             "-pix_fmt", "rgba",
             "-start_number", "0",
-            "-y",                    # Overwrite output files without prompting
+            "-y",  # Overwrite without prompting
             output_pattern,
         ],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
     )
-
-    # (Optional) Show progress by reading ffmpeg stderr output.
+    
+    # Optional: Show progress from ffmpeg stderr.
     frame_pattern = re.compile(r"frame=\s*\d+")
     for line in iter(process.stderr.readline, ''):
         match = frame_pattern.search(line)
@@ -227,77 +208,60 @@ def extract_frames():
             sys.stdout.write(f"\r{match.group(0)}")
             sys.stdout.flush()
     process.wait()
-
     print("\nFrame extraction complete.\n")
-
-
-# -------------------------------------------------------------------
-# 2. Process Frames: Crop, Resize, Palette Convert, and Convert to .rgba2
-# -------------------------------------------------------------------
-def process_frames():
-    """
-    Processes the previously extracted PNG frames by:
-      1) Removing letterboxing if detected.
-      2) Cropping or resizing the image to exactly target_width x target_height.
-      3) Converting the processed image to a custom palette.
-      4) Converting the palette-based PNG to a .rgba2 (8bpp) file.
     
-    This separation lets you experiment with different cropping/resizing and palette conversion
-    parameters without re-extracting the frames (as long as the frame rate remains unchanged).
-    
-    Note: Letterbox detection is done on each PNG individually.
-          (If the first few frames are blank, detection might fail. In that case you may need
-           to either adjust the threshold/min_crop_ratio parameters in remove_letterbox() or
-           sample a frame further into the video.)
-    """
+    # Prepare output .frames file in staging_directory.
+    output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
     filenames = sorted([f for f in os.listdir(frames_directory) if f.endswith('.png')])
     total_frames = len(filenames)
-
-    print("-------------------------------------------------")
-    print(f"process_frames: Processing {total_frames} frames in {frames_directory}.")
-
-    for i, pngfile in enumerate(filenames, start=1):
-        pngpath = os.path.join(frames_directory, pngfile)
-        base = os.path.splitext(pngfile)[0]
-        rgba2_path = os.path.join(frames_directory, base + ".rgba2")
-
-        # --- 1) Load the extracted frame ---
-        content_img = Image.open(pngpath)
-
-        # --- 2) Remove letterbox (black borders) if present ---
-        if do_remove_letterbox: content_img = remove_letterbox(content_img)
-
-        # --- 3) Adjust image to target dimensions ---
-        cw, ch = content_img.size
-        if cw >= target_width and ch >= target_height:
-            final_img = center_crop(content_img, target_width, target_height)
-        else:
-            # If the content is smaller than desired, upscale it
+    
+    with open(output_frames_path, "wb") as out_file:
+        print(f"Processing {total_frames} frames and writing to {output_frames_path}")
+        for i, pngfile in enumerate(filenames, start=1):
+            pngpath = os.path.join(frames_directory, pngfile)
+            # Load the extracted frame.
+            content_img = Image.open(pngpath)
+            
+            # Remove letterbox if enabled.
+            if do_remove_letterbox:
+                content_img = remove_letterbox(content_img)
+            
+            # Resize directly to the target dimensions.
             final_img = content_img.resize((target_width, target_height), Image.LANCZOS)
-        # Optionally, overwrite the PNG with the processed image
-        final_img.save(pngpath)
+            
+            # Save the processed image to a temporary .png file.
+            temp_png_path = os.path.join(staging_directory, "temp_frame.png")
+            final_img.save(temp_png_path)
+            
+            # Convert the temporary PNG to the custom palette.
+            au.convert_to_palette(
+                temp_png_path,      # src
+                temp_png_path,      # output (overwrite)
+                palette_filepath,
+                palette_conversion_method,
+                transparent_rgb
+            )
+            
+            # Convert the palette-based PNG to a temporary .rgba2 file.
+            temp_rgba2_path = os.path.join(staging_directory, "temp_frame.rgba2")
+            au.img_to_rgba2(temp_png_path, temp_rgba2_path, palette_filepath, palette_conversion_method, transparent_rgb)
+            
+            # Read the RGBA2 data and append it to the output file.
+            with open(temp_rgba2_path, "rb") as f_rgba2:
+                rgba2_data = f_rgba2.read()
+            out_file.write(rgba2_data)
+            
+            print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
+            
+            # Clean up temporary files.
+            os.remove(temp_png_path)
+            os.remove(temp_rgba2_path)
+            os.remove(pngpath)
+    
+    print(f"\nAll frames processed and combined into {output_frames_path}.")
 
-        # --- 4) Convert to your custom palette (in-place) ---
-        au.convert_to_palette(
-            pngpath,                  # src
-            pngpath,                  # output (overwrite)
-            palette_filepath,
-            palette_conversion_method,
-            transparent_rgb
-        )
-
-        # --- 5) Convert palette-based PNG to .rgba2 (8bpp) ---
-        au.img_to_rgba2(pngpath, rgba2_path)
-
-        print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-    print("\nAll frames processed to .rgba2.\n")
 
 def remove_letterbox(img):
-    """
-    Center-crops the image vertically so that its aspect ratio matches
-    the desired ratio (target_width:target_height). It keeps the full
-    horizontal width and crops the top and bottom equally.
-    """
     width, height = img.size
     # Compute desired aspect ratio (width / height)
     desired_aspect = target_width / target_height
@@ -312,19 +276,6 @@ def remove_letterbox(img):
     bottom = top + new_height
     return img.crop((0, top, width, bottom))
 
-
-def center_crop(img, final_width, final_height):
-    """
-    Center-crops 'img' to final_width x final_height.
-    """
-    width, height = img.size
-    left = (width - final_width) // 2
-    top = (height - final_height) // 2
-    right = left + final_width
-    bottom = top + final_height
-    return img.crop((left, top, right, bottom))
-
-
 def delete_frames():
     print("-------------------------------------------------")
     print("delete_frames working...")
@@ -338,154 +289,56 @@ def delete_frames():
     print(f"Deleted {n} .png and .rgba2 files in {frames_directory}.")
     print("")
 
-def delete_processed_files():
-    print("-------------------------------------------------")
-    print("delete_processed_files working...")
-
-    n = 0  # Counter for deleted files
-
-    for file in [processed_video_path]:  # List of files to delete
-        if os.path.exists(file):
-            os.remove(file)
-            n += 1  # Increment counter
-            print(f"Deleted: {file}")
-
-    print(f"{n} files deleted.")
-    print("")
-
 
 def do_all_the_things():
-    if do_download_video:
-        download_video()
+    video_target_name = f'{video_base_name}'
+    staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
+    staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
+    target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
+    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
+    output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
 
-    if do_download_audio:
-        download_audio()
+    # download_video(staged_video_path)
+    # download_audio(staged_audio_path, target_sample_rate)
 
-    if do_compression or do_normalization:
-        preprocess_audio()
+    # preprocess_audio(staged_audio_path)
+    # convert_audio(staged_audio_path, target_audio_path)
 
-    if do_convert_audio:
-        convert_audio()
+    extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate)
 
-    if do_extract_frames:
-        extract_frames()
-
-    if do_process_frames:
-        process_frames()
-
-    if do_make_agm:
-        # make_agm(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_cmp(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_dif(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_rle(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_szip(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-        # make_agm_jpeg(frames_directory,target_audio_path,target_agm_path,target_width,target_height,frame_rate,target_sample_rate,chunksize,quality,optimize)
-        make_agm_srle2(frames_directory, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-
-
-    if do_delete_frames:
-        delete_frames()
-
-    if do_delete_processed_files:
-        delete_processed_files()
-
-    # if do_play_agm:
-    #     play_agm(target_agm_path)
+    # make_agm_srle2(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+    make_agm_tvc(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+    
+    # delete_frames()
 
 # ============================================================
 #              EXAMPLE USAGE
 # ============================================================
 if __name__ == "__main__":
-    do_download_video = False
-    do_download_audio = False
-    do_convert_audio = False
-    do_compression   = False
-    do_normalization = False
-    do_extract_frames = False
-    do_process_frames = False
-    do_make_agm = False
-    do_delete_frames = False
-    do_delete_processed_files = False
-    do_play_agm = False
-
-    # Example usage with your chosen directories:
     staging_directory   = "/home/smith/Agon/mystuff/assets/video/staging"
-    processed_directory = "/home/smith/Agon/mystuff/assets/video/processed"
     frames_directory    = "/home/smith/Agon/mystuff/assets/video/frames"
     target_directory    = "tgt/video"
-
-    target_width  = 320
-    do_remove_letterbox = True
-
-    # For jpeg encoding only
-    quality = 50
-    optimize = True
-    
-    # target_height = int(target_width * 0.75)  # 4:3 aspect ratio
-
-    # youtube_url = "https://youtu.be/djV11Xbc914" # A Ha Take On Me
-    # video_base_name = f'a_ha__Take_On_Me'
-
-    # youtube_url = "https://youtu.be/FtutLA63Cp8" # Bad Apple
-    # video_base_name = f'Bad_Apple'
-
-    # youtube_url = "https://youtu.be/sOnqjkJTMaA" # Michael Jackson Thriller
-
-
-    target_height = int(target_width / 2.35) 
-
-    youtube_url = "https://youtu.be/3yWrXPck6SI" # Star Wars Battle of Yavin
-    video_base_name = f'Star_Wars__Battle_of_Yavin'
-
-    # youtube_url = "https://youtu.be/evyyr24r1F8" # Battle of Hoth Part 1
-    # video_base_name = f'Star_Wars__Battle_of_Hoth_Part_1'
-
-    # youtube_url = "https://youtu.be/6Q_jdg1gQms" # Top Gun Danger Zone
-    # youtube_url = "https://youtu.be/oJguy6wSYyI" # Star Wars Opening Crawl
-
-    # youtube_url = "https://youtu.be/vrHeuwO5agw" # The Terminator
-    # video_base_name = f'The_Terminator'
 
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
     palette_conversion_method = 'bayer'
 
-    # For your *no-rounding* design example:
-    max_height = 720 
-    frame_rate    = 30
-    bytes_per_sec = 60000
+    bytes_per_sec = 57600
     target_sample_rate = 16000
     chunksize = bytes_per_sec // 60
-    
-    video_target_name = f'{video_base_name}' #_{target_width}x{target_height}x{frame_rate}' # x{target_sample_rate}'
-    staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
-    processed_video_path = os.path.join(processed_directory, f"{video_target_name}.mp4")
-    staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
-    target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
-    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{palette_conversion_method}.agm")
 
-# # ============================================================
-# Download group
-    do_download_video = True
-    do_download_audio = True
+    youtube_url = "https://youtu.be/3yWrXPck6SI"
+    video_base_name = f'Star_Wars__Battle_of_Yavin'
+    seek_time = "00:05:00"
+    duration  = 60
+    frame_rate    = 10
 
-# Extract audio group
-    do_compression   = True
-    do_normalization = True
-    do_convert_audio = True
+    target_width  = 240
+    target_height = int(target_width / 2.35)
+    do_remove_letterbox = True
 
-# Extract video group
-    do_extract_frames = True
-    do_process_frames = True
+    target_height = (target_height + 2) & ~2  # Round up to nearest multiple of 2
 
-# Make AGM group
-    do_make_agm = True
-
-# # Clean up group
-#     do_delete_frames = True
-#     do_delete_processed_files = True
-
-# Play AGM group
-    # do_play_agm = True
-
+    # target_width  = (target_width  + 7) & ~7  # Round up to nearest multiple of 8
+    # target_height = (target_height + 7) & ~7  # Same for height
     do_all_the_things()
