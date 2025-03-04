@@ -331,7 +331,7 @@ if __name__ == "__main__":
     video_base_name = f'Star_Wars__Battle_of_Yavin'
     seek_time = "00:05:00"
     duration  = 60
-    frame_rate    = 10
+    frame_rate    = 4
 
     target_width  = 240
     target_height = int(target_width / 2.35)
