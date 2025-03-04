@@ -32,13 +32,6 @@ ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the l
 ps_media_type: db 0 ; 1 = .wav, 2 = .agm
 media_type_wav: equ 1
 media_type_agm: equ 2
-
-ps_agm_segment_hdr: blkb agm_segment_hdr_size,0
-ps_agm_unit_hdr: blkb agm_unit_hdr_size,0
-ps_agm_chunk_hdr: blkb agm_chunk_hdr_size,0
-
-ps_agm_data_bufferId: dl 0
-ps_agm_cmd_bufferId: dl 0
 read_media_routine: dl 0 ; address of the media read function
 
 play_song:
@@ -157,7 +150,7 @@ ps_read_sample:
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
 ; load the chunk to the current sample buffer
-    ld hl,(ps_agm_data_bufferId)
+    ld hl,(pv_img_buffer)
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
 ; decrement the chunk counter
@@ -207,7 +200,7 @@ ps_play_sample:
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
 ; call the command buffer to play the sound
-    ld hl,(ps_agm_cmd_bufferId)
+    ld hl,(pv_cmd_buffer)
     call vdu_call_buffer
 ; flip the sample and command buffers
     call ps_set_audio_buffers
@@ -222,10 +215,10 @@ ps_set_audio_buffers:
     ld (ps_channel),a
     ld hl,ps_wav_cmd_bufferId0
     ld l,a
-    ld (ps_agm_cmd_bufferId),hl
+    ld (pv_cmd_buffer),hl
     inc l
     inc l
-    ld (ps_agm_data_bufferId),hl
+    ld (pv_img_buffer),hl
     call vdu_clear_buffer
     ret
 ; end ps_set_audio_buffers
