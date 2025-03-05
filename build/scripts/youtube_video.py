@@ -333,7 +333,7 @@ if __name__ == "__main__":
     duration  = 60
     frame_rate    = 4
 
-    target_width  = 240
+    target_width  = 100
     target_height = int(target_width / 2.35)
     do_remove_letterbox = True
 

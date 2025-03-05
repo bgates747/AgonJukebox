@@ -1,6 +1,7 @@
 ; 72000 = 1 tick per second at 18.432 MHz with a 256 clock divider
 ; but since max is 65536, intervals > 65536/72000 = 0.91 seconds require an additional counter
-ps_prt_reload: equ 72000/ps_chunks_per_second
+ps_prt_reload: equ 72000/ps_chunks_per_second 
+; ps_prt_reload: equ 72000/ps_chunks_per_second * 16 ; DEBUG
 
 ; start PRT timer
 ps_prt_start:
@@ -62,6 +63,12 @@ ps_prt_irq_handler:
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
 	jp z,@done ; playback not active so return without doing anything
+
+; DEBUG
+    call agm_print_all_hdrs
+	call DEBUG_WAITKEYPRESS
+; END DEBUG
+
 	ld hl,(read_media_routine)
     CALL_HL
 @done:
