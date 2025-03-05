@@ -509,6 +509,7 @@ dumpMemoryBinRev:
 
 DEBUG_PRINT:
     PUSH_ALL
+    call ps_prt_stop
     CALL vp_messages
     CALL vdu_cls
     POP_ALL
@@ -519,11 +520,15 @@ DEBUG_PRINT:
     call dumpRegistersHex
     call waitKeypress
     ; call printNewLine
+    call ps_prt_start
     POP_ALL
     ret
 DEBUG_WAITKEYPRESS:
     PUSH_ALL
+    call ps_prt_stop
+    ei
     call waitKeypress
+    call ps_prt_start
     POP_ALL
     RET
 

@@ -85,18 +85,19 @@ pv_cmd_base_buffer: equ 0x4000
 pv_img_base_buffer: equ 0x4100
 pv_cmd_buffer: dl 0 ; Points to the current video command buffer to be called.
 pv_img_buffer: dl 0 ; Points to the current video frame buffer to be loaded.
-pv_draw_counter: db 0 ; Counts down from 60 / frame_rate.
+pv_draw_counter_reset: db 0 ; 60 / frame_rate.
+pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video frame draw at zero
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
 pv_loaded_frames: db 0 ; Tracks buffered frames (max fps * 5).
 pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (max fps * 5).
 
 ps_cmd_base_buffer: equ 0x4200
 ps_dat_base_buffer: equ 0x4300
-ps_cmd_buffer: dl 0 ; Points to the current audio command buffer to be called.
-ps_dat_buffer: dl 0 ; Points to the current audio data buffer to be loaded.
+ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
+ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
 ps_loaded_samples: db 0 ; Tracks buffered audio samples (max 5).
 
-pv_unit_type: db 0 ; 0 = audio, 1 = video
+pv_bytes_read: dw32 0 ; Number of bytes read from the file
 
 ; inputs:
 ;     iy = pointer to a filinfo struct
@@ -107,25 +108,37 @@ agm_play:
 ; verify valid .wav or .agm file
     cp media_type_agm ; a was set by play_song
     jp nz,agm_close_file
-; initialize command and data buffers
-    call ps_load_audio_cmd_buffers
-    call pv_load_video_cmd_buffers
-    ld hl,ps_cmd_base_buffer
-    ld (ps_cmd_buffer),hl
-    ld hl,ps_dat_base_buffer
-    ld (ps_dat_buffer),hl
+; initalize counters and flags
+    ld a,60
+    ld (pv_sample_counter),a
+    ld hl,(ps_wav_header+agm_frame_rate) ; l = frame rate
+    ld h,a ; h = 60
+    call udiv8 ; h = 60 / frame rate
+    ld a,h
+    ld (pv_draw_counter_reset),a
+    ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
     ld e,5
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a
-; initalize counters and flags
     xor a
     ld (ps_loaded_samples),a
     ld (pv_loaded_frames),a
     inc a
     ld (agm_read_chunk_flag),a
+; initialize command and data buffers
+    call pv_load_audio_cmd_buffers
+    call pv_load_video_cmd_buffers
+    ld hl,ps_cmd_base_buffer
+    ld (ps_cmd_buffer),hl
+    ld hl,ps_dat_base_buffer
+    ld (ps_dat_buffer),hl
+    ld hl,pv_cmd_base_buffer
+    ld (pv_cmd_buffer),hl
+    ld hl,pv_img_base_buffer
+    ld (pv_img_buffer),hl
 ; set read_media_routine
     ld hl,agm_read_chunk
     ld (read_media_routine),hl
@@ -134,18 +147,16 @@ agm_play:
     ld hl,(ps_wav_header+agm_audio_seconds) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
-; reset the playbar counter to zero
+; reset the playbar counter and pv_bytes_read to zero
     ld hl,0
     ld (ps_playhead),hl
+    ld (pv_bytes_read),hl
+    ld (pv_bytes_read+2),hl
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
 ; enable interrupts and start the PRT timer
     call ps_prt_start
-; jump to user input loop (enables interrupts)
-; the play sample interrupt will return to there
-; and exit app will return to main from there as well
-    jp get_input
 ; fall through to agm_read_segment
 ; end agm_play
 
@@ -161,15 +172,6 @@ agm_read_segment:
     pop hl
     SIGN_HLU
     jp z,agm_close_file
-; more to play so intialize segment counters
-    ld a,60
-    ld (pv_sample_counter),a
-    ld hl,(ps_wav_header+agm_frame_rate) ; l = frame rate
-    ld h,a ; h = 60
-    call udiv8 ; h = 60 / frame rate
-    ld a,h
-    ld (pv_draw_counter),a
-
 ; fall through to agm_read_unit
 ; end agm_read_segment
 
@@ -180,6 +182,17 @@ agm_read_unit:
     ld de,agm_unit_hdr   ; target address
     FFSCALL ffs_fread
     ; call agm_print_unit_hdr ; DEBUG
+; check the unit type and clear the target data buffer
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and a,agm_unit_type
+    jr z,@audio
+; is video unit so clear the video data buffer
+    ld hl,(pv_img_buffer)
+    jr @clear_buffer
+@audio: ; clear the audio data buffer
+    ld hl,(ps_dat_buffer)
+@clear_buffer:
+    call vdu_clear_buffer
 ; fall through to agm_read_chunk
 ; end agm_read_unit
 
@@ -217,24 +230,30 @@ agm_read_chunk:
     ld hl,(pv_img_buffer) ; bufferId
     ld de,ps_agm_data ; source address
     call vdu_load_buffer
+
+    call agm_print_all_hdrs ; DEBUG
+    
     jp get_input
 ; end agm_read_chunk
 
 agm_next_unit:
 ; check unit type
-    ld a,(pv_unit_type)
-    and a
-    jr nz,@audio
+    ld hl,agm_unit_hdr+agm_unit_mask
+    ld a,agm_unit_type
+    and (hl)
+    jr z,@audio
 ; is video unit so check compression type
-    ld hl,agm_unit_hdr+agm_unit_cmp_typ
     ld a,agm_unit_cmp_typ
     and (hl)
-    cp agm_unit_cmp_non
     jr z,@next_video_buffer
 ; decompress buffer
     ld hl,(pv_img_buffer) ; bufferId
     call vdu_decompress_buffer
 @next_video_buffer: ; advance the video data buffer
+    
+    ; call agm_print_buffers ; DEBUG
+    ; CALL DEBUG_WAITKEYPRESS ; DEBUG
+
     ld a,(pv_img_buffer) ; only need the low byte
     inc a
     ld hl,pv_loaded_frames_max
@@ -262,6 +281,26 @@ agm_next_unit:
 ; end agm_next_unit
 
 agm_next_segment:
+; update pv_bytes_read
+    ld hl,(pv_bytes_read)
+    ld de,(agm_segment_size_this)
+    add hl,de
+    ld (pv_bytes_read),hl
+    ld a,(pv_bytes_read+3)
+    adc a,0
+    ld (pv_bytes_read+3),a
+
+; ; DEBUG
+;     call vp_messages
+;     ld c,0 ; x
+;     ld b,4 ; y
+;     call vdu_move_cursor
+;     call printInline
+;     asciz "Bytes read: "
+;     ld hl,(pv_bytes_read)
+;     call printDec
+; ; END DEBUG
+
 ; reset read chunk flag to off and read the next segment (and thence unit) header
     xor a
     ld (agm_read_chunk_flag),a
@@ -278,7 +317,7 @@ agm_play_sample:
     ld (ps_loaded_samples),a
 ; call the sample command buffer
     ld hl,(ps_cmd_buffer)
-    call vdu_call_buffer
+    ; call vdu_call_buffer ; DEBUG temporarily disabled
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
@@ -286,7 +325,9 @@ agm_play_sample:
     jr nz,@not_max
     xor a
 @not_max:
-    ld (ps_cmd_buffer),a
+    ld (ps_cmd_buffer),a ; only need to set the low byte
+    ld a,60
+    ld (pv_sample_counter),a
     ret 
 ; end agm_play_sample
 
@@ -299,8 +340,11 @@ agm_draw_frame:
 ; decrement the counter
     dec (hl)
 ; call the video command buffer
+
+    ; call agm_print_buffers ; DEBUG
+
     ld hl,(pv_cmd_buffer)
-    call vdu_call_buffer
+    ; call vdu_call_buffer ; DEBUG temporarily disabled
 ; increment the command buffer
     ld a,(pv_cmd_buffer) ; only need the low byte
     inc a
@@ -310,6 +354,8 @@ agm_draw_frame:
     xor a
 @not_max:
     ld (pv_cmd_buffer),a
+    ld a,(pv_draw_counter_reset)
+    ld (pv_draw_counter),a
     ret 
 ; end agm_draw_frame
 
@@ -319,46 +365,6 @@ agm_close_file:
     ld hl,ps_fil_struct
     FFSCALL ffs_fclose
     jp get_input
-
-pv_cmd_draw:
-; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
-; inputs: hl=bufferId
-                    db 23,27,0x20
-pv_img_buffer0:      dw 0x0000
-
-; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
-; 1 	RGBA2222 (1-bytes per pixel)
-                    db 23,27,0x21
-pv_cmd_width:       dw 0x0000
-pv_cmd_height:      dw 0x0000
-                    db 1 ; format
-
-; VDU 25, mode, x; y;: PLOT command
-                    db 25
-                    db plot_bmp+dr_abs_fg ; 0xED
-pv_cmd_x0:          dw 0x0000
-pv_cmd_y0:          dw 0x0000
-pv_cmd_draw_end:    db 0x00 ; padding
-
-agm_print_segment_hdr:
-    PUSH_ALL
-    call vdu_home_cursor
-    ; ; call vdu_cls
-    ld ix,agm_segment_hdr
-    ; call printInline
-    ; asciz "agm_segment_size_last: "
-    ; ld hl,(ix+agm_segment_size_last)
-    ; call printDec
-    ; call printNewLine
-    ; call printInline
-    ; asciz "agm_segment_size_this: "
-    ld hl,(ix+agm_segment_size_this)
-    call printDec
-    call printNewLine
-    ; call DEBUG_WAITKEYPRESS
-    POP_ALL
-    ret
-; end agm_print_segment_hdr
 
 
 ; verify that a file is an .agm file
@@ -417,108 +423,201 @@ verify_agm:
 
 pv_load_video_cmd_buffers:   
     ld hl,pv_cmd_base_buffer
-    ld a,(ps_wav_header+agm_frame_rate)
-    ld l,a ; low byte = frame n (1-based)
+    ld a,(pv_loaded_frames_max)
+    dec a ; zero-based
+    ld l,a
 @clear_cmd_loop:
     push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
     dec l ; dec loop counter
-    jr nz,@clear_cmd_loop
+    jp p,@clear_cmd_loop
 
     ld hl,pv_img_base_buffer
-    ld a,(ps_wav_header+agm_frame_rate)
-    ld l,a ; low byte = frame n (1-based)
+    ld a,(pv_loaded_frames_max)
+    dec a ; zero-based
+    ld l,a
 @clear_img_loop:
     push hl ; save img buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
     dec l ; dec loop counter
-    jr nz,@clear_img_loop
+    jp p,@clear_img_loop
 
-    ld de,(ps_wav_header+agm_width)
-    ld (pv_cmd_width),de
-    dec de
-    inc.s de ; clears ude
-    ld hl,(screen_width)
-    or a ; clear carry
-    sbc hl,de
-    call hlu_div2
-    ld (pv_cmd_x0),hl
+; we leave x coord zero for the time being
+    ; ld de,(ps_wav_header+agm_width)
+    ; ld (@width),de
+    ; dec de
+    ; inc.s de ; clears ude
+    ; ld hl,(screen_width)
+    ; or a ; clear carry
+    ; sbc hl,de
+    ; call hlu_div2
+    ; ld (@x),hl
 
-    ld de,(ps_wav_header+agm_height)
-    ld (pv_cmd_height),de
-    ld a,1 ; format 1 = RGBA2222
-    ld (pv_cmd_height+2),a
-    dec de
-    inc.s de ; clears ude
-    ld hl,(screen_height)
-    or a ; clear carry
-    sbc hl,de
-    call hlu_div2
-    ld (pv_cmd_y0),hl
+; we leave y coord zero for the time being
+    ; ld de,(ps_wav_header+agm_height)
+    ; ld (@height),de
+    ; ld a,1 ; format 1 = RGBA2222
+    ; ld (@height+2),a
+    ; dec de
+    ; inc.s de ; clears ude
+    ; ld hl,(screen_height)
+    ; or a ; clear carry
+    ; sbc hl,de
+    ; call hlu_div2
+    ; ld (@y),hl
 
-    ld a,(ps_wav_header+agm_frame_rate)
-    ld hl,pv_img_base_buffer
+    ld hl,pv_cmd_base_buffer
+    ld a,(pv_loaded_frames_max)
+    dec a ; zero-based
     ld l,a
-
 @load_loop:
     push hl ; save command bufferId high byte and loop counter
-    ld (pv_img_buffer0),a
+    ld (@bufferId),a ; only need to load the low byte
 
-    ld a,h
-    ld (pv_img_buffer0+1),a
-
-    dec h ; hl = cmd bufferId
-    ld de,pv_cmd_draw
-    ld bc,pv_cmd_draw_end-pv_cmd_draw
+    ld de,@cmd_start
+    ld bc,@cmd_end-@cmd_start
     call vdu_load_buffer
 
     pop hl ; restore current command bufferId
     dec l ; dec loop counter
-    jr nz,@load_loop
+    jp p,@load_loop
 
     ret 
+@cmd_start:
+; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
+; inputs: hl=bufferId
+            db 23,27,0x20
+@bufferId:  dw pv_img_base_buffer
+
+; VDU 23, 27, &21, w; h; format: Create bitmap from selected buffer
+            db 23,27,0x21
+@width:     dw 0x0000
+@height:    dw 0x0000
+            db 1 ; format 1 = RGBA2222 (1-bytes per pixel)
+
+; VDU 25, mode, x; y;: PLOT command
+            db 25
+            db plot_bmp+dr_abs_fg ; 0xED
+@x:         dw 0x0000
+@y:         dw 0x0000
+@cmd_end:   db 0x00 ; padding
 ; end pv_load_video_cmd_buffers
+
+pv_load_audio_cmd_buffers:
+    ld hl,ps_cmd_base_buffer
+    ld a,5
+
+@cmd_start:
+; Command 14: Consolidate blocks in a buffer
+; VDU 23, 0, &A0, bufferId; 14
+    db 23,0,0xA0 ; vdu buffered api command header
+@bufferId0: dw ps_dat_base_buffer
+    db 14 ; consolidate blocks command
+; vdu_buffer_to_sound command string
+; Command 2: Buffer to sound
+; VDU 23, 0, &85, channel (ignored), 5, 2, bufferId; format, [sampleRate;]
+    db 23,0,0x85 ; vdu sound command header
+    db 0x00 ; channel (ignored)
+    db 0x05 ; buffer to sound command
+    db 0x02 ; command 2 create sample
+@bufferId1: dw ps_dat_base_buffer
+    db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+@sample_rate: dw 0x0000 ; sample rate Hz
+; vdu_play_sfx command string
+; Command 4: Set waveform
+; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+    db 23,0,$85 ; vdu sound command header  
+    db 0 ; channel
+    db 4 ; set waveform command
+    db 8 ; waveform 8 = sample
+@bufferId2: dw ps_dat_base_buffer ; sample bufferId
+; Command 0: Play note
+; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+    db 23,0,$85 ; vdu sound command header
+    db 0 ; channel
+    db 0 ; play note command
+    db 127  ; volume 127 = max
+    dw 0 ; frequency (relevant only for tuneable samples)
+    dw 0 ; duration (ms), zero means play one time in full
+@cmd_end:
+; end ps_load_audio_cmd_buffers
+
+agm_print_all_hdrs:
+    call agm_print_segment_hdr
+    call agm_print_unit_hdr
+    call agm_print_chunk_hdr
+    call agm_print_buffers
+    ret
+
+agm_print_segment_hdr:
+    PUSH_ALL
+    call vp_messages
+    call vdu_home_cursor
+    call printInline
+    asciz "agm_segment_size_last: "
+    ld hl,(agm_segment_hdr+agm_segment_size_last)
+    call printDec
+    call printNewLine
+    call printInline
+    asciz "agm_segment_size_this: "
+    ld hl,(agm_segment_hdr+agm_segment_size_this)
+    call printDec
+    ; call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+    POP_ALL
+    ret
+; end agm_print_segment_hdr
 
 agm_print_unit_hdr:
     PUSH_ALL
+    call vp_messages
+    ld c,0 ; x
+    ld b,2 ; y
+    call vdu_move_cursor
     call printInline
     asciz "agm_unit_mask:         "
     ld a,(agm_unit_hdr+agm_unit_mask)
     call printBin8
-    call printNewLine
+    ; call printNewLine
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
 ; end agm_print_unit_hdr
 
-agm_print_buffers:
-    PUSH_ALL
-    ; call vdu_home_cursor
-    call printInline
-    asciz "pv_cmd_buffer:     "
-    ld hl,(pv_cmd_buffer)
-    call printHex24
-    call printNewLine
-    CALL printInline
-    asciz "pv_img_buffer:    "
-    ld hl,(pv_img_buffer)
-    call printHex24
-    call printNewLine
-    ; call DEBUG_WAITKEYPRESS
-    POP_ALL
-    ret
-; end agm_print_chunk_hdr
-
 agm_print_chunk_hdr:
     PUSH_ALL
+    call vp_messages
+    ld c,0 ; x
+    ld b,3 ; y
+    call vdu_move_cursor
     ld ix,agm_chunk_hdr
     call printInline
     asciz "agm_chunk_size:        "
     ld hl,(ix+agm_chunk_size)
     call printDec
-    call printNewLine
+    ; call printNewLine
+    ; call DEBUG_WAITKEYPRESS
+    POP_ALL
+    ret
+; end agm_print_chunk_hdr
+
+agm_print_buffers:
+    PUSH_ALL
+    call vp_messages
+    ld c,0 ; x
+    ld b,5 ; y
+    call vdu_move_cursor
+    call printInline
+    asciz "pv_cmd: "
+    ld hl,(pv_cmd_buffer)
+    call printHex24
+    CALL printInline
+    asciz " pv_img: "
+    ld hl,(pv_img_buffer)
+    call printHex24
+    ; call printNewLine
     ; call DEBUG_WAITKEYPRESS
     POP_ALL
     ret
