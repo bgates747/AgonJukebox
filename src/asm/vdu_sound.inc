@@ -1,13 +1,9 @@
 ; enable enough additional channels so that total enabled = max_channels
-; inputs: max_channels set
+; inputs: a = num channels to enable
 ; returns: nothing
 ; destroys: af, bc, hl
 vdu_enable_channels:
-    ld a,max_channels
-    sub 3 ; subtract number of default channels already enabled
-    jp p,@loop
-    ret
-    ld a,3 ; first non-default channel
+    dec a ; channels are zero-based
 @loop:
     ld (@channel),a
     ld hl,@beg
@@ -15,8 +11,7 @@ vdu_enable_channels:
     push af
     rst.lil $18
     pop af
-    inc a
-    cp max_channels
+    dec a
     jp nz,@loop
     ret
 @beg:

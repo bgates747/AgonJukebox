@@ -58,40 +58,55 @@ exit:
     
     include "debug.inc"
 
+fname: asciz "Star_Wars__Battle_of_Yavin.wav"
+
 ; --- MAIN PROGRAM FILE ---
 init:
     ld a,5
     call vdu_enable_channels
-    call bf_get_dir
-    call ui_init
-    call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
-                                 ; (though it must be done here b/c ui_init clears all buffers)
-    call ps_prt_irq_init
     ret
 ; end init
 main:
-; call the change directory routine and jp to user input
-    call get_input
 
-; we come back here when user wants to quit app
-; shut down everytyhing and gracefully exit to MOS
-    call ps_close_file ; close any playing file and stop the PRT timer
-    ei ; interrupts were disabled by get_input
-; restore original screen mode
-    ld a,(original_screen_mode)
-    call vdu_set_screen_mode
-    call vdu_reset_viewports
-    call vdu_cls
-; print thanks for playing message
-    call printInline
-    asciz "Thank you for using\r\n"
-    ld hl,agon_jukebox_ascii
-    call printString
-; set cursor behaviuor
-    call vdu_cursor_on
-    ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
-    ld l,%00000000 ; bit 4 reset means cursor scrolls screen
-    call vdu_cursor_behaviour
+    ld hl,ps_fil_struct
+    ld de,fname
+    ld iy,ps_wav_header
+    call verify_wav
+    call dumpFlags
+
+    ld hl,ps_fil_struct
+    ld de,ps_wav_data
+    ld bc,(ps_wav_header+wav_sample_rate)
+    FFSCALL ffs_fread ; read the file
+    call dumpRegistersHex
+
+    ld hl,ps_dat_base_buffer
+    ld de,ps_wav_data
+    ld bc,(ps_wav_header+wav_sample_rate)
+    call vdu_load_buffer
+
+    call pv_load_audio_cmd_buffers
+    ld hl,ps_cmd_base_buffer
+    call vdu_call_buffer
+
+    ; ld hl,ps_dat_base_buffer
+    ; ld a,1 ; 8 = sample rate next, 1 = 8-bit unsigned
+    ; ld de,(ps_wav_header+wav_sample_rate)
+    ; call vdu_buffer_to_sound
+
+    ; ld hl,ps_dat_base_buffer
+    ; ld c,0 ; channel
+    ; ld b,8 ; waveform = sample
+    ; call vdu_channel_waveform
+
+    ; ld c,0
+    ; ld b,127
+    ; ld hl,0
+    ; ld de,0
+    ; call vdu_play_note
+
+    ld hl,ps_fil_struct
+    FFSCALL ffs_fclose ; close the file
     ret ; back to MOS
 ; end main
 

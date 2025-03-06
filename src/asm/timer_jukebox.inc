@@ -66,7 +66,7 @@ ps_prt_irq_handler:
 
 ; DEBUG
     call agm_print_all_hdrs
-	call DEBUG_WAITKEYPRESS
+	; call DEBUG_WAITKEYPRESS
 ; END DEBUG
 
 	ld hl,(read_media_routine)

@@ -297,15 +297,11 @@ agm_next_segment:
 agm_play_sample:
 ; reset the sample counter
     ld a,60
-    ld (hl),a ; hl was set by agm_read_chunk
-; check whether enough frames are buffered to play this sample in sync
-    ld hl,ps_wav_header+agm_frame_rate
-    ld a,(pv_loaded_frames)
-    cp a,(hl)
-    ret m ; not enough frames so do nothing
-; decrement the counter
-    dec a
-    ld (ps_loaded_samples),a
+    ld (hl),a ; hl = pv_sample_counter, was set by agm_read_chunk
+; check whether there is a full audio buffer
+    ld a,(ps_loaded_samples)
+    and a
+    ret z ; no samples to play
 ; call the sample command buffer
     ld hl,(ps_cmd_buffer)
     call vdu_call_buffer ; DEBUG temporarily disabled
@@ -321,12 +317,15 @@ agm_play_sample:
 ; end agm_play_sample
 
 agm_draw_frame:
+; reset the draw counter
+    ld a,(pv_draw_counter_reset)
+    ld (hl),a
 ; check whether enough frames are buffered
     ld hl,ps_wav_header+agm_frame_rate
     ld a,(pv_loaded_frames)
     cp a,(hl)
-    jp m,@reset_draw_counter ; not enough frames so do nothing
-; decrement the counter
+    ret m ; not enough frames
+ ; decrement loaded frames
     dec a
     ld (pv_loaded_frames),a
 ; call the video command buffer
@@ -341,10 +340,7 @@ agm_draw_frame:
     xor a
 @not_max:
     ld (pv_cmd_buffer),a
-@reset_draw_counter:
-    ld a,(pv_draw_counter_reset)
-    ld (pv_draw_counter),a
-    ret 
+    ret
 ; end agm_draw_frame
 
 ; verify that a file is an .agm file
@@ -504,6 +500,9 @@ pv_load_audio_cmd_buffers:
     ld (@bufferId1),a
     ld (@bufferId2),a
 
+    ld (@channel0),a
+    ld (@channel1),a
+
     ld a,(ps_wav_header+wav_sample_rate)
     ld (@sample_rate),a
     ld a,(ps_wav_header+wav_sample_rate+1)
@@ -533,20 +532,20 @@ pv_load_audio_cmd_buffers:
     db 0x05 ; buffer to sound command
     db 0x02 ; command 2 create sample
 @bufferId1: dw ps_dat_base_buffer
-    db 1+8 ; 8-bit unsigned PCM mono, 8 = sample rate argument follows
+    db 1+8 ; 1 = 8-bit unsigned PCM mono, 8 = sample rate argument follows
 @sample_rate: dw 0x0000 ; sample rate Hz
 ; vdu_play_sfx command string
 ; Command 4: Set waveform
 ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
     db 23,0,$85 ; vdu sound command header  
-    db 0 ; channel
+@channel0: db 0 ; channel
     db 4 ; set waveform command
     db 8 ; waveform 8 = sample
 @bufferId2: dw ps_dat_base_buffer ; sample bufferId
 ; Command 0: Play note
 ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
     db 23,0,$85 ; vdu sound command header
-    db 0 ; channel
+@channel1: db 0 ; channel
     db 0 ; play note command
     db 127  ; volume 127 = max
     dw 0 ; frequency (relevant only for tuneable samples)
