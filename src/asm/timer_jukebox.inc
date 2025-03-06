@@ -65,7 +65,7 @@ ps_prt_irq_handler:
 	jp z,@done ; playback not active so return without doing anything
 
 ; DEBUG
-    call agm_print_all_hdrs
+    ; call agm_print_all_hdrs
 	; call DEBUG_WAITKEYPRESS
 ; END DEBUG
 

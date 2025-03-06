@@ -529,7 +529,12 @@ vdu_consolidate_buffer:
 @end:
 
 ; load an image file to a buffer and make it a bitmap
-; inputs: a = image type ; bc,de image width,height ; hl = bufferId ; iy = pointer to filename
+; inputs: a = image format ; bc,de image width,height ; hl = bufferId ; iy = pointer to filename
+; formats: https://agonconsole8.github.io/agon-docs/VDP---Bitmaps-API.html
+; 0 	RGBA8888 (4-bytes per pixel)
+; 1 	RGBA2222 (1-bytes per pixel)
+; 2 	Mono/Mask (1-bit per pixel)
+; 3 	Reserved for internal use by VDP (“native” format)
 vdu_load_img:
 ; back up image type and dimension parameters
     ld (bufferId0),hl

@@ -153,17 +153,17 @@ agm_play:
     ld hl,ps_mode
     set ps_mode_playing,(hl)
 ; read the first segmment header
-    call agm_read_segment
+    call agm_read_segment_hdr
     jp z,ps_close_file
 ; read the first unit header
-    call agm_read_unit
+    call agm_read_unit_hdr
 ; enable interrupts, start the PRT timer, and jump to user input
     call ps_prt_start
     jp get_input
-; fall through to agm_read_segment
+; fall through to agm_read_segment_hdr
 ; end agm_play
 
-agm_read_segment:
+agm_read_segment_hdr:
 ; read the next segment header
     ld hl,ps_fil_struct
     ld bc,agm_segment_hdr_size ; bytes to read
@@ -175,17 +175,26 @@ agm_read_segment:
     SIGN_HLU
 ; return to caller with zero flag set with eof status
     ret
-; end agm_read_segment
+; end agm_read_segment_hdr
 
-agm_read_unit:
+agm_read_unit_hdr:
 ; read the unit header
     ld hl,ps_fil_struct
     ld bc,agm_unit_hdr_size ; bytes to read
     ld de,agm_unit_hdr   ; target address
     FFSCALL ffs_fread
-; back to caller
+; check unit type and clear appropriate buffer
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and a,agm_unit_type
+    jr z,@audio
+    ld hl,(pv_img_buffer)
+    call vdu_clear_buffer
     ret
-; end agm_read_unit
+@audio:
+    ld hl,(ps_dat_buffer)
+    call vdu_clear_buffer
+    ret
+; end agm_read_unit_hdr
 
 agm_read_chunk:
 ; first check whether it is time to play the next audio sample
@@ -263,7 +272,7 @@ agm_next_unit:
     ld hl,(pv_img_buffer)
     call vdu_clear_buffer
 ; read the next unit header
-    jp agm_read_unit
+    jp agm_read_unit_hdr
 @audio: ; advance the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
     inc a
@@ -275,10 +284,6 @@ agm_next_unit:
 ; clear the buffer
     ld hl,(ps_dat_buffer)
     call vdu_clear_buffer
-; fall through to agm_next_segment
-; end agm_next_unit
-
-agm_next_segment:
 ; update pv_bytes_read
     ld hl,(pv_bytes_read)
     ld de,(agm_segment_size_this)
@@ -288,23 +293,26 @@ agm_next_segment:
     ; adc a,0
     ; ld (pv_bytes_read+3),a
 ; read the next segment header
-    call agm_read_segment
+    call agm_read_segment_hdr
     jp z,ps_close_file
 ; read the next unit header
-    jp agm_read_unit
-; end agm_next_segment
+    jp agm_read_unit_hdr
+; end agm_next_unit
 
 agm_play_sample:
 ; reset the sample counter
     ld a,60
     ld (hl),a ; hl = pv_sample_counter, was set by agm_read_chunk
-; check whether there is a full audio buffer
-    ld a,(ps_loaded_samples)
-    and a
-    ret z ; no samples to play
-; call the sample command buffer
+; ; check whether there is a full audio buffer
+;     ld a,(ps_loaded_samples)
+;     and a
+;     ret z ; no samples to play
+; update the playbar counter and display the time elapsed
+    call ps_update_playbar
+    ; call agm_print_all_hdrs
+; call the play sample command buffer
     ld hl,(ps_cmd_buffer)
-    call vdu_call_buffer ; DEBUG temporarily disabled
+    call vdu_call_buffer 
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
@@ -330,7 +338,7 @@ agm_draw_frame:
     ld (pv_loaded_frames),a
 ; call the video command buffer
     ld hl,(pv_cmd_buffer)
-    ; call vdu_call_buffer ; DEBUG temporarily disabled
+    call vdu_call_buffer 
 ; increment the command buffer
     ld a,(pv_cmd_buffer) ; only need the low byte
     inc a
@@ -420,22 +428,20 @@ pv_load_video_cmd_buffers:
     dec l ; dec loop counter
     jp p,@clear_img_loop
 
-; we leave x coord zero for the time being
-    ; ld de,(ps_wav_header+agm_width)
-    ; ld (@width),de
-    ; dec de
-    ; inc.s de ; clears ude
-    ; ld hl,(screen_width)
-    ; or a ; clear carry
-    ; sbc hl,de
-    ; call hlu_div2
-    ; ld (@x),hl
+    ld de,(ps_wav_header+agm_width)
+    ld (@width),de
+    dec de
+    inc.s de ; clears ude
+    ld hl,(screen_width)
+    or a ; clear carry
+    sbc hl,de
+    call hlu_div2
+    ld (@x),hl
 
-; we leave y coord zero for the time being
-    ; ld de,(ps_wav_header+agm_height)
-    ; ld (@height),de
-    ; ld a,1 ; format 1 = RGBA2222
-    ; ld (@height+2),a
+    ld de,(ps_wav_header+agm_height)
+    ld (@height),de
+    ld a,1 ; format 1 = RGBA2222
+    ld (@height+2),a
     ; dec de
     ; inc.s de ; clears ude
     ; ld hl,(screen_height)
@@ -477,7 +483,7 @@ pv_load_video_cmd_buffers:
             db 25
             db plot_bmp+dr_abs_fg ; 0xED
 @x:         dw 0x0000
-@y:         dw 0x0000
+@y:         dw 8
 @cmd_end:   db 0x00 ; padding
 ; end pv_load_video_cmd_buffers
 
