@@ -135,3 +135,38 @@
     ex af,af'
     exx
     ENDMACRO
+
+    ; load hl with the 16-bit value at addr
+    MACRO LD_HL_mn addr
+    ld hl,(addr)
+    dec hl
+    inc.s hl ; zeros hlu
+    ENDMACRO
+
+    ; load bc with the 16-bit value at addr
+    MACRO LD_BC_mn addr
+    ld bc,(addr)
+    dec bc
+    inc.s bc ; zeros bcu
+    ENDMACRO
+
+    ; load de with the 16-bit value at addr
+    MACRO LD_DE_mn addr
+    ld de,(addr)
+    dec de
+    inc.s de ; zeros deu
+    ENDMACRO
+
+    ; load ix with the 16-bit value at addr
+    MACRO LD_IX_mn addr
+    ld ix,(addr)
+    dec ix
+    inc.s ix ; zeros ixu
+    ENDMACRO
+
+    ; load iy with the 16-bit value at addr
+    MACRO LD_IY_mn addr
+    ld iy,(addr)
+    dec iy
+    inc.s iy ; zeros iyu
+    ENDMACRO
