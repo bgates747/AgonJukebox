@@ -1,5 +1,5 @@
-; enable enough additional channels so that total enabled = max_channels
-; inputs: a = num channels to enable
+; enable sound channels
+; inputs: a = total num channels to be enabled
 ; returns: nothing
 ; destroys: af, bc, hl
 vdu_enable_channels:

@@ -98,6 +98,9 @@ main:
     ; call print_agm_header
 
 ; BEGIN NORMAL INITIALIZATION
+; enable audio channels
+    ld a,pv_segments_to_buffer
+    call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
     ld (pv_sample_counter),a
@@ -130,13 +133,19 @@ main:
 
 ; END NORMAL INITIALIZATION
 
+; DEBUG
+    ; ret
+
+    call print_agm_header
+; END DEBUG
+
 @read_segment:
 ; read the next segment header
     ld hl,ps_fil_struct
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,agm_segment_hdr   ; target address
     FFSCALL ffs_fread
-    ; call print_segment_header
+    call print_segment_header ; DEBUG
 
 @read_unit:
 ; read the unit header
@@ -144,7 +153,7 @@ main:
     ld bc,agm_unit_hdr_size ; bytes to read
     ld de,agm_unit_hdr   ; target address
     FFSCALL ffs_fread
-    ; call print_unit_header
+    call print_unit_header ; DEBUG
 ; check unit type
     ld hl,(pv_img_buffer) ; default since most are video units
     ld a,(agm_unit_hdr+agm_unit_mask)
@@ -160,7 +169,7 @@ main:
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
-    ; call print_chunk_header
+    call print_chunk_header
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
@@ -212,34 +221,32 @@ main:
 @@:
     ld (pv_cmd_buffer),a
 
-    ; call waitKeypress
+    call waitKeypress
 
     jp @read_unit
 
 @audio:
-; increment the audio buffer
-    ld a,(ps_dat_buffer) ; only need the low byte
-    inc a
-    ld hl,pv_segments_to_buffer
-    cp a,(hl)
-    jr nz,@F
-    xor a
-@@:
-    ld (ps_dat_buffer),a
 ; call the audio command buffer
     ld hl,(ps_cmd_buffer)
     call vdu_call_buffer
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
-    ld hl,pv_segments_to_buffer
-    cp a,(hl)
+    cp pv_segments_to_buffer
     jr nz,@F
     xor a
 @@:
     ld (ps_cmd_buffer),a
+; increment the audio data buffer
+    ld a,(ps_dat_buffer) ; only need the low byte
+    inc a
+    cp pv_segments_to_buffer
+    jr nz,@F
+    xor a
+@@:
+    ld (ps_dat_buffer),a
 
-    ; call waitKeypress
+    call waitKeypress
 
     jp @read_segment
 

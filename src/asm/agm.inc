@@ -72,8 +72,8 @@ agm_unit_gcol:     equ %00000111  ; bits 0-2, set gcol plotting mode for video f
 agm_unit_cmp_typ:  equ %00011000  ; bits 3-4, compression type with the following types
 agm_unit_cmp_non:  equ %00000000  ; no compression (bits 3,4 clear)
 agm_unit_cmp_tbv:  equ %00001000  ; TurboVega compression (bit 3 set)
-agm_unit_cmp_rle:  equ %00010000  ; Run-Length Encoding (bit 4 set)
-agm_unit_cmp_szp:  equ %00011000  ; Szip compression (bits 3,4 set)
+agm_unit_cmp_szip:  equ %00010000  ; szip compression (bit 4 set)
+agm_unit_cmp_srle2:  equ %00011000  ; rle2 + szip compression (bits 3,4 set)
 
 ; chunk header (for each chunk of a unit)
 agm_chunk_hdr_size: equ 4    ; size of the chunk header
@@ -230,10 +230,6 @@ agm_read_chunk:
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
-
-    call agm_print_all_hdrs ; DEBUG
-    call DEBUG_WAITKEYPRESS ; DEBUG
-
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
@@ -502,7 +498,7 @@ pv_load_video_cmd_buffers:
             db 25
             db plot_bmp+dr_abs_fg ; 0xED
 @x:         dw 0x0000
-@y:         dw 224 ; DEBUG
+@y:         dw 0x0000
 
 ; Command 2: Clear a buffer
 ; VDU 23, 0 &A0, bufferId; 2
@@ -513,19 +509,33 @@ pv_load_video_cmd_buffers:
 ; end pv_load_video_cmd_buffers
 
 pv_load_audio_cmd_buffers:
-    ld hl,ps_cmd_base_buffer
-    ld l,pv_segments_to_buffer-1 ; zero-based
-@clear_cmd_loop:
+    ld hl,ps_dat_base_buffer
+    ld b,pv_segments_to_buffer
+@clear_dat_loop:
+    push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
-    dec l ; dec loop counter
-    jp p,@clear_cmd_loop
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @clear_dat_loop
 
     ld hl,ps_cmd_base_buffer
-    ld l,pv_segments_to_buffer-1 ; zero-based
+    ld b,pv_segments_to_buffer
+@clear_cmd_loop:
+    push bc ; save loop counter
+    push hl ; save cmd buffer high byte and loop counter
+    call vdu_clear_buffer
+    pop hl
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @clear_cmd_loop
+
+    ld hl,ps_cmd_base_buffer
+    ld b,pv_segments_to_buffer
 @load_cmd_loop:
-    push hl ; save command bufferId high byte and loop counter
+    push bc ; save loop counter
+    push hl ; save command bufferId
     ld a,l ; only need to load the low bytes of dat bufferIds
     ld (@bufferId0),a 
     ld (@bufferId1),a
@@ -544,10 +554,22 @@ pv_load_audio_cmd_buffers:
     ld bc,@cmd_end-@cmd_start
     call vdu_load_buffer
 
-    pop hl ; restore current command bufferId
-    dec l ; dec loop counter
-    jp p,@load_cmd_loop
+; DEBUG
+    call printNewLine
+    ld hl,(@bufferId0)
+    dec hl
+    inc.s hl
+    call printHex24
 
+; END DEBUG
+
+    pop hl ; restore current command bufferId
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @load_cmd_loop
+
+    call printNewLine ; DEBUG
+    
     ret
 
 @cmd_start:
@@ -593,31 +615,100 @@ pv_load_audio_cmd_buffers:
 
 
 print_segment_header:
+    call vp_debug
+    call vdu_cls
     call printInline
     asciz "S:"
     ; ld hl,(agm_segment_hdr+agm_segment_size_last)
     ; call printDec
     ld hl,(agm_segment_hdr+agm_segment_size_this)
     call printDec
-    ; call printNewLine
+    call printNewLine
+
+    ld de,-agm_segment_hdr_size
+    add hl,de
+    ld (agm_segment_hdr+agm_segment_size_this),hl
     ret
 ; end print_segment_header
 
 print_unit_header:
+    ld hl,(agm_segment_hdr+agm_segment_size_this)
+    ld de,-agm_unit_hdr_size
+    add hl,de
+    ld (agm_segment_hdr+agm_segment_size_this),hl
+
     call printInline
-    asciz " U:"
+    asciz "Unit: "
+
     ld a,(agm_unit_hdr+agm_unit_mask)
-    call printBin8
-    ; call printNewLine
+    and agm_unit_type
+    jr z,@audio
+
+    call printInline
+    asciz "video img:"
+    ld hl,(pv_img_buffer)
+    call printHex16
+    call printInline
+    asciz " cmd:"
+    ld hl,(pv_cmd_buffer)
+    call printHex16
+
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and agm_unit_cmp_typ
+    cp agm_unit_cmp_non
+    jr z,@no_compression
+    cp agm_unit_cmp_tbv
+    jr z,@tbv_compression
+    cp agm_unit_cmp_szip
+    jr z,@szip_compression
+    call printInline
+    asciz " srle2\r\n"
+    ret
+@tbv_compression:
+    call printInline
+    asciz " tbv\r\n"
+    ret
+@szip_compression:
+    call printInline
+    asciz " szip\r\n"
+    ret
+@no_compression:
+    call printInline
+    asciz " raw\r\n"
+    ret
+@audio:
+    call printInline
+    asciz "audio dat:"
+    ld hl,(ps_dat_buffer)
+    call printHex16
+    call printInline
+    asciz " cmd:"
+    ld hl,(ps_cmd_buffer)
+    call printHex16
+    call printNewLine
+
     ret
 ; end print_unit_header
 
 print_chunk_header:
+    ld hl,(agm_segment_hdr+agm_segment_size_this)
+    ld de,-agm_chunk_hdr_size
+    add hl,de
+    ld (agm_segment_hdr+agm_segment_size_this),hl
+
     call printInline
-    asciz " C:"
+    asciz "Chunk:"
     ld hl,(agm_chunk_hdr+agm_chunk_size)
     call printDec
-    ; call printNewLine
+
+    ld de,(agm_segment_hdr+agm_segment_size_this)
+    ex de,hl
+    or a ; clear carry
+    sbc hl,de
+    ld (agm_segment_hdr+agm_segment_size_this),hl
+    call printDec
+
+    call printNewLine
     ret
 ; end print_chunk_header
 
@@ -649,65 +740,4 @@ print_agm_header:
     asciz " s:"
     ld hl,(ps_wav_header+agm_audio_seconds)
     call printDec
-    call printNewLine
-    ret
-
-agm_print_all_hdrs:
-    PUSH_ALL
-    call vp_messages
-    call vdu_cls
-
-    ld c,0 ; x
-    ld b,0 ; y
-    call vdu_move_cursor  
-    call print_segment_header
-    call print_unit_header
-    call print_chunk_header 
-
-    ld c,0 ; x
-    ld b,1 ; y
-    call vdu_move_cursor    
-    call printInline
-    asciz "dc:"
-    ld a,(pv_draw_counter)
-    call printHexA
-    call printInline
-    asciz " sc:"
-    ld a,(pv_sample_counter)
-    call printHexA
-    call printInline
-    asciz " lf:"
-    ld a,(pv_loaded_frames)
-    call printHexA
-    call printInline
-    asciz " ls:"
-    ld a,(ps_loaded_samples)
-    call printHexA
-
-    ld c,0 ; x
-    ld b,2 ; y
-    call vdu_move_cursor
-    call printInline
-    asciz "pv_cmd: "
-    ld hl,(pv_cmd_buffer)
-    call printHex24
-    CALL printInline
-    asciz " pv_img: "
-    ld hl,(pv_img_buffer)
-    call printHex24
-
-    ld c,0 ; x
-    ld b,3 ; y
-    call vdu_move_cursor
-    call printInline
-    asciz "ps_cmd: "
-    ld hl,(ps_cmd_buffer)
-    call printHex24
-    CALL printInline
-    asciz " ps_dat: "
-    ld hl,(ps_dat_buffer)
-    call printHex24
-
-    POP_ALL
-
     ret
