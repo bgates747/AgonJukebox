@@ -96,7 +96,7 @@ ps_dat_base_buffer: equ 0x4300
 ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
 ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
 ps_loaded_samples: db 0 ; Tracks buffered audio samples (max pv_segments_to_buffer).
-
+pv_chunk_buffer: dl 0 ; target bufferId of the current chunk being read
 pv_bytes_read: dw32 0 ; Number of bytes read from the file
 
 ; inputs:
@@ -485,7 +485,7 @@ pv_load_video_cmd_buffers:
 
     ret 
 @cmd_start:
-    DB 7 ; BEEP DEBUG
+    ; DB 7 ; BEEP DEBUG
 
 ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
 ; inputs: hl=bufferId
@@ -514,7 +514,7 @@ pv_load_video_cmd_buffers:
 
 pv_load_audio_cmd_buffers:
     ld hl,ps_cmd_base_buffer
-    ld l,4 ; zero-based
+    ld l,pv_segments_to_buffer-1 ; zero-based
 @clear_cmd_loop:
     push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
@@ -523,13 +523,14 @@ pv_load_audio_cmd_buffers:
     jp p,@clear_cmd_loop
 
     ld hl,ps_cmd_base_buffer
-    ld l,4 ; zero-based
+    ld l,pv_segments_to_buffer-1 ; zero-based
 @load_cmd_loop:
     push hl ; save command bufferId high byte and loop counter
     ld a,l ; only need to load the low bytes of dat bufferIds
     ld (@bufferId0),a 
     ld (@bufferId1),a
     ld (@bufferId2),a
+    ld (@bufferId3),a
 
     ld (@channel0),a
     ld (@channel1),a
@@ -581,6 +582,12 @@ pv_load_audio_cmd_buffers:
     db 127  ; volume 127 = max
     dw 0 ; frequency (relevant only for tuneable samples)
     dw 0 ; duration (ms), zero means play one time in full
+
+; Command 2: Clear a buffer
+; VDU 23, 0 &A0, bufferId; 2
+            db 23,0,0xA0
+@bufferId3: dw ps_dat_base_buffer
+           db 2 ; clear buffer
 @cmd_end:
 ; end ps_load_audio_cmd_buffers
 

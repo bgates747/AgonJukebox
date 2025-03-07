@@ -68,7 +68,7 @@ init:
     call vdu_set_scaling
     call vdu_cls
 
-    call vp_messages
+    ; call vp_messages
 
     ret
 ; end init
@@ -84,9 +84,9 @@ main:
     ld de,fname; de = pointer to filename
     FFSCALL ffs_stat ; get file info
 
-    ld hl,ps_filinfo_fname ; hl = pointer to filename
-    call printString
-    call printNewLine
+    ; ld hl,ps_filinfo_fname ; hl = pointer to filename
+    ; call printString
+    ; call printNewLine
 
 ; read the header of the .agm file
     ld hl,ps_fil_struct ; hl = pointer to fil struct
@@ -95,7 +95,7 @@ main:
     FFSCALL ffs_fread ; read the header of the .agm file
 
 ; read the header of the .agm file
-    call print_agm_header
+    ; call print_agm_header
 
 ; BEGIN NORMAL INITIALIZATION
 ; initalize counters and flags
@@ -136,7 +136,7 @@ main:
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,agm_segment_hdr   ; target address
     FFSCALL ffs_fread
-    call print_segment_header
+    ; call print_segment_header
 
 @read_unit:
 ; read the unit header
@@ -144,7 +144,15 @@ main:
     ld bc,agm_unit_hdr_size ; bytes to read
     ld de,agm_unit_hdr   ; target address
     FFSCALL ffs_fread
-    call print_unit_header
+    ; call print_unit_header
+; check unit type
+    ld hl,(pv_img_buffer) ; default since most are video units
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and a,agm_unit_type
+    jr nz,@F ; is video so skip ahead
+    ld hl,(ps_dat_buffer) ; audio buffer
+@@:
+    ld (pv_chunk_buffer),hl
 
 @read_chunk:
 ; read the chunk header
@@ -152,7 +160,7 @@ main:
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
-    call print_chunk_header
+    ; call print_chunk_header
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
@@ -164,7 +172,7 @@ main:
     ld de,ps_agm_data
     FFSCALL ffs_fread
 ; load the data buffer with the data read (bc already has bytes to load)
-    ld hl,(pv_img_buffer) ; bufferId
+    ld hl,(pv_chunk_buffer) ; bufferId
     ld de,ps_agm_data ; source address
     call vdu_load_buffer
 ; DEBUG
@@ -173,13 +181,67 @@ main:
     jp @read_chunk ; jp get_input
 
 @agm_next_unit:
+; check unit type
+    ld hl,agm_unit_hdr+agm_unit_mask
+    ld a,agm_unit_type
+    and (hl)
+    jr z,@audio
 ; decompress buffer
     ld hl,(pv_img_buffer) ; source bufferId
     ld de,(pv_img_buffer) ; target bufferId
     call vdu_decompress_buffer
+; increment the image buffer
+    ld a,(pv_img_buffer) ; only need the low byte
+    inc a
+    ld hl,pv_loaded_frames_max
+    cp a,(hl)
+    jr nz,@F
+    xor a
+@@:
+    ld (pv_img_buffer),a
 ; call the video command buffer
     ld hl,(pv_cmd_buffer)
     call vdu_call_buffer 
+; increment the command buffer
+    ld a,(pv_cmd_buffer) ; only need the low byte
+    inc a
+    ld hl,pv_loaded_frames_max
+    cp a,(hl)
+    jr nz,@F
+    xor a
+@@:
+    ld (pv_cmd_buffer),a
+
+    ; call waitKeypress
+
+    jp @read_unit
+
+@audio:
+; increment the audio buffer
+    ld a,(ps_dat_buffer) ; only need the low byte
+    inc a
+    ld hl,pv_segments_to_buffer
+    cp a,(hl)
+    jr nz,@F
+    xor a
+@@:
+    ld (ps_dat_buffer),a
+; call the audio command buffer
+    ld hl,(ps_cmd_buffer)
+    call vdu_call_buffer
+; increment the command buffer
+    ld a,(ps_cmd_buffer) ; only need the low byte
+    inc a
+    ld hl,pv_segments_to_buffer
+    cp a,(hl)
+    jr nz,@F
+    xor a
+@@:
+    ld (ps_cmd_buffer),a
+
+    ; call waitKeypress
+
+    jp @read_segment
 
     ret ; back to MOS
 ; end main
