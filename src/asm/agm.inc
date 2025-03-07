@@ -87,15 +87,15 @@ pv_img_buffer: dl 0 ; Points to the current video frame buffer to be loaded.
 pv_draw_counter_reset: db 0 ; 60 / frame_rate.
 pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video frame draw at zero
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
-pv_segments_to_buffer: equ 4 ; Number of segments to buffer (max 4).
-pv_loaded_frames: db 0 ; Tracks buffered frames (max fps * pv_segments_to_buffer).
-pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (max fps * pv_segments_to_buffer).
+pv_loaded_frames: db 0 ; Tracks buffered frames (fps * ps_loaded_samples_max).
+pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * ps_loaded_samples_max).
 
 ps_cmd_base_buffer: equ 0x4200
 ps_dat_base_buffer: equ 0x4300
 ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
 ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
-ps_loaded_samples: db 0 ; Tracks buffered audio samples (max pv_segments_to_buffer).
+ps_loaded_samples_max: equ 4 ; Number of segments to buffer (max 4).
+ps_loaded_samples: db 0 ; Tracks buffered audio samples (max ps_loaded_samples_max).
 pv_chunk_buffer: dl 0 ; target bufferId of the current chunk being read
 pv_bytes_read: dw32 0 ; Number of bytes read from the file
 
@@ -111,6 +111,9 @@ agm_play:
 
     call print_agm_header ; DEBUG
 
+; enable audio channels
+    ld a,ps_loaded_samples_max
+    call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
     ld (pv_sample_counter),a
@@ -122,7 +125,7 @@ agm_play:
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
-    ld e,pv_segments_to_buffer
+    ld e,ps_loaded_samples_max
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a
@@ -215,7 +218,7 @@ agm_read_chunk:
     and (hl)
     jr nz,@video
 ; audio:
-    ld a,pv_segments_to_buffer
+    ld a,ps_loaded_samples_max
     ld hl,ps_loaded_samples
     cp a,(hl)
     ret z
@@ -282,7 +285,7 @@ agm_next_unit:
 @audio: ; advance the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
     inc a
-    cp pv_segments_to_buffer
+    cp ps_loaded_samples_max
     jr nz,@not_max_samples
     xor a
 @not_max_samples:
@@ -325,7 +328,7 @@ agm_play_sample:
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
-    cp pv_segments_to_buffer ; max buffers
+    cp ps_loaded_samples_max ; max buffers
     jr nz,@not_max
     xor a
 @not_max:
@@ -513,7 +516,7 @@ pv_load_video_cmd_buffers:
 
 pv_load_audio_cmd_buffers:
     ld hl,ps_dat_base_buffer
-    ld b,pv_segments_to_buffer
+    ld b,ps_loaded_samples_max
 @clear_dat_loop:
     push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
@@ -524,7 +527,7 @@ pv_load_audio_cmd_buffers:
     djnz @clear_dat_loop
 
     ld hl,ps_cmd_base_buffer
-    ld b,pv_segments_to_buffer
+    ld b,ps_loaded_samples_max
 @clear_cmd_loop:
     push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
@@ -535,7 +538,7 @@ pv_load_audio_cmd_buffers:
     djnz @clear_cmd_loop
 
     ld hl,ps_cmd_base_buffer
-    ld b,pv_segments_to_buffer
+    ld b,ps_loaded_samples_max
 @load_cmd_loop:
     push bc ; save loop counter
     push hl ; save command bufferId

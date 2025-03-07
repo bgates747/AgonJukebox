@@ -306,8 +306,8 @@ def do_all_the_things():
 
     extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate)
 
-    # make_agm_srle2(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
-    make_agm_tvc(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+    make_agm_srle2(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
+    # make_agm_tvc(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize)
     
     # delete_frames()
 
@@ -329,11 +329,11 @@ if __name__ == "__main__":
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
-    seek_time = "00:05:00"
-    duration  = 60
-    frame_rate    = 4
+    seek_time = "00:00:00"
+    duration  = 60*13
+    frame_rate    = 6
 
-    target_width  = 100
+    target_width  = 240
     target_height = int(target_width / 2.35)
     do_remove_letterbox = True
 

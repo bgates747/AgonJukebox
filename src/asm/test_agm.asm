@@ -58,7 +58,7 @@ exit:
     
     include "debug.inc"
 
-fname: asciz "Star_Wars__Battle_of_Yavin_bayer.agm"
+fname: asciz "Star_Wars__Battle_of_Yavin_tvc.agm"
 
 ; --- MAIN PROGRAM FILE ---
 init:
@@ -99,7 +99,7 @@ main:
 
 ; BEGIN NORMAL INITIALIZATION
 ; enable audio channels
-    ld a,pv_segments_to_buffer
+    ld a,ps_loaded_samples_max
     call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
@@ -145,7 +145,7 @@ main:
     ld bc,agm_segment_hdr_size ; bytes to read
     ld de,agm_segment_hdr   ; target address
     FFSCALL ffs_fread
-    call print_segment_header ; DEBUG
+    ; call print_segment_header ; DEBUG
 
 @read_unit:
 ; read the unit header
@@ -153,7 +153,7 @@ main:
     ld bc,agm_unit_hdr_size ; bytes to read
     ld de,agm_unit_hdr   ; target address
     FFSCALL ffs_fread
-    call print_unit_header ; DEBUG
+    ; call print_unit_header ; DEBUG
 ; check unit type
     ld hl,(pv_img_buffer) ; default since most are video units
     ld a,(agm_unit_hdr+agm_unit_mask)
@@ -164,12 +164,43 @@ main:
     ld (pv_chunk_buffer),hl
 
 @read_chunk:
-; read the chunk header
+; check video playback timer
+    ld a,(pv_draw_counter)
+    dec a
+    jr nz,@F
+    ld a,(pv_draw_counter_reset)
+@@:
+    ld (pv_draw_counter),a
+    call z,pv_draw_frame
+; check audio playback timer
+    ld a,(pv_sample_counter)
+    dec a
+    jr nz,@F
+    ld a,60
+@@:
+    ld (pv_sample_counter),a
+    call z,pv_play_sample
+; check unit type
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and agm_unit_type
+    jr z,@F ; audio
+; check for max amount of video data loaded
+    ld hl,pv_loaded_frames
+    ld a,(pv_loaded_frames_max)
+    cp a,(hl)
+    jp z,@read_chunk ; jp z,get_input
+    jr @read
+@@: ; check for max amount of audio data loaded
+    ld hl,ps_loaded_samples
+    ld a,ps_loaded_samples_max
+    cp a,(hl)
+    jp z,@read_chunk ; jp z,get_input
+@read: ; read the chunk header
     ld hl,ps_fil_struct
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,agm_chunk_hdr   ; target address
     FFSCALL ffs_fread
-    call print_chunk_header
+    ; call print_chunk_header ; DEBUG
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
@@ -199,6 +230,17 @@ main:
     ld hl,(pv_img_buffer) ; source bufferId
     ld de,(pv_img_buffer) ; target bufferId
     call vdu_decompress_buffer
+; decompress again if srle2
+    ld a,(agm_unit_hdr+agm_unit_mask)
+    and agm_unit_cmp_typ
+    cp agm_unit_cmp_srle2
+    jr nz,@F
+    ld hl,(pv_img_buffer) ; source bufferId
+    ld de,(pv_img_buffer) ; target bufferId
+    call vdu_decompress_buffer
+@@: ; increment number of frames loaded
+    ld hl,pv_loaded_frames
+    inc (hl)
 ; increment the image buffer
     ld a,(pv_img_buffer) ; only need the low byte
     inc a
@@ -208,6 +250,38 @@ main:
     xor a
 @@:
     ld (pv_img_buffer),a
+
+    jp @read_unit
+
+@audio:
+; increment the audio data buffer
+    ld a,(ps_dat_buffer) ; only need the low byte
+    inc a
+    cp ps_loaded_samples_max
+    jr nz,@F
+    xor a
+@@:
+    ld (ps_dat_buffer),a
+; increment the number of samples loaded
+    ld hl,ps_loaded_samples
+    inc (hl)
+
+    ; call waitKeypress
+
+    jp @read_segment
+
+    ret ; back to MOS
+; end main
+
+pv_draw_frame:
+; check whether enough frames have been loaded for playback
+    ld a,(pv_loaded_frames)
+    ld hl,ps_wav_data+agm_frame_rate
+    cp a,(hl)
+    ret m ; not enough frames loaded
+; decrement frames loaded
+    dec a
+    ld (pv_loaded_frames),a
 ; call the video command buffer
     ld hl,(pv_cmd_buffer)
     call vdu_call_buffer 
@@ -220,38 +294,38 @@ main:
     xor a
 @@:
     ld (pv_cmd_buffer),a
+    ret
+; end pv_draw_frame
 
-    call waitKeypress
-
-    jp @read_unit
-
-@audio:
+pv_play_sample:
+; check whether enough frames have been loaded for playback
+    ld a,(pv_loaded_frames)
+    ld hl,ps_wav_data+agm_frame_rate
+    cp a,(hl)
+    ret m ; not enough frames loaded
+; ; check whether enough samples have been loaded for playback
+;     ld a,(ps_loaded_samples)
+;     dec a
+;     ret m ; not enough samples loaded
+; decrement samples loaded
+    ld a,(ps_loaded_samples)
+    dec a
+    ld (ps_loaded_samples),a
 ; call the audio command buffer
     ld hl,(ps_cmd_buffer)
     call vdu_call_buffer
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
-    cp pv_segments_to_buffer
+    cp ps_loaded_samples_max
     jr nz,@F
     xor a
 @@:
     ld (ps_cmd_buffer),a
-; increment the audio data buffer
-    ld a,(ps_dat_buffer) ; only need the low byte
-    inc a
-    cp pv_segments_to_buffer
-    jr nz,@F
-    xor a
-@@:
-    ld (ps_dat_buffer),a
+    ret
+; end pv_play_sample
 
-    call waitKeypress
-
-    jp @read_segment
-
-    ret ; back to MOS
-; end main
+    ; call waitKeypress
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"
