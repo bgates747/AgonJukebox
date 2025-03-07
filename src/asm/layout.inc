@@ -146,7 +146,17 @@ vp_seek_rate:
     call vdu_set_txt_viewport
     ret
 
+vp_agm_header_top: equ vp_dir_hdr_top
+vp_agm_header:
+    ld c,text_left
+    ld d,vp_agm_header_top
+    ld e,text_right
+    ld b,vp_agm_header_top
+    call vdu_set_txt_viewport
+    ret
+
 vp_messages_top: equ vp_playbar_top+6
+; vp_messages_top: equ text_bottom-16
 vp_messages_bottom: equ text_bottom
 ; set text viewport for messages
 vp_messages:

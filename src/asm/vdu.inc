@@ -1,3 +1,8 @@
+    MACRO VDU_BEEP
+    ld a,7
+    rst.lil $10
+    ENDMACRO
+
 ; VDU 30: Home cursor
 vdu_home_cursor:
     ld a,30
