@@ -225,7 +225,7 @@ def make_agm_srle2(
                 seg_buffer.write(struct.pack("<I", 0))  # zero-length chunk
 
                 # Finalize segment.
-                segment_data = seg_buffer.getvalue()
+                segment_data = seg_buffer.getvalue() + 8 # include segment header
                 segment_size_this = len(segment_data)
                 agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
                 agm_file.write(segment_data)
