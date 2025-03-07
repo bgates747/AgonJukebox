@@ -81,13 +81,13 @@ def make_agm_tvc(
     Structure:
       - 76-byte WAV header (with 'agm' marker at offset 12..14).
       - 68-byte AGM header.
-      - For each video frame:
+      - For each 1-second segment:
           - 8-byte segment header (previous segment size, current segment size).
-          - Video unit: 1-byte mask, then one compressed block (written in chunks)
-            representing the single frame.
-          - Audio unit: 1-byte mask, then audio data for that frame (written in chunks).
+          - For each frame in the segment: a video unit consisting of a 1-byte mask
+            and the compressed frame data (written in chunks).
+          - One audio unit: a 1-byte mask followed by the audio data for that second (written in chunks).
     
-    The CSV report aggregates the per-frame compressed video sizes into 1-second intervals.
+    The CSV report aggregates the per-second compressed video sizes.
     """
     WAV_HEADER_SIZE = 76
     AGM_HEADER_SIZE = 68
@@ -152,8 +152,13 @@ def make_agm_tvc(
     # Prepare aggregation list for CSV (per-second compressed video sizes).
     aggregated_video_bytes = [0] * total_secs
 
-    # Calculate the number of audio samples per frame.
-    samples_per_frame = target_sample_rate // frame_rate
+    # Calculate the number of samples per second for audio.
+    samples_per_sec = target_sample_rate
+    # Frames per segment = frame_rate (e.g., 4 frames per second)
+    frames_per_segment = frame_rate
+
+    segment_size_last = 0
+    frame_index = 0
 
     # 5) Write AGM file and CSV report.
     with open(target_agm_path, "wb") as agm_file, open(csv_filename, "w") as csv_file:
@@ -166,58 +171,59 @@ def make_agm_tvc(
         agm_file.write(wav_header)
         agm_file.write(agm_header)
 
-        segment_size_last = 0
-
-        # Process each frame.
-        for frame_index in range(total_frames):
+        for segment_idx in range(total_secs):
             seg_buffer = BytesIO()
 
-            # ---------------- VIDEO UNIT ----------------
-            seg_buffer.write(struct.pack("<B", VIDEO_MASK))
-            start = frame_index * frame_size
-            end = start + frame_size
-            frame_bytes = frames_data[start:end]
+            # ---------------- VIDEO UNITS (multiple per segment) ----------------
+            for i in range(frames_per_segment):
+                if frame_index >= total_frames:
+                    break  # In case there are fewer frames than expected
 
-            # Compress the single frame.
-            compressed_frame_bytes = compress_frame_data(frame_bytes, frame_index, total_frames)
+                seg_buffer.write(struct.pack("<B", VIDEO_MASK))
+                start = frame_index * frame_size
+                end = start + frame_size
+                frame_bytes = frames_data[start:end]
 
-            # Write the compressed video data in chunks.
-            off = 0
-            while off < len(compressed_frame_bytes):
-                chunk = compressed_frame_bytes[off: off + chunksize]
-                off += len(chunk)
-                seg_buffer.write(struct.pack("<I", len(chunk)))
-                seg_buffer.write(chunk)
-            # Terminate the video unit with a zero-length chunk.
-            seg_buffer.write(struct.pack("<I", 0))
+                # Compress the single frame.
+                compressed_frame_bytes = compress_frame_data(frame_bytes, frame_index, total_frames)
 
-            # ---------------- AUDIO UNIT ----------------
+                # Write the compressed video data in chunks.
+                offset = 0
+                while offset < len(compressed_frame_bytes):
+                    chunk = compressed_frame_bytes[offset : offset + chunksize]
+                    offset += len(chunk)
+                    seg_buffer.write(struct.pack("<I", len(chunk)))
+                    seg_buffer.write(chunk)
+                # Terminate the video unit with a zero-length chunk.
+                seg_buffer.write(struct.pack("<I", 0))
+
+                # Aggregate compressed video size for CSV.
+                aggregated_video_bytes[segment_idx] += len(compressed_frame_bytes)
+
+                frame_index += 1
+
+            # ---------------- AUDIO UNIT (once per segment) ----------------
             seg_buffer.write(struct.pack("<B", AUDIO_MASK))
-            start_aud = frame_index * samples_per_frame
-            end_aud = start_aud + samples_per_frame
+            start_aud = segment_idx * samples_per_sec
+            end_aud = start_aud + samples_per_sec
             unit_audio = audio_data[start_aud:end_aud]
-            if len(unit_audio) < samples_per_frame:
-                unit_audio += b"\x00" * (samples_per_frame - len(unit_audio))
+            if len(unit_audio) < samples_per_sec:
+                unit_audio += b"\x00" * (samples_per_sec - len(unit_audio))
             offset = 0
             while offset < len(unit_audio):
-                chunk = unit_audio[offset: offset + chunksize]
+                chunk = unit_audio[offset : offset + chunksize]
                 offset += len(chunk)
                 seg_buffer.write(struct.pack("<I", len(chunk)))
                 seg_buffer.write(chunk)
             # Terminate the audio unit.
             seg_buffer.write(struct.pack("<I", 0))
 
-            # Finalize segment.
+            # ---------------- SEGMENT HEADER ----------------
             segment_data = seg_buffer.getvalue()
             segment_size_this = len(segment_data)
             agm_file.write(struct.pack("<II", segment_size_last, segment_size_this))
             agm_file.write(segment_data)
             segment_size_last = segment_size_this
-
-            # Aggregate compressed video size for CSV.
-            second_index = frame_index // frame_rate
-            if second_index < total_secs:
-                aggregated_video_bytes[second_index] += len(compressed_frame_bytes)
 
         # Write aggregated CSV rows.
         for sec in range(total_secs):
@@ -225,3 +231,5 @@ def make_agm_tvc(
 
     print("AGM file creation complete.\n")
     print(f"CSV data written to: {csv_filename}")
+
+# (The rest of your code would go here, e.g. argument parsing and calling make_agm_tvc)

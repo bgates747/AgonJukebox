@@ -10,9 +10,9 @@ from io import BytesIO
 # Bit definitions (using binary for clarity):
 AGM_UNIT_TYPE       = 0b10000000  # Bit 7: 1 = video; 0 = audio
 AGM_UNIT_GCOL       = 0b00000111  # Bits 0-2: GCOL plotting mode (set to 0 here)
-AGM_UNIT_CMP_SRLE2  = 0b00011000  # Bits 3-4: srle2 compression (bits 3,4 set)
+AGM_UNIT_CMP_SRLE2  = 0b00011000  # Bits 3-4: SRLE2 compression (bits 3,4 set)
 
-# Final video unit mask: video type OR TurboVega compression.
+# Final video unit mask: video type OR SRLE2 compression.
 VIDEO_MASK = AGM_UNIT_TYPE | AGM_UNIT_CMP_SRLE2
 # --------------------------------------------------------------------
 
@@ -67,6 +67,8 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames):
         # Clean up temporary files.
         if os.path.exists(temp_raw.name):
             os.remove(temp_raw.name)
+        if os.path.exists(temp_rle2_path):
+            os.remove(temp_rle2_path)
         if os.path.exists(temp_srle2_path):
             os.remove(temp_srle2_path)
 
