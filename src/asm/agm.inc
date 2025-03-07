@@ -417,27 +417,29 @@ verify_agm:
 ; end verify_agm
 
 pv_load_video_cmd_buffers:   
-    ld hl,pv_cmd_base_buffer
+    ld hl,pv_img_base_buffer
     ld a,(pv_loaded_frames_max)
-    dec a ; zero-based
-    ld l,a
-@clear_cmd_loop:
+    ld b,a
+@clear_dat_loop:
+    push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
-    dec l ; dec loop counter
-    jp p,@clear_cmd_loop
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @clear_dat_loop
 
-    ld hl,pv_img_base_buffer
+    ld hl,pv_cmd_base_buffer
     ld a,(pv_loaded_frames_max)
-    dec a ; zero-based
-    ld l,a
-@clear_img_loop:
-    push hl ; save img buffer high byte and loop counter
+    ld b,a
+@clear_cmd_loop:
+    push bc ; save loop counter
+    push hl ; save cmd buffer high byte and loop counter
     call vdu_clear_buffer
     pop hl
-    dec l ; dec loop counter
-    jp p,@clear_img_loop
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @clear_cmd_loop
 
     ld de,(ps_wav_header+agm_width)
     ld (@width),de
@@ -463,11 +465,11 @@ pv_load_video_cmd_buffers:
 
     ld hl,pv_cmd_base_buffer
     ld a,(pv_loaded_frames_max)
-    dec a ; zero-based
-    ld l,a
-@load_loop:
-    push hl ; save command bufferId high byte and loop counter
-    ; only need to load the low bytes of dat bufferIds
+    ld b,a
+@load_cmd_loop:
+    push bc ; save loop counter
+    push hl ; save command bufferId
+    ld a,l ; only need to load the low bytes of img bufferIds
     ld (@bufferId0),a 
     ld (@bufferId1),a 
 
@@ -476,8 +478,9 @@ pv_load_video_cmd_buffers:
     call vdu_load_buffer
 
     pop hl ; restore current command bufferId
-    dec l ; dec loop counter
-    jp p,@load_loop
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @load_cmd_loop
 
     ret 
 @cmd_start:

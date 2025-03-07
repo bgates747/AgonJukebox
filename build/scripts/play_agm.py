@@ -148,8 +148,13 @@ def read_next_segment(f):
     if not seg_header or len(seg_header) < SEGMENT_HEADER_SIZE:
         return None
     _, seg_size = struct.unpack("<II", seg_header)
-    seg_data = f.read(seg_size)
-    if len(seg_data) < seg_size:
+
+    # The seg_size ALREADY INCLUDES the header size (8 bytes),
+    # so subtract SEGMENT_HEADER_SIZE to read only the payload.
+    payload_size = seg_size - SEGMENT_HEADER_SIZE
+
+    seg_data = f.read(payload_size)
+    if len(seg_data) < payload_size:
         return None
     return seg_data
 
