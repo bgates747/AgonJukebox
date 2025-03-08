@@ -112,7 +112,7 @@ main:
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
-    ld e,5
+    ld e,ps_loaded_samples_max
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a

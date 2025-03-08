@@ -60,7 +60,7 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
-    ld a,5
+    ld a,ps_loaded_samples_max
     call vdu_enable_channels
     call bf_get_dir
     call ui_init
