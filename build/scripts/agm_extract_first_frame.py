@@ -72,7 +72,7 @@ def hexdump_first_32(file_path):
 
 def main():
     # Source AGM file.
-    agm_file_path = "tgt/video/Star_Wars__Battle_of_Yavin_bayer.agm"
+    agm_file_path = "tgt/video/Star_Wars__Battle_of_Yavin_srle2_bayer.agm"
     if not os.path.exists(agm_file_path):
         print(f"AGM file not found: {agm_file_path}")
         return
