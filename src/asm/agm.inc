@@ -79,7 +79,7 @@ agm_unit_cmp_srle2:  equ %00011000  ; rle2 + szip compression (bits 3,4 set)
 agm_chunk_hdr_size: equ 4    ; size of the chunk header
 agm_chunk_hdr: blkb agm_chunk_hdr_size,0
 agm_chunk_size: equ 0        ; 4 bytes: size of the chunk (excluding chunk header); 0 = end of unit
-agm_unit_load_started: equ 0 ; flag to indicate the unit load has started
+agm_unit_load_started: db 0 ; flag to indicate the unit load has started
 
 pv_cmd_base_buffer: equ 0x4000
 pv_img_base_buffer: equ 0x4100
@@ -88,15 +88,16 @@ pv_img_buffer: dl pv_img_base_buffer ; Points to the current video frame buffer 
 pv_draw_counter_reset: db 0 ; 60 / frame_rate.
 pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video frame draw at zero
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
-pv_loaded_frames: db 0 ; Tracks buffered frames (fps * ps_loaded_samples_max).
-pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * ps_loaded_samples_max).
+pv_loaded_frames: db 0 ; Tracks buffered frames (fps * pv_loaded_segments_max).
+pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * pv_loaded_segments_max).
+pv_loaded_segments_max: equ 4 ; max number of segments to buffer.
+
 
 ps_cmd_base_buffer: equ 0x4200
 ps_dat_base_buffer: equ 0x4300
 ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
 ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
-ps_loaded_samples_max: equ 2 ; max number of samples to buffer.
-ps_loaded_samples: db 0 ; Tracks buffered audio samples (max ps_loaded_samples_max).
+ps_loaded_samples: db 0 ; Tracks buffered audio samples (max pv_loaded_segments_max).
 pv_chunk_buffer: dl 0 ; target bufferId of the current chunk being read
 pv_bytes_read: dw32 0 ; Number of bytes read from the file
 
@@ -121,7 +122,7 @@ agm_play:
     call print_agm_header ; DEBUG
 
 ; enable audio channels
-    ld a,ps_loaded_samples_max
+    ld a,pv_loaded_segments_max
     call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
@@ -136,7 +137,7 @@ agm_play:
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
-    ld e,ps_loaded_samples_max
+    ld e,pv_loaded_segments_max
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a
@@ -213,6 +214,7 @@ agm_read_unit_hdr:
     ld hl,(ps_dat_buffer) ; audio buffer
 @@:
     ld (pv_chunk_buffer),hl
+    ; call vdu_clear_buffer
     ret
 ; end agm_read_unit_hdr
 
@@ -240,19 +242,29 @@ agm_read_chunk:
 ; check unit type
     ld a,(agm_unit_hdr+agm_unit_mask)
     and agm_unit_type
-    jr z,@F ; audio
+    jr z,@audio ; audio
 ; check for max amount of video data loaded
     ld hl,pv_loaded_frames
     ld a,(pv_loaded_frames_max)
     cp a,(hl)
     ret z ; to interrupt handler
-    jr @read
-@@: ; check for max amount of audio data loaded
+    jr @check_first
+@audio: ; check for max amount of audio data loaded
     ld hl,ps_loaded_samples
-    ld a,ps_loaded_samples_max
+    ld a,pv_loaded_segments_max
     cp a,(hl)
     ret z ; to interrupt handler
-@read: ; read the chunk header
+@check_first: 
+; check whether this is the first load of the unit
+    ld a,(agm_unit_load_started)
+    and a ; check for first load
+    jp nz,@read
+    inc a
+    ld (agm_unit_load_started),a
+    ld hl,(pv_chunk_buffer) ; bufferId
+    call vdu_clear_buffer
+@read: 
+; read the chunk header
     ld hl,ps_fil_struct
     ld bc,agm_chunk_hdr_size ; bytes to read
     ld de,agm_chunk_hdr   ; target address
@@ -262,15 +274,7 @@ agm_read_chunk:
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
     jr z,agm_next_unit ; jr z,agm_next_unit
-; check whether this is the first load of the unit
-    ld a,(agm_unit_load_started)
-    and a ; check for first load
-    jr nz,@F
-    inc a
-    ld (agm_unit_load_started),a
-    ld hl,(pv_chunk_buffer) ; bufferId
-    call vdu_clear_buffer
-@@: ; read the next chunk of data from the SD card to RAM
+; read the next chunk of data from the SD card to RAM
     push hl
     pop bc ; bc = bytes to read
     ld hl,ps_fil_struct
@@ -326,7 +330,7 @@ agm_next_unit:
 ; increment the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
     inc a
-    cp ps_loaded_samples_max
+    cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
@@ -354,6 +358,7 @@ pv_draw_frame:
     ld hl,(pv_cmd_buffer)
     call vdu_call_buffer 
 @@: ; increment the command buffer
+    ld a,(pv_cmd_buffer) ; only need the low byte
     inc a
     ld hl,pv_loaded_frames_max
     cp a,(hl)
@@ -361,6 +366,7 @@ pv_draw_frame:
     xor a
 @@:
     ld (pv_cmd_buffer),a
+    ; call print_num_buffered ; DEBUG
     ret ; to agm_do
 ; end pv_draw_frame
 
@@ -385,12 +391,14 @@ pv_play_sample:
     ld hl,(ps_cmd_buffer)
     call vdu_call_buffer
 ; increment the command buffer
+    ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
-    cp ps_loaded_samples_max
+    cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
     ld (ps_cmd_buffer),a
+    ; call print_num_buffered ; DEBUG
     ret ; to agm_do
 ; end pv_play_sample
 
@@ -548,7 +556,7 @@ pv_load_video_cmd_buffers:
 
 pv_load_audio_cmd_buffers:
     ld hl,ps_dat_base_buffer
-    ld b,ps_loaded_samples_max
+    ld b,pv_loaded_segments_max
 @clear_dat_loop:
     push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
@@ -559,7 +567,7 @@ pv_load_audio_cmd_buffers:
     djnz @clear_dat_loop
 
     ld hl,ps_cmd_base_buffer
-    ld b,ps_loaded_samples_max
+    ld b,pv_loaded_segments_max
 @clear_cmd_loop:
     push bc ; save loop counter
     push hl ; save cmd buffer high byte and loop counter
@@ -570,7 +578,7 @@ pv_load_audio_cmd_buffers:
     djnz @clear_cmd_loop
 
     ld hl,ps_cmd_base_buffer
-    ld b,ps_loaded_samples_max
+    ld b,pv_loaded_segments_max
 @load_cmd_loop:
     push bc ; save loop counter
     push hl ; save command bufferId

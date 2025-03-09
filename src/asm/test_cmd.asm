@@ -203,7 +203,7 @@ test_video_cmd:
 ; end test_video_cmd
 
 test_audio:
-    ld a,ps_loaded_samples_max
+    ld a,pv_loaded_segments_max
     call vdu_enable_channels
 
     ld hl,ps_fil_struct

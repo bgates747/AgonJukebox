@@ -452,13 +452,30 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
     print("-------------------------------------------------")
     print(f"Extracting frames at {frame_rate} FPS to temporary folder: {frames_directory}")
     
+    # process = subprocess.Popen(
+    #     [
+    #         "ffmpeg",
+    #         "-ss", seek_time,
+    #         "-i", staged_video_path,
+    #         "-t", str(duration),
+    #         "-vf", f"fps={frame_rate}",
+    #         "-pix_fmt", "rgba",
+    #         "-start_number", "0",
+    #         "-y",  # Overwrite without prompting
+    #         output_pattern,
+    #     ],
+    #     stdout=subprocess.PIPE,
+    #     stderr=subprocess.PIPE,
+    #     text=True
+    # )
+
     process = subprocess.Popen(
         [
             "ffmpeg",
             "-ss", seek_time,
             "-i", staged_video_path,
             "-t", str(duration),
-            "-vf", f"fps={frame_rate}",
+            "-vf", f"tblend=all_mode=lighten,tmix=frames=3:weights='1 2 1',fps={frame_rate}",
             "-pix_fmt", "rgba",
             "-start_number", "0",
             "-y",  # Overwrite without prompting
@@ -565,20 +582,20 @@ if __name__ == "__main__":
 
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'bayer'
+    palette_conversion_method = 'atkinson'
     compression_type = 'tvc'
 
     bytes_per_sec = 57600
-    target_sample_rate = 16000
+    target_sample_rate = 15360 # 16*960 
     chunksize = bytes_per_sec // 60
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
     seek_time = "00:00:00"
     duration  = 60 * 13
-    frame_rate    = 10
+    frame_rate    = 6
 
-    target_width  = 120
+    target_width  = 168
     target_height = int(target_width / 2.35)
     do_remove_letterbox = True
 

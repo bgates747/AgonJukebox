@@ -171,7 +171,7 @@ vp_num_buffered:
     ld c,text_left
     ld d,vp_num_buffered_top
     ld e,text_right
-    ld b,vp_num_buffered_top
+    ld b,vp_num_buffered_top+1
     call vdu_set_txt_viewport
     ret
 

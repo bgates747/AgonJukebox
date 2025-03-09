@@ -99,7 +99,7 @@ main:
 
 ; BEGIN NORMAL INITIALIZATION
 ; enable audio channels
-    ld a,ps_loaded_samples_max
+    ld a,pv_loaded_segments_max
     call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
@@ -112,7 +112,7 @@ main:
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
-    ld e,ps_loaded_samples_max
+    ld e,pv_loaded_segments_max
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a
@@ -192,7 +192,7 @@ main:
     jr @read
 @@: ; check for max amount of audio data loaded
     ld hl,ps_loaded_samples
-    ld a,ps_loaded_samples_max
+    ld a,pv_loaded_segments_max
     cp a,(hl)
     jp z,@read_chunk ; jp z,get_input
 @read: ; read the chunk header
@@ -257,7 +257,7 @@ main:
 ; increment the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
     inc a
-    cp ps_loaded_samples_max
+    cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
@@ -317,7 +317,7 @@ pv_play_sample:
 ; increment the command buffer
     ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
-    cp ps_loaded_samples_max
+    cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
