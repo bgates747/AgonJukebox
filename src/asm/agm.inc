@@ -79,11 +79,12 @@ agm_unit_cmp_srle2:  equ %00011000  ; rle2 + szip compression (bits 3,4 set)
 agm_chunk_hdr_size: equ 4    ; size of the chunk header
 agm_chunk_hdr: blkb agm_chunk_hdr_size,0
 agm_chunk_size: equ 0        ; 4 bytes: size of the chunk (excluding chunk header); 0 = end of unit
+agm_unit_load_started: equ 0 ; flag to indicate the unit load has started
 
 pv_cmd_base_buffer: equ 0x4000
 pv_img_base_buffer: equ 0x4100
-pv_cmd_buffer: dl 0 ; Points to the current video command buffer to be called.
-pv_img_buffer: dl 0 ; Points to the current video frame buffer to be loaded.
+pv_cmd_buffer: dl pv_cmd_base_buffer ; Points to the current video command buffer to be called.
+pv_img_buffer: dl pv_img_base_buffer ; Points to the current video frame buffer to be loaded.
 pv_draw_counter_reset: db 0 ; 60 / frame_rate.
 pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video frame draw at zero
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
@@ -94,10 +95,11 @@ ps_cmd_base_buffer: equ 0x4200
 ps_dat_base_buffer: equ 0x4300
 ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
 ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
-ps_loaded_samples_max: equ 5 ; max number of samples to buffer.
+ps_loaded_samples_max: equ 2 ; max number of samples to buffer.
 ps_loaded_samples: db 0 ; Tracks buffered audio samples (max ps_loaded_samples_max).
 pv_chunk_buffer: dl 0 ; target bufferId of the current chunk being read
 pv_bytes_read: dw32 0 ; Number of bytes read from the file
+
 
 agm_window_left: equ 0
 agm_window_top: equ 8
@@ -129,6 +131,8 @@ agm_play:
     call udiv8 ; h = 60 / frame rate
     ld a,h
     ld (pv_draw_counter_reset),a
+    srl a ; divide draw counter by 2 so frame drawing is offset by 1/2 frame from audio playback
+    add a,60 ; add 1 second to draw counter to delay first frame playback until audio is ready
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
@@ -136,22 +140,18 @@ agm_play:
     mlt de
     ld a,e
     ld (pv_loaded_frames_max),a
-    xor a
-    ld (ps_loaded_samples),a
-    ld (pv_loaded_frames),a
 ; initialize command and data buffers
     call pv_load_audio_cmd_buffers
     call pv_load_video_cmd_buffers
-    ld hl,ps_cmd_base_buffer
-    ld (ps_cmd_buffer),hl
-    ld hl,ps_dat_base_buffer
-    ld (ps_dat_buffer),hl
-    ld hl,pv_cmd_base_buffer
-    ld (pv_cmd_buffer),hl
-    ld hl,pv_img_base_buffer
-    ld (pv_img_buffer),hl
+    xor a
+    ld (ps_cmd_buffer),a
+    ld (ps_dat_buffer),a
+    ld (pv_cmd_buffer),a
+    ld (pv_img_buffer),a
+    ld (ps_loaded_samples),a
+    ld (pv_loaded_frames),a
 ; set read_media_routine
-    ld hl,agm_read_chunk
+    ld hl,agm_do
     ld (read_media_routine),hl
 ; compute the song duration in hh:mm:ss format and print it
     call vp_duration ; set viewport to duration window
@@ -180,7 +180,7 @@ agm_play:
 ; read the first unit header
     call agm_read_unit_hdr
 ; read the first chunk
-    call agm_read_chunk
+    call agm_do
 ; enable interrupts, start the PRT timer, and jump to user input
     call ps_prt_start
     jp get_input
@@ -197,6 +197,8 @@ agm_read_segment_hdr:
 ; end agm_read_segment_hdr
 
 agm_read_unit_hdr:
+    xor a
+    ld (agm_unit_load_started),a
 ; read the unit header
     ld hl,ps_fil_struct
     ld bc,agm_unit_hdr_size ; bytes to read
@@ -211,11 +213,12 @@ agm_read_unit_hdr:
     ld hl,(ps_dat_buffer) ; audio buffer
 @@:
     ld (pv_chunk_buffer),hl
-    call vdu_clear_buffer ; make ready for new data
     ret
 ; end agm_read_unit_hdr
 
-agm_read_chunk:
+; this is the main playback and media loading function called by the PRT interrupt timer
+; which is set to fire every 1/60th of a second
+agm_do:
 ; check video playback timer
     ld a,(pv_draw_counter)
     dec a
@@ -232,6 +235,8 @@ agm_read_chunk:
 @@:
     ld (pv_sample_counter),a
     call z,pv_play_sample
+agm_read_chunk:
+    ; call print_num_buffered ; DEBUG
 ; check unit type
     ld a,(agm_unit_hdr+agm_unit_mask)
     and agm_unit_type
@@ -257,7 +262,15 @@ agm_read_chunk:
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
     jr z,agm_next_unit ; jr z,agm_next_unit
-; read the next chunk of data from the SD card to RAM
+; check whether this is the first load of the unit
+    ld a,(agm_unit_load_started)
+    and a ; check for first load
+    jr nz,@F
+    inc a
+    ld (agm_unit_load_started),a
+    ld hl,(pv_chunk_buffer) ; bufferId
+    call vdu_clear_buffer
+@@: ; read the next chunk of data from the SD card to RAM
     push hl
     pop bc ; bc = bytes to read
     ld hl,ps_fil_struct
@@ -269,9 +282,12 @@ agm_read_chunk:
     call vdu_load_buffer
 ; done
     ret ; to interrupt handler
-; end agm_read_chunk
+; end agm_do
 
 agm_next_unit:
+
+    ; call print_num_buffered ; DEBUG
+
 ; check unit type
     ld hl,agm_unit_hdr+agm_unit_mask
     ld a,agm_unit_type
@@ -302,7 +318,10 @@ agm_next_unit:
 @@:
     ld (pv_img_buffer),a
     call agm_read_unit_hdr
-    ret ; to interrupt handler
+
+    ; call print_num_buffered ; DEBUG
+
+    jp agm_read_chunk ; returns to interrupt handler from there
 @audio:
 ; increment the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
@@ -318,23 +337,23 @@ agm_next_unit:
 
     call agm_read_segment_hdr
     call agm_read_unit_hdr
-    ret ; to interrupt handler
+    jp agm_read_chunk ; returns to interrupt handler from there
 ; end main
 
 pv_draw_frame:
+
+    call print_num_buffered ; DEBUG
+
 ; check whether enough frames have been loaded for playback
     ld a,(pv_loaded_frames)
-    ld hl,ps_wav_data+agm_frame_rate
-    cp a,(hl)
-    ret m ; not enough frames loaded
-; decrement frames loaded
     dec a
+    jp m,@F ; not enough frames loaded
+; decrement frames loaded
     ld (pv_loaded_frames),a
 ; call the video command buffer
     ld hl,(pv_cmd_buffer)
     call vdu_call_buffer 
-; increment the command buffer
-    ld a,(pv_cmd_buffer) ; only need the low byte
+@@: ; increment the command buffer
     inc a
     ld hl,pv_loaded_frames_max
     cp a,(hl)
@@ -342,35 +361,37 @@ pv_draw_frame:
     xor a
 @@:
     ld (pv_cmd_buffer),a
-    ret
+    ret ; to agm_do
 ; end pv_draw_frame
 
 pv_play_sample:
-; check whether enough frames have been loaded for playback
-    ld a,(pv_loaded_frames)
-    ld hl,ps_wav_data+agm_frame_rate
-    cp a,(hl)
-    ret m ; not enough frames loaded
-; ; check whether enough samples have been loaded for playback
-;     ld a,(ps_loaded_samples)
-;     dec a
-;     ret m ; not enough samples loaded
-; decrement samples loaded
+
+    ; call print_num_buffered ; DEBUG
+
+; check whether enough samples have been loaded for playback
     ld a,(ps_loaded_samples)
     dec a
+    jp p,@F ; enough samples loaded
+; update pv_sample_counter so that it will fire next interrupt
+    ld a,1
+    ld (pv_sample_counter),a
+; likewise bump the draw counter up one to keep in sync with audio
+    ld hl,pv_draw_counter
+    inc (hl)
+    ret ; to agm_do
+@@: ; update samples loaded
     ld (ps_loaded_samples),a
 ; call the audio command buffer
     ld hl,(ps_cmd_buffer)
     call vdu_call_buffer
 ; increment the command buffer
-    ld a,(ps_cmd_buffer) ; only need the low byte
     inc a
     cp ps_loaded_samples_max
     jr nz,@F
     xor a
 @@:
     ld (ps_cmd_buffer),a
-    ret
+    ret ; to agm_do
 ; end pv_play_sample
 
 ; verify that a file is an .agm file
@@ -708,6 +729,19 @@ print_chunk_header:
     call printNewLine
     ret
 ; end print_chunk_header
+
+print_num_buffered:
+    call vp_num_buffered
+    call vdu_cls
+    call printInline
+    asciz "Frames: "
+    ld a,(pv_loaded_frames)
+    call printHex8
+    call printInline
+    asciz " Samples: "
+    ld a,(ps_loaded_samples)
+    call printHex8
+    ret
 
 print_agm_header:
     call vp_agm_header

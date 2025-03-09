@@ -566,7 +566,7 @@ if __name__ == "__main__":
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
     palette_conversion_method = 'bayer'
-    compression_type = 'srle2'
+    compression_type = 'tvc'
 
     bytes_per_sec = 57600
     target_sample_rate = 16000
@@ -574,11 +574,11 @@ if __name__ == "__main__":
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
-    seek_time = "00:03:00"
-    duration  = 60 #* 13
-    frame_rate    = 6
+    seek_time = "00:00:00"
+    duration  = 60 * 13
+    frame_rate    = 10
 
-    target_width  = 240
+    target_width  = 120
     target_height = int(target_width / 2.35)
     do_remove_letterbox = True
 
@@ -595,7 +595,7 @@ if __name__ == "__main__":
     # download_audio(staged_audio_path, target_sample_rate)
 
     # preprocess_audio(staged_audio_path)
-    # convert_audio(staged_audio_path, target_audio_path)
+    convert_audio(staged_audio_path, target_audio_path)
 
     extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate)
 

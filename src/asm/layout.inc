@@ -157,7 +157,7 @@ vp_messages:
     call vdu_set_txt_viewport
     ret
 
-vp_agm_header_top: equ 6
+vp_agm_header_top: equ 0
 vp_agm_header:
     ld c,text_left
     ld d,vp_agm_header_top
@@ -166,7 +166,17 @@ vp_agm_header:
     call vdu_set_txt_viewport
     ret
 
-vp_debug_top: equ vp_agm_header_top+1
+vp_num_buffered_top: equ vp_agm_header_top+1
+vp_num_buffered:
+    ld c,text_left
+    ld d,vp_num_buffered_top
+    ld e,text_right
+    ld b,vp_num_buffered_top
+    call vdu_set_txt_viewport
+    ret
+
+; vp_debug_top: equ vp_agm_header_top+1
+vp_debug_top: equ vp_messages_top
 vp_debug_bottom: equ text_bottom
 ; set text viewport for messages
 vp_debug:
