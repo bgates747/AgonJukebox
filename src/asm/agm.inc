@@ -119,7 +119,7 @@ agm_play:
     cp media_type_agm ; a was set by play_song
     jp nz,ps_close_file
 
-    call print_agm_header ; DEBUG
+    call print_agm_header
 
 ; enable audio channels
     ld a,pv_loaded_segments_max
@@ -176,26 +176,29 @@ agm_play:
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
-; ; read the first segmment header
-;     call agm_read_segment_hdr
-; ; read the first unit header
-;     call agm_read_unit_hdr
-; ; read the first chunk
-;     call agm_do
+
+; read the first segmment header
+    call agm_read_segment_hdr
+; read the first unit header
+    call agm_read_unit_hdr
+; preload buffers to max capacity (also starts the PRT timer)
     call agm_load_buffers
-; enable interrupts, start the PRT timer, and jump to user input
-    call ps_prt_start
+
+; jump to user input (also enables interrupts)
     jp get_input
 ; end agm_play
 
 agm_load_buffers:
-    call agm_read_segment_hdr
-    call agm_read_unit_hdr
+    call ps_prt_stop
 @loop:
     call agm_read_chunk
+    call print_num_buffered
+    call printInline
+    asciz " BUFFERING ..."
     ld a,(ps_loaded_samples)
     cp pv_loaded_segments_max
     jr nz,@loop
+    call ps_prt_start
     ret
 ; end agm_load_buffers
 
@@ -357,14 +360,16 @@ agm_next_unit:
 ; end main
 
 pv_draw_frame:
-
-    call print_num_buffered ; DEBUG
-
+    call print_num_buffered
 ; check whether enough frames have been loaded for playback
     ld a,(pv_loaded_frames)
     dec a
-    jp m,@F ; not enough frames loaded
-; decrement frames loaded
+    jp p,@F ; enough frames loaded
+    call agm_load_buffers ; refill the buffers
+; reset a to max loaded frames -1
+    ld a,(pv_loaded_frames_max)
+    dec a
+@@: ; update frames loaded
     ld (pv_loaded_frames),a
 ; call the video command buffer
     ld hl,(pv_cmd_buffer)
@@ -378,25 +383,18 @@ pv_draw_frame:
     xor a
 @@:
     ld (pv_cmd_buffer),a
-    ; call print_num_buffered ; DEBUG
     ret ; to agm_do
 ; end pv_draw_frame
 
 pv_play_sample:
-
-    ; call print_num_buffered ; DEBUG
-
+    call print_num_buffered
 ; check whether enough samples have been loaded for playback
     ld a,(ps_loaded_samples)
     dec a
     jp p,@F ; enough samples loaded
-; update pv_sample_counter so that it will fire next interrupt
-    ld a,1
-    ld (pv_sample_counter),a
-; likewise bump the draw counter up one to keep in sync with audio
-    ld hl,pv_draw_counter
-    inc (hl)
-    ret ; to agm_do
+    call agm_load_buffers ; refill the buffers
+; reset a to max loaded segments -1
+    ld a,pv_loaded_segments_max-1
 @@: ; update samples loaded
     ld (ps_loaded_samples),a
 ; call the audio command buffer
@@ -410,7 +408,6 @@ pv_play_sample:
     xor a
 @@:
     ld (ps_cmd_buffer),a
-    ; call print_num_buffered ; DEBUG
     ret ; to agm_do
 ; end pv_play_sample
 
@@ -545,8 +542,6 @@ pv_load_video_cmd_buffers:
 
     ret 
 @cmd_start:
-    ; DB 7 ; BEEP DEBUG
-
 ; VDU 23, 27, &20, bufferId; : Select bitmap (using a buffer ID)
 ; inputs: hl=bufferId
             db 23,27,0x20

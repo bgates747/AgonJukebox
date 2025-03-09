@@ -452,30 +452,18 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
     print("-------------------------------------------------")
     print(f"Extracting frames at {frame_rate} FPS to temporary folder: {frames_directory}")
     
-    # process = subprocess.Popen(
-    #     [
-    #         "ffmpeg",
-    #         "-ss", seek_time,
-    #         "-i", staged_video_path,
-    #         "-t", str(duration),
-    #         "-vf", f"fps={frame_rate}",
-    #         "-pix_fmt", "rgba",
-    #         "-start_number", "0",
-    #         "-y",  # Overwrite without prompting
-    #         output_pattern,
-    #     ],
-    #     stdout=subprocess.PIPE,
-    #     stderr=subprocess.PIPE,
-    #     text=True
-    # )
-
     process = subprocess.Popen(
         [
             "ffmpeg",
             "-ss", seek_time,
             "-i", staged_video_path,
             "-t", str(duration),
-            "-vf", f"tblend=all_mode=lighten,tmix=frames=3:weights='1 2 1',fps={frame_rate}",
+
+            # "-vf", f"fps={frame_rate}",
+            # "-vf", f"tblend=all_mode=lighten,tmix=frames=3:weights='1 2 1',fps={frame_rate}",
+            "-vf", f"tblend=all_mode=lighten,tmix=frames=2:weights='1 1',fps={frame_rate}",
+            # "-vf", f"mpdecimate,removegrain=4,tmedian=3,fps={frame_rate}",
+            
             "-pix_fmt", "rgba",
             "-start_number", "0",
             "-y",  # Overwrite without prompting
@@ -485,7 +473,7 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
         stderr=subprocess.PIPE,
         text=True
     )
-    
+
     # Optional: Show progress from ffmpeg stderr.
     frame_pattern = re.compile(r"frame=\s*\d+")
     for line in iter(process.stderr.readline, ''):
@@ -582,7 +570,7 @@ if __name__ == "__main__":
 
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'atkinson'
+    palette_conversion_method = 'bayer'
     compression_type = 'tvc'
 
     bytes_per_sec = 57600
@@ -593,9 +581,9 @@ if __name__ == "__main__":
     video_base_name = f'Star_Wars__Battle_of_Yavin'
     seek_time = "00:00:00"
     duration  = 60 * 13
-    frame_rate    = 6
+    frame_rate    = 10
 
-    target_width  = 168
+    target_width  = 144
     target_height = int(target_width / 2.35)
     do_remove_letterbox = True
 
