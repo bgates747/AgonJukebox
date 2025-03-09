@@ -90,7 +90,7 @@ pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
 pv_loaded_frames: db 0 ; Tracks buffered frames (fps * pv_loaded_segments_max).
 pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * pv_loaded_segments_max).
-pv_loaded_segments_max: equ 4 ; max number of segments to buffer.
+pv_loaded_segments_max: equ 8 ; max number of segments to buffer.
 
 
 ps_cmd_base_buffer: equ 0x4200
@@ -176,16 +176,28 @@ agm_play:
 ; set ps_mode_playing
     ld hl,ps_mode
     set ps_mode_playing,(hl)
-; read the first segmment header
-    call agm_read_segment_hdr
-; read the first unit header
-    call agm_read_unit_hdr
-; read the first chunk
-    call agm_do
+; ; read the first segmment header
+;     call agm_read_segment_hdr
+; ; read the first unit header
+;     call agm_read_unit_hdr
+; ; read the first chunk
+;     call agm_do
+    call agm_load_buffers
 ; enable interrupts, start the PRT timer, and jump to user input
     call ps_prt_start
     jp get_input
 ; end agm_play
+
+agm_load_buffers:
+    call agm_read_segment_hdr
+    call agm_read_unit_hdr
+@loop:
+    call agm_read_chunk
+    ld a,(ps_loaded_samples)
+    cp pv_loaded_segments_max
+    jr nz,@loop
+    ret
+; end agm_load_buffers
 
 agm_read_segment_hdr:
 ; read the next segment header
@@ -273,7 +285,7 @@ agm_read_chunk:
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
     SIGN_HLU 
-    jr z,agm_next_unit ; jr z,agm_next_unit
+    jr z,agm_next_unit
 ; read the next chunk of data from the SD card to RAM
     push hl
     pop bc ; bc = bytes to read
