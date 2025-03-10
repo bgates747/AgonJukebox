@@ -43,15 +43,30 @@ def remove_temp_files(*file_paths):
 
 def compress_with_tvc(input_path, output_path):
     """Compress a file using tvc."""
-    subprocess.run(["tvc", "-c", input_path, output_path], check=True)
+    subprocess.run(
+        ["tvc", "-c", input_path, output_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True
+    )
 
 def compress_with_rle2(input_path, output_path):
     """Compress a file using rle2."""
-    subprocess.run(["rle2", "-c", input_path, output_path], check=True)
+    subprocess.run(
+        ["rle2", "-c", input_path, output_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True
+    )
 
 def compress_with_szip(input_path, output_path):
     """Compress a file using szip."""
-    subprocess.run(["szip", "-b41o3", input_path, output_path], check=True)
+    subprocess.run(
+        ["szip", "-b41o3", input_path, output_path],
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+        check=True
+    )
 
 def compress_frame_data(frame_bytes, frame_idx, total_frames, compression_type):
     """
@@ -61,7 +76,7 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames, compression_type):
       frame_bytes (bytes): The raw frame data.
       frame_idx (int): Index of the frame (for status printing).
       total_frames (int): Total number of frames (for status printing).
-      compression_type (str): "tvc", "srle2" (rle2 + szip), "rle2", "szip", or "raw" (no compression).
+      compression_type (str): "tvc", "srle2" (rle2 + szip), "szip", or "raw" (no compression).
 
     Returns:
       bytes: The compressed frame data.
@@ -97,7 +112,7 @@ def compress_frame_data(frame_bytes, frame_idx, total_frames, compression_type):
         compression_ratio = 100.0 * compressed_size / original_size if original_size > 0 else 0.0
 
         print(
-            f"\t{compression_type}ped frame {frame_idx + 1} of {total_frames}: "
+            f"\r\033[K{compression_type}ped frame {frame_idx + 1} of {total_frames}: "
             f"{original_size} bytes -> {compressed_size} bytes, "
             f"{compression_ratio:.1f}%",
             end="",
@@ -321,7 +336,6 @@ def download_video(staged_video_path):
 # ============================================================
 
 def download_audio(staged_audio_path, audio_sample_rate):
-    # Remove any existing file first.
     if os.path.exists(staged_audio_path):
         os.remove(staged_audio_path)
 
@@ -347,16 +361,13 @@ def download_audio(staged_audio_path, audio_sample_rate):
     file_size = os.path.getsize(staged_audio_path)
     file_size_mb = f"{file_size / (1024 * 1024):.2f}MiB"
 
-    print(f"Audio download completed. Sample rate capped at 16000Hz Size: {file_size_mb}")
+    print(f"Audio download completed. Sample rate capped at {audio_sample_rate}Hz Size: {file_size_mb}")
     print("")
 
 def preprocess_audio(staged_audio_path):
     # Define codec as 16-bit PCM little-endian signed.
     codec = "pcm_s16le"
-
     temp_path = os.path.join(staging_directory, "temp.wav")
-
-    # Remove any existing temporary file.
     if os.path.exists(temp_path):
         os.remove(temp_path)
 
@@ -379,7 +390,6 @@ def preprocess_audio(staged_audio_path):
     # Report status after normalization
     normalized_sample_rate, normalized_codec = get_audio_metadata(staged_audio_path)
     print(f"After normalization - Sample rate: {normalized_sample_rate} Hz, Codec: {normalized_codec}")
-
     print("")
 
 # ============================================================
@@ -525,8 +535,8 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
                 rgba2_data = f_rgba2.read()
             out_file.write(rgba2_data)
             
-            print(f"Frame {i}/{total_frames} processed: {pngfile}", end='\r')
-            
+            # Update message on a single line without linefeeds.
+            print(f"\r\033[KFrame {i}/{total_frames} processed: {pngfile}", end="", flush=True)            
             # Clean up temporary files.
             os.remove(temp_png_path)
             os.remove(temp_rgba2_path)
@@ -567,27 +577,30 @@ if __name__ == "__main__":
     staging_directory   = "/home/smith/Agon/mystuff/assets/video/staging"
     frames_directory    = "/home/smith/Agon/mystuff/assets/video/frames"
     target_directory    = "tgt/video"
-
     palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
     transparent_rgb = (0, 0, 0, 0)
-    palette_conversion_method = 'bayer'
-    compression_type = 'tvc'
-
-    bytes_per_sec = 57600
-    target_sample_rate = 15360 # 16*960 
+    bytes_per_sec = 57600  # 60*960
+    target_sample_rate = 15360  # 16*960 
     chunksize = bytes_per_sec // 60
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
     seek_time = "00:00:00"
+    do_remove_letterbox = True
+    
     duration  = 60 * 13
     frame_rate    = 10
+    palette_conversion_method = 'floyd'
+    compression_type = 'srle2'
+    target_width  = 200
 
-    target_width  = 144
+    palette_conversion_method = 'bayer'
+    compression_type = 'srle2'
+    target_width  = 240
+
+
     target_height = int(target_width / 2.35)
-    do_remove_letterbox = True
-
-    target_height = (target_height + 2) & ~2  # Round up to nearest multiple of 2
+    target_height = (target_height + 2) & ~2
 
     video_target_name = f'{video_base_name}'
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
