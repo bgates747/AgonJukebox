@@ -120,10 +120,10 @@ main:
     ld (ps_loaded_samples),a
     ld (pv_loaded_frames),a
 ; initialize command and data buffers
-    call pv_load_audio_cmd_buffers
+    call pv_play_audio_cmd_buffers
     call pv_load_video_cmd_buffers
-    ld hl,ps_cmd_base_buffer
-    ld (ps_cmd_buffer),hl
+    ld hl,ps_cmd_play_base_buffer
+    ld (ps_cmd_play_buffer),hl
     ld hl,ps_dat_base_buffer
     ld (ps_dat_buffer),hl
     ld hl,pv_cmd_base_buffer
@@ -312,16 +312,16 @@ pv_play_sample:
     dec a
     ld (ps_loaded_samples),a
 ; call the audio command buffer
-    ld hl,(ps_cmd_buffer)
+    ld hl,(ps_cmd_play_buffer)
     call vdu_call_buffer
 ; increment the command buffer
-    ld a,(ps_cmd_buffer) ; only need the low byte
+    ld a,(ps_cmd_play_buffer) ; only need the low byte
     inc a
     cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
-    ld (ps_cmd_buffer),a
+    ld (ps_cmd_play_buffer),a
     ret
 ; end pv_play_sample
 

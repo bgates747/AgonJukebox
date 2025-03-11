@@ -223,8 +223,8 @@ test_audio:
     ld bc,(ps_wav_header+wav_sample_rate)
     call vdu_load_buffer
 
-    call pv_load_audio_cmd_buffers
-    ld hl,ps_cmd_base_buffer
+    call pv_play_audio_cmd_buffers
+    ld hl,ps_cmd_play_base_buffer
     call vdu_call_buffer
 
     ; ld hl,ps_dat_base_buffer

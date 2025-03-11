@@ -92,10 +92,11 @@ pv_loaded_frames: db 0 ; Tracks buffered frames (fps * pv_loaded_segments_max).
 pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * pv_loaded_segments_max).
 pv_loaded_segments_max: equ 2 ; max number of segments to buffer.
 
-
-ps_cmd_base_buffer: equ 0x4200
-ps_dat_base_buffer: equ 0x4300
-ps_cmd_buffer: dl ps_cmd_base_buffer ; Points to the current audio command buffer to be called.
+ps_cmd_load_base_buffer: equ 0x4200
+ps_cmd_play_base_buffer: equ 0x4300
+ps_dat_base_buffer: equ 0x4400
+ps_cmd_load_buffer: dl ps_cmd_load_base_buffer
+ps_cmd_play_buffer: dl ps_cmd_play_base_buffer ; Points to the current audio command buffer to be called.
 ps_dat_buffer: dl ps_dat_base_buffer ; Points to the current audio data buffer to be loaded.
 ps_loaded_samples: db 0 ; Tracks buffered audio samples (max pv_loaded_segments_max).
 pv_chunk_buffer: dl 0 ; target bufferId of the current chunk being read
@@ -141,9 +142,11 @@ agm_play:
     ld (pv_loaded_frames_max),a
 ; initialize command and data buffers
     call pv_load_audio_cmd_buffers
+    call pv_play_audio_cmd_buffers
     call pv_load_video_cmd_buffers
     xor a
-    ld (ps_cmd_buffer),a
+    ld (ps_cmd_load_buffer),a
+    ld (ps_cmd_play_buffer),a
     ld (ps_dat_buffer),a
     ld (pv_cmd_buffer),a
     ld (pv_img_buffer),a
@@ -342,14 +345,23 @@ agm_next_unit:
 
     jp agm_read_chunk ; returns to interrupt handler from there
 @audio:
+; call the command load buffer
+    ld hl,(ps_cmd_load_buffer)
+    call vdu_call_buffer
+; increment the command load buffer
+    ld a,(ps_cmd_load_buffer) ; only need the low byte
+    inc a
+    cp pv_loaded_segments_max
+    jr nz,@F
+    xor a
+@@: ld (ps_cmd_load_buffer),a
 ; increment the audio data buffer
     ld a,(ps_dat_buffer) ; only need the low byte
     inc a
     cp pv_loaded_segments_max
     jr nz,@F
     xor a
-@@:
-    ld (ps_dat_buffer),a
+@@: ld (ps_dat_buffer),a
 ; increment the number of samples loaded
     ld hl,ps_loaded_samples
     inc (hl)
@@ -398,16 +410,16 @@ pv_play_sample:
 @@: ; update samples loaded
     ld (ps_loaded_samples),a
 ; call the audio command buffer
-    ld hl,(ps_cmd_buffer)
+    ld hl,(ps_cmd_play_buffer)
     call vdu_call_buffer
 ; increment the command buffer
-    ld a,(ps_cmd_buffer) ; only need the low byte
+    ld a,(ps_cmd_play_buffer) ; only need the low byte
     inc a
     cp pv_loaded_segments_max
     jr nz,@F
     xor a
 @@:
-    ld (ps_cmd_buffer),a
+    ld (ps_cmd_play_buffer),a
     ret ; to agm_do
 ; end pv_play_sample
 
@@ -573,7 +585,7 @@ pv_load_audio_cmd_buffers:
     pop bc ; restore loop counter
     djnz @clear_dat_loop
 
-    ld hl,ps_cmd_base_buffer
+    ld hl,ps_cmd_load_base_buffer
     ld b,pv_loaded_segments_max
 @clear_cmd_loop:
     push bc ; save loop counter
@@ -584,7 +596,7 @@ pv_load_audio_cmd_buffers:
     pop bc ; restore loop counter
     djnz @clear_cmd_loop
 
-    ld hl,ps_cmd_base_buffer
+    ld hl,ps_cmd_load_base_buffer
     ld b,pv_loaded_segments_max
 @load_cmd_loop:
     push bc ; save loop counter
@@ -595,7 +607,6 @@ pv_load_audio_cmd_buffers:
     ld (@bufferId2),a
 
     ld (@channel0),a
-    ld (@channel1),a
 
     ld a,(ps_wav_header+wav_sample_rate)
     ld (@sample_rate),a
@@ -627,7 +638,6 @@ pv_load_audio_cmd_buffers:
 @bufferId1: dw ps_dat_base_buffer
     db 1+8 ; 1 = 8-bit unsigned PCM mono, 8 = sample rate argument follows
 @sample_rate: dw 0x0000 ; sample rate Hz
-; vdu_play_sfx command string
 ; Command 4: Set waveform
 ; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
     db 23,0,$85 ; vdu sound command header  
@@ -635,6 +645,40 @@ pv_load_audio_cmd_buffers:
     db 4 ; set waveform command
     db 8 ; waveform 8 = sample
 @bufferId2: dw ps_dat_base_buffer ; sample bufferId
+@cmd_end:
+; end pv_load_audio_cmd_buffers
+
+pv_play_audio_cmd_buffers:
+    ld hl,ps_cmd_play_base_buffer
+    ld b,pv_loaded_segments_max
+@clear_cmd_loop:
+    push bc ; save loop counter
+    push hl ; save cmd buffer high byte and loop counter
+    call vdu_clear_buffer
+    pop hl
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @clear_cmd_loop
+
+    ld hl,ps_cmd_play_base_buffer
+    ld b,pv_loaded_segments_max
+@load_cmd_loop:
+    push bc ; save loop counter
+    push hl ; save command bufferId
+    ld a,l ; only need to load the low bytes of dat bufferIds
+
+    ld (@channel1),a
+
+    ld de,@cmd_start
+    ld bc,@cmd_end-@cmd_start
+    call vdu_load_buffer
+
+    pop hl ; restore current command bufferId
+    inc l ; bump bufferId
+    pop bc ; restore loop counter
+    djnz @load_cmd_loop
+    ret
+@cmd_start:
 ; Command 0: Play note
 ; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
     db 23,0,$85 ; vdu sound command header
@@ -716,7 +760,7 @@ print_unit_header:
     call printHex16
     call printInline
     asciz " cmd:"
-    ld hl,(ps_cmd_buffer)
+    ld hl,(ps_cmd_play_buffer)
     call printHex16
     call printNewLine
 
