@@ -589,14 +589,15 @@ if __name__ == "__main__":
     do_remove_letterbox = True
     
     duration  = 60 * 13
-    frame_rate    = 10
+    frame_rate    = 6
+
     palette_conversion_method = 'floyd'
     compression_type = 'srle2'
     target_width  = 200
 
-    palette_conversion_method = 'bayer'
-    compression_type = 'srle2'
-    target_width  = 240
+    # palette_conversion_method = 'bayer'
+    # compression_type = 'srle2'
+    # target_width  = 240
 
 
     target_height = int(target_width / 2.35)

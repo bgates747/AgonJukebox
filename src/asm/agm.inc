@@ -90,7 +90,7 @@ pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
 pv_loaded_frames: db 0 ; Tracks buffered frames (fps * pv_loaded_segments_max).
 pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * pv_loaded_segments_max).
-pv_loaded_segments_max: equ 8 ; max number of segments to buffer.
+pv_loaded_segments_max: equ 2 ; max number of segments to buffer.
 
 
 ps_cmd_base_buffer: equ 0x4200

@@ -89,7 +89,7 @@ srle2_bufferId: equ 261
 main:
     call vdu_cls
 
-    jp @test_tvc
+    jp @test_srle2
 
 ; test uncompressed
     ld a,1 ; rgba2
@@ -125,7 +125,14 @@ main:
     ld bc,512-image_width-1 ; x
     ld de,8 ; y
     call vdu_plot_bmp
+
+    jp main_end
+
 @test_rle2:
+    ld de,0
+@loop_rle2:
+    push de
+    
     ld hl,rle2_bufferId_dat 
     call vdu_clear_buffer
     ld hl,rle2_bufferId_dat 
@@ -146,8 +153,15 @@ main:
     call vdu_bmp_create
 
     ld bc,0 ; x
-    ld de,384-image_height-1 ; y
+    ; ld de,384-image_height-1 ; y
+    pop de
+    push de
     call vdu_plot_bmp
+    pop de
+    inc de
+
+    jp @loop_rle2
+
 @test_szip:
     ld hl,szip_bufferId 
     call vdu_clear_buffer
@@ -172,7 +186,13 @@ main:
     ld de,384-image_height-1 ; y
     call vdu_plot_bmp
 
+    jp main_end
+
 @test_srle2:
+    ld de,0
+@loop_srle2:
+    push de
+
     ld hl,srle2_bufferId
     call vdu_clear_buffer
     ld hl,srle2_bufferId 
@@ -199,10 +219,20 @@ main:
     call vdu_bmp_create
 
     ld bc,0 ; x
-    ld de,8 ; y
+    ; ld de,8 ; y
+    pop de
+    push de
     call vdu_plot_bmp
 
-@main_end:
+    pop de
+    push de
+    call vdu_plot_bmp
+    pop de
+    inc de
+
+    jp @loop_srle2
+
+main_end:
 ; return display to normal
     call vdu_cursor_on
 
