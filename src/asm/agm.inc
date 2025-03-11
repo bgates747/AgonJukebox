@@ -201,6 +201,7 @@ agm_load_buffers:
     ld a,(ps_loaded_samples)
     cp pv_loaded_segments_max
     jr nz,@loop
+    call vdu_cls
     call ps_prt_start
     ret
 ; end agm_load_buffers
@@ -372,7 +373,7 @@ agm_next_unit:
 ; end main
 
 pv_draw_frame:
-    call print_num_buffered
+    ; call print_num_buffered
 ; check whether enough frames have been loaded for playback
     ld a,(pv_loaded_frames)
     dec a
@@ -399,7 +400,7 @@ pv_draw_frame:
 ; end pv_draw_frame
 
 pv_play_sample:
-    call print_num_buffered
+    ; call print_num_buffered
 ; check whether enough samples have been loaded for playback
     ld a,(ps_loaded_samples)
     dec a
