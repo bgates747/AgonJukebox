@@ -126,14 +126,12 @@ agm_play:
     call vdu_enable_channels
 ; initalize counters and flags
     ld a,60
-    ld (pv_sample_counter),a
     ld hl,(ps_wav_header+agm_frame_rate) ; l = frame rate
     ld h,a ; h = 60
     call udiv8 ; h = 60 / frame rate
     ld a,h
     ld (pv_draw_counter_reset),a
     srl a ; divide draw counter by 2 so frame drawing is offset by 1/2 frame from audio playback
-    add a,60 ; add 1 second to draw counter to delay first frame playback until audio is ready
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
@@ -151,6 +149,8 @@ agm_play:
     ld (pv_img_buffer),a
     ld (ps_loaded_samples),a
     ld (pv_loaded_frames),a
+    inc a
+    ld (pv_sample_counter),a
 ; set read_media_routine
     ld hl,agm_do
     ld (read_media_routine),hl
@@ -236,14 +236,6 @@ agm_read_unit_hdr:
 ; this is the main playback and media loading function called by the PRT interrupt timer
 ; which is set to fire every 1/60th of a second
 agm_do:
-; check video playback timer
-    ld a,(pv_draw_counter)
-    dec a
-    jr nz,@F
-    ld a,(pv_draw_counter_reset)
-@@:
-    ld (pv_draw_counter),a
-    call z,pv_draw_frame
 ; check audio playback timer
     ld a,(pv_sample_counter)
     dec a
@@ -252,6 +244,14 @@ agm_do:
 @@:
     ld (pv_sample_counter),a
     call z,pv_play_sample
+; check video playback timer
+    ld a,(pv_draw_counter)
+    dec a
+    jr nz,@F
+    ld a,(pv_draw_counter_reset)
+@@:
+    ld (pv_draw_counter),a
+    call z,pv_draw_frame
 agm_read_chunk:
     ; call print_num_buffered ; DEBUG
 ; check unit type
