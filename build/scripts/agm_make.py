@@ -469,9 +469,9 @@ def extract_and_process_frames(staged_video_path, seek_time, duration, frame_rat
             "-i", staged_video_path,
             "-t", str(duration),
 
-            # "-vf", f"fps={frame_rate}",
+            "-vf", f"fps={frame_rate}",
             # "-vf", f"tblend=all_mode=lighten,tmix=frames=3:weights='1 2 1',fps={frame_rate}",
-            "-vf", f"tblend=all_mode=lighten,tmix=frames=2:weights='1 1',fps={frame_rate}",
+            # "-vf", f"tblend=all_mode=lighten,tmix=frames=2:weights='1 1',fps={frame_rate}",
             # "-vf", f"mpdecimate,removegrain=4,tmedian=3,fps={frame_rate}",
             
             "-pix_fmt", "rgba",
@@ -588,17 +588,16 @@ if __name__ == "__main__":
     seek_time = "00:00:00"
     do_remove_letterbox = True
     
-    duration  = 60 * 13
+    duration  = 60 * 99
     frame_rate    = 10
 
-    palette_conversion_method = 'floyd'
-    compression_type = 'szip'
-    target_width  = 144
+    palette_conversion_method = 'bayer'
+    compression_type = 'srle2'
+    target_width  = 240
 
     # palette_conversion_method = 'bayer'
-    # compression_type = 'srle2'
-    # target_width  = 240
-
+    # compression_type = 'tvc'
+    # target_width  = 144
 
     target_height = int(target_width / 2.35)
     target_height = (target_height + 2) & ~2
@@ -607,7 +606,7 @@ if __name__ == "__main__":
     staged_video_path = os.path.join(staging_directory, f"{video_base_name}.mp4")
     staged_audio_path = os.path.join(staging_directory, f"{video_base_name}.wav")
     target_audio_path = os.path.join(target_directory, f"{video_target_name}.wav")
-    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{compression_type}_{palette_conversion_method}.agm")
+    target_agm_path = os.path.join(target_directory, f"{video_target_name}_{compression_type}_{palette_conversion_method}_{frame_rate:02d}_{target_width}.agm")
     output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
 
     # download_video(staged_video_path)

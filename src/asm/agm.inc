@@ -90,7 +90,7 @@ pv_draw_counter: db 0 ; Counts down from pv_draw_counter_reset, triggering video
 pv_sample_counter: db 0 ; Counts down from 60, triggering audio playback and first frame draw of segment.
 pv_loaded_frames: db 0 ; Tracks buffered frames (fps * pv_loaded_segments_max).
 pv_loaded_frames_max: db 0 ; Maximum number of buffered frames (fps * pv_loaded_segments_max).
-pv_loaded_segments_max: equ 2 ; max number of segments to buffer.
+pv_loaded_segments_max: equ 3 ; max number of segments to buffer.
 
 ps_cmd_load_base_buffer: equ 0x4200
 ps_cmd_play_base_buffer: equ 0x4300
@@ -120,19 +120,36 @@ agm_play:
     cp media_type_agm ; a was set by play_song
     jp nz,ps_close_file
 
+; ; clear all buffers and switch screen mode
+;     call vdu_clear_all_buffers
+;     ld a,8 ; 320x240x64 60Hz single-buffered
+;     call vdu_set_screen_mode
+; ; set text fg and bg colours to normal
+;     call set_text_colours_normal
+; ; set cursor behaviuor
+;     call vdu_cursor_off
+;     ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
+;     ld l,%00010000 ; bit 4 set means cursor wraps to top of screen
+;     call vdu_cursor_behaviour
+; ; reset text viewports and clear the screen
+;     call vdu_reset_viewports
+;     call vdu_cls
+
     call print_agm_header
 
 ; enable audio channels
     ld a,pv_loaded_segments_max
     call vdu_enable_channels
 ; initalize counters and flags
+    ld a,1 ; play audio first tick after buffering is complete
+    ld (pv_sample_counter),a
     ld a,60
     ld hl,(ps_wav_header+agm_frame_rate) ; l = frame rate
     ld h,a ; h = 60
     call udiv8 ; h = 60 / frame rate
     ld a,h
     ld (pv_draw_counter_reset),a
-    srl a ; divide draw counter by 2 so frame drawing is offset by 1/2 frame from audio playback
+    ; srl a ; divide draw counter by 2 so frame drawing is offset by 1/2 frame from audio playback
     ld (pv_draw_counter),a
     ld hl,ps_wav_header+agm_frame_rate
     ld d,(hl) ; d = frame rate
@@ -152,8 +169,6 @@ agm_play:
     ld (pv_img_buffer),a
     ld (ps_loaded_samples),a
     ld (pv_loaded_frames),a
-    inc a
-    ld (pv_sample_counter),a
 ; set read_media_routine
     ld hl,agm_do
     ld (read_media_routine),hl
