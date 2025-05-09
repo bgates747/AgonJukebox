@@ -42,7 +42,12 @@ if __name__ == "__main__":
     # youtube_url = 'https://youtu.be/FEacDWPWfJU'
     # youtube_url = 'https://youtu.be/ZTkH1kP_kx4' # The Cars First Album
     # youtube_url = 'https://youtu.be/xAnK0axVOOQ' # The Cars Heartbeat City
-    youtube_url = 'https://youtu.be/m04r6KJnRjQ' # The Cars Candy-O
+    # youtube_url = 'https://youtu.be/m04r6KJnRjQ' # The Cars Candy-O
+    # youtube_url = 'https://www.youtube.com/playlist?list=PLm4TidphG-eDYymEYCFS6pOArqF90o4IF' # The Cult Sonic Temple
+    # youtube_url = 'https://youtu.be/r48BLz42NuI' # Pink Floyd The Wall
+    youtube_url = 'https://youtu.be/gczl6EKdOas' 
+
+
     output_directory = '/home/smith/Agon/mystuff/assets/sound/music/staging'
     # get_youtube_audio_sections(youtube_url, output_directory)
     get_youtube_audio_single(youtube_url, output_directory)

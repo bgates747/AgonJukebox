@@ -585,10 +585,10 @@ if __name__ == "__main__":
 
     youtube_url = "https://youtu.be/3yWrXPck6SI"
     video_base_name = f'Star_Wars__Battle_of_Yavin'
-    seek_time = "00:00:00"
+    seek_time = "00:01:25"
     do_remove_letterbox = True
     
-    duration  = 60 * 99
+    duration  = 120
     frame_rate    = 10
 
     palette_conversion_method = 'bayer'
