@@ -101,7 +101,7 @@ waveform_noise: equ 4 ; noise wave
 waveform_vic_noise: equ 5 ; VIC noise wave
 waveform_sample: equ 8 ; PCM sound sample 
 
-waveform: equ waveform_square
+waveform: equ waveform_sawtooth
 
 ; set waveform for all channels
     ld hl, waveform_channels_cmd
@@ -242,4 +242,4 @@ get_input:
 
 MidiData:
     include "../../out/dx555xv9093-exp-tempo95.inc"
-    include "../../out/xm993qd2681-exp-tempo95.inc"
+    ; include "../../out/xm993qd2681-exp-tempo95.inc"

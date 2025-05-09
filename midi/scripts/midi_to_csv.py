@@ -1,46 +1,49 @@
 #!/usr/bin/env python3
 """
-MIDI to CSV Converter - Extracts MIDI data to CSV format
+MIDI Processing Pipeline - Converts MIDI to CSV and then to ez80 assembly
 Specifically designed for piano roll files from Stanford's collection
+Includes tempo adjustment feature for playback speed correction
 """
 
 import os
 import csv
 import pretty_midi
 from pathlib import Path
+from csv_to_inc import csv_to_inc
 
-def midi_to_csv(input_file, output_file):
+def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
     """
-    Convert a MIDI file to CSV format with detailed information about notes, 
-    including timing, pitch, velocity (volume), and duration.
+    Complete MIDI processing pipeline:
+    1. Converts MIDI to CSV with tempo adjustment
+    2. Converts CSV to ez80 assembly include file
     
     Parameters:
     -----------
-    input_file : str
+    midi_file : str
         Path to the input MIDI file
-    output_file : str
+    csv_file : str
         Path to the output CSV file
+    tempo_factor : float
+        Factor to adjust playback speed (e.g., 1.5 = 50% faster, 2.0 = double-speed)
     """
     try:
         # Load the MIDI file
-        midi_data = pretty_midi.PrettyMIDI(input_file)
+        midi_data = pretty_midi.PrettyMIDI(midi_file)
         
         # Get some basic information about the MIDI file
         tempo_changes = midi_data.get_tempo_changes()
         time_signature_changes = midi_data.time_signature_changes
         key_signature_changes = midi_data.key_signature_changes
         
-        # Create the output directory if it doesn't exist
-        os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        
         # Open the CSV file for writing
-        with open(output_file, 'w', newline='') as csv_file:
-            writer = csv.writer(csv_file)
+        with open(csv_file, 'w', newline='') as csv_file_obj:
+            writer = csv.writer(csv_file_obj)
             
             # Write header information
             writer.writerow(['# MIDI File Information'])
-            writer.writerow(['Filename', os.path.basename(input_file)])
-            writer.writerow(['Duration (seconds)', f"{midi_data.get_end_time():.2f}"])
+            writer.writerow(['Filename', os.path.basename(midi_file)])
+            writer.writerow(['Duration (seconds)', f"{midi_data.get_end_time()/tempo_factor:.2f}"])
+            writer.writerow(['Tempo Adjustment Factor', f"{tempo_factor:.2f}"])
             writer.writerow(['Resolution (ticks/beat)', midi_data.resolution])
             
             # Write tempo changes
@@ -48,7 +51,9 @@ def midi_to_csv(input_file, output_file):
             writer.writerow(['# Tempo Changes'])
             writer.writerow(['Time (seconds)', 'Tempo (BPM)'])
             for time, tempo in zip(*tempo_changes):
-                writer.writerow([f"{time:.4f}", f"{tempo:.2f}"])
+                # Apply tempo adjustment to time value
+                adjusted_time = time / tempo_factor
+                writer.writerow([f"{adjusted_time:.4f}", f"{tempo:.2f}"])
             
             # Write time signature changes if any
             if time_signature_changes:
@@ -56,7 +61,9 @@ def midi_to_csv(input_file, output_file):
                 writer.writerow(['# Time Signature Changes'])
                 writer.writerow(['Time (seconds)', 'Numerator', 'Denominator'])
                 for ts in time_signature_changes:
-                    writer.writerow([f"{ts.time:.4f}", ts.numerator, ts.denominator])
+                    # Apply tempo adjustment to time value
+                    adjusted_time = ts.time / tempo_factor
+                    writer.writerow([f"{adjusted_time:.4f}", ts.numerator, ts.denominator])
             
             # Write key signature changes if any
             if key_signature_changes:
@@ -64,7 +71,9 @@ def midi_to_csv(input_file, output_file):
                 writer.writerow(['# Key Signature Changes'])
                 writer.writerow(['Time (seconds)', 'Key', 'Mode'])
                 for ks in key_signature_changes:
-                    writer.writerow([f"{ks.time:.4f}", ks.key_number, ks.mode])
+                    # Apply tempo adjustment to time value
+                    adjusted_time = ks.time / tempo_factor
+                    writer.writerow([f"{adjusted_time:.4f}", ks.key_number, ks.mode])
             
             # Write information for each instrument
             for i, instrument in enumerate(midi_data.instruments):
@@ -79,12 +88,17 @@ def midi_to_csv(input_file, output_file):
                     # Convert MIDI pitch number to note name (e.g., 60 -> C4)
                     note_name = pretty_midi.note_number_to_name(note.pitch)
                     
+                    # Apply tempo adjustment to timing values
+                    adjusted_start = note.start / tempo_factor
+                    adjusted_end = note.end / tempo_factor
+                    adjusted_duration = (note.end - note.start) / tempo_factor
+                    
                     # Write note data
                     writer.writerow([
                         j+1,
-                        f"{note.start:.4f}",
-                        f"{note.end:.4f}",
-                        f"{note.end - note.start:.4f}",
+                        f"{adjusted_start:.4f}",
+                        f"{adjusted_end:.4f}",
+                        f"{adjusted_duration:.4f}",
                         note.pitch,
                         note_name,
                         note.velocity,
@@ -102,6 +116,9 @@ def midi_to_csv(input_file, output_file):
                     ctrl_changes = sorted(instrument.control_changes, key=lambda x: x.time)
                     
                     for cc in ctrl_changes:
+                        # Apply tempo adjustment to time value
+                        adjusted_time = cc.time / tempo_factor
+                        
                         # Map some common control numbers to names
                         ctrl_name = {
                             1: 'Modulation',
@@ -113,7 +130,7 @@ def midi_to_csv(input_file, output_file):
                         }.get(cc.number, f"Control {cc.number}")
                         
                         writer.writerow([
-                            f"{cc.time:.4f}",
+                            f"{adjusted_time:.4f}",
                             cc.number,
                             ctrl_name,
                             cc.value
@@ -125,28 +142,42 @@ def midi_to_csv(input_file, output_file):
             writer.writerow(['Total Instruments', len(midi_data.instruments)])
             total_notes = sum(len(instrument.notes) for instrument in midi_data.instruments)
             writer.writerow(['Total Notes', total_notes])
-            
-            print(f"Successfully converted {input_file} to {output_file}")
-            print(f"Total notes: {total_notes}")
-            print(f"Duration: {midi_data.get_end_time():.2f} seconds")
+        
+
+        print(f"MIDI processing complete!")
+        print(f"MIDI file: {midi_file}")
+        print(f"CSV file: {csv_file}")
+        print(f"Tempo adjustment factor: {tempo_factor:.2f}")
+        print(f"Original duration: {midi_data.get_end_time():.2f} seconds")
+        print(f"Adjusted duration: {midi_data.get_end_time()/tempo_factor:.2f} seconds")
+        print(f"Total notes: {total_notes}")
             
     except Exception as e:
-        print(f"Error converting {input_file}: {e}")
+        print(f"Error processing {midi_file}: {e}")
         return False
         
     return True
 
-def main(input_file, output_file=None):
-    # If output file is not specified, use the input filename with .csv extension
-    if not output_file:
-        input_path = Path(input_file)
-        output_dir = Path('midi/out')
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = str(output_dir / (input_path.stem + '.csv'))
-    
-    midi_to_csv(input_file, output_file)
-
 if __name__ == '__main__':
-    # Directly specify the input and output paths
-    input_file = 'midi/in/xm993qd2681-exp-tempo95.mid'
-    main(input_file)
+    # Define directories
+    in_dir = 'midi/in'
+    out_dir = 'midi/out'
+    
+    # Define base filename
+    base_name = 'dx555xv9093-exp-tempo95'
+    
+    # Build file paths
+    midi_file = f"{in_dir}/{base_name}.mid"
+    csv_file = f"{out_dir}/{base_name}.csv"
+    inc_file = f"{out_dir}/{base_name}.inc"
+    
+    # Set tempo adjustment factor:
+    # 1.0 = original tempo
+    # 1.5 = 50% faster
+    # 2.0 = twice as fast
+    # 0.5 = half speed
+    tempo_factor = 1.5  # Adjust this value based on the specific roll
+    
+    # Process the MIDI file
+    midi_to_csv(midi_file, csv_file, tempo_factor)
+    csv_to_inc(csv_file, inc_file, tempo_factor)

@@ -108,7 +108,7 @@ def read_csv_to_notes(csv_file):
     
     return instruments
 
-def convert_to_assembly(instruments, output_file):
+def convert_to_assembly(instruments, output_file, tempo_factor=1.0):
     """
     Convert instruments and their notes to ez80 assembly format and write to output file.
     
@@ -154,22 +154,20 @@ def convert_to_assembly(instruments, output_file):
         
         # Write field descriptions as a comment
         f.write("; Format of each note record:\n")
-        f.write(";   tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)\n")
-        f.write(";   tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)\n")
-        f.write(";   duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)\n")
-        f.write(";   duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)\n")
-        f.write(";   freq_lo:     equ 4     ; 1 byte. Frequency in Hz (low byte)\n")
-        f.write(";   freq_hi:     equ 5     ; 1 byte. Frequency in Hz (high byte)\n")
-        f.write(";   velocity:    equ 6     ; 1 byte. Loudness of the note to sound (0-127)\n")
-        f.write(";   instrument:  equ 7     ; 1 byte. Instrument used to sound note (1-255)\n")
+        f.write(";    tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)\n")
+        f.write(";    tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)\n")
+        f.write(";    duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)\n")
+        f.write(";    duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)\n")
+        f.write(";    freq_lo:     equ 4     ; 1 byte. Frequency in Hz (low byte)\n")
+        f.write(";    freq_hi:     equ 5     ; 1 byte. Frequency in Hz (high byte)\n")
+        f.write(";    velocity:    equ 6     ; 1 byte. Loudness of the note to sound (0-127)\n")
+        f.write(";    instrument:  equ 7     ; 1 byte. Instrument used to sound note (1-255)\n")
         f.write("\n")
         
-        # Write a comment showing total notes count
-        f.write(f"; Total notes: {len(all_notes)}\n\n")
-        
-        # # Write the notes data
-        # f.write("MidiData:\n")
-        
+        # Write a comment showing total notes count and tempo factor
+        f.write(f"; Tempo factor: {tempo_factor}\n\n")
+        f.write(f"; Total notes: {len(all_notes)}\n")
+      
         # Track maximum values for information
         max_delta = 0
         max_duration = 0
@@ -211,11 +209,7 @@ def convert_to_assembly(instruments, output_file):
         f.write(f"; Maximum note duration: {max_duration} ms ({max_duration/1000:.2f} seconds)\n")
         f.write(f"; Frequency range: {min_freq} Hz to {max_freq} Hz\n")
 
-def main():
-    # Input and output file paths
-    input_file = 'midi/out/xm993qd2681-exp-tempo95.csv'
-    output_file = 'midi/out/xm993qd2681-exp-tempo95.inc'
-    
+def csv_to_inc(input_file, output_file, tempo_factor=1.0):
     # Check if file exists
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
@@ -231,7 +225,7 @@ def main():
     instruments = read_csv_to_notes(input_file)
     
     # Convert to assembly format and write to output file
-    convert_to_assembly(instruments, output_file)
+    convert_to_assembly(instruments, output_file, tempo_factor)
     
     print(f"Conversion complete! Assembly file written to {output_file}")
     
@@ -241,4 +235,17 @@ def main():
     print(f"Total notes: {total_notes}")
 
 if __name__ == '__main__':
-    main()
+    out_dir = 'midi/out'
+    base_name = 'dx555xv9093-exp-tempo95'
+    csv_file = f"{out_dir}/{base_name}.csv"
+    inc_file = f"{out_dir}/{base_name}.inc"
+    
+    # Set tempo adjustment factor:
+    # 1.0 = original tempo
+    # 1.5 = 50% faster
+    # 2.0 = twice as fast
+    # 0.5 = half speed
+    tempo_factor = 1.5  # Adjust this value based on the specific roll
+    
+    # Process the csv file
+    csv_to_inc(csv_file, inc_file, tempo_factor)
