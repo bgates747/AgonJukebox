@@ -77,7 +77,7 @@ hlu_div16:
 hlu_sdiv256:
     xor a ; assume hl is positive
     ld (@buffer),hl
-    SIGN_HLU
+    SIGN_UHL
     jp p,@hl_pos
     dec a
 @hl_pos:
@@ -117,7 +117,7 @@ hlu_floor:
 hlu_ceiling:
     push de ; save n
     call udiv24 ; de = quotient, hl = remainder
-    SIGN_HLU ; test remaider for zero
+    SIGN_UHL ; test remaider for zero
     jp z,@F ; if zero, nothing to add
     inc de ; add 1 to quotient for the ceiling
 @@:

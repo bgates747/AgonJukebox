@@ -3,7 +3,7 @@
 ; inputs: HL obviously
 ; outputs: sign flag set if HL is negative, zero flag set if HL is zero
 ; destroys: flags    
-    MACRO SIGN_HLU
+    MACRO SIGN_UHL
     add hl,de ; 1 cycle
     or a ; clear flags ; 1 cycle
     sbc hl,de ; 2 cycles

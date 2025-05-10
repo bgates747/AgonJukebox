@@ -253,9 +253,64 @@ vdu_set_sample_rate:
 @sampleRate: dw 0x0000
 @end:       db 0x00 ; padding
 
+; load a sound file to a buffer
+; inputs: hl = bufferId ; de = sampleRate in Hz ; iy = pointer to filename
+vdu_load_sfx:
+; back up input parameters
+    push hl ; bufferId
+    push de ; sample rate
+; load the sound
+    call vdu_load_buffer_from_file
+; now make the buffer a sound sample
+    pop de ; sample rate
+    pop hl ; bufferId
+    xor a ; zero is the magic number for mono 8-bit signed PCM
+    call vdu_buffer_to_sound 
+    ret
+
 
 last_channel: db 0
 max_channels: equ 1
+
+; play a sound effect from an already loaded buffer
+; inputs: hl = bufferId ; bc = duration in milliseconds
+vdu_play_sfx:
+    ld (@bufferId),hl
+    ld (@duration),bc
+    ld a,23
+    ld (@bufferId+2),a
+    ld a,(last_channel)
+    inc a
+    ; and 31 ; modulo 32
+    cp max_channels
+    jp nz,@load_channel
+    xor a
+@load_channel:
+    ld (last_channel),a
+    ld (@channel0),a
+    ld (@channel1),a
+    ld hl, @sample
+    ld bc, @sample_end - @sample
+    rst.lil $18
+    ret 
+@sample: 
+; Command 4: Set waveform
+; VDU 23, 0, &85, channel, 4, waveformOrSample, [bufferId;]
+    .db 23,0,$85                        ; do sound
+@channel0:   
+    .db 0,4,8 ; channel, command, waveform
+@bufferId:    
+    .dw 0x0000
+; Command 0: Play note
+; VDU 23, 0, &85, channel, 0, volume, frequency; duration;
+    .db 23,0,$85                        ; do sound
+@channel1:    
+    .db 0,0,127                ; channel, volume
+    .dw 0 
+@duration:                              ; freq (tuneable samples only)
+    .dw 0x0000                        ; duration
+@sample_end:
+    .db 0x00 ; padding
 
 ; inputs: c = channel, b = volume, de = sample rate; hl = bufferId;
 vdu_play_sample:

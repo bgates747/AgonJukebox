@@ -142,7 +142,7 @@ bf_prev_page:
 ; decrement the page number
     ld hl,(bf_page_cur) ; get the current page number
     dec hl ; decrement the page number
-    SIGN_HLU
+    SIGN_UHL
     jp p,@F ; not time to wrap around
     ld hl,(bf_dir_num_pages) ; get the number of pages
     dec hl ; zero-based
@@ -328,7 +328,7 @@ ps_seek:
     dec hl ; to offset an inc we get further down somewhere
 ; handle wraparound 
     ld de,(ps_song_duration)
-    SIGN_HLU
+    SIGN_UHL
     jp z,@print
     jp p,@mod
     or a ; clear carry for adc because

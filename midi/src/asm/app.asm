@@ -40,7 +40,7 @@ start:
 	call 	main			; Call the main function
 ; ###############################################
 
-    call cursor_on
+    call vdu_cursor_on
 
 exit:
     pop iy                              ; Pop all registers back from the stack
@@ -101,7 +101,7 @@ waveform_noise: equ 4 ; noise wave
 waveform_vic_noise: equ 5 ; VIC noise wave
 waveform_sample: equ 8 ; PCM sound sample 
 
-waveform: equ waveform_sawtooth
+waveform: equ waveform_triangle
 
 ; set waveform for all channels
     ld hl, waveform_channels_cmd
@@ -146,13 +146,13 @@ waveform_channels_end:
     ld a,3
     call vdu_set_screen_mode
 
-    call cursor_off
+    call vdu_cursor_off
     call vdu_cls
 
-    call vdu_home_cursor
-    ld hl,str_version
-    call printString
-    call printNewline
+    ; call vdu_home_cursor
+    ; ld hl,str_version
+    ; call printString
+    ; call printNewLine
 
     ret
 
@@ -171,8 +171,8 @@ note_counter: dl 0
 
 bytes_per_note: equ 8
 play_note:
-; ; stop the timer
-;     call prt_stop
+; stop the timer
+    call prt_stop
 
 ; reset the note counter
     ld l,(iy+tnext_lo) ; low byte
@@ -197,8 +197,8 @@ play_note:
     call vdu_play_note
     lea iy,iy+bytes_per_note ; move to next note
 
-; ; restart the timer
-;     call prt_start
+; restart the timer
+    call prt_start
 
     ret
 
@@ -206,6 +206,8 @@ play_note:
     include "timer.inc"
     include "maths.inc"
     include "vdu.inc"
+    include "vdu_buffered_api.inc"
+    include "vdu_plot.inc"
     include "vdu_sound.inc"
 
 ; ###############################################
@@ -243,3 +245,5 @@ get_input:
 MidiData:
     include "../../out/dx555xv9093-exp-tempo95.inc"
     ; include "../../out/xm993qd2681-exp-tempo95.inc"
+
+filedata:

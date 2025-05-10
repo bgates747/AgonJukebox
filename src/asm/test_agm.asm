@@ -203,7 +203,7 @@ main:
     ; call print_chunk_header ; DEBUG
 ; check chunk size for zero, indicating end of unit
     ld hl,(agm_chunk_hdr+agm_chunk_size) ; bytes to load
-    SIGN_HLU 
+    SIGN_UHL 
     jr z,@agm_next_unit ; jr z,agm_next_unit
 ; read the next chunk of data from the SD card to RAM
     push hl
