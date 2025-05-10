@@ -46,6 +46,7 @@ exit:
     include "fpp_ext.inc"
 
 ; APPLICATION INCLUDES
+    include "agm.inc"
     include "layout.inc"
     include "browse.inc"
     include "input.inc"
@@ -54,54 +55,46 @@ exit:
     include "sort.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
+    
     include "debug.inc"
 
+test_buffer: dl 0xff1234
 ; --- MAIN PROGRAM FILE ---
-str_seconds: asciz "600"
-str_sample_rate: asciz "4800"
-
-str_arg1: asciz "3600"
-str_arg2: asciz "48000"
-
-fpp_arg1: blkb 5,0 ; 32-bit float
-fpp_arg2: blkb 5,0 ; 32-bit float
-
-int_seconds: blkb 4,0 ; 32-bit integer
-int_sample_rate: blkb 4,0 ; 32-bit integer
 init:
+
+
     ret
 ; end init
 main:
+    LD_HL_mn test_buffer
+    call printHex24
     call printNewLine
 
-    ld hl,-30
-    ld de,270
-    SIGN_HLU
-    jp z,@print
-    jp p,@mod
-    or a ; clear carry for adc because
-    adc hl,de ; add doesn't set sign flag
-    jp p,@print
-    call neg_hlu
-    jp @print
-@mod:
-    call udiv24
-@print:
-    call printDec
+    LD_BC_mn test_buffer
+    push bc
+    pop hl
+    call printHex24
+    call printNewLine
+
+    LD_DE_mn test_buffer
+    ex de,hl
+    call printHex24
+    call printNewLine
+
+    LD_IX_mn test_buffer
+    push ix
+    pop hl
+    call printHex24
+    call printNewLine
+
+    LD_IY_mn test_buffer
+    push iy
+    pop hl
+    call printHex24
     call printNewLine
 
     ret ; back to MOS
 ; end main
-
-;     ld hl,-30
-;     ld de,270
-; @mod:
-;     call udiv24
-; @print:
-;     call printDec
-;     call printNewLine
-;     ret
-
 
 ; must be final include in program so file data does not stomp on program code or other data
     include "files.inc"

@@ -49,8 +49,8 @@ bf_get_dir:
 ; is file so check for valid .wav format
     ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,ix+filinfo_fname ; de = pointer to filename
-    call verify_wav
-    jp nz,@readFileInfo ; not a .wav file, so skip it
+    call bf_verify_wav
+    jp z,@readFileInfo ; not a .wav file, so skip it
 ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
     ld a,'1'
     ld (ix+filinfo_fname-1),a
@@ -75,14 +75,14 @@ bf_get_dir:
 ; compute page statistics
     ld de,bf_files_per_pg    ; number of files per page
     ld hl,(bf_dir_num_files) ; get the number of files
-    SIGN_HLU ; check for zero
+    SIGN_UHL ; check for zero
     jp nz,@not_zero
     ld de,0 ; number of pages, will increment by 1 later
     ld hl,0 ; number of files on last page
     jp @write_stats
 @not_zero:
     call udiv24 ; de = hl/bf_files_per_pg, hl = mod(hl,bf_files_per_pg)
-    SIGN_HLU ; check remainder for zero
+    SIGN_UHL ; check remainder for zero
     jp nz,@write_stats
     ld hl,bf_files_per_pg ; if zero then we have exactly bf_files_per_pg files on the last page ...
     dec de ; ... and we don't need an additional page for the remainder
@@ -128,7 +128,7 @@ bf_print_dir_page:
     call vdu_cls
 ; check for zero files in directory
     ld hl,(bf_dir_num_files)
-    SIGN_HLU
+    SIGN_UHL
     jp z,@no_files ; no files to display so update ui with page stats and return
 ; set pointer to the correct index in the fileinfo pointer table
     ld hl,(bf_page_cur) ; get the current page

@@ -46,6 +46,7 @@ exit:
     include "fpp_ext.inc"
 
 ; APPLICATION INCLUDES
+    include "agm.inc"
     include "layout.inc"
     include "browse.inc"
     include "input.inc"
@@ -54,12 +55,17 @@ exit:
     include "sort.inc"
     include "timer_jukebox.inc"
     include "wav.inc"
+    
     include "debug.inc"
 
 ; --- MAIN PROGRAM FILE ---
 init:
+    ld a,pv_loaded_segments_max
+    call vdu_enable_channels
     call bf_get_dir
     call ui_init
+    call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
+                                 ; (though it must be done here b/c ui_init clears all buffers)
     call ps_prt_irq_init
     ret
 ; end init

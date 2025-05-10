@@ -415,7 +415,7 @@ dumpMemoryHex:
     rst.lil 10h
     inc hl
     djnz @loop
-    ; call printNewLine
+    call printNewLine
 
 ; restore everything
     pop af
@@ -509,23 +509,26 @@ dumpMemoryBinRev:
 
 DEBUG_PRINT:
     PUSH_ALL
-    ; ld c,0 ; X
-    ; ld b,0 ; Y
-    ; call vdu_move_cursor
-    call printNewLine
+    call ps_prt_stop
+    CALL vp_messages
+    CALL vdu_cls
     POP_ALL
     PUSH_ALL
     call dumpFlags
     POP_ALL
     PUSH_ALL
     call dumpRegistersHex
-    ; call waitKeypress
-    call printNewLine
+    call waitKeypress
+    ; call printNewLine
+    call ps_prt_start
     POP_ALL
     ret
 DEBUG_WAITKEYPRESS:
     PUSH_ALL
+    call ps_prt_stop
+    ei
     call waitKeypress
+    call ps_prt_start
     POP_ALL
     RET
 

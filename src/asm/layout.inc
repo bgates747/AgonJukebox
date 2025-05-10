@@ -2,6 +2,8 @@ text_top: equ 0
 text_left: equ 0
 text_bottom: equ 47      ; 48 rows, zero-based
 text_right: equ 63       ; 64 columns, zero-based
+screen_width: dl 0
+screen_height: dl 0
 
 original_screen_mode: db 0 ; screen mode when app started so we can return to it on exit
 
@@ -155,6 +157,36 @@ vp_messages:
     call vdu_set_txt_viewport
     ret
 
+vp_agm_header_top: equ 0
+vp_agm_header:
+    ld c,text_left
+    ld d,vp_agm_header_top
+    ld e,text_right
+    ld b,vp_agm_header_top
+    call vdu_set_txt_viewport
+    ret
+
+vp_num_buffered_top: equ vp_agm_header_top+1
+vp_num_buffered:
+    ld c,text_left
+    ld d,vp_num_buffered_top
+    ld e,text_right
+    ld b,vp_num_buffered_top
+    call vdu_set_txt_viewport
+    ret
+
+; vp_debug_top: equ vp_agm_header_top+1
+vp_debug_top: equ vp_messages_top
+vp_debug_bottom: equ text_bottom
+; set text viewport for messages
+vp_debug:
+    ld c,text_left
+    ld d,vp_debug_top
+    ld e,text_right
+    ld b,vp_debug_bottom
+    call vdu_set_txt_viewport
+    ret
+
 set_text_colours_normal:
 ; set text background color
     ld a,c_blue_dk+128
@@ -266,7 +298,7 @@ ui_init:
     call printInline
     db " Song \e",24," \e",25," \e",237," or 0-9   | Page \e",27,"00\e",26," of 00   | [U]p directory\r\n"
     db " [R]andom song       | [S]huffle: OFF    | [L]oop: OFF\r\n"
-    db " [ESC] or [Q]uit     | Seek -   1 + sec. | v0.9.4-beta\r\n"
+    db " [ESC] or [Q]uit     | Seek -   1 + sec. | v0.9.5-beta\r\n"
     db 0 ; null terminator
 
 ; below the detailed instructions / status border

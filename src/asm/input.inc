@@ -142,7 +142,7 @@ bf_prev_page:
 ; decrement the page number
     ld hl,(bf_page_cur) ; get the current page number
     dec hl ; decrement the page number
-    SIGN_HLU
+    SIGN_UHL
     jp p,@F ; not time to wrap around
     ld hl,(bf_dir_num_pages) ; get the number of pages
     dec hl ; zero-based
@@ -186,9 +186,9 @@ bf_select_file:
     call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
     ld hl,bf_fil_struct ; hl = pointer to fil struct
     lea de,iy+filinfo_fname ; de = pointer to filename
-    call verify_wav
+    call bf_verify_wav
     lea hl,iy+filinfo_fname ; hl = pointer to filename
-    jp nz,bf_change_dir ; not a .wav file, so must be a directory
+    jp z,bf_change_dir ; not a .wav file, so must be a directory
 ; play the .wav file
     call bf_highlight_file ; highlight the selected file
     jp play_song
@@ -325,9 +325,10 @@ ps_seek:
 ; compute new playhead position and update the playbar
     ld de,(ps_playhead)
     add hl,de ; hl = playhead + seek_rate
+    dec hl ; to offset an inc we get further down somewhere
 ; handle wraparound 
     ld de,(ps_song_duration)
-    SIGN_HLU
+    SIGN_UHL
     jp z,@print
     jp p,@mod
     or a ; clear carry for adc because
@@ -341,6 +342,9 @@ ps_seek:
 ; save new playhead position and update the playbar
     ld (ps_playhead),hl 
     call ps_update_playbar
+; reset the chunk counter
+    ld a,ps_chunks_per_second
+    ld (ps_wav_chunk_counter),a
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
@@ -361,7 +365,11 @@ ps_seek:
     ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
     FFSCALL ffs_flseek
-    call ps_read_sample
+; flip the command and sample buffers and read the first block of data at the new position
+    call ps_load_audio_cmd_buffers ; TODO: we should only have to do this on app init, 
+                                 ; but if we don't do it here, only one audio buffer 
+                                 ; is loaded or/and played
+    call ps_set_audio_buffers         ; this is crucial so that the next sound played is at new position
 ; restart the PRT timer
     call ps_prt_start ; start the PRT timer
     jp get_input ; will reenable interrupts
