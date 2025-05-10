@@ -1,3 +1,9 @@
+debug_waitkeypress:
+    PUSH_ALL
+    call waitKeypress
+    POP_ALL
+    RET
+
 printHexA:
     push af
     push bc

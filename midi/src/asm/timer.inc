@@ -159,7 +159,7 @@ prt_irq_handler:
     ld (note_counter),hl
     
 ; if timer expired, play the next note
-    SIGN_HLU
+    SIGN_UHL
     call z,play_note
     jp p,@done
     ld hl,1

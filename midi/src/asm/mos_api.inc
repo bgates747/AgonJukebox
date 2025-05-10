@@ -1,4 +1,4 @@
-; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/mos_api.asm
+; https://github.com/envenomator/Agon/blob/master/ez80asm%20examples%20(annotated)/mos_api.inc
 ; Title:	AGON MOS - API for user projects
 ; Author:	Dean Belfield
 ;			Adapted for agon-ez80asm by Jeroen Venema
@@ -160,7 +160,7 @@ fa_open_always:		EQU	10h
 fa_open_append:		EQU	30h
 	
 ; System variable indexes for api_sysvars
-; Index into _sysvars in globals.asm
+; Index into _sysvars in globals.inc
 ;
 sysvar_time:			EQU	00h	; 4: Clock timer in centiseconds (incremented by 2 every VBLANK)
 sysvar_vpd_pflags:		EQU	04h	; 1: Flags to indicate completion of VDP commands
@@ -233,6 +233,7 @@ dir_sect:		EQU	23	;  4: Current sector (0:Read operation has terminated)
 dir_dir:		EQU	27	;  3: Pointer to the directory item in the win[]
 dir_fn:			EQU	30	; 12: SFN (in/out) {body[8],ext[3],status[1]}
 dir_blk_ofs:	EQU	42	;  4: Offset of current entry block being processed (0xFFFFFFFF:Invalid)
+dir_struct_size:	EQU	46	;  4: Size of the struct
 ;
 ; File information structure (FILINFO)
 ;
@@ -243,6 +244,15 @@ filinfo_ftime:		EQU	6	;   2: Modified time
 filinfo_fattrib:	EQU	8	;   1: File attribute
 filinfo_altname:	EQU	9	;  13: Alternative file name
 filinfo_fname:		EQU	22	; 256: Primary file name
+filinfo_struct_size: EQU filinfo_fname+256 ; size of the FILINFO structure
+
+; /* File attribute bits for directory entry (FILINFO.fattrib) */
+AM_RDO: equ 0 ; Bit 0 - Read Only
+AM_HID: equ 1 ; Bit 1 - Hidden
+AM_SYS: equ 2 ; Bit 2 - System
+AM_DIR: equ 4 ; Bit 4 - Directory
+AM_ARC: equ 5 ; Bit 5 - Archive
+
 ;
 ; Macro for calling the API
 ; Parameters:
@@ -251,4 +261,15 @@ filinfo_fname:		EQU	22	; 256: Primary file name
 	MACRO	MOSCALL	function
 			LD	A, function
 			RST.LIL	08h
+	ENDMACRO 	
+
+;
+; Same as above but keeps IY safe on FFS calls
+; (can be use for regular MOS calls as well)
+;
+	MACRO	FFSCALL	function
+			PUSH IY
+			LD	A, function
+			RST.LIL	08h
+			POP IY
 	ENDMACRO 	

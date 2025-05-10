@@ -101,7 +101,7 @@ waveform_noise: equ 4 ; noise wave
 waveform_vic_noise: equ 5 ; VIC noise wave
 waveform_sample: equ 8 ; PCM sound sample 
 
-waveform: equ waveform_sample
+waveform: equ waveform_triangle
 
 ; set waveform for all channels
     ld hl, waveform_channels_cmd
@@ -202,56 +202,20 @@ play_note:
 
     ret
 
-    include "debug.inc"
     include "functions.inc"
     include "timer.inc"
-
-    include "arith24.inc"
     include "maths.inc"
     include "vdu.inc"
     include "vdu_buffered_api.inc"
     include "vdu_plot.inc"
     include "vdu_sound.inc"
 
-    include "apr.inc"
-
 ; ###############################################
 ; Main loop
 ; ###############################################
 
 main:
-; BEGIN TEMP MAIN
-; 0x80: ffs_fopen
-; Parameters:
-;     HL(U): Pointer to an empty FIL structure
-;     DE(U): Pointer to a C (zero-terminated) filename string
-;     C: File open mode
-    ld hl,pp_fil_struct
-    ld de,sample_filename
-    ld c,fa_read | fa_open_existing
-    FFSCALL ffs_fopen
-
-; load the buffer with the file data
-    ld hl,48 ; buffer id
-    call pp_load_sample
-
-; close the file
-    ld hl,pp_fil_struct
-    FFSCALL ffs_fclose
-
-; play the sample
-    ld hl,48 ; buffer id
-    ld b,127 ; volume
-    ld c,0 ; channel
-    ld de,(pp_wav_header+pp_wav_sample_rate) ; sample rate
-    call vdu_play_sample
-
-    ret
-
-; END TEMP MAIN
-
-; BEGIN OLD MAIN
-    ; ld iy,MidiData
+    ld iy,MidiData
     call prt_irq_init
     call prt_start
     call get_input
@@ -259,8 +223,8 @@ main:
 ; cleanup and exit
     call prt_stop
     ei 
-    ; ld a,0
-    ; call vdu_set_screen_mode
+    ld a,0
+    call vdu_set_screen_mode
     ret
 
 get_input:
@@ -276,6 +240,10 @@ get_input:
     ret z
     
     jr get_input ; if not escape or q, continue
-; END OLD MAIN
 
-sample_filename: asciz "samples/piano_048.wav"
+
+MidiData:
+    include "../../out/dx555xv9093-exp-tempo95.inc"
+    ; include "../../out/xm993qd2681-exp-tempo95.inc"
+
+filedata:
