@@ -369,7 +369,8 @@ def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, ma
 
 if __name__ == '__main__':
     out_dir = 'midi/out'
-    base_name = 'dx555xv9093-exp-tempo95'
+    base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
+    base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
     csv_file = f"{out_dir}/{base_name}.csv"
     inc_file = f"{out_dir}/{base_name}.inc"
     

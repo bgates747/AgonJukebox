@@ -162,7 +162,8 @@ if __name__ == '__main__':
     out_dir = 'midi/out'
     
     # Define base filename
-    base_name = 'dx555xv9093-exp-tempo95'
+    base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
+    base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
     
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"
@@ -174,7 +175,7 @@ if __name__ == '__main__':
     # 2.0 = twice as fast
     # 0.5 = half speed
 
-    tempo_factor = 1.5
+    tempo_factor = 1.0
     volume_multiplier = 2.0
     
     # Process the MIDI file
