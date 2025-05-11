@@ -32,7 +32,8 @@ def read_csv_to_notes(csv_file):
                 try:
                     note_num = int(fields[0])
                     start = float(fields[1])
-                    duration = float(fields[3])
+                    duration = float(fields[2]) / tempo_factor
+                    duration = min(duration,max_duration)
                     pitch = int(fields[4])
                     velocity = int(fields[6])
                     current_notes.append({
@@ -153,5 +154,6 @@ if __name__ == '__main__':
     base = 'dx555xv9093-exp-tempo95'
     csv_file = f"{out_dir}/{base}.csv"
     inc_file = f"{out_dir}/{base}.inc"
-    tempo_factor = 1.5
+    tempo_factor = 1.8
+    max_duration = 5000 # milliseconds
     csv_to_inc(csv_file, inc_file, tempo_factor)

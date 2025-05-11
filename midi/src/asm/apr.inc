@@ -82,39 +82,17 @@ play_note:
     ld (@channel0),a
     ld (@channel1),a
     ld (@channel2),a
-; ; DEBUG
-;     call printDec8
-;     ld a,'|'
-;     rst.lil 10h
-; ; END DEBUG
 
     ld a,(iy+duration_lo)
     ld (@duration),a
     ld a,(iy+duration_hi) 
     ld (@duration+1),a
-; ; DEBUG
-;     ld hl,(@duration)
-;     dec hl
-;     inc.s hl
-;     call printDec
-;     ld a,'|'
-;     rst.lil 10h
-; ; END DEBUG
 
     ld a,(iy+pitch)
     ld (@bufferId),a
-; ; DEBUG
-    call printDec8
-;     ld a,'|'
-;     rst.lil 10h
-; ; END DEBUG
 
     ld a,(iy+velocity)
     ld (@volume),a 
-; ; DEBUG
-;     call printDec8
-;     call printNewLine
-; ; END DEBUG
 
     ld a,(pp_wav_header+pp_wav_sample_rate)
     ld (@sampleRate),a

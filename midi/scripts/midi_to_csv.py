@@ -100,7 +100,7 @@ def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
                         f"{adjusted_duration:.4f}",
                         note.pitch,
                         note_name,
-                        note.velocity,
+                        max(1, min(127, int(round(note.velocity * volume_multiplier)))),
                         note.velocity,  # Note-on velocity
                         0  # Note-off velocity (pretty_midi doesn't store this separately)
                     ])
@@ -176,6 +176,8 @@ if __name__ == '__main__':
     # 2.0 = twice as fast
     # 0.5 = half speed
     tempo_factor = 1.5  # Adjust this value based on the specific roll
+
+    volume_multiplier = 2.0
     
     # Process the MIDI file
     midi_to_csv(midi_file, csv_file, tempo_factor)
