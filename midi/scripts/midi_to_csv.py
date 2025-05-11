@@ -8,7 +8,6 @@ Includes tempo adjustment feature for playback speed correction
 import os
 import csv
 import pretty_midi
-from csv_to_inc import csv_to_inc
 
 def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
     """
@@ -91,6 +90,7 @@ def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
                     adjusted_start = note.start / tempo_factor
                     adjusted_end = note.end / tempo_factor
                     adjusted_duration = (note.end - note.start) / tempo_factor
+                    adjusted_duration = min(adjusted_duration, max_duration / 1000)  # Convert to seconds
                     
                     # Write note data
                     writer.writerow([
@@ -175,10 +175,10 @@ if __name__ == '__main__':
     # 1.5 = 50% faster
     # 2.0 = twice as fast
     # 0.5 = half speed
-    tempo_factor = 1.5  # Adjust this value based on the specific roll
+    tempo_factor = 1.0  # Adjust this value based on the specific roll
 
     volume_multiplier = 2.0
+    max_duration = 5000 # milliseconds
     
     # Process the MIDI file
     midi_to_csv(midi_file, csv_file, tempo_factor)
-    csv_to_inc(csv_file, inc_file, tempo_factor)
