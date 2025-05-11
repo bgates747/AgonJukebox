@@ -136,57 +136,54 @@ main:
     call pp_load_sample
     ld a,'.'
     rst.lil $10
-    ; pop bc
-    ; pop ix
-    ; djnz @sample_loop
 
-; DEBUG
-    ld a,(last_channel)
-    inc a
-    and 31 ; mod 32
-    ld (last_channel),a
-    ld c,a ; channel
-    ld b,30 ; volume
-    ld de,1500 ; duration
-    ld h,0
-    ld l,(ix+3) ; bufferId
-; populate input parameters
-    ld a,c
-    ld (@channel0),a
-    ld (@channel1),a
-    ld (@channel2),a
-    ld a,b
-    ld (@volume),a
-    ld (@bufferId),hl
-    ld (@duration),de
-    ld a,23 
-    ld (@cmd1),a 
-    ld (@cmd2),a
-; prep the vdu command string
-    ld hl, @cmd0
-    ld bc, @end - @cmd0
-    rst.lil $18
-    jr @end+1 
-; set waveform command
-    @cmd0:       db 23, 0, 0x85
-    @channel0:   db 0x00
-                 db 0x04 ; set waveform command
-    @waveform:   db 0x08 ; sample
-    @bufferId:   dw 0x0000
-; set sample rate command
-    @cmd1:       db 23, 0, 0x85
-    @channel1:   db 0x00
-                 db 13 ; set sample rate command
-    @sampleRate: dw 16384
-; play note command
-    @cmd2:       db 23, 0, 0x85
-    @channel2:   db 0x00
-                 db 0x00 ; play note command
-    @volume:     db 0x00
-    @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
-    @duration:   dw 5000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
-    @end:        db 0x00 ; padding
-; END DEBUG
+; ; DEBUG
+;     ld a,(last_channel)
+;     inc a
+;     and 31 ; mod 32
+;     ld (last_channel),a
+;     ld c,a ; channel
+;     ld b,30 ; volume
+;     ld de,1500 ; duration
+;     ld h,0
+;     ld l,(ix+3) ; bufferId
+; ; populate input parameters
+;     ld a,c
+;     ld (@channel0),a
+;     ld (@channel1),a
+;     ld (@channel2),a
+;     ld a,b
+;     ld (@volume),a
+;     ld (@bufferId),hl
+;     ld (@duration),de
+;     ld a,23 
+;     ld (@cmd1),a 
+;     ld (@cmd2),a
+; ; prep the vdu command string
+;     ld hl, @cmd0
+;     ld bc, @end - @cmd0
+;     rst.lil $18
+;     jr @end+1 
+; ; set waveform command
+;     @cmd0:       db 23, 0, 0x85
+;     @channel0:   db 0x00
+;                  db 0x04 ; set waveform command
+;     @waveform:   db 0x08 ; sample
+;     @bufferId:   dw 0x0000
+; ; set sample rate command
+;     @cmd1:       db 23, 0, 0x85
+;     @channel1:   db 0x00
+;                  db 13 ; set sample rate command
+;     @sampleRate: dw 16384
+; ; play note command
+;     @cmd2:       db 23, 0, 0x85
+;     @channel2:   db 0x00
+;                  db 0x00 ; play note command
+;     @volume:     db 0x00
+;     @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
+;     @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
+;     @end:        db 0x00 ; padding
+; ; END DEBUG
 
 ; advance the file pointer and loop
     pop bc
