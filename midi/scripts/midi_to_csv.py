@@ -8,7 +8,6 @@ Includes tempo adjustment feature for playback speed correction
 import os
 import csv
 import pretty_midi
-from pathlib import Path
 from csv_to_inc import csv_to_inc
 
 def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):

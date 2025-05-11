@@ -225,7 +225,7 @@ vdu_buffer_to_sound:
     ld (@sampleRate),de
     ld hl,@cmd         
     ld bc,@end-@cmd    
-    rst.lil $18         
+    rst.lil $18
     ret
 @cmd:       db 23, 0, 0x85
 @channel:   db 0x00 ; ignored
@@ -312,7 +312,7 @@ vdu_play_sfx:
 @sample_end:
     .db 0x00 ; padding
 
-; inputs: c = channel, b = volume, de = sample rate; hl = bufferId;
+; inputs: c = channel, b = volume, de = duration; hl = bufferId;
 vdu_play_sample:
     ; populate input parameters
     ld a,c
@@ -321,8 +321,8 @@ vdu_play_sample:
     ld (@channel2),a
     ld a,b
     ld (@volume),a
-    ld (@sampleRate),de
     ld (@bufferId),hl
+    ld (@duration),de
     ld a,23 
     ld (@cmd1),a 
     ld (@cmd2),a

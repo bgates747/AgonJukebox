@@ -92,113 +92,11 @@ enable_channels_cmd:
     db 23, 0, $85, 30, 8
     db 23, 0, $85, 31, 8
 enable_channels_end:
-
-waveform_square: equ 0 ; square wave
-waveform_triangle: equ 1 ; triangle wave
-waveform_sawtooth: equ 2 ; sawtooth wave
-waveform_sine: equ 3 ; sine wave
-waveform_noise: equ 4 ; noise wave
-waveform_vic_noise: equ 5 ; VIC noise wave
-waveform_sample: equ 8 ; PCM sound sample 
-
-waveform: equ waveform_sample
-
-; set waveform for all channels
-    ld hl, waveform_channels_cmd
-    ld bc, waveform_channels_end - waveform_channels_cmd
-    rst.lil $18
-    jp waveform_channels_end
-waveform_channels_cmd:
-    db 23, 0, $85, 0, 4, waveform
-    db 23, 0, $85, 1, 4, waveform
-    db 23, 0, $85, 2, 4, waveform
-    db 23, 0, $85, 3, 4, waveform
-    db 23, 0, $85, 4, 4, waveform
-    db 23, 0, $85, 5, 4, waveform
-    db 23, 0, $85, 6, 4, waveform
-    db 23, 0, $85, 7, 4, waveform
-    db 23, 0, $85, 8, 4, waveform
-    db 23, 0, $85, 9, 4, waveform
-    db 23, 0, $85, 10, 4, waveform
-    db 23, 0, $85, 11, 4, waveform
-    db 23, 0, $85, 12, 4, waveform
-    db 23, 0, $85, 13, 4, waveform
-    db 23, 0, $85, 14, 4, waveform
-    db 23, 0, $85, 15, 4, waveform
-    db 23, 0, $85, 16, 4, waveform
-    db 23, 0, $85, 17, 4, waveform
-    db 23, 0, $85, 18, 4, waveform
-    db 23, 0, $85, 19, 4, waveform
-    db 23, 0, $85, 20, 4, waveform
-    db 23, 0, $85, 21, 4, waveform
-    db 23, 0, $85, 22, 4, waveform
-    db 23, 0, $85, 23, 4, waveform
-    db 23, 0, $85, 24, 4, waveform
-    db 23, 0, $85, 25, 4, waveform
-    db 23, 0, $85, 26, 4, waveform
-    db 23, 0, $85, 27, 4, waveform
-    db 23, 0, $85, 28, 4, waveform
-    db 23, 0, $85, 29, 4, waveform
-    db 23, 0, $85, 30, 4, waveform
-    db 23, 0, $85, 31, 4, waveform
-waveform_channels_end:
-
     ld a,3
     call vdu_set_screen_mode
 
     call vdu_cursor_off
     call vdu_cls
-
-    ; call vdu_home_cursor
-    ; ld hl,str_version
-    ; call printString
-    ; call printNewLine
-
-    ret
-
-current_channel: db 0
-note_counter: dl 0
-
-; Format of each note record:
-    tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)
-    tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)
-    duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)
-    duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)
-    freq_lo:     equ 4     ; 1 byte. Frequency in Hz (low byte)
-    freq_hi:     equ 5     ; 1 byte. Frequency in Hz (high byte)
-    velocity:    equ 6     ; 1 byte. Loudness of the note to sound (0-127)
-    instrument:  equ 7     ; 1 byte. Instrument used to sound note (1-255)
-
-bytes_per_note: equ 8
-play_note:
-; stop the timer
-    call prt_stop
-
-; reset the note counter
-    ld l,(iy+tnext_lo) ; low byte
-    ld h,(iy+tnext_hi) ; high byte
-    ld (note_counter),hl ; set the note counter
-
-; play the note
-    ld a,(current_channel)
-    inc a
-    and 31 ; mod 32
-    ld (current_channel),a
-    ld c,a ; channel
-
-    ld e,(iy+duration_lo) ; duration low byte
-    ld d,(iy+duration_hi) ; duration high byte
-
-    ld l,(iy+freq_lo) ; frequency low byte
-    ld h,(iy+freq_hi) ; frequency high byte
-
-    ld b,(iy+velocity) ; volume
-
-    call vdu_play_note
-    lea iy,iy+bytes_per_note ; move to next note
-
-; restart the timer
-    call prt_start
 
     ret
 
@@ -214,44 +112,90 @@ play_note:
     include "vdu_sound.inc"
 
     include "apr.inc"
+    include "../../out/dx555xv9093-exp-tempo95.inc"
 
 ; ###############################################
 ; Main loop
 ; ###############################################
 
 main:
-; BEGIN TEMP MAIN
-; 0x80: ffs_fopen
-; Parameters:
-;     HL(U): Pointer to an empty FIL structure
-;     DE(U): Pointer to a C (zero-terminated) filename string
-;     C: File open mode
-    ld hl,pp_fil_struct
-    ld de,sample_filename
-    ld c,fa_read | fa_open_existing
-    FFSCALL ffs_fopen
-
-; load the buffer with the file data
-    ld hl,48 ; buffer id
+    call printInline
+    asciz "Loading samples "
+; load samples
+    ld ix,sample_dictionary ; pointer to the sample dictionary
+    ld b,num_samples ; loop counter
+    xor a
+    ld (last_channel),a
+@sample_loop:
+    push ix
+    push bc
+    ld de,(ix)
+    ld h,0
+    ld l,(ix+3) ; bufferId
     call pp_load_sample
+    ld a,'.'
+    rst.lil $10
+    ; pop bc
+    ; pop ix
+    ; djnz @sample_loop
 
-; close the file
-    ld hl,pp_fil_struct
-    FFSCALL ffs_fclose
+; DEBUG
+    ld a,(last_channel)
+    inc a
+    and 31 ; mod 32
+    ld (last_channel),a
+    ld c,a ; channel
+    ld b,30 ; volume
+    ld de,1500 ; duration
+    ld h,0
+    ld l,(ix+3) ; bufferId
+; populate input parameters
+    ld a,c
+    ld (@channel0),a
+    ld (@channel1),a
+    ld (@channel2),a
+    ld a,b
+    ld (@volume),a
+    ld (@bufferId),hl
+    ld (@duration),de
+    ld a,23 
+    ld (@cmd1),a 
+    ld (@cmd2),a
+; prep the vdu command string
+    ld hl, @cmd0
+    ld bc, @end - @cmd0
+    rst.lil $18
+    jr @end+1 
+; set waveform command
+    @cmd0:       db 23, 0, 0x85
+    @channel0:   db 0x00
+                 db 0x04 ; set waveform command
+    @waveform:   db 0x08 ; sample
+    @bufferId:   dw 0x0000
+; set sample rate command
+    @cmd1:       db 23, 0, 0x85
+    @channel1:   db 0x00
+                 db 13 ; set sample rate command
+    @sampleRate: dw 16384
+; play note command
+    @cmd2:       db 23, 0, 0x85
+    @channel2:   db 0x00
+                 db 0x00 ; play note command
+    @volume:     db 0x00
+    @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
+    @duration:   dw 5000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
+    @end:        db 0x00 ; padding
 
-; play the sample
-    ld hl,48 ; buffer id
-    ld b,127 ; volume
-    ld c,0 ; channel
-    ld de,(pp_wav_header+pp_wav_sample_rate) ; sample rate
-    call vdu_play_sample
+    pop bc
+    pop ix
+    lea ix,ix+4
+    djnz @sample_loop
 
-    ret
+    ; ret
+; END DEBUG
 
-; END TEMP MAIN
-
-; BEGIN OLD MAIN
-    ; ld iy,MidiData
+; play the midi file
+    ld iy,midi_data
     call prt_irq_init
     call prt_start
     call get_input
@@ -276,6 +220,3 @@ get_input:
     ret z
     
     jr get_input ; if not escape or q, continue
-; END OLD MAIN
-
-sample_filename: asciz "samples/piano_048.wav"
