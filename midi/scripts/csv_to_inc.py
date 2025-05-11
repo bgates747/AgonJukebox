@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-CSV to Assembly Converter for ez80 (Pitch-Based)
+CSV to Assembly Converter for ez80
 Converts a MIDI CSV file to an ez80 assembly language include file.
-Writes MIDI pitch values instead of frequency in Hz.
+Converts MIDI pitch values to frequency in Hz.
 Processes sustain and soft pedal effects.
 """
 
@@ -11,6 +11,13 @@ import re
 from collections import defaultdict
 
 def read_csv_with_pedals(csv_file):
+    """
+    Read a CSV file containing MIDI notes data and extract notes and pedal events for each instrument.
+    
+    Returns:
+    - instruments: list of (instrument_number, instrument_name, notes) tuples
+    - pedal_events: dict mapping instrument_number to list of pedal events
+    """
     instruments = []
     pedal_events = defaultdict(list)
     
@@ -23,34 +30,46 @@ def read_csv_with_pedals(csv_file):
     with open(csv_file, 'r') as f:
         lines = f.readlines()
     
+    print(f"Total lines in file: {len(lines)}")
+    
     i = 0
     while i < len(lines):
         line = lines[i].strip()
         
+        # Check for instrument header
         if line.startswith('# Instrument'):
+            # If we already have an instrument, save it before starting a new one
             if current_instrument is not None:
                 instruments.append((current_instr_number, current_instr_name, current_notes))
                 current_notes = []
                 reading_control_changes = False
             
+            # Extract instrument number and name
             parts = line.split(':', 1)
             instr_header = parts[0].strip()
+            
+            # More robust extraction of instrument number - search for digits in the string
             num_match = re.search(r'\d+', instr_header)
             if num_match:
                 current_instr_number = int(num_match.group())
             else:
+                # If no number found, use a counter
                 current_instr_number = len(instruments) + 1
                 
             current_instr_name = parts[1].strip() if len(parts) > 1 else "Unknown"
             current_instrument = current_instr_number
+            
+            # Skip the header line (Note #, Start, etc.)
             i += 1
             reading_control_changes = False
-
+            
+        # Check if we've reached the control changes section
         elif line.startswith('# Control Changes'):
             reading_control_changes = True
-            i += 2
+            i += 2  # Skip header lines
             continue
-
+            
+        # Check if we're reading control changes
         elif reading_control_changes and line and line[0].isdigit():
             fields = line.split(',')
             if len(fields) >= 4:
@@ -59,16 +78,21 @@ def read_csv_with_pedals(csv_file):
                     control_num = int(fields[1])
                     control_name = fields[2]
                     value = int(fields[3])
-                    if control_num in (64, 67):
+                    
+                    # Only capture sustain pedal (64) and soft pedal (67) events
+                    if control_num == 64 or control_num == 67:
                         pedal_events[current_instr_number].append({
                             'time': time,
                             'control_num': control_num,
                             'value': value
                         })
-                except Exception:
-                    pass
-
+                except (ValueError, IndexError) as e:
+                    print(f"Error parsing control change: {line}")
+                    print(f"Exception: {e}")
+            
+        # Check if we've hit a note data line (starts with a number) and not in control changes
         elif not reading_control_changes and line and line[0].isdigit():
+            # Split by comma and extract fields - handle both CSV and simple comma-separated text
             fields = line.split(',')
             if len(fields) >= 8:
                 try:
@@ -80,6 +104,7 @@ def read_csv_with_pedals(csv_file):
                     note_name = fields[5]
                     velocity = int(fields[6])
                     
+                    # Add note to current instrument
                     current_notes.append({
                         'note_num': note_num,
                         'start': start,
@@ -90,203 +115,269 @@ def read_csv_with_pedals(csv_file):
                         'velocity': velocity,
                         'instrument': current_instr_number
                     })
-                except Exception:
-                    pass
+                except (ValueError, IndexError) as e:
+                    print(f"Error parsing note: {line}")
+                    print(f"Exception: {e}")
+        
         i += 1
     
+    # Add the last instrument if there is one
     if current_instrument is not None and current_notes:
         instruments.append((current_instr_number, current_instr_name, current_notes))
     
     return instruments, pedal_events
 
-def process_pedal_effects(instruments, pedal_events, soft_pedal_factor=0.3, sustain_threshold=1):
-    all_processed_notes = []
-    all_pedal_events = []
+def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold):
+    """
+    Process pedal effects for each instrument's notes.
     
-    # Process each instrument separately
+    Parameters:
+    - instruments: list of (instrument_number, instrument_name, notes) tuples
+    - pedal_events: dict mapping instrument_number to list of pedal events
+    - soft_pedal_factor: how much the soft pedal reduces velocity (0.3 = 30% reduction)
+    - sustain_threshold: minimum value for pedal to be considered "on" (typically 1)
+    
+    Returns:
+    - processed_notes: list of notes with adjusted durations and velocities
+    """
+    all_processed_notes = []
+    all_pedal_events = []  # For tracking all pedal events for comments
+    
+    # Process each instrument
     for instr_num, instr_name, notes in instruments:
         # Get pedal events for this instrument
-        events = pedal_events.get(instr_num, [])
-        events.sort(key=lambda e: e['time'])
+        instrument_pedal_events = pedal_events.get(instr_num, [])
         
-        # Extract sustain and soft pedal events
-        sustain = []
-        soft = []
-        for e in events:
-            if e['control_num'] == 64:  # Sustain pedal
-                sustain.append({'time': e['time'], 'value': e['value'], 'type': 'sustain', 'instrument': instr_num})
-                all_pedal_events.append(sustain[-1])
-            elif e['control_num'] == 67:  # Soft pedal
-                soft.append({'time': e['time'], 'value': e['value'], 'type': 'soft', 'instrument': instr_num})
-                all_pedal_events.append(soft[-1])
+        # Sort pedal events by time
+        instrument_pedal_events.sort(key=lambda x: x['time'])
         
-        # Create a list of soft pedal state changes with timestamps
-        soft_pedal_states = []
-        current_state = False
-        for e in soft:
-            new_state = e['value'] >= sustain_threshold
-            if new_state != current_state:
-                soft_pedal_states.append({'time': e['time'], 'active': new_state})
-                current_state = new_state
+        # Initialize pedal state trackers
+        sustain_state = []  # List of {time, value} for sustain pedal
+        soft_state = []     # List of {time, value} for soft pedal
+        
+        # Separate sustain and soft pedal events
+        for event in instrument_pedal_events:
+            if event['control_num'] == 64:  # Sustain pedal
+                sustain_state.append({'time': event['time'], 'value': event['value'], 'type': 'sustain', 'instrument': instr_num})
+                all_pedal_events.append({'time': event['time'], 'value': event['value'], 'type': 'sustain', 'instrument': instr_num})
+            elif event['control_num'] == 67:  # Soft pedal
+                soft_state.append({'time': event['time'], 'value': event['value'], 'type': 'soft', 'instrument': instr_num})
+                all_pedal_events.append({'time': event['time'], 'value': event['value'], 'type': 'soft', 'instrument': instr_num})
+        
+        print(f"Instrument {instr_num}: {len(sustain_state)} sustain events, {len(soft_state)} soft pedal events")
         
         # Process each note
         for note in notes:
-            processed = note.copy()
-            processed['original_velocity'] = note['velocity']
-            processed['original_duration'] = note['duration']
-            processed['velocity_modified'] = False
-            processed['duration_modified'] = False
+            processed_note = note.copy()
             
-            # Soft pedal: Only apply to notes that START AFTER the pedal state changed to active
-            soft_active = False
-            for state in soft_pedal_states:
-                if state['time'] < note['start']:  # State changed before note start
-                    soft_active = state['active']
-                else:
-                    break  # Stop at the first state change after note start
-                    
-            if soft_active:
-                processed['velocity'] = max(1, int(note['velocity'] * (1 - soft_pedal_factor)))
-                processed['velocity_modified'] = True
+            # Track original values for comments
+            processed_note['original_velocity'] = note['velocity']
+            processed_note['original_duration'] = note['duration']
+            processed_note['velocity_modified'] = False
+            processed_note['duration_modified'] = False
             
-            # Sustain pedal (duration extension)
-            sustain_on = None
-            sustain_off = None
-            for e in sustain:
-                if e['time'] <= note['end']:
-                    if e['value'] >= sustain_threshold:
-                        sustain_on = e['time']
-                    else:
-                        sustain_on = None
-                elif sustain_on is not None and e['value'] < sustain_threshold:
-                    sustain_off = e['time']
+            # Apply soft pedal effect (velocity reduction)
+            # Find the soft pedal state at the start of the note
+            soft_pedal_active = False
+            for event in soft_state:
+                if event['time'] <= note['start']:
+                    soft_pedal_active = event['value'] >= sustain_threshold
+                elif event['time'] > note['start']:
                     break
             
-            if sustain_on is not None and sustain_off:
-                processed['end'] = sustain_off
-                processed['duration'] = sustain_off - note['start']
-                processed['duration_modified'] = True
+            # Apply velocity reduction if soft pedal is active
+            if soft_pedal_active:
+                processed_note['velocity'] = max(1, int(note['velocity'] * (1 - soft_pedal_factor)))
+                processed_note['velocity_modified'] = True
             
-            all_processed_notes.append(processed)
+            # Apply sustain pedal effect (duration extension)
+            # First check if the note is affected by sustain pedal
+            sustain_on_time = None
+            sustain_off_time = None
+            
+            # Find sustain state at end of note
+            for event in sustain_state:
+                if event['time'] <= note['end']:
+                    if event['value'] >= sustain_threshold:
+                        sustain_on_time = event['time']
+                    else:
+                        sustain_off_time = event['time']
+                        sustain_on_time = None  # Reset if pedal was released before note end
+                elif event['time'] > note['end']:
+                    if sustain_on_time is not None and event['value'] < sustain_threshold:
+                        # This is the pedal release after note end
+                        sustain_off_time = event['time']
+                        break
+            
+            # Extend note duration if sustained
+            if sustain_on_time is not None and sustain_on_time <= note['end']:
+                # Find the first pedal release after the note ends
+                for event in sustain_state:
+                    if event['time'] > note['end'] and event['value'] < sustain_threshold:
+                        sustain_off_time = event['time']
+                        break
+                
+                if sustain_off_time is not None:
+                    processed_note['end'] = sustain_off_time
+                    processed_note['duration'] = sustain_off_time - note['start']
+                    processed_note['duration_modified'] = True
+            
+            all_processed_notes.append(processed_note)
     
     # Sort all notes by start time
     all_processed_notes.sort(key=lambda x: x['start'])
+    
+    # Sort all pedal events by time for comments
     all_pedal_events.sort(key=lambda x: x['time'])
+    
     return all_processed_notes, all_pedal_events
 
-def load_samples(samples_dir):
-    """
-    Scan 'samples_dir' for .wav files named *_PPP.wav, where PPP is pitch.
-    Returns two lists of assembly lines: sample_dictionary and sample_filenames.
-    """
-    import os, re
-
-    files = sorted(f for f in os.listdir(samples_dir) if f.lower().endswith('.wav'))
-    sample_dictionary = []
-    sample_filenames = []
-    for fname in files:
-        m = re.search(r'_(\d{3})\.wav$', fname)
-        if not m:
-            continue
-        ppp = m.group(1)
-        # dictionary entry: dl fn_PPP, db PPP
-        sample_dictionary.append(f"    dl fn_{ppp}")
-        sample_dictionary.append(f"    db {int(ppp)}")
-        # filename entry with label: fn_PPP: asciz "samples/<fname>"
-        sample_filenames.append(f"    fn_{ppp}:    asciz \"samples/{fname}\"")
-    return sample_dictionary, sample_filenames
-
-def convert_to_assembly(processed_notes, all_pedal_events, output_file, tempo_factor=1.0, soft_pedal_factor=0.3, sustain_threshold=1):
-    for i in range(len(processed_notes) - 1):
-        delta = processed_notes[i + 1]['start'] - processed_notes[i]['start']
-        processed_notes[i]['delta_ms'] = round(delta * 1000 * tempo_factor)
+def convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration):
+    # Calculate delta times between consecutive notes
+    for i in range(len(processed_notes)-1):
+        delta_seconds = processed_notes[i+1]['start'] - processed_notes[i]['start']
+        # Round to nearest millisecond
+        processed_notes[i]['delta_ms'] = round(delta_seconds * 1000)
+    
+    # The last note has no next note, so set delta to 0
     if processed_notes:
         processed_notes[-1]['delta_ms'] = 0
-
+    
+    # Merge notes and pedal events into a unified timeline
+    timeline = []
+    
+    # Add notes to timeline
+    for note in processed_notes:
+        timeline.append({
+            'type': 'note',
+            'time': note['start'],
+            'data': note
+        })
+    
+    # Add pedal events to timeline
+    for event in all_pedal_events:
+        timeline.append({
+            'type': 'pedal',
+            'time': event['time'],
+            'data': event
+        })
+    
+    # Sort timeline by time
+    timeline.sort(key=lambda x: x['time'])
+    
+    # Open output file for writing
     with open(output_file, 'w') as f:
-        f.write("; MIDI Note Data in ez80 Assembly Format (7-byte records)\n")
-        f.write("; Field offsets:\n")
-        f.write(";    tnext_lo:    equ 0     ; time to next note, low byte\n")
-        f.write(";    tnext_hi:    equ 1     ; time to next note, high byte\n")
-        f.write(";    duration_lo: equ 2     ; note duration, low byte\n")
-        f.write(";    duration_hi: equ 3     ; note duration, high byte\n")
-        f.write(";    pitch:       equ 4     ; MIDI pitch (0–127)\n")
-        f.write(";    velocity:    equ 5     ; MIDI velocity (0–127)\n")
-        f.write(";    instrument:  equ 6     ; instrument ID (1–255)\n\n")
-        f.write(f"; Tempo factor: {tempo_factor}\n\n")
+        # Write assembly comments with information
+        f.write("; MIDI Note Data in ez80 Assembly Format\n")
+        f.write("; Generated from CSV file with pedal effects applied\n\n")
+        
+        # Write information about pedal processing
+        f.write("; Pedal Effects:\n")
+        f.write(";   - Sustain pedal (CC 64) extends note durations\n")
+        f.write(";   - Soft pedal (CC 67) reduces note velocities\n")
+        f.write("\n")
+        
+        # Write field descriptions as a comment
+        f.write("; Format of each note record:\n")
+        f.write(";    tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)\n")
+        f.write(";    tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)\n")
+        f.write(";    duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)\n")
+        f.write(";    duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)\n")
+        f.write(";    pitch:       equ 4     ; 1 byte. MIDI pitch\n")
+        f.write(";    velocity:    equ 5     ; 1 byte. Loudness of the note to sound (0-127)\n")
+        f.write(";    instrument:  equ 6     ; 1 byte. Instrument used to sound note (1-255)\n")
+        f.write("\n")
+        
+        # Write a comment showing total notes count
         f.write(f"; Total notes: {len(processed_notes)}\n\n")
+      
         f.write("midi_data:\n")
 
-        max_delta = 0
-        max_dur = 0
-        for idx, note in enumerate(processed_notes):
-            duration_ms = round(note['duration'] * 1000)
-            delta_ms = note['delta_ms']
-            max_dur = max(max_dur, duration_ms)
-            max_delta = max(max_delta, delta_ms)
+        note_index = 0
+        
+        # Process the timeline to output notes and pedal event comments
+        for item in timeline:
+            if item['type'] == 'pedal':
+                pedal = item['data']
+                pedal_type = "Sustain" if pedal['type'] == 'sustain' else "Soft"
+                f.write(f"; t {pedal['time']:.4f} {pedal_type} {pedal['value']} (Instrument {pedal['instrument']})\n")
+            else:  # Note event
+                note = item['data']
+                note_index += 1
+                
+                # Calculate duration in milliseconds (as 16-bit value)
+                duration_ms = round(note['duration'] * 1000)
+                duration_ms = min(max_duration, duration_ms)
+                
+                # Split into low and high bytes (little-endian)
+                duration_lo = duration_ms & 0xFF
+                duration_hi = (duration_ms >> 8) & 0xFF
+                
+                # Get delta time as 16-bit value
+                delta_ms = note['delta_ms']
+                
+                # Split into low and high bytes (little-endian)
+                delta_lo = delta_ms & 0xFF
+                delta_hi = (delta_ms >> 8) & 0xFF
+                
+                # Build comment with enhanced information
+                comment = f"t {note['start']:.4f} {note['note_name']}, tn={delta_ms}, d={duration_ms}"
+                
+                # Add velocity modification info if applicable
+                if note.get('velocity_modified', False):
+                    comment += f", soft {note['original_velocity']}->{note['velocity']}"
+                
+                # Add duration modification info if applicable
+                if note.get('duration_modified', False):
+                    orig_dur_ms = round(note['original_duration'] * 1000)
+                    comment += f", sust {orig_dur_ms}->{duration_ms}"
+                
+                # Write the note data
+                f.write(f"    db {delta_lo},{delta_hi},{duration_lo},{duration_hi},{note['pitch']},{note['velocity']},{note['instrument']} ; n {note_index}: {comment}\n")
+        
+        # Add end marker
+        f.write("    db 255,255,255,255,255,255,255,255  ; End marker\n")
 
-            d_lo, d_hi = duration_ms & 0xFF, (duration_ms >> 8) & 0xFF
-            t_lo, t_hi = delta_ms & 0xFF, (delta_ms >> 8) & 0xFF
-            pitch = note['pitch'] & 0x7F
-            vel = note['velocity'] & 0x7F
-            inst = note['instrument'] & 0xFF
-
-            comment = f"T {note['start']:.4f} {note['note_name']} pitch={pitch}, tnext={delta_ms}, dur={duration_ms}"
-            if note.get('velocity_modified'): comment += f", soft {note['original_velocity']}->{note['velocity']}"
-            if note.get('duration_modified'): comment += f", sustain {round(note['original_duration']*1000)}->{duration_ms}"
-
-            comment = "" # DEBUG
-
-            f.write(f"    db {t_lo}, {t_hi}, {d_lo}, {d_hi}, {pitch}, {vel}, {inst}  ; Note {idx+1}: {comment}\n")
-
-        f.write("    db 255,255,255,255,255,255,255  ; End marker\n\n")
-        f.write(f"; Maximum delta: {max_delta} ms\n")
-        f.write(f"; Maximum duration: {max_dur} ms\n")
-
-        # Pedal summary
-        f.write(f"\n; Pedal effects applied: Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sustain_threshold}\n")
-        f.write(f"; Total instruments: {len(set(n['instrument'] for n in processed_notes))}\n")
-        f.write(f"; Total notes after processing: {len(processed_notes)}\n")
-        f.write(f"; Total pedal events: {len(all_pedal_events)}\n")
-
-        # Append sample table
-        sample_dictionary, sample_filenames = load_samples("midi/tgt/samples")
-        f.write(f"\nnum_samples:    equ {len(sample_filenames)}\n\n")
-
-        f.write("; Sample dictionary (pointer, bufferId)\n")
-        f.write("sample_dictionary:\n")
-        for line in sample_dictionary:
-            f.write(f"{line}\n")
-
-        f.write("\n; Sample filename strings\n")
-        f.write("sample_filenames:\n")
-        for line in sample_filenames:
-            f.write(f"{line}\n")
-
-def csv_to_inc(input_file, output_file, tempo_factor=1.0, soft_pedal_factor=0.3, sustain_threshold=1):
+def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, max_duration):
+    # Check if file exists
     if not os.path.exists(input_file):
-        print(f"Error: file not found: {input_file}")
+        print(f"Error: Input file '{input_file}' not found.")
+        print(f"Current working directory: {os.getcwd()}")
+        print(f"Files in directory: {os.listdir(os.path.dirname(input_file) or '.')}")
         return
-    os.makedirs(os.path.dirname(output_file), exist_ok=True)
-
+    
+    # Create output directory if it doesn't exist
+    output_dir = os.path.dirname(output_file)
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Read instruments and pedal events from CSV
     instruments, pedal_events = read_csv_with_pedals(input_file)
-    processed_notes, all_pedals = process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold)
-    convert_to_assembly(processed_notes, all_pedals, output_file, tempo_factor, soft_pedal_factor, sustain_threshold)
-
+    
+    # Process pedal effects
+    processed_notes, all_pedal_events = process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold)
+    
+    # Convert to assembly format and write to output file
+    convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration)
+    
     print(f"Conversion complete! Assembly file written to {output_file}")
     print(f"Pedal effects applied: Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sustain_threshold}")
+    
+    # Print basic statistics
     print(f"Total instruments: {len(instruments)}")
     print(f"Total notes after processing: {len(processed_notes)}")
-    print(f"Total pedal events: {len(all_pedals)}")
+    print(f"Total pedal events: {len(all_pedal_events)}")
 
 if __name__ == '__main__':
     out_dir = 'midi/out'
     base_name = 'dx555xv9093-exp-tempo95'
     csv_file = f"{out_dir}/{base_name}.csv"
     inc_file = f"{out_dir}/{base_name}.inc"
+    
+    # Set parameters
+    soft_pedal_factor = 0.3     # How much soft pedal reduces velocity (30%)
+    sustain_threshold = 1       # Minimum value for pedal to be considered "on"
+    max_duration = 5000 # in milliseconds
 
-    tempo_factor = 1.0
-    soft_pedal_factor = 0.3
-    sustain_threshold = 1
-
-    csv_to_inc(csv_file, inc_file, tempo_factor, soft_pedal_factor, sustain_threshold)
+    
+    # Process the csv file
+    csv_to_inc(csv_file, inc_file, soft_pedal_factor, sustain_threshold, max_duration)

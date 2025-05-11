@@ -67,8 +67,8 @@
     bytes_per_note: equ 7
 
 play_note:
-; stop the timer
-    call prt_stop
+; ; stop the timer
+;     call prt_stop
 ; reset the note counter
     ld l,(iy+tnext_lo) ; low byte
     ld h,(iy+tnext_hi) ; high byte
@@ -125,8 +125,8 @@ play_note:
 
     lea iy,iy+bytes_per_note ; move to next note
 
-; restart the timer
-    call prt_start
+; ; restart the timer
+;     call prt_start
 
     ret
 

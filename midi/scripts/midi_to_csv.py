@@ -9,7 +9,7 @@ import os
 import csv
 import pretty_midi
 
-def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
+def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
     """
     Complete MIDI processing pipeline:
     1. Converts MIDI to CSV with tempo adjustment
@@ -90,7 +90,6 @@ def midi_to_csv(midi_file, csv_file, tempo_factor=1.0):
                     adjusted_start = note.start / tempo_factor
                     adjusted_end = note.end / tempo_factor
                     adjusted_duration = (note.end - note.start) / tempo_factor
-                    adjusted_duration = min(adjusted_duration, max_duration / 1000)  # Convert to seconds
                     
                     # Write note data
                     writer.writerow([
@@ -168,17 +167,15 @@ if __name__ == '__main__':
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"
     csv_file = f"{out_dir}/{base_name}.csv"
-    inc_file = f"{out_dir}/{base_name}.inc"
     
     # Set tempo adjustment factor:
     # 1.0 = original tempo
     # 1.5 = 50% faster
     # 2.0 = twice as fast
     # 0.5 = half speed
-    tempo_factor = 1.0  # Adjust this value based on the specific roll
 
+    tempo_factor = 1.5
     volume_multiplier = 2.0
-    max_duration = 5000 # milliseconds
     
     # Process the MIDI file
-    midi_to_csv(midi_file, csv_file, tempo_factor)
+    midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier)

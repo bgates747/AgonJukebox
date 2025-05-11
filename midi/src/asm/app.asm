@@ -112,6 +112,7 @@ enable_channels_end:
     include "vdu_sound.inc"
 
     include "apr.inc"
+    include "samples.inc"
     include "../../out/dx555xv9093-exp-tempo95.inc"
 
 ; ###############################################
@@ -185,14 +186,13 @@ main:
     @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
     @duration:   dw 5000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
     @end:        db 0x00 ; padding
+; END DEBUG
 
+; advance the file pointer and loop
     pop bc
     pop ix
     lea ix,ix+4
     djnz @sample_loop
-
-    ; ret
-; END DEBUG
 
 ; play the midi file
     ld iy,midi_data
