@@ -1,231 +1,135 @@
 #!/usr/bin/env python3
 """
-Harpsichord Sample Generator (additive, 8' + 4' choirs)
+Additive-synthesis harpsichord sample generator
+----------------------------------------------
 
-Derived from the earlier piano‐synthesis script but with parameter tweaks
-and octave-doubling to approximate the two choirs of a harpsichord.
+• Generates one 16 384 Hz, 8-bit mono WAV per MIDI note (inclusive range).
+• Pure additive: each note = sum of harmonic partials with per-partial envelopes.
+• Dual 8′ courses (two strings) with slight detune for natural shimmer.
+• Optional 4′ stop (octave-up) can be enabled with a single flag.
+
+Output directory: midi/tgt/harpsichord
+Output file naming: <midi_note:03d>.wav  (e.g. 024.wav … 072.wav)
 """
 
 import os
 import numpy as np
 import soundfile as sf
-from pydub import AudioSegment
-from pydub.playback import play
+
+# -------------------------------------------------------------------- #
+#  Fixed synthesis constants
+# -------------------------------------------------------------------- #
+SAMPLE_RATE      = 16_384        # Hz
+NYQUIST          = SAMPLE_RATE / 2
+DURATION         = 1.0           # seconds per note
+FADE_MS          = 300           # safety fade-out
+NUM_PARTIALS     = 32            # additive harmonics (clipped by Nyquist)
+DETUNE_CENTS     = 2.0           # cents between the two 8′ strings
+FOUR_FOOT        = True          # True → include 4′ stop (octave up) @ 50 %
+NOISE_CLICK_DB   = -18           # level of 2 ms quill click (dB)
+
+OUTPUT_DIR       = "midi/tgt/harpsichord"
+MIDI_START       = 24            # C1
+MIDI_END         = 72            # C5
+
+np.random.seed(0)                # repeatable shimmer
 
 
-# ---------------------------------------------------------------------------
-# Utility: fixed 2-choir voice count (8-foot + 4-foot courses)
-# ---------------------------------------------------------------------------
-def get_harpsichord_voice_count(_: int) -> int:
-    """Harpsichords typically have 2 choirs for most keys."""
-    return 2
+# -------------------------------------------------------------------- #
+#  Helper functions
+# -------------------------------------------------------------------- #
+def db_to_amp(db):          # convert dB to linear amplitude
+    return 10 ** (db / 20.0)
 
 
-# ---------------------------------------------------------------------------
-# Core synthesis
-# ---------------------------------------------------------------------------
-def generate_harpsichord_note(
-    base_freq: float,
-    midi_note: int,
-    sample_rate: int,
-    duration: float,
-    num_partials: int,
-    inharmonicity: float,
-    detune_cents: float,
-    attack_time: float,
-    octave_decay_factor: float,
-    spectral_rolloff: float,
-    partial_decay_constant: float,
-    loudness_exponent: float,
-    pitch_randomness_cents: float,
-    fade_time_ms: float
-):
+def midi_to_freq(m):        # equal-tempered A4 = 440 Hz
+    return 440.0 * 2 ** ((m - 69) / 12)
+
+
+def additive_harpsichord(freq, partials=NUM_PARTIALS):
     """
-    Return a harpsichord note as a float32 numpy array in −1…+1.
+    Return a 1-D float32 array (−1…+1) of a single harpsichord note.
 
-    Two courses:
-      * first voice: 8′ (base pitch)
-      * second voice: 4′ (one octave up) at 50 % amplitude
-
-    All parameters mirror the earlier piano function so therest of the
-    codebase remains unchanged.
+    Implementation notes:
+    • each partial gets its own exponential decay:  τ_k = τ_base / k
+    • τ_base scales with pitch so bass notes ring slightly longer
+    • amplitude roll-off  ~ 1/k  (bright)
+    • two detuned strings (8′ & 8′ detuned)  + optional 4′ string
+    • 2 ms broadband click mixed at note onset
     """
-    N = int(sample_rate * duration)
-    t = np.linspace(0.0, duration, N, endpoint=False, dtype=np.float32)
-    signal = np.zeros(N, dtype=np.float32)
+    n_samples = int(SAMPLE_RATE * DURATION)
+    t = np.linspace(0, DURATION, n_samples, endpoint=False, dtype=np.float32)
+    out = np.zeros_like(t)
 
-    unison_voices = get_harpsichord_voice_count(midi_note)  # =2
+    # base decay constant: lower notes longer
+    midi_note = 69 + 12 * np.log2(freq / 440.0)
+    octave_diff = (60 - midi_note) / 12.0
+    tau_base = 1.2 * (2 ** octave_diff)        # ~1.2 s around middle C
 
-    # shorter overall decay than piano
-    octave_diff = (60 - midi_note) / 12.0        # C4 reference
-    tau_base = duration * 0.5 * (octave_decay_factor ** octave_diff)
+    # loop over harmonic numbers
+    for k in range(1, partials + 1):
+        f_k = k * freq
+        if f_k >= NYQUIST - 50:          # leave margin
+            break
 
-    for k in range(1, num_partials + 1):
-        # stretched-string inharmonicity (tiny for harpsichord)
-        fk = k * base_freq * np.sqrt(1 + inharmonicity * k * k)
-        tau_k = tau_base / k
+        # amplitude roll-off and per-partial envelope
+        amp = 1.0 / k
+        env = np.exp(-t / (tau_base / k))
 
-        # fast attack, single-slope decay
-        env = np.minimum(t / attack_time, 1.0) * np.exp(
-            -np.maximum(t - attack_time, 0.0) / tau_k
-        )
+        # two 8′ strings
+        cents_shift = DETUNE_CENTS / 2
+        phases = np.random.uniform(0, 2*np.pi, 2)
+        for sign, ph in zip((-1, +1), phases):
+            detune = 2 ** (sign * cents_shift / 1200.0)
+            out += 0.5 * amp * env * np.sin(2 * np.pi * f_k * detune * t + ph)
 
-        # bright spectrum, gentle HF taper
-        amp0 = (1.0 / (k ** spectral_rolloff)) * np.exp(-k / partial_decay_constant)
-        amp0 *= 1.0 / (k ** loudness_exponent)  # loudness compensation (usually 0)
+        # optional 4′ course (octave up) at half amplitude
+        if FOUR_FOOT and f_k*2 < NYQUIST - 50:
+            out += 0.25 * amp * env * np.sin(2 * np.pi * f_k*2 * t + phases[0])
 
-        for i in range(unison_voices):          # 0 = 8′, 1 = 4′
-            # 8-foot base, 4-foot octave-up
-            octave_mul = 1.0 if i == 0 else 2.0
-            freq = fk * octave_mul
-
-            # no deliberate detune, just tiny randomness
-            cents_jitter = np.random.uniform(-pitch_randomness_cents,
-                                             pitch_randomness_cents)
-            freq *= 2 ** (cents_jitter / 1200.0)
-
-            voice_amp = amp0 * (0.5 if i == 1 else 1.0) / unison_voices
-            signal += voice_amp * env * np.sin(2 * np.pi * freq * t)
+    # add 2 ms quill click
+    click_len = int(0.002 * SAMPLE_RATE)
+    click_env = np.linspace(1, 0, click_len, dtype=np.float32)
+    click_noise = db_to_amp(NOISE_CLICK_DB) * np.random.randn(click_len).astype(np.float32)
+    out[:click_len] += click_noise * click_env
 
     # normalise
-    peak = np.max(np.abs(signal))
-    if peak != 0:
-        signal /= peak
+    peak = np.max(np.abs(out))
+    if peak > 0:
+        out /= peak
 
     # linear fade-out
-    fade_samples = int(sample_rate * (fade_time_ms / 1000.0))
-    if 0 < fade_samples < N:
-        signal[-fade_samples:] *= np.linspace(1.0, 0.0, fade_samples, dtype=np.float32)
+    fade_n = int(FADE_MS / 1000 * SAMPLE_RATE)
+    if fade_n > 0:
+        out[-fade_n:] *= np.linspace(1.0, 0.0, fade_n, dtype=np.float32)
 
-    # optional: 2 ms plectrum click (-20 dB)
-    click_len = int(sample_rate * 0.002)
-    click = 0.1 * np.random.randn(click_len).astype(np.float32)
-    click *= np.linspace(1.0, 0.0, click_len, dtype=np.float32)
-    signal[:click_len] += click
-
-    # re-normalise (click may add headroom)
-    peak = np.max(np.abs(signal))
-    if peak > 1e-6:
-        signal /= peak
-
-    return signal
+    return out.astype(np.float32)
 
 
-# ---------------------------------------------------------------------------
-# I/O helpers
-# ---------------------------------------------------------------------------
-def save_waveform(waveform, sample_rate, filename):
+def save_u8_mono(waveform: np.ndarray, filename: str):
+    """Write float32 (−1…+1) to unsigned 8-bit PCM WAV."""
     os.makedirs(os.path.dirname(filename), exist_ok=True)
-    sf.write(filename, waveform.astype(np.float32), sample_rate,
-             subtype="PCM_U8")
-    print("Saved", filename)
+    sf.write(filename, waveform, SAMPLE_RATE, subtype="PCM_U8")
+    print("saved", filename)
 
 
-def numpy_to_audio_segment(waveform, sample_rate):
-    return AudioSegment(
-        np.int16(waveform * 32767).tobytes(),
-        frame_rate=sample_rate,
-        sample_width=2,
-        channels=1,
-    )
+# -------------------------------------------------------------------- #
+#  Batch generation
+# -------------------------------------------------------------------- #
+def generate_bank(midi_lo=MIDI_START, midi_hi=MIDI_END):
+    # clear old files
+    if os.path.isdir(OUTPUT_DIR):
+        for f in os.listdir(OUTPUT_DIR):
+            p = os.path.join(OUTPUT_DIR, f)
+            if os.path.isfile(p):
+                os.remove(p)
+
+    for m in range(midi_lo, midi_hi + 1):
+        w = additive_harpsichord(midi_to_freq(m))
+        save_u8_mono(w, os.path.join(OUTPUT_DIR, f"{m:03d}.wav"))
 
 
-# ---------------------------------------------------------------------------
-# Batch generation
-# ---------------------------------------------------------------------------
-def generate_all_notes(
-    midi_start: int,
-    midi_end: int,
-    sample_rate: int,
-    duration: float,
-    num_partials: int,
-    inharmonicity: float,
-    detune_cents: float,
-    attack_time: float,
-    octave_decay_factor: float,
-    spectral_rolloff: float,
-    partial_decay_constant: float,
-    loudness_exponent: float,
-    pitch_randomness_cents: float,
-    output_dir: str,
-    fade_time_ms: float,
-):
-    # clear directory
-    if os.path.isdir(output_dir):
-        for fname in os.listdir(output_dir):
-            fp = os.path.join(output_dir, fname)
-            if os.path.isfile(fp):
-                os.remove(fp)
-
-    for midi_note in range(midi_start, midi_end + 1):
-        base_freq = 440.0 * 2 ** ((midi_note - 69) / 12.0)
-        note = generate_harpsichord_note(
-            base_freq,
-            midi_note,
-            sample_rate,
-            duration,
-            num_partials,
-            inharmonicity,
-            detune_cents,
-            attack_time,
-            octave_decay_factor,
-            spectral_rolloff,
-            partial_decay_constant,
-            loudness_exponent,
-            pitch_randomness_cents,
-            fade_time_ms,
-        )
-        out_name = os.path.join(output_dir, f"{midi_note:03d}.wav")
-        save_waveform(note, sample_rate, out_name)
-
-
-# ---------------------------------------------------------------------------
-# Main / parameter block
-# ---------------------------------------------------------------------------
+# -------------------------------------------------------------------- #
 if __name__ == "__main__":
-    output_dir                = "midi/tgt/harpsichord"
-    midi_start                = 24          # C1
-    midi_end                  = 72          # C5
-
-    # synthesis parameters tweaked for harpsichord
-    sample_rate               = 16384
-    duration                  = 3.0         # shorter note
-    num_partials              = 36
-    inharmonicity             = 5e-5
-    detune_cents              = 0.0
-    pitch_randomness_cents    = 0.2
-    attack_time               = 0.001       # 1 ms snap
-    octave_decay_factor       = 1.2
-    spectral_rolloff          = 1.0
-    partial_decay_constant    = 4.0
-    loudness_exponent         = 0.0
-    fade_time_ms              = 200.0       # safety tail-off
-
-    generate_all_notes(
-        midi_start,
-        midi_end,
-        sample_rate,
-        duration,
-        num_partials,
-        inharmonicity,
-        detune_cents,
-        attack_time,
-        octave_decay_factor,
-        spectral_rolloff,
-        partial_decay_constant,
-        loudness_exponent,
-        pitch_randomness_cents,
-        output_dir,
-        fade_time_ms,
-    )
-
-    print("Done generating harpsichord range.")
-
-
-    # # Single test note
-    # test_midi_note            = 48 
-    # base_freq = 440.0 * 2 ** ((test_midi_note - 69) / 12.0)
-    # note = generate_piano_note(base_freq,test_midi_note,sample_rate,duration,partials,inharmonicity,detune,attack,decay_factor,spectral_rolloff,partial_decay_constant,loudness_exponent,pitch_randomness_cents,fade_time)
-    # filename = os.path.join(output_dir,f"piano_{test_midi_note:03d}.wav")
-    # save_waveform(note, sample_rate, filename)
-    # play(numpy_to_audio_segment(note, sample_rate))
+    generate_bank()
+    print("Done.")

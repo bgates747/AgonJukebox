@@ -382,7 +382,7 @@ if __name__ == '__main__':
     # Set parameters
     soft_pedal_factor = 0.3     # How much soft pedal reduces velocity (30%)
     sustain_threshold = 1       # Minimum value for pedal to be considered "on"
-    max_duration = 2998 # in milliseconds
+    max_duration = 3000 # in milliseconds
 
     
     # Process the csv file
