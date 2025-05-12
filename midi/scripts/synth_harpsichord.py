@@ -29,8 +29,8 @@ FOUR_FOOT        = True          # True → include 4′ stop (octave up) @ 50 %
 NOISE_CLICK_DB   = -18           # level of 2 ms quill click (dB)
 
 OUTPUT_DIR       = "midi/tgt/harpsichord"
-MIDI_START       = 24            # C1
-MIDI_END         = 72            # C5
+MIDI_START       = 21
+MIDI_END         = 86
 
 np.random.seed(0)                # repeatable shimmer
 

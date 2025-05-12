@@ -1,25 +1,24 @@
-def load_samples(samples_dir, inc_file):
+def load_samples(samples_dir, inc_file, instrument):
     """
-    Scan 'samples_dir' for .wav files named *_PPP.wav, where PPP is pitch.
-    Returns two lists of assembly lines: sample_dictionary and sample_filenames.
+    Scan 'samples_dir' for .wav files named *_PPP.wav or PPP.wav.
+    Writes sample_dictionary and sample_filenames tables to 'inc_file'.
+    Emits paths like 'instrument/PPP.wav' (e.g., 'harpsichord/048.wav').
     """
     import os, re
 
     files = sorted(f for f in os.listdir(samples_dir) if f.lower().endswith('.wav'))
     sample_dictionary = []
     sample_filenames = []
+
     for fname in files:
-        m = re.search(r'_(\d{3})\.wav$', fname)
+        m = re.search(r'(\d{3})\.wav$', fname)
         if not m:
             continue
         ppp = m.group(1)
-        # dictionary entry: dl fn_PPP, db PPP
         sample_dictionary.append(f"    dl fn_{ppp}")
         sample_dictionary.append(f"    db {int(ppp)}")
-        # filename entry with label: fn_PPP: asciz "samples/<fname>"
-        sample_filenames.append(f"    fn_{ppp}:    asciz \"samples/{fname}\"")
+        sample_filenames.append(f"    fn_{ppp}:    asciz \"{instrument}/{fname}\"")
 
-    # Open output file for writing
     with open(inc_file, 'w') as f:
         f.write(f"\nnum_samples:    equ {len(sample_filenames)}\n\n")
 
@@ -34,7 +33,8 @@ def load_samples(samples_dir, inc_file):
             f.write(f"{line}\n")
 
 if __name__ == '__main__':
-    samples_dir = 'midi/tgt/samples'
-    inc_file = f"midi/src/asm/samples.inc"
+    instrument   = 'harpsichord'
+    samples_dir  = f"midi/tgt/{instrument}"
+    inc_file     = f"midi/src/asm/samples_{instrument}.inc"
 
-    load_samples(samples_dir, inc_file)
+    load_samples(samples_dir, inc_file, instrument)

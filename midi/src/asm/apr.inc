@@ -52,8 +52,6 @@
 
     pp_max_chunk_size: equ 32768 ; max size of a chunk
 
-
-    current_channel: db 0
     note_counter: dl 0
 
 ; Format of each note record:
@@ -64,7 +62,8 @@
     pitch:       equ 4     ; 1 byte. MIDI pitch value (0–127)
     velocity:    equ 5     ; 1 byte. Note velocity (0–127)
     instrument:  equ 6     ; 1 byte. Instrument number (1–255)
-    bytes_per_note: equ 7
+    channel:     equ 7     ; 1 byte. Channel number (0-31)
+    bytes_per_note: equ 8
 
 play_note:
 ; ; stop the timer
@@ -75,13 +74,11 @@ play_note:
     ld (note_counter),hl ; set the note counter
 
 ; play the note
-    ld a,(current_channel)
-    inc a
-    and 31 ; mod 32
-    ld (current_channel),a
+    ld a,(iy+channel)
     ld (@channel0),a
     ld (@channel1),a
     ld (@channel2),a
+    ld (@channel3),a
 
     ld a,(iy+duration_lo)
     ld (@duration),a
@@ -103,20 +100,27 @@ play_note:
     ld bc, @end-@cmd0
     rst.lil $18
     jr @end+1
-; set waveform command
+; set volume to zero to stop any current note playing on channel
+; Command 2: Set volume
+; VDU 23, 0, &85, channel, 2, volume
     @cmd0:       db 23,0,0x85
     @channel0:   db 0x00
+                 db 2    ; set volume command
+                 db 0x00 ; volume (mute)
+; set waveform command
+                 db 23,0,0x85
+    @channel1:   db 0x00
                  db 4    ; set waveform command
                  db 8    ; waveform type: sample
     @bufferId:   dw 0x0000
 ; set sample rate command
                  db 23,0,0x85
-    @channel1:   db 0x00
+    @channel2:   db 0x00
                  db 13 ; set sample rate command
     @sampleRate: dw 0x0000
 ; play note command
                  db 23,0,0x85
-    @channel2:   db 0x00
+    @channel3:   db 0x00
                  db 0x00 ; play note command
     @volume:     db 0x00
                  dw 0x0000 ; frequency: no effect unless buffer has been set to tuneable sample

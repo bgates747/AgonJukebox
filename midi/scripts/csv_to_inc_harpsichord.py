@@ -1,130 +1,171 @@
 #!/usr/bin/env python3
 """
-CSV → ez80 assembly (harpsichord version)
-• No pedal processing (harpsichords have none).
-• Ignores MIDI note duration; every note length = max_duration.
-• Outputs 7-byte records: delta_lo, delta_hi, duration_lo, duration_hi,
-  pitch, velocity, instrument.
+CSV → ez80 assembly (harpsichord, dynamic channel assignment)
+• No pedal processing.
+• Ignores MIDI note duration; every note length = max_duration_ms.
+• Dynamically assigns up to 32 Agon channels per note to avoid phase cancellation.
+• Outputs 8-byte records:
+    tnext_lo, tnext_hi,
+    duration_lo, duration_hi,
+    pitch, velocity, instrument, channel
 """
 
 import os
 import re
-from collections import defaultdict
 
 
-# ------------------------------------------------------------------ #
-#  CSV reader  (notes only, no pedals)
-# ------------------------------------------------------------------ #
 def read_csv_notes(csv_path):
     """
-    Parse CSV exported by midi_to_csv.py.
-    Returns: list of (instr_num, instr_name, notes) tuples.
-    Each note: dict with start, pitch, velocity, etc.
+    Parse CSV (exported by midi_to_csv.py).
+    Returns list of (instr_num, instr_name, notes) and
+    prints min/max MIDI pitches found.
     """
     instruments = []
-    current = None
-    notes = []
-    instr_no = 0
+    current_notes = []
+    instr_num = None
     instr_name = "Unknown"
 
-    with open(csv_path) as f:
-        for ln in f:
-            line = ln.strip()
+    with open(csv_path, 'r') as f:
+        for line in f:
+            line = line.strip()
+            # instrument header
             if line.startswith("# Instrument"):
-                # flush previous instrument
-                if current is not None and notes:
-                    instruments.append((instr_no, instr_name, notes))
-                    notes = []
-                # extract number / name
-                num = re.search(r"\d+", line)
-                instr_no = int(num.group()) if num else len(instruments) + 1
-                instr_name = line.split(":", 1)[1].strip() if ":" in line else "Unknown"
-                current = instr_no
+                if instr_num is not None and current_notes:
+                    instruments.append((instr_num, instr_name, current_notes))
+                    current_notes = []
+                m = re.search(r'# Instrument\s*(\d+)\s*:\s*(.+)', line)
+                if m:
+                    instr_num = int(m.group(1))
+                    instr_name = m.group(2).strip()
+                else:
+                    instr_num = len(instruments) + 1
+                    instr_name = "Unknown"
                 continue
 
-            # skip headers / empty / control-change sections
+            # skip comments and control changes
             if not line or line.startswith("#") or not line[0].isdigit():
                 continue
 
-            # note data line
-            fields = line.split(",")
-            if len(fields) < 7:
+            # note line
+            parts = line.split(',')
+            if len(parts) < 7:
                 continue
-            note_num   = int(fields[0])
-            start      = float(fields[1])
-            pitch      = int(fields[4])
-            note_name  = fields[5]
-            velocity   = int(fields[6])
-
-            notes.append({
-                "note_num": note_num,
+            start    = float(parts[1])
+            pitch    = int(parts[4])
+            note_name= parts[5]
+            velocity = int(parts[6])
+            current_notes.append({
                 "start": start,
                 "pitch": pitch,
                 "note_name": note_name,
                 "velocity": velocity,
-                "instrument": instr_no
+                "instrument": instr_num
             })
 
-    if current is not None and notes:
-        instruments.append((instr_no, instr_name, notes))
+    # append last instrument
+    if instr_num is not None and current_notes:
+        instruments.append((instr_num, instr_name, current_notes))
+
+    # compute min/max pitch
+    all_pitches = [n["pitch"] for _,_,notes in instruments for n in notes]
+    if all_pitches:
+        mn, mx = min(all_pitches), max(all_pitches)
+        print(f"Min MIDI pitch: {mn}, Max MIDI pitch: {mx}")
+    else:
+        print("No notes found.")
 
     return instruments
 
 
-# ------------------------------------------------------------------ #
-#  Assembly writer
-# ------------------------------------------------------------------ #
 def write_inc(instruments, out_path, max_duration_ms):
-    # flatten + sort by start
+    """
+    Write assembly with dynamic channel assignment.
+    """
+    # flatten and sort by start time
     all_notes = []
-    for instr_no, name, notes in instruments:
-        for n in notes:
-            all_notes.append(n)
+    for instr_num, instr_name, notes in instruments:
+        all_notes.extend(notes)
     all_notes.sort(key=lambda n: n["start"])
 
-    # delta to next note
-    for i in range(len(all_notes) - 1):
-        dt = all_notes[i + 1]["start"] - all_notes[i]["start"]
+    # compute delta_ms
+    for i in range(len(all_notes)-1):
+        dt = all_notes[i+1]["start"] - all_notes[i]["start"]
         all_notes[i]["delta_ms"] = max(0, round(dt * 1000))
     if all_notes:
         all_notes[-1]["delta_ms"] = 0
 
-    with open(out_path, "w") as f:
-        f.write("; Harpsichord note data (7-byte records)\n\n")
-        f.write("; field offsets:\n")
-        f.write(";   tnext_lo     equ 0\n")
-        f.write(";   tnext_hi     equ 1\n")
-        f.write(";   duration_lo  equ 2\n")
-        f.write(";   duration_hi  equ 3\n")
-        f.write(";   pitch        equ 4\n")
-        f.write(";   velocity     equ 5\n")
-        f.write(";   instrument   equ 6\n\n")
+    # prepare channel state: remaining time & last pitch
+    num_channels = 32
+    chan_remain = [0] * num_channels
+    chan_pitch  = [None] * num_channels
+
+    with open(out_path, 'w') as f:
+        f.write("; Harpsichord note data with dynamic channel assignment\n\n")
+        f.write("; Field offsets:\n")
+        f.write(";   tnext_lo    equ 0\n")
+        f.write(";   tnext_hi    equ 1\n")
+        f.write(";   duration_lo equ 2\n")
+        f.write(";   duration_hi equ 3\n")
+        f.write(";   pitch       equ 4\n")
+        f.write(";   velocity    equ 5\n")
+        f.write(";   instrument  equ 6\n")
+        f.write(";   channel     equ 7\n\n")
         f.write(f"; Total notes: {len(all_notes)}\n\n")
         f.write("midi_data:\n")
 
-        for idx, n in enumerate(all_notes, 1):
-            dt = n["delta_ms"]
-            dur = max_duration_ms  # force constant length
+        for idx, note in enumerate(all_notes, 1):
+            dt = note["delta_ms"]
+            dur = max_duration_ms
+
+            # update channel timers by subtracting dt
+            for ch in range(num_channels):
+                chan_remain[ch] = max(0, chan_remain[ch] - dt)
+
+            pitch = note["pitch"]
+            vel   = note["velocity"]
+            inst  = note["instrument"]
+
+            # 1) reuse channel that last played this pitch
+            chosen = None
+            for ch in range(num_channels):
+                if chan_pitch[ch] == pitch:
+                    chosen = ch
+                    break
+
+            # 2) else find first free channel
+            if chosen is None:
+                for ch in range(num_channels):
+                    if chan_remain[ch] == 0:
+                        chosen = ch
+                        break
+
+            # 3) else steal the channel with smallest remaining time (oldest note)
+            if chosen is None:
+                chosen = min(range(num_channels), key=lambda ch: chan_remain[ch])
+
+            # assign this note to chosen channel
+            chan_pitch[chosen] = pitch
+            chan_remain[chosen] = dur
+
+            # write record
             f.write(
-                f"    db {dt & 0xFF},{dt>>8 & 0xFF},"
-                f"{dur & 0xFF},{dur>>8 & 0xFF},"
-                f"{n['pitch']},{n['velocity']},{n['instrument']} "
-                f"; n{idx} t={n['start']:.3f} {n['note_name']}\n"
+                f"    db {dt&0xFF},{dt>>8&0xFF},"
+                f"{dur&0xFF},{dur>>8&0xFF},"
+                f"{pitch},{vel},{inst},{chosen} "
+                f"; n{idx} t={note['start']:.3f} {note['note_name']}\n"
             )
 
-        f.write("    db 255,255,255,255,255,255,255  ; end\n")
+        # end marker: 8 bytes of 255
+        f.write("    db 255,255,255,255,255,255,255,255  ; end\n")
 
 
-# ------------------------------------------------------------------ #
-#  CLI / parameter block
-# ------------------------------------------------------------------ #
-if __name__ == "__main__":
+if __name__ == '__main__':
     CSV_DIR   = "midi/out"
     BASE_NAME = "Bach__Harpsichord_Concerto_1_in_D_minor"
-    MAX_DUR   = 1000             # ms for every note
+    MAX_DUR   = 1000   # ms per note
 
-    csv_path = f"{CSV_DIR}/{BASE_NAME}.csv"
-    inc_path = f"{CSV_DIR}/{BASE_NAME}.inc"
+    csv_path = os.path.join(CSV_DIR, BASE_NAME + ".csv")
+    inc_path = os.path.join(CSV_DIR, BASE_NAME + ".inc")
 
     if not os.path.exists(csv_path):
         raise FileNotFoundError(csv_path)
@@ -133,5 +174,8 @@ if __name__ == "__main__":
     write_inc(instruments, inc_path, MAX_DUR)
 
     print("Wrote", inc_path)
-    print("   Instruments:", len(instruments))
-    print("   Notes      :", sum(len(n) for _, _, n in instruments))
+    print("Instruments:", len(instruments))
+    total_notes = sum(len(n) for _,_,n in instruments)
+    print("Notes     :", total_notes)
+    used_pitches = sorted({n["pitch"] for _,_,notes in instruments for n in notes})
+    print(f"Pitches   : {len(used_pitches)} ({used_pitches[0]}–{used_pitches[-1]})")

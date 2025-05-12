@@ -112,7 +112,7 @@ enable_channels_end:
     include "vdu_sound.inc"
 
     include "apr.inc"
-    include "samples.inc"
+    include "samples_harpsichord.inc"
     ; include "../../out/dx555xv9093-exp-tempo95.inc" ; Moonlight Sonata
     ; include "../../out/tx437pj1389-exp-tempo95.inc" ; Brahms Sonata F minor, op. 5. 2nd mvt.
     ; include "../../out/yb187qn0290-exp-tempo95.inc" ; Sonate cis-Moll : (Mondschein). I. und II. Teil
