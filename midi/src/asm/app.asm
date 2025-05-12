@@ -115,7 +115,10 @@ enable_channels_end:
     include "samples.inc"
     ; include "../../out/dx555xv9093-exp-tempo95.inc" ; Moonlight Sonata
     ; include "../../out/tx437pj1389-exp-tempo95.inc" ; Brahms Sonata F minor, op. 5. 2nd mvt.
-    include "../../out/yb187qn0290-exp-tempo95.inc" ; Sonate cis-Moll : (Mondschein). I. und II. Teil
+    ; include "../../out/yb187qn0290-exp-tempo95.inc" ; Sonate cis-Moll : (Mondschein). I. und II. Teil
+    ; include "../../out/Arbeau_Thoinot_-_Pavana.inc"
+    ; include "../../out/Beethoven__Ode_to_Joy.inc"
+    include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
 
 ; ###############################################
 ; Main loop

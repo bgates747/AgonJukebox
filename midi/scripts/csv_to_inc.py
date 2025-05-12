@@ -372,13 +372,17 @@ if __name__ == '__main__':
     base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
     base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
     base_name = 'yb187qn0290-exp-tempo95' # Sonate cis-Moll : (Mondschein). I. und II. Teil
+    base_name = 'Arbeau_Thoinot_-_Pavana'
+    base_name = 'Beethoven__Ode_to_Joy'
+    base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
+
     csv_file = f"{out_dir}/{base_name}.csv"
     inc_file = f"{out_dir}/{base_name}.inc"
     
     # Set parameters
     soft_pedal_factor = 0.3     # How much soft pedal reduces velocity (30%)
     sustain_threshold = 1       # Minimum value for pedal to be considered "on"
-    max_duration = 4998 # in milliseconds
+    max_duration = 2998 # in milliseconds
 
     
     # Process the csv file

@@ -63,15 +63,15 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
                     adjusted_time = ts.time / tempo_factor
                     writer.writerow([f"{adjusted_time:.4f}", ts.numerator, ts.denominator])
             
-            # Write key signature changes if any
-            if key_signature_changes:
-                writer.writerow([])
-                writer.writerow(['# Key Signature Changes'])
-                writer.writerow(['Time (seconds)', 'Key', 'Mode'])
-                for ks in key_signature_changes:
-                    # Apply tempo adjustment to time value
-                    adjusted_time = ks.time / tempo_factor
-                    writer.writerow([f"{adjusted_time:.4f}", ks.key_number, ks.mode])
+            # # Write key signature changes if any
+            # if key_signature_changes:
+            #     writer.writerow([])
+            #     writer.writerow(['# Key Signature Changes'])
+            #     writer.writerow(['Time (seconds)', 'Key', 'Mode'])
+            #     for ks in key_signature_changes:
+            #         # Apply tempo adjustment to time value
+            #         adjusted_time = ks.time / tempo_factor
+            #         writer.writerow([f"{adjusted_time:.4f}", ks.key_number, ks.mode])
             
             # Write information for each instrument
             for i, instrument in enumerate(midi_data.instruments):
@@ -165,6 +165,9 @@ if __name__ == '__main__':
     base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
     base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
     base_name = 'yb187qn0290-exp-tempo95' # Sonate cis-Moll : (Mondschein). I. und II. Teil
+    base_name = 'Arbeau_Thoinot_-_Pavana'
+    base_name = 'Beethoven__Ode_to_Joy'
+    base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
     
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"
@@ -176,8 +179,8 @@ if __name__ == '__main__':
     # 2.0 = twice as fast
     # 0.5 = half speed
 
-    tempo_factor = 1.3
-    volume_multiplier = 2.0
+    tempo_factor = 1.0
+    volume_multiplier = 1.0
     
     # Process the MIDI file
     midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier)
