@@ -19,7 +19,7 @@ import soundfile as sf
 # -------------------------------------------------------------------- #
 #  Fixed synthesis constants
 # -------------------------------------------------------------------- #
-SAMPLE_RATE      = 16_384        # Hz
+SAMPLE_RATE      = 16384        # Hz
 NYQUIST          = SAMPLE_RATE / 2
 DURATION         = 1.0           # seconds per note
 FADE_MS          = 300           # safety fade-out
@@ -30,7 +30,7 @@ NOISE_CLICK_DB   = -18           # level of 2 ms quill click (dB)
 
 OUTPUT_DIR       = "midi/tgt/harpsichord"
 MIDI_START       = 21
-MIDI_END         = 86
+MIDI_END         = 88
 
 np.random.seed(0)                # repeatable shimmer
 

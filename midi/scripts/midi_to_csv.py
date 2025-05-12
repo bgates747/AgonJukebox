@@ -161,14 +161,15 @@ if __name__ == '__main__':
     in_dir = 'midi/in'
     out_dir = 'midi/out'
     
-    # Define base filename
-    base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
-    # base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
-    base_name = 'yb187qn0290-exp-tempo95' # Sonate cis-Moll : (Mondschein). I. und II. Teil
-    # base_name = 'Arbeau_Thoinot_-_Pavana'
-    # base_name = 'Beethoven__Ode_to_Joy'
-    # base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
-    
+    base_name = 'Beethoven__Moonlight_Sonata_v1'
+    base_name = 'Beethoven__Moonlight_Sonata_v2'
+    base_name = 'Beethoven__Moonlight_Sonata_3rd_mvt'
+    base_name = 'Beethoven__Ode_to_Joy'
+    base_name = 'Brahms__Sonata_F_minor'
+
+    base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
+    base_name = 'Thoinot__Pavana'
+
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"
     csv_file = f"{out_dir}/{base_name}.csv"
@@ -179,7 +180,7 @@ if __name__ == '__main__':
     # 2.0 = twice as fast
     # 0.5 = half speed
 
-    tempo_factor = 1.6
+    tempo_factor = 1.0
     volume_multiplier = 1.0
     
     # Process the MIDI file

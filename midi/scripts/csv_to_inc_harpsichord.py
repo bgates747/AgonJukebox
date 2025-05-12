@@ -95,7 +95,7 @@ def write_inc(instruments, out_path, max_duration_ms):
         all_notes[-1]["delta_ms"] = 0
 
     # prepare channel state: remaining time & last pitch
-    num_channels = 32
+    num_channels = 12
     chan_remain = [0] * num_channels
     chan_pitch  = [None] * num_channels
 
@@ -161,8 +161,10 @@ def write_inc(instruments, out_path, max_duration_ms):
 
 if __name__ == '__main__':
     CSV_DIR   = "midi/out"
-    BASE_NAME = "Bach__Harpsichord_Concerto_1_in_D_minor"
     MAX_DUR   = 1000   # ms per note
+
+    BASE_NAME = "Bach__Harpsichord_Concerto_1_in_D_minor"
+    BASE_NAME = 'Thoinot__Pavana'
 
     csv_path = os.path.join(CSV_DIR, BASE_NAME + ".csv")
     inc_path = os.path.join(CSV_DIR, BASE_NAME + ".inc")

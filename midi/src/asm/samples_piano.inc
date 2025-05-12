@@ -1,5 +1,5 @@
 
-num_samples:    equ 63
+num_samples:    equ 78
 
 ; Sample dictionary (pointer, bufferId)
 sample_dictionary:
@@ -129,6 +129,36 @@ sample_dictionary:
     db 86
     dl fn_087
     db 87
+    dl fn_088
+    db 88
+    dl fn_089
+    db 89
+    dl fn_090
+    db 90
+    dl fn_091
+    db 91
+    dl fn_092
+    db 92
+    dl fn_093
+    db 93
+    dl fn_094
+    db 94
+    dl fn_095
+    db 95
+    dl fn_096
+    db 96
+    dl fn_097
+    db 97
+    dl fn_098
+    db 98
+    dl fn_099
+    db 99
+    dl fn_100
+    db 100
+    dl fn_101
+    db 101
+    dl fn_102
+    db 102
 
 ; Sample filename strings
 sample_filenames:
@@ -195,3 +225,18 @@ sample_filenames:
     fn_085:    asciz "piano/085.wav"
     fn_086:    asciz "piano/086.wav"
     fn_087:    asciz "piano/087.wav"
+    fn_088:    asciz "piano/088.wav"
+    fn_089:    asciz "piano/089.wav"
+    fn_090:    asciz "piano/090.wav"
+    fn_091:    asciz "piano/091.wav"
+    fn_092:    asciz "piano/092.wav"
+    fn_093:    asciz "piano/093.wav"
+    fn_094:    asciz "piano/094.wav"
+    fn_095:    asciz "piano/095.wav"
+    fn_096:    asciz "piano/096.wav"
+    fn_097:    asciz "piano/097.wav"
+    fn_098:    asciz "piano/098.wav"
+    fn_099:    asciz "piano/099.wav"
+    fn_100:    asciz "piano/100.wav"
+    fn_101:    asciz "piano/101.wav"
+    fn_102:    asciz "piano/102.wav"

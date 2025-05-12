@@ -1,5 +1,5 @@
 
-num_samples:    equ 66
+num_samples:    equ 68
 
 ; Sample dictionary (pointer, bufferId)
 sample_dictionary:
@@ -135,6 +135,10 @@ sample_dictionary:
     db 85
     dl fn_086
     db 86
+    dl fn_087
+    db 87
+    dl fn_088
+    db 88
 
 ; Sample filename strings
 sample_filenames:
@@ -204,3 +208,5 @@ sample_filenames:
     fn_084:    asciz "harpsichord/084.wav"
     fn_085:    asciz "harpsichord/085.wav"
     fn_086:    asciz "harpsichord/086.wav"
+    fn_087:    asciz "harpsichord/087.wav"
+    fn_088:    asciz "harpsichord/088.wav"
