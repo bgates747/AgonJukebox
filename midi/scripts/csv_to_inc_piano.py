@@ -232,149 +232,139 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
     
     return all_processed_notes, all_pedal_events
 
-def convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration):
-    # Calculate delta times between consecutive notes
-    for i in range(len(processed_notes)-1):
-        delta_seconds = processed_notes[i+1]['start'] - processed_notes[i]['start']
-        # Round to nearest millisecond
-        processed_notes[i]['delta_ms'] = round(delta_seconds * 1000)
-    
-    # The last note has no next note, so set delta to 0
+def convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration_ms):
+    """
+    Write ez80 assembly from processed_notes + pedal events,
+    using dynamic channel assignment (up to 32 channels).
+    """
+    # 1) Compute delta_ms for each note (ignoring pedals)
+    for i in range(len(processed_notes) - 1):
+        dt = processed_notes[i+1]['start'] - processed_notes[i]['start']
+        processed_notes[i]['delta_ms'] = round(dt * 1000)
     if processed_notes:
         processed_notes[-1]['delta_ms'] = 0
-    
-    # Merge notes and pedal events into a unified timeline
+
+    # 2) Build a unified timeline (notes+pedals), sorted by time
     timeline = []
-    
-    # Add notes to timeline
     for note in processed_notes:
-        timeline.append({
-            'type': 'note',
-            'time': note['start'],
-            'data': note
-        })
-    
-    # Add pedal events to timeline
-    for event in all_pedal_events:
-        timeline.append({
-            'type': 'pedal',
-            'time': event['time'],
-            'data': event
-        })
-    
-    # Sort timeline by time
+        timeline.append({'type':'note', 'time':note['start'], 'data':note})
+    for ev in all_pedal_events:
+        timeline.append({'type':'pedal','time':ev['time'],'data':ev})
     timeline.sort(key=lambda x: x['time'])
-    
-    # Open output file for writing
+
+    # 3) Prepare channel state
+    num_channels = 32
+    chan_remain = [0]*num_channels   # time remaining (ms) on each channel
+    chan_pitch  = [None]*num_channels
+
     with open(output_file, 'w') as f:
-        # Write assembly comments with information
-        f.write("; MIDI Note Data in ez80 Assembly Format\n")
-        f.write("; Generated from CSV file with pedal effects applied\n\n")
-        
-        # Write information about pedal processing
-        f.write("; Pedal Effects:\n")
-        f.write(";   - Sustain pedal (CC 64) extends note durations\n")
-        f.write(";   - Soft pedal (CC 67) reduces note velocities\n")
-        f.write("\n")
-        
-        # Write field descriptions as a comment
-        f.write("; Format of each note record:\n")
-        f.write(";    tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)\n")
-        f.write(";    tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)\n")
-        f.write(";    duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)\n")
-        f.write(";    duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)\n")
-        f.write(";    pitch:       equ 4     ; 1 byte. MIDI pitch\n")
-        f.write(";    velocity:    equ 5     ; 1 byte. Loudness of the note to sound (0-127)\n")
-        f.write(";    instrument:  equ 6     ; 1 byte. Instrument used to sound note (1-255)\n")
-        f.write("\n")
-        
-        # Write a comment showing total notes count
+        # Header comments
+        f.write("; Harpsichord note data with dynamic channel assignment\n\n")
+        f.write("; Field offsets:\n")
+        f.write(";   tnext_lo    equ 0    ; next note dt low byte\n")
+        f.write(";   tnext_hi    equ 1    ; next note dt high byte\n")
+        f.write(";   duration_lo equ 2    ; duration low byte\n")
+        f.write(";   duration_hi equ 3    ; duration high byte\n")
+        f.write(";   pitch       equ 4    ; MIDI pitch\n")
+        f.write(";   velocity    equ 5    ; MIDI velocity\n")
+        f.write(";   instrument  equ 6    ; instrument ID\n")
+        f.write(";   channel     equ 7    ; Agon playback channel (0–31)\n\n")
         f.write(f"; Total notes: {len(processed_notes)}\n\n")
-      
         f.write("midi_data:\n")
 
-        note_index = 0
-        
-        # Process the timeline to output notes and pedal event comments
+        note_idx = 0
         for item in timeline:
-            if item['type'] == 'pedal':
-                pedal = item['data']
-                pedal_type = "Sustain" if pedal['type'] == 'sustain' else "Soft"
-                f.write(f"; t {pedal['time']:.4f} {pedal_type} {pedal['value']} (Instrument {pedal['instrument']})\n")
-            else:  # Note event
+            if item['type']=='pedal':
+                ev = item['data']
+                ptype = "Sustain" if ev['type']=='sustain' else "Soft"
+                f.write(f"; t {ev['time']:.4f} {ptype} {ev['value']} (Instr {ev['instrument']})\n")
+            else:
                 note = item['data']
-                note_index += 1
-                
-                # Calculate duration in milliseconds (as 16-bit value)
-                duration_ms = round(note['duration'] * 1000)
-                duration_ms = min(max_duration, duration_ms)
-                
-                # Split into low and high bytes (little-endian)
-                duration_lo = duration_ms & 0xFF
-                duration_hi = (duration_ms >> 8) & 0xFF
-                
-                # Get delta time as 16-bit value
-                delta_ms = note['delta_ms']
-                
-                # Split into low and high bytes (little-endian)
-                delta_lo = delta_ms & 0xFF
-                delta_hi = (delta_ms >> 8) & 0xFF
-                
-                # Build comment with enhanced information
-                comment = f"t {note['start']:.4f} {note['note_name']}, tn={delta_ms}, d={duration_ms}"
-                
-                # Add velocity modification info if applicable
-                if note.get('velocity_modified', False):
-                    comment += f", soft {note['original_velocity']}->{note['velocity']}"
-                
-                # Add duration modification info if applicable
-                if note.get('duration_modified', False):
-                    orig_dur_ms = round(note['original_duration'] * 1000)
-                    comment += f", sust {orig_dur_ms}->{duration_ms}"
-                
-                # Write the note data
-                f.write(f"    db {delta_lo},{delta_hi},{duration_lo},{duration_hi},{note['pitch']},{note['velocity']},{note['instrument']} ; n {note_index}: {comment}\n")
-        
-        # Add end marker
+                note_idx += 1
+                dt  = note['delta_ms']
+                dur = max_duration_ms
+                pitch = note['pitch']
+                vel   = note['velocity']
+                inst  = note['instrument']
+
+                # 4) Update channel timers
+                #    subtract dt from all channels
+                for ch in range(num_channels):
+                    chan_remain[ch] = max(0, chan_remain[ch] - dt)
+
+                # 5) Pick channel:
+                #    a) same pitch already playing?
+                chosen = next((ch for ch,p in enumerate(chan_pitch) if p==pitch), None)
+                #    b) first free channel
+                if chosen is None:
+                    chosen = next((ch for ch in range(num_channels) if chan_remain[ch]==0), None)
+                #    c) steal the one with smallest remaining time
+                if chosen is None:
+                    chosen = min(range(num_channels), key=lambda ch: chan_remain[ch])
+
+                # 6) Assign note to channel
+                chan_pitch[chosen]  = pitch
+                chan_remain[chosen] = dur
+
+                # 7) Emit 8-byte record
+                f.write(
+                    f"    db {dt &0xFF},{dt>>8 &0xFF},"
+                    f"{dur &0xFF},{dur>>8 &0xFF},"
+                    f"{pitch},{vel},{inst},{chosen} "
+                    f"; n{note_idx} t={note['start']:.3f} {note['note_name']}\n"
+                )
+
+        # 8) End marker
         f.write("    db 255,255,255,255,255,255,255,255  ; End marker\n")
 
-def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, max_duration):
-    # Check if file exists
+def csv_to_inc(input_file, output_file,
+               soft_pedal_factor, sustain_threshold, max_duration_ms):
+    # 1) Check input exists
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
-        print(f"Current working directory: {os.getcwd()}")
-        print(f"Files in directory: {os.listdir(os.path.dirname(input_file) or '.')}")
+        print(f" CWD: {os.getcwd()}")
+        print(f" Files: {os.listdir(os.path.dirname(input_file) or '.')}")
         return
-    
-    # Create output directory if it doesn't exist
-    output_dir = os.path.dirname(output_file)
-    os.makedirs(output_dir, exist_ok=True)
-    
-    # Read instruments and pedal events from CSV
+
+    # 2) Ensure output dir
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+
+    # 3) Read & process
     instruments, pedal_events = read_csv_with_pedals(input_file)
-    
-    # Process pedal effects
-    processed_notes, all_pedal_events = process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold)
-    
-    # Convert to assembly format and write to output file
-    convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration)
-    
-    print(f"Conversion complete! Assembly file written to {output_file}")
-    print(f"Pedal effects applied: Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sustain_threshold}")
-    
-    # Print basic statistics
-    print(f"Total instruments: {len(instruments)}")
-    print(f"Total notes after processing: {len(processed_notes)}")
-    print(f"Total pedal events: {len(all_pedal_events)}")
+
+    # ——— report MIDI pitch range ———
+    all_pitches = [n['pitch'] for _, _, notes in instruments for n in notes]
+    if all_pitches:
+        mn, mx = min(all_pitches), max(all_pitches)
+        print(f"MIDI pitch range: {mn} to {mx}")
+    else:
+        print("No notes found; cannot report pitch range.")
+
+    processed_notes, all_pedal_events = process_pedal_effects(
+        instruments, pedal_events, soft_pedal_factor, sustain_threshold
+    )
+
+    # 4) Render assembly with dynamic channels
+    convert_to_assembly(
+        processed_notes, all_pedal_events,
+        output_file, max_duration_ms
+    )
+
+    # 5) Summary
+    print(f"Conversion complete! Assembly written to {output_file}")
+    print(f"Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sustain_threshold}")
+    print(f" Total instruments: {len(instruments)}")
+    print(f" Total notes after processing: {len(processed_notes)}")
+    print(f" Total pedal events: {len(all_pedal_events)}")
+
 
 if __name__ == '__main__':
     out_dir = 'midi/out'
     base_name = 'dx555xv9093-exp-tempo95' # Moonlight Sonata
-    base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
+    # base_name = 'tx437pj1389-exp-tempo95' # Brahms Sonata F minor, op. 5. 2nd mvt.
     base_name = 'yb187qn0290-exp-tempo95' # Sonate cis-Moll : (Mondschein). I. und II. Teil
-    base_name = 'Arbeau_Thoinot_-_Pavana'
-    base_name = 'Beethoven__Ode_to_Joy'
-    base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
+    # base_name = 'Arbeau_Thoinot_-_Pavana'
+    # base_name = 'Beethoven__Ode_to_Joy'
 
     csv_file = f"{out_dir}/{base_name}.csv"
     inc_file = f"{out_dir}/{base_name}.inc"
@@ -384,6 +374,5 @@ if __name__ == '__main__':
     sustain_threshold = 1       # Minimum value for pedal to be considered "on"
     max_duration = 3000 # in milliseconds
 
-    
     # Process the csv file
     csv_to_inc(csv_file, inc_file, soft_pedal_factor, sustain_threshold, max_duration)

@@ -117,12 +117,12 @@ def generate_all_notes(midi_start,midi_end,sample_rate,duration,num_partials,inh
 
 if __name__ == "__main__":
     output_dir                = "midi/tgt/piano"
-    midi_start                = 24
-    midi_end                  = 72
+    midi_start                = 25
+    midi_end                  = 87
 
     # Synthesis parameters
     sample_rate               = 16384
-    duration                  = 5.0    # seconds
+    duration                  = 3.0    # seconds
     partials                  = 20
     inharmonicity             = 1e-4   # inharmonicity factor
     detune                    = 2.0    # cents between unison voices
