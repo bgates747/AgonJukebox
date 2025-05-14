@@ -232,8 +232,7 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
     
     return all_processed_notes, all_pedal_events
 
-def convert_to_assembly(processed_notes, all_pedal_events, output_file,
-                        max_duration_ms, min_duration_ms):
+def convert_to_assembly(processed_notes, all_pedal_events, output_file, max_duration_ms, min_duration_ms, num_channels):
     """
     Write ez80 assembly from processed_notes + pedal events,
     using dynamic channel assignment (up to 32 channels).
@@ -266,7 +265,6 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file,
     timeline.sort(key=lambda x: x['time'])
 
     # 3) Prepare channel state
-    num_channels = 12
     chan_remain = [0] * num_channels
     chan_pitch  = [None] * num_channels
 
@@ -345,7 +343,7 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file,
         # 12) end marker
         f.write("    db 255,255,255,255,255,255,255,255  ; End marker\n")
 
-def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, max_duration_ms, min_duration_ms):
+def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, max_duration_ms, min_duration_ms, num_channels):
     # 1) Check input exists
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
@@ -370,7 +368,7 @@ def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, ma
     processed_notes, all_pedal_events = process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold)
 
     # 4) Render assembly with dynamic channels
-    convert_to_assembly(processed_notes, all_pedal_events,output_file, max_duration_ms, min_duration_ms)
+    convert_to_assembly(processed_notes, all_pedal_events,output_file, max_duration_ms, min_duration_ms, num_channels)
 
     # 5) Summary
     print(f"Conversion complete! Assembly written to {output_file}")
@@ -389,6 +387,7 @@ if __name__ == '__main__':
     base_name = 'Beethoven__Ode_to_Joy'
     base_name = 'Brahms__Sonata_F_minor'
     base_name = 'STARWARSTHEME'
+    base_name = 'Williams__Star_Wars_Theme'
 
     csv_file = f"{out_dir}/{base_name}.csv"
     inc_file = f"{out_dir}/{base_name}.inc"
@@ -398,6 +397,7 @@ if __name__ == '__main__':
     sustain_threshold = 1       # Minimum value for pedal to be considered "on"
     min_duration = 300 # in milliseconds
     max_duration = 3000 # in milliseconds
+    num_channels = 32
 
     # Process the csv file
-    csv_to_inc(csv_file, inc_file, soft_pedal_factor, sustain_threshold, max_duration, min_duration)
+    csv_to_inc(csv_file, inc_file, soft_pedal_factor, sustain_threshold, max_duration, min_duration, num_channels)

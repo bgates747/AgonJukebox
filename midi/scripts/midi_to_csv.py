@@ -23,6 +23,8 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
         Path to the output CSV file
     tempo_factor : float
         Factor to adjust playback speed (e.g., 1.5 = 50% faster, 2.0 = double-speed)
+    volume_multiplier : float
+        Multiplier for note velocities
     """
     try:
         # Load the MIDI file
@@ -49,7 +51,6 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
             writer.writerow(['# Tempo Changes'])
             writer.writerow(['Time (seconds)', 'Tempo (BPM)'])
             for time, tempo in zip(*tempo_changes):
-                # Apply tempo adjustment to time value
                 adjusted_time = time / tempo_factor
                 writer.writerow([f"{adjusted_time:.4f}", f"{tempo:.2f}"])
             
@@ -59,7 +60,6 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
                 writer.writerow(['# Time Signature Changes'])
                 writer.writerow(['Time (seconds)', 'Numerator', 'Denominator'])
                 for ts in time_signature_changes:
-                    # Apply tempo adjustment to time value
                     adjusted_time = ts.time / tempo_factor
                     writer.writerow([f"{adjusted_time:.4f}", ts.numerator, ts.denominator])
             
@@ -69,29 +69,37 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
             #     writer.writerow(['# Key Signature Changes'])
             #     writer.writerow(['Time (seconds)', 'Key', 'Mode'])
             #     for ks in key_signature_changes:
-            #         # Apply tempo adjustment to time value
             #         adjusted_time = ks.time / tempo_factor
             #         writer.writerow([f"{adjusted_time:.4f}", ks.key_number, ks.mode])
             
             # Write information for each instrument
             for i, instrument in enumerate(midi_data.instruments):
+                # Resolve instrument name:
+                if instrument.name:
+                    inst_name = instrument.name
+                elif instrument.is_drum:
+                    inst_name = "Drum Kit"
+                else:
+                    inst_name = pretty_midi.program_to_instrument_name(instrument.program)
+                
                 writer.writerow([])
-                writer.writerow([f"# Instrument {i+1}: {instrument.name if instrument.name else 'Unnamed'} {'(Drum)' if instrument.is_drum else ''}"])
-                writer.writerow(['Note #', 'Start (s)', 'End (s)', 'Duration (s)', 'Pitch', 'Note Name', 'Velocity', 'Note-on Velocity', 'Note-off Velocity'])
+                writer.writerow([f"# Instrument {i+1}: {inst_name}"])
+                writer.writerow([
+                    'Note #', 'Start (s)', 'End (s)', 'Duration (s)',
+                    'Pitch', 'Note Name', 'Velocity',
+                    'Note-on Velocity', 'Note-off Velocity'
+                ])
                 
                 # Sort notes by start time for better readability
                 sorted_notes = sorted(instrument.notes, key=lambda x: x.start)
                 
                 for j, note in enumerate(sorted_notes):
-                    # Convert MIDI pitch number to note name (e.g., 60 -> C4)
                     note_name = pretty_midi.note_number_to_name(note.pitch)
-                    
-                    # Apply tempo adjustment to timing values
                     adjusted_start = note.start / tempo_factor
                     adjusted_end = note.end / tempo_factor
                     adjusted_duration = (note.end - note.start) / tempo_factor
+                    on_vel = max(1, min(127, int(round(note.velocity * volume_multiplier))))
                     
-                    # Write note data
                     writer.writerow([
                         j+1,
                         f"{adjusted_start:.4f}",
@@ -99,9 +107,9 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
                         f"{adjusted_duration:.4f}",
                         note.pitch,
                         note_name,
-                        max(1, min(127, int(round(note.velocity * volume_multiplier)))),
-                        note.velocity,  # Note-on velocity
-                        0  # Note-off velocity (pretty_midi doesn't store this separately)
+                        on_vel,
+                        note.velocity,
+                        0
                     ])
                 
                 # Write control changes for this instrument
@@ -110,14 +118,9 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
                     writer.writerow([f"# Control Changes for Instrument {i+1}"])
                     writer.writerow(['Time (s)', 'Control Number', 'Control Name', 'Value'])
                     
-                    # Get all control changes and sort by time
                     ctrl_changes = sorted(instrument.control_changes, key=lambda x: x.time)
-                    
                     for cc in ctrl_changes:
-                        # Apply tempo adjustment to time value
                         adjusted_time = cc.time / tempo_factor
-                        
-                        # Map some common control numbers to names
                         ctrl_name = {
                             1: 'Modulation',
                             7: 'Volume',
@@ -138,11 +141,10 @@ def midi_to_csv(midi_file, csv_file, tempo_factor, volume_multiplier):
             writer.writerow([])
             writer.writerow(['# Summary'])
             writer.writerow(['Total Instruments', len(midi_data.instruments)])
-            total_notes = sum(len(instrument.notes) for instrument in midi_data.instruments)
+            total_notes = sum(len(inst.notes) for inst in midi_data.instruments)
             writer.writerow(['Total Notes', total_notes])
         
-
-        print(f"MIDI processing complete!")
+        print("MIDI processing complete!")
         print(f"MIDI file: {midi_file}")
         print(f"CSV file: {csv_file}")
         print(f"Tempo adjustment factor: {tempo_factor:.2f}")
@@ -166,9 +168,10 @@ if __name__ == '__main__':
     base_name = 'Beethoven__Moonlight_Sonata_3rd_mvt'
     base_name = 'Beethoven__Ode_to_Joy'
     base_name = 'Brahms__Sonata_F_minor'
+    base_name = 'Williams__Star_Wars_Theme'
 
-    base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
-    base_name = 'Thoinot__Pavana'
+    # base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
+    # base_name = 'Thoinot__Pavana'
 
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"
