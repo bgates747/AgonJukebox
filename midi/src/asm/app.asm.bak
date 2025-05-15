@@ -92,130 +92,72 @@ enable_channels_cmd:
     db 23, 0, $85, 30, 8
     db 23, 0, $85, 31, 8
 enable_channels_end:
-
-waveform_square: equ 0 ; square wave
-waveform_triangle: equ 1 ; triangle wave
-waveform_sawtooth: equ 2 ; sawtooth wave
-waveform_sine: equ 3 ; sine wave
-waveform_noise: equ 4 ; noise wave
-waveform_vic_noise: equ 5 ; VIC noise wave
-waveform_sample: equ 8 ; PCM sound sample 
-
-waveform: equ waveform_triangle
-
-; set waveform for all channels
-    ld hl, waveform_channels_cmd
-    ld bc, waveform_channels_end - waveform_channels_cmd
-    rst.lil $18
-    jp waveform_channels_end
-waveform_channels_cmd:
-    db 23, 0, $85, 0, 4, waveform
-    db 23, 0, $85, 1, 4, waveform
-    db 23, 0, $85, 2, 4, waveform
-    db 23, 0, $85, 3, 4, waveform
-    db 23, 0, $85, 4, 4, waveform
-    db 23, 0, $85, 5, 4, waveform
-    db 23, 0, $85, 6, 4, waveform
-    db 23, 0, $85, 7, 4, waveform
-    db 23, 0, $85, 8, 4, waveform
-    db 23, 0, $85, 9, 4, waveform
-    db 23, 0, $85, 10, 4, waveform
-    db 23, 0, $85, 11, 4, waveform
-    db 23, 0, $85, 12, 4, waveform
-    db 23, 0, $85, 13, 4, waveform
-    db 23, 0, $85, 14, 4, waveform
-    db 23, 0, $85, 15, 4, waveform
-    db 23, 0, $85, 16, 4, waveform
-    db 23, 0, $85, 17, 4, waveform
-    db 23, 0, $85, 18, 4, waveform
-    db 23, 0, $85, 19, 4, waveform
-    db 23, 0, $85, 20, 4, waveform
-    db 23, 0, $85, 21, 4, waveform
-    db 23, 0, $85, 22, 4, waveform
-    db 23, 0, $85, 23, 4, waveform
-    db 23, 0, $85, 24, 4, waveform
-    db 23, 0, $85, 25, 4, waveform
-    db 23, 0, $85, 26, 4, waveform
-    db 23, 0, $85, 27, 4, waveform
-    db 23, 0, $85, 28, 4, waveform
-    db 23, 0, $85, 29, 4, waveform
-    db 23, 0, $85, 30, 4, waveform
-    db 23, 0, $85, 31, 4, waveform
-waveform_channels_end:
-
     ld a,3
     call vdu_set_screen_mode
 
     call vdu_cursor_off
     call vdu_cls
 
-    ; call vdu_home_cursor
-    ; ld hl,str_version
-    ; call printString
-    ; call printNewLine
-
     ret
 
-current_channel: db 0
-note_counter: dl 0
-
-; Format of each note record:
-    tnext_lo:    equ 0     ; 1 byte. Time to next note in milliseconds (low byte)
-    tnext_hi:    equ 1     ; 1 byte. Time to next note in milliseconds (high byte)
-    duration_lo: equ 2     ; 1 byte. Length of time to sound note in milliseconds (low byte)
-    duration_hi: equ 3     ; 1 byte. Length of time to sound note in milliseconds (high byte)
-    freq_lo:     equ 4     ; 1 byte. Frequency in Hz (low byte)
-    freq_hi:     equ 5     ; 1 byte. Frequency in Hz (high byte)
-    velocity:    equ 6     ; 1 byte. Loudness of the note to sound (0-127)
-    instrument:  equ 7     ; 1 byte. Instrument used to sound note (1-255)
-
-bytes_per_note: equ 8
-play_note:
-; stop the timer
-    call prt_stop
-
-; reset the note counter
-    ld l,(iy+tnext_lo) ; low byte
-    ld h,(iy+tnext_hi) ; high byte
-    ld (note_counter),hl ; set the note counter
-
-; play the note
-    ld a,(current_channel)
-    inc a
-    and 31 ; mod 32
-    ld (current_channel),a
-    ld c,a ; channel
-
-    ld e,(iy+duration_lo) ; duration low byte
-    ld d,(iy+duration_hi) ; duration high byte
-
-    ld l,(iy+freq_lo) ; frequency low byte
-    ld h,(iy+freq_hi) ; frequency high byte
-
-    ld b,(iy+velocity) ; volume
-
-    call vdu_play_note
-    lea iy,iy+bytes_per_note ; move to next note
-
-; restart the timer
-    call prt_start
-
-    ret
-
+    include "debug.inc"
     include "functions.inc"
     include "timer.inc"
+
+    include "arith24.inc"
     include "maths.inc"
     include "vdu.inc"
     include "vdu_buffered_api.inc"
     include "vdu_plot.inc"
     include "vdu_sound.inc"
 
+    include "apr.inc"
+
+    ; include "samples_piano.inc"
+    include "samples_piano_sf2.inc"
+    ; include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
+    ; include "../../out/Beethoven__Moonlight_Sonata_v2.inc" 
+    ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
+    ; include "../../out/Beethoven__Ode_to_Joy.inc"
+    ; include "../../out/Brahms__Sonata_F_minor.inc" 
+    ; include "../../out/STARWARSTHEME.inc"
+    include "../../out/Williams__Star_Wars_Theme.inc"
+
+    ; include "samples_harpsichord.inc"
+    ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
+    ; include "../../out/Thoinot__Pavana.inc"
+    ; include "../../out/STARWARSTHEME.inc"
+
 ; ###############################################
 ; Main loop
 ; ###############################################
 
 main:
-    ld iy,MidiData
+    call printInline
+    asciz "Loading samples "
+; load samples
+    ld ix,sample_dictionary ; pointer to the sample dictionary
+    ld b,num_samples ; loop counter
+    xor a
+    ld (last_channel),a
+@sample_loop:
+    push ix
+    push bc
+    ld de,(ix)
+    ld h,0
+    ld l,(ix+3) ; bufferId
+    call pp_load_sample
+    ld a,'.'
+    rst.lil $10
+
+; advance the file pointer and loop
+    pop bc
+    pop ix
+    lea ix,ix+4
+    djnz @sample_loop
+
+; play the midi file
+    ld iy,midi_data
     call prt_irq_init
     call prt_start
     call get_input
@@ -223,8 +165,8 @@ main:
 ; cleanup and exit
     call prt_stop
     ei 
-    ld a,0
-    call vdu_set_screen_mode
+    ; ld a,0
+    ; call vdu_set_screen_mode
     ret
 
 get_input:
@@ -240,10 +182,3 @@ get_input:
     ret z
     
     jr get_input ; if not escape or q, continue
-
-
-MidiData:
-    include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
-    ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
-
-filedata:

@@ -33,7 +33,7 @@ def load_samples(samples_dir, inc_file, instrument):
             f.write(f"{line}\n")
 
 if __name__ == '__main__':
-    instrument   = 'piano_sf2'
+    instrument   = 'piano_yamaha'
     samples_dir  = f"midi/tgt/{instrument}"
     inc_file     = f"midi/src/asm/samples_{instrument}.inc"
 

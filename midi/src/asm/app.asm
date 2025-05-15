@@ -114,14 +114,14 @@ enable_channels_end:
     include "apr.inc"
 
     ; include "samples_piano.inc"
-    include "samples_piano_sf2.inc"
-    ; include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
+    include "samples_piano_yamaha.inc"
+    include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
     ; include "../../out/Beethoven__Moonlight_Sonata_v2.inc" 
     ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
     ; include "../../out/Beethoven__Ode_to_Joy.inc"
     ; include "../../out/Brahms__Sonata_F_minor.inc" 
     ; include "../../out/STARWARSTHEME.inc"
-    include "../../out/Williams__Star_Wars_Theme.inc"
+    ; include "../../out/Williams__Star_Wars_Theme.inc"
 
     ; include "samples_harpsichord.inc"
     ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"

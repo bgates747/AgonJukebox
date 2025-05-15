@@ -265,7 +265,7 @@ if __name__ == "__main__":
     # Set all parameters explicitly to match target system
     
     # Required parameters
-    target_pitch = 60  # MIDI note to generate (middle C)
+    target_pitch = 38
     
     # Source loop parameters - if both are None, the closest loop will be found automatically
     source_loop_path = None  # Path to specific loop file, or None to auto-select
@@ -275,8 +275,8 @@ if __name__ == "__main__":
     target_volume = 127       # Base/target volume (0-127)
     
     # ADSR envelope parameters (all matching target system)
-    attack_ms = 25     # Attack time in milliseconds
-    decay_ms = 300      # Decay time in milliseconds
+    attack_ms = 32     # Attack time in milliseconds
+    decay_ms = 1600      # Decay time in milliseconds
     sustain_level = 32  # Sustain level (0-127)
     release_ms = 600   # Release time in milliseconds
     

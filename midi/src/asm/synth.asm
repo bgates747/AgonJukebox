@@ -92,9 +92,11 @@ main:
     ret
 ; end main
 
-sound_cmd_start:
 
-pure_square_cmd:
+
+
+sound_cmd_start:
+sine_wave_cmd:
 ; —————————————————————————————————————————————————————————————————
 ; Command 4: Set waveform
 ; VDU 23,0,&85, channel, 4, waveform
@@ -102,19 +104,44 @@ pure_square_cmd:
     db 23,0,0x85      ; VDU sound command header
     db 0              ; channel 0
     db 4              ; cmd 4 = set waveform
-    db 0              ; waveform 0 = square wave
+    db 3              ; waveform 3 = sine wave
+sine_wave_cmd_end:
 
-; ; —————————————————————————————————————————————————————————————————
-; ; Command 14: Set duty cycle
-; ; VDU 23,0,&85, channel, 14, parameter, value
-; ; —————————————————————————————————————————————————————————————————
-;     db 23,0,0x85      ; VDU sound command header (23, 0, &85)
-;     db 0              ; channel 0
-;     db 14             ; cmd 14 = set waveform parameter
-;     db 0              ; param byte: 0 = duty cycle
-;     db 64             ; 8-bit duty value (128/256 = 50%)
+ATTACK: EQU 50
+DECAY:  EQU 450
+DURATION: EQU 4000
+RELEASE: EQU DURATION-ATTACK-DECAY
+FREQUENCY: EQU 440
+VOLUME: EQU 127
+SUSTAIN: EQU 42
 
-pure_square_cmd_end:
+adsr_envelope_cmd:
+    db 23,0,0x85       ; VDU sound command header
+    db 0               ; channel 0
+    db 6               ; cmd 6 = volume envelope
+    db 1               ; type 1 = plain ADSR
+
+    dw ATTACK              ; attack (ms)
+    dw DECAY             ; decay (ms)
+    db SUSTAIN              ; sustain (0-255)
+    dw RELEASE            ; release (ms)
+adsr_envelope_cmd_end:
+
+
+play_note_cmd:
+; —————————————————————————————————————————————————————————————————
+; Command 0: Play note
+; VDU 23,0,&85, channel, 0, volume, frequency; duration;
+; —————————————————————————————————————————————————————————————————
+    db 23,0,0x85      ; VDU sound command header
+    db 0              ; channel 0
+    db 0              ; cmd 0 = play note
+    db VOLUME             ; volume
+    dw FREQUENCY            ; frequency Hz
+    dw ATTACK+DECAY           ; duration ms
+play_note_cmd_end:
+
+sound_cmd_end:
 
 
 ; -------------------------------------------------------------
@@ -153,19 +180,59 @@ freq_env_cmd:
 
 freq_env_cmd_end:
 
-play_note_cmd:
+square_wave_duty_cmd:
 ; —————————————————————————————————————————————————————————————————
-; Command 0: Play note
-; VDU 23,0,&85, channel, 0, volume, frequency; duration;
+; Command 14: Set duty cycle
+; VDU 23,0,&85, channel, 14, parameter, value
+; —————————————————————————————————————————————————————————————————
+    db 23,0,0x85      ; VDU sound command header (23, 0, &85)
+    db 0              ; channel 0
+    db 14             ; cmd 14 = set waveform parameter
+    db 0              ; param byte: 0 = duty cycle
+    db 64             ; 8-bit duty value (128/256 = 50%)
+square_wave_duty_cmd_end:
+
+
+pure_square_cmd:
+; —————————————————————————————————————————————————————————————————
+; Command 4: Set waveform
+; VDU 23,0,&85, channel, 4, waveform
 ; —————————————————————————————————————————————————————————————————
     db 23,0,0x85      ; VDU sound command header
     db 0              ; channel 0
-    db 0              ; cmd 0 = play note
-    db 15             ; volume
-    dw 440            ; frequency Hz
-    dw -1           ; duration ms
-play_note_cmd_end:
-
-sound_cmd_end:
+    db 4              ; cmd 4 = set waveform
+    db 0              ; waveform 0 = square wave
+pure_square_cmd_end:
 
 
+multiphase_adsr_cmd:
+    db 23,0,0x85        ; VDU sound header
+    db 0                ; channel 0
+    db 6                ; cmd 6  = volume envelope
+    db 2                ; type 2 = multiphase ADSR
+
+    ; -------- Attack / Decay block ----------------------------
+    db 2                ; attackCount
+
+    db 127              ; attack level (0-255)
+    dw 50               ; duration (ms)
+
+    db 20               ; decay level (0-255)
+    dw 300              ; duration (ms)
+
+    ; -------- Sustain block -----------------------------------
+    db 2                ; sustainCount
+
+    db 10               ; level (0-255)
+    dw 500              ; duration (ms)
+
+    db 5                ; level (0-255)
+    dw 1000             ; duration (ms)
+
+    ; -------- Release / final decay ---------------------------
+    db 1                ; releaseCount 
+
+    db 0                ; level (0-255)
+    dw 250              ; duration (ms)
+
+multiphase_adsr_cmd_end:
