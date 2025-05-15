@@ -4,6 +4,7 @@ import tempfile
 import subprocess
 
 import pretty_midi
+import soundfile as sf
 
 # ── Helpers ─────────────────────────────────────────────────────────────────────
 
@@ -101,10 +102,18 @@ def build_midi(notes, program, is_drum=False, tempo=120.0):
     pm.instruments.append(inst)
     return pm
 
-def render_with_fluidsynth(sf2_path, midi_path, wav_path, sample_rate):
+def render_with_fluidsynth(sf2_path, midi_path, wav_path, sample_rate, to_pcm_u8=True):
     """
-    Invoke FluidSynth CLI to render midi_path → wav_path at sample_rate.
+    Render MIDI to WAV via FluidSynth.
+    Ensures output is mono. Optionally converts to 8-bit unsigned PCM (PCM_U8).
+    Overwrites wav_path in place.
     """
+    import soundfile as sf
+    import numpy as np
+    import tempfile
+    import shutil
+
+    # 1. Render stereo (default fluidsynth output)
     cmd = [
         "fluidsynth", "-ni",
         sf2_path, midi_path,
@@ -112,6 +121,21 @@ def render_with_fluidsynth(sf2_path, midi_path, wav_path, sample_rate):
         "-r", str(sample_rate)
     ]
     subprocess.run(cmd, check=True)
+
+    # 2. Load, downmix to mono if needed
+    data, sr = sf.read(wav_path)
+    if data.ndim > 1:
+        data = data.mean(axis=1)
+    
+    # 3. Write to temp file, converting to 8-bit unsigned PCM if requested
+    with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+        temp_wav = tmp.name
+    if to_pcm_u8:
+        sf.write(temp_wav, data, sr, subtype='PCM_U8')
+    else:
+        sf.write(temp_wav, data, sr)
+    # 4. Overwrite original file with the converted version
+    shutil.move(temp_wav, wav_path)
 
 def combine_instrument_wavs(wav_folder, instrument_lines, base_name, sample_rate):
     """
@@ -189,7 +213,7 @@ def main(csv_path, instrument_line, sf2_path, sample_rate, output_wav):
 
 if __name__ == "__main__":
     sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
-    sample_rate = 44100  # Hz
+    sample_rate = 16384  # Hz
     csv_folder = "midi/out"
     wav_folder = "midi/wav"
     base_name = "Williams__Star_Wars_Theme"
