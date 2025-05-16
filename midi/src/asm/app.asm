@@ -112,26 +112,19 @@ enable_channels_end:
     include "vdu_sound.inc"
 
     include "apr.inc"
+    include "samples.inc"
 
-    include "samples_Yamaha.inc"
-    ; include "samples_Strings.inc"
-    ; include "samples_Trumpet.inc"
-    ; include "samples_Harpsichord.inc"
-    ; include "samples_Bassoon.inc"
-    ; include "samples_Flute.inc"
-    ; include "samples_Trombone.inc"
     ; include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
     ; include "../../out/Beethoven__Moonlight_Sonata_v2.inc" 
     ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
     ; include "../../out/Beethoven__Ode_to_Joy.inc"
     ; include "../../out/Brahms__Sonata_F_minor.inc" 
     ; include "../../out/STARWARSTHEME.inc"
-    include "../../out/Williams__Star_Wars_Theme.inc"
+    ; include "../../out/Williams__Star_Wars_Theme.inc"
+    include "../../out/Williams__Star_Wars_Theme_mod.inc"
 
-    ; include "samples_harpsichord.inc"
     ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
     ; include "../../out/Thoinot__Pavana.inc"
-    ; include "../../out/STARWARSTHEME.inc"
 
 ; ###############################################
 ; Main loop
@@ -149,9 +142,8 @@ main:
     push ix
     push bc
     ld de,(ix) ; pointer to the filename
-    ld h,0
     ld bc,(ix+3) ; sample frequency
-    ld l,(ix+5) ; bufferId
+    ld hl,(ix+6) ; bufferId
     call pp_load_sample
     ld a,'.'
     rst.lil $10
@@ -159,8 +151,40 @@ main:
 ; advance the file pointer and loop
     pop bc
     pop ix
-    lea ix,ix+6
+    lea ix,ix+9
     djnz @sample_loop
+
+; ; BEGIN DEBUG
+;     ld hl,@cmd0
+;     ld bc,@end-@cmd0
+;     rst.lil $18
+;     ret
+; ; set waveform command
+;     @cmd0:       db 23,0,0x85
+;     @channel1:   db 0x00
+;                  db 4    ; set waveform command
+;                  db 8    ; waveform type: sample
+;     @bufferId:   dw 57
+; ; set volume envelope
+; ; Type 1: ADSR
+; ; VDU 23, 0, &85, channel, 6, 1, attack; decay; sustain, release;
+;                  db 23,0,0x85
+;     @channel3:   db 0x00
+;                  db 6    ; set volume envelope command
+;                  db 1    ; type 1 = plain ADSR
+;     @attack:     dw 0    ; attack (ms)
+;     @decay:      dw 0    ; decay (ms)
+;     @sustain:    db 255   ; sustain (0-255)
+;     @release:    dw 200  ; release (ms)
+; ; play note command
+;                  db 23,0,0x85
+;     @channel2:   db 0x00
+;                  db 0x00 ; play note command
+;     @volume:     db 127
+;     @frequency:  dw 220 ; frequency
+;     @duration:   dw 1   ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
+;     @end:        db 0x00 ; padding
+; ; END DEBUG
 
 ; play the midi file
     ld iy,midi_data

@@ -61,32 +61,37 @@ if __name__ == '__main__':
     inc_file = f"midi/src/asm/samples_{instrument}.inc"
     load_samples(samples_dir, inc_file, instrument)
 
-    instrument = 'Strings'
-    samples_dir = f"midi/tgt/{instrument}"
-    inc_file = f"midi/src/asm/samples_{instrument}.inc"
-    load_samples(samples_dir, inc_file, instrument)
+    # instrument = 'Strings'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
 
-    instrument = 'Trumpet'
-    samples_dir = f"midi/tgt/{instrument}"
-    inc_file = f"midi/src/asm/samples_{instrument}.inc"
-    load_samples(samples_dir, inc_file, instrument)
+    # instrument = 'Trumpet'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
 
-    instrument = 'Harpsichord'
-    samples_dir = f"midi/tgt/{instrument}"
-    inc_file = f"midi/src/asm/samples_{instrument}.inc"
-    load_samples(samples_dir, inc_file, instrument)
+    # instrument = 'Harpsichord'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
 
-    instrument = 'Flute'
-    samples_dir = f"midi/tgt/{instrument}"
-    inc_file = f"midi/src/asm/samples_{instrument}.inc"
-    load_samples(samples_dir, inc_file, instrument)
+    # instrument = 'Flute'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
 
-    instrument = 'Bassoon'
-    samples_dir = f"midi/tgt/{instrument}"
-    inc_file = f"midi/src/asm/samples_{instrument}.inc"
-    load_samples(samples_dir, inc_file, instrument)
+    # instrument = 'Bassoon'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
     
-    instrument = 'Trombone'
+    # instrument = 'Trombone'
+    # samples_dir = f"midi/tgt/{instrument}"
+    # inc_file = f"midi/src/asm/samples_{instrument}.inc"
+    # load_samples(samples_dir, inc_file, instrument)
+
+    instrument = 'French_Horns'
     samples_dir = f"midi/tgt/{instrument}"
     inc_file = f"midi/src/asm/samples_{instrument}.inc"
     load_samples(samples_dir, inc_file, instrument)

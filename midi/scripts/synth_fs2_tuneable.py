@@ -65,19 +65,20 @@ def sanitize_folder_name(name):
 def main():
     sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
     sample_rate = 32000
-    wav_folder = "midi/tgt"
+    wav_folder = "midi/tgt/Samples"
     duration = 4.0
     velocity = 127
-    output_gain = 4.0
+    output_gain = 1.0
 
     instrument_defs = [
-        (0, 1, "Yamaha"),
-        (0, 70, "Bassoon"),
-        (0, 73, "Flute"),
-        (0, 56, "Trumpet"),
-        (0, 57, "Trombone"),
-        (0, 6,  "Harpsichord"),
-        (0, 48, "Strings"),
+        # (0, 1, "Yamaha"),
+        # (0, 70, "Bassoon"),
+        # (0, 73, "Flute"),
+        # (0, 56, "Trumpet"),
+        # (0, 57, "Trombone"),
+        # (0, 6,  "Harpsichord"),
+        # (0, 48, "Strings"),
+        (0, 60, "French Horns"),
     ]
 
     note_names = ["A"]

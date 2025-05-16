@@ -11,14 +11,14 @@ import re
 from collections import defaultdict
 import wave
 
-def list_sample_pitches_and_durations(samples_dir):
+def list_sample_pitches_and_durations(samples_base_dir):
     results = []
-    for fname in os.listdir(samples_dir):
+    for fname in os.listdir(samples_base_dir):
         if fname.lower().endswith('.wav'):
             match = re.match(r'(\d{3})\.wav$', fname)
             if match:
                 midi_pitch = int(match.group(1))
-                wav_path = os.path.join(samples_dir, fname)
+                wav_path = os.path.join(samples_base_dir, fname)
                 try:
                     with wave.open(wav_path, 'rb') as wf:
                         frames = wf.getnframes()
@@ -38,7 +38,7 @@ def find_closest_sample(sample_info, midi_pitch):
     )
     return closest  # (sample_pitch, sample_duration_ms)
 
-def read_csv_with_pedals(csv_file):
+def read_csv_with_pedals(song_csv_file):
     instruments = []
     pedal_events = defaultdict(list)
     current_instrument = None
@@ -47,7 +47,7 @@ def read_csv_with_pedals(csv_file):
     current_notes = []
     reading_control_changes = False
 
-    with open(csv_file, 'r') as f:
+    with open(song_csv_file, 'r') as f:
         lines = f.readlines()
 
     print(f"Total lines in file: {len(lines)}")
@@ -123,7 +123,7 @@ def read_csv_with_pedals(csv_file):
 
     return instruments, pedal_events
 
-def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_threshold):
+def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sust_pedal_thresh):
     all_processed_notes = []
     all_pedal_events = []
     for instr_num, instr_name, notes in instruments:
@@ -148,7 +148,7 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
             soft_pedal_active = False
             for event in soft_state:
                 if event['time'] <= note['start']:
-                    soft_pedal_active = event['value'] >= sustain_threshold
+                    soft_pedal_active = event['value'] >= sust_pedal_thresh
                 elif event['time'] > note['start']:
                     break
             if soft_pedal_active:
@@ -158,18 +158,18 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
             sustain_off_time = None
             for event in sustain_state:
                 if event['time'] <= note['end']:
-                    if event['value'] >= sustain_threshold:
+                    if event['value'] >= sust_pedal_thresh:
                         sustain_on_time = event['time']
                     else:
                         sustain_off_time = event['time']
                         sustain_on_time = None
                 elif event['time'] > note['end']:
-                    if sustain_on_time is not None and event['value'] < sustain_threshold:
+                    if sustain_on_time is not None and event['value'] < sust_pedal_thresh:
                         sustain_off_time = event['time']
                         break
             if sustain_on_time is not None and sustain_on_time <= note['end']:
                 for event in sustain_state:
-                    if event['time'] > note['end'] and event['value'] < sustain_threshold:
+                    if event['time'] > note['end'] and event['value'] < sust_pedal_thresh:
                         sustain_off_time = event['time']
                         break
                 if sustain_off_time is not None:
@@ -181,7 +181,7 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
     all_pedal_events.sort(key=lambda x: x['time'])
     return all_processed_notes, all_pedal_events
 
-def convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_info, num_channels, min_duration_ms):
+def convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_info, num_channels, min_duration_ms, decay_ms):
     processed_notes.sort(key=lambda n: n['start'])
     for i in range(len(processed_notes) - 1):
         dt_s = processed_notes[i+1]['start'] - processed_notes[i]['start']
@@ -216,12 +216,16 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_i
         f.write("midi_data:\n")
 
         note_idx = 0
+        num_active_channels = num_channels
+        # Track when each channel will next be available
+        channel_release_time = [0.0] * num_channels
+        channel_note_start = [None] * num_channels  # For debugging/truncation comment
+
         for item in timeline:
             if item['type'] == 'pedal':
                 ev = item['data']
                 ptype = "Sustain" if ev['type'] == 'sustain' else "Soft"
-                f.write(f"; t {ev['time']:.4f} {ptype} {ev['value']} "
-                        f"(Instr {ev['instrument']})\n")
+                f.write(f"; t {ev['time']:.4f} {ptype} {ev['value']} (Instr {ev['instrument']})\n")
             else:
                 note = item['data']
                 note_idx += 1
@@ -236,21 +240,40 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_i
                 sample_max_dur = max(1, int(sample_duration * pitch_factor))
                 dur_ms = int(note['duration'] * 1000)
                 dur_ms = min(dur_ms, sample_max_dur)
-                dur_ms = max(dur_ms, min_duration_ms)  # Clamp to min_duration_ms
+                dur_ms = max(dur_ms, min_duration_ms)
+                occupy_ms = dur_ms + decay_ms
 
                 freq = round(440 * 2 ** ((note_pitch - 69) / 12))
                 freq_lo = freq & 0xFF
                 freq_hi = (freq >> 8) & 0xFF
 
+                note_start_time = note['start'] * 1000  # ms
+
+                # Channel allocation: find a free channel or the one with oldest (smallest) release
+                found_channel = None
+                earliest_free_time = float('inf')
                 for ch in range(num_channels):
-                    chan_remain[ch] = max(0, chan_remain[ch] - dt_ms)
-                chosen = next((ch for ch, p in enumerate(chan_pitch) if p == sample_pitch), None)
-                if chosen is None:
-                    chosen = next((ch for ch in range(num_channels) if chan_remain[ch] == 0), None)
-                if chosen is None:
-                    chosen = min(range(num_channels), key=lambda ch: chan_remain[ch])
-                chan_pitch[chosen] = sample_pitch
-                chan_remain[chosen] = dur_ms
+                    if channel_release_time[ch] <= note_start_time:
+                        found_channel = ch
+                        break
+                    elif channel_release_time[ch] < earliest_free_time:
+                        earliest_free_time = channel_release_time[ch]
+                        oldest_channel = ch
+
+                trunc_comment = ""
+                if found_channel is None:
+                    # All channels are busy; preempt oldest
+                    ch = oldest_channel
+                    prev_start = channel_note_start[ch]
+                    trunc_time = note_start_time
+                    trunc_comment = f" [TRUNCATE prev:ch{ch} @ {prev_start:.1f} ms -> {trunc_time:.1f} ms]"
+                    print(f"TRUNCATED: Channel {ch} note started at {prev_start:.1f} ms, cut by new note at {trunc_time:.1f} ms")
+                else:
+                    ch = found_channel
+
+                # Assign this note to channel ch
+                channel_release_time[ch] = note_start_time + occupy_ms
+                channel_note_start[ch] = note_start_time
 
                 comment = f"t={start_s:.3f}s dur={dur_ms}ms"
                 if note.get('velocity_modified'):
@@ -260,18 +283,19 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_i
                 if note.get('duration_modified'):
                     od = round(note['original_duration'] * 1000)
                     comment += f", sust {od}->{dur_ms}"
-                comment += f", freq={freq}Hz, sample={sample_pitch}"
+                comment += f", freq={freq}Hz, sample={sample_pitch}{trunc_comment}"
 
                 f.write(
                     f"    db {dt_ms & 0xFF},{(dt_ms>>8)&0xFF},"
                     f"{dur_ms & 0xFF},{(dur_ms>>8)&0xFF},"
-                    f"{sample_pitch},{vel},{inst},{chosen},"
+                    f"{sample_pitch},{vel},{inst},{ch},"
                     f"{freq_lo},{freq_hi}  ; n{note_idx} {comment}\n"
                 )
 
         f.write("    db 255,255,255,255,255,255,255,255,255,255  ; End marker\n")
 
-def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, samples_dir, num_channels, min_duration_ms):
+
+def csv_to_inc(input_file, output_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, num_channels, min_duration_ms, decay_ms):
     if not os.path.exists(input_file):
         print(f"Error: Input file '{input_file}' not found.")
         print(f" CWD: {os.getcwd()}")
@@ -289,39 +313,41 @@ def csv_to_inc(input_file, output_file, soft_pedal_factor, sustain_threshold, sa
         print("No notes found; cannot report pitch range.")
 
     processed_notes, all_pedal_events = process_pedal_effects(
-        instruments, pedal_events, soft_pedal_factor, sustain_threshold
+        instruments, pedal_events, soft_pedal_factor, sust_pedal_thresh
     )
 
-    sample_info = list_sample_pitches_and_durations(samples_dir)
+    sample_info = list_sample_pitches_and_durations(samples_base_dir)
 
-    convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_info, num_channels, min_duration_ms)
+    convert_to_assembly(processed_notes, all_pedal_events, output_file, sample_info, num_channels, min_duration_ms, decay_ms)
 
     print(f"Conversion complete! Assembly written to {output_file}")
-    print(f"Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sustain_threshold}")
+    print(f"Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sust_pedal_thresh}")
     print(f" Total instruments: {len(instruments)}")
     print(f" Total notes after processing: {len(processed_notes)}")
     print(f" Total pedal events: {len(all_pedal_events)}")
 
 if __name__ == '__main__':
-    out_dir = 'midi/out'
-    # samples_dir = 'midi/tgt/Yamaha'
-    # samples_dir = 'midi/tgt/Strings'
-    samples_dir = 'midi/tgt/Trumpet'
+    midi_out_dir = 'midi/out'
+    # samples_base_dir = 'midi/tgt/Yamaha'
+    # samples_base_dir = 'midi/tgt/Strings'
+    samples_base_dir = 'midi/tgt/Trumpet'
 
-    base_name = 'Beethoven__Moonlight_Sonata_v1'
-    # base_name = 'Beethoven__Moonlight_Sonata_v2'
-    # base_name = 'Beethoven__Moonlight_Sonata_3rd_mvt'
-    # base_name = 'Beethoven__Ode_to_Joy'
-    # base_name = 'Brahms__Sonata_F_minor'
-    # base_name = 'STARWARSTHEME'
-    base_name = 'Williams__Star_Wars_Theme'
+    # song_base_name = 'Beethoven__Moonlight_Sonata_v1'
+    # song_base_name = 'Beethoven__Moonlight_Sonata_v2'
+    # song_base_name = 'Beethoven__Moonlight_Sonata_3rd_mvt'
+    # song_base_name = 'Beethoven__Ode_to_Joy'
+    # song_base_name = 'Brahms__Sonata_F_minor'
+    # song_base_name = 'STARWARSTHEME'
+    # song_base_name = 'Williams__Star_Wars_Theme'
+    song_base_name = 'Williams__Star_Wars_Theme_mod'
 
-    csv_file = f"{out_dir}/{base_name}.csv"
-    inc_file = f"{out_dir}/{base_name}.inc"
+    song_csv_file = f"{midi_out_dir}/{song_base_name}.csv"
+    song_inc_file = f"{midi_out_dir}/{song_base_name}.inc"
 
     soft_pedal_factor = 0.3
-    sustain_threshold = 1
+    sust_pedal_thresh = 1
     num_channels = 32
-    min_duration_ms = 300
+    min_duration_ms = 1
+    decay_ms = 200
 
-    csv_to_inc(csv_file, inc_file, soft_pedal_factor, sustain_threshold, samples_dir, num_channels, min_duration_ms)
+    csv_to_inc(song_csv_file, song_inc_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, num_channels, min_duration_ms, decay_ms)

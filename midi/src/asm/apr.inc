@@ -65,7 +65,9 @@
     channel:     equ 7     ; 1 byte. Channel number (0-31)
     freq_lo:     equ 8     ; 1 byte. Frequency low byte
     freq_hi:     equ 9     ; 1 byte. Frequency high byte
-    bytes_per_note: equ 10
+    buffer_id_lo: equ 10    ; 1 byte. Buffer ID low byte
+    buffer_id_hi: equ 11    ; 1 byte. Buffer ID high byte
+    bytes_per_note: equ 12
 
 play_note:
 ; reset the note counter
@@ -75,9 +77,9 @@ play_note:
 
 ; play the note
     ld a,(iy+channel)
-    ld (@channel0),a
     ld (@channel1),a
     ld (@channel2),a
+    ld (@channel3),a
 
     ld a,(iy+freq_lo)
     ld (@frequency),a
@@ -89,8 +91,10 @@ play_note:
     ld a,(iy+duration_hi) 
     ld (@duration+1),a
 
-    ld a,(iy+pitch)
+    ld a,(iy+buffer_id_lo)
     ld (@bufferId),a
+    ld a,(iy+buffer_id_hi)
+    ld (@bufferId+1),a
 
     ld a,(iy+velocity)
     ld (@volume),a 
@@ -99,19 +103,22 @@ play_note:
     ld bc, @end-@cmd0
     rst.lil $18
     jr @end+1
-; set volume to zero to stop any current note playing on channel
-; Command 2: Set volume
-; VDU 23, 0, &85, channel, 2, volume
-    @cmd0:       db 23,0,0x85
-    @channel0:   db 0x00
-                 db 2    ; set volume command
-                 db 0x00 ; volume (mute)
+
 ; set waveform command
-                 db 23,0,0x85
+    @cmd0:       db 23,0,0x85
     @channel1:   db 0x00
                  db 4    ; set waveform command
                  db 8    ; waveform type: sample
     @bufferId:   dw 0x0000
+; set volume envelope command
+                 db 23,0,0x85
+    @channel3:   db 0x00
+                 db 6    ; set volume envelope command
+                 db 1    ; type 1 = plain ADSR
+    @attack:     dw 0    ; attack (ms)
+    @decay:      dw 0    ; decay (ms)
+    @sustain:    db 127   ; sustain (0-255)
+    @release:    dw 200  ; release (ms)
 ; play note command
                  db 23,0,0x85
     @channel2:   db 0x00
