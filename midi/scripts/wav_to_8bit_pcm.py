@@ -86,7 +86,8 @@ def convert_wavs_to_8bit_pcm(source_dir, dest_dir, target_sample_rate):
     return converted_files
 
 if __name__ == "__main__":
-    source_dir = "midi/sf2/loops"
+    # source_dir = "midi/sf2/loops"
+    source_dir = "midi/sf2/samples"
     dest_dir = "midi/tgt/piano_yamaha"
     target_sample_rate = 32000
 

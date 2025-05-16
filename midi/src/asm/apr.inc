@@ -63,11 +63,11 @@
     velocity:    equ 5     ; 1 byte. Note velocity (0–127)
     instrument:  equ 6     ; 1 byte. Instrument number (1–255)
     channel:     equ 7     ; 1 byte. Channel number (0-31)
-    bytes_per_note: equ 8
+    freq_lo:     equ 8     ; 1 byte. Frequency low byte
+    freq_hi:     equ 9     ; 1 byte. Frequency high byte
+    bytes_per_note: equ 10
 
 play_note:
-; ; stop the timer
-;     call prt_stop
 ; reset the note counter
     ld l,(iy+tnext_lo) ; low byte
     ld h,(iy+tnext_hi) ; high byte
@@ -78,7 +78,11 @@ play_note:
     ld (@channel0),a
     ld (@channel1),a
     ld (@channel2),a
-    ld (@channel3),a
+
+    ld a,(iy+freq_lo)
+    ld (@frequency),a
+    ld a,(iy+freq_hi)
+    ld (@frequency+1),a
 
     ld a,(iy+duration_lo)
     ld (@duration),a
@@ -90,11 +94,6 @@ play_note:
 
     ld a,(iy+velocity)
     ld (@volume),a 
-
-    ld a,(pp_wav_header+pp_wav_sample_rate)
-    ld (@sampleRate),a
-    ld a,(pp_wav_header+pp_wav_sample_rate+1)
-    ld (@sampleRate+1),a
 
     ld hl,@cmd0
     ld bc, @end-@cmd0
@@ -113,28 +112,20 @@ play_note:
                  db 4    ; set waveform command
                  db 8    ; waveform type: sample
     @bufferId:   dw 0x0000
-; set sample rate command
-                 db 23,0,0x85
-    @channel2:   db 0x00
-                 db 13 ; set sample rate command
-    @sampleRate: dw 0x0000
 ; play note command
                  db 23,0,0x85
-    @channel3:   db 0x00
+    @channel2:   db 0x00
                  db 0x00 ; play note command
     @volume:     db 0x00
-                 dw 0x0000 ; frequency: no effect unless buffer has been set to tuneable sample
+    @frequency:  dw 0x0000 ; frequency
     @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
     @end:        db 0x00 ; padding
 
     lea iy,iy+bytes_per_note ; move to next note
-
-; ; restart the timer
-;     call prt_start
-
     ret
 
 pp_load_sample:
+    push bc ; save sample frequency
     push hl ; save the bufferId
 ; 0x80: ffs_fopen
 ; Parameters:
@@ -182,9 +173,13 @@ pp_load_sample:
     jr nc,@read_loop ; read the next chunk
 @make_sample:
     pop hl ; pop the bufferId
+    push hl ; and put it right back
     ld de,(iy+pp_wav_sample_rate)
     ld a,1 ; unsigned 8-bit PCM
     call vdu_buffer_to_sound
+    pop hl ; pop the bufferId
+    pop de ; pop the sample frequency (was bc)
+    call vdu_set_sample_frequency
 ; close the file
     ld hl,pp_fil_struct
     FFSCALL ffs_fclose

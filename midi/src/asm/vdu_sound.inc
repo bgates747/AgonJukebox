@@ -350,3 +350,23 @@ vdu_play_sample:
 @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
 @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
 @end:        db 0x00 ; padding
+
+
+; Command 5, 4: Set sample frequency for a sample by buffer ID
+; Sets the base frequency of the sample identified by the given bufferId. This command effectively operates the same as command 5, 3 but allows you to specify the sample by buffer ID rather than sample number.
+; VDU 23, 0, &85, channel, 5, 4, bufferId; frequency;
+; inputs: hl = bufferId ; de = frequency
+vdu_set_sample_frequency:
+    ld (@bufferId),hl
+    ld (@frequency),de
+    ld hl,@cmd         
+    ld bc,@end-@cmd    
+    rst.lil $18         
+    ret
+@cmd:       db 23, 0, 0x85 ; Audio API header
+            db 0 ; channel (ignored)
+            db 5,4 ; set sample frequency command
+@bufferId:  dw 0x0000
+@frequency: dw 0x0000
+@end:       db 0x00 ; padding
+; end vdu_set_sample_frequency

@@ -113,15 +113,20 @@ enable_channels_end:
 
     include "apr.inc"
 
-    ; include "samples_piano.inc"
-    include "samples_piano_yamaha.inc"
-    include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
+    include "samples_Yamaha.inc"
+    ; include "samples_Strings.inc"
+    ; include "samples_Trumpet.inc"
+    ; include "samples_Harpsichord.inc"
+    ; include "samples_Bassoon.inc"
+    ; include "samples_Flute.inc"
+    ; include "samples_Trombone.inc"
+    ; include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
     ; include "../../out/Beethoven__Moonlight_Sonata_v2.inc" 
     ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
     ; include "../../out/Beethoven__Ode_to_Joy.inc"
     ; include "../../out/Brahms__Sonata_F_minor.inc" 
     ; include "../../out/STARWARSTHEME.inc"
-    ; include "../../out/Williams__Star_Wars_Theme.inc"
+    include "../../out/Williams__Star_Wars_Theme.inc"
 
     ; include "samples_harpsichord.inc"
     ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
@@ -143,9 +148,10 @@ main:
 @sample_loop:
     push ix
     push bc
-    ld de,(ix)
+    ld de,(ix) ; pointer to the filename
     ld h,0
-    ld l,(ix+3) ; bufferId
+    ld bc,(ix+3) ; sample frequency
+    ld l,(ix+5) ; bufferId
     call pp_load_sample
     ld a,'.'
     rst.lil $10
@@ -153,7 +159,7 @@ main:
 ; advance the file pointer and loop
     pop bc
     pop ix
-    lea ix,ix+4
+    lea ix,ix+6
     djnz @sample_loop
 
 ; play the midi file
