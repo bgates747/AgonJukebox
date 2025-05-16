@@ -19,6 +19,7 @@ from io import StringIO
 import pretty_midi
 import soundfile as sf
 from collections import defaultdict
+import bisect
 
 #####################
 # General Utilities #
@@ -212,25 +213,95 @@ def write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
         for line in sample_filenames: f.write(f"{line}\n")
 
 ###########################################
-# CSV Track Assembly with Buffer ID Logic #
+# CSV Track Assembly
 ###########################################
 
-def build_sample_info_map(defs, base_samples_dir):
-    sf_to_samples = {}
-    for sfn in defs.sf_to_row:
-        folder = defs.folder_for_sf(base_samples_dir, sfn)
-        sf_to_samples[sfn] = list_sample_pitches_and_durations(folder)
-    return sf_to_samples
+import os
+import re
+import csv
+from collections import defaultdict
+from io import StringIO
+import wave
+import bisect
 
-def read_csv_with_pedals(song_csv_file):
+###########################################
+#           CONTROL CHANGE HELPERS        #
+###########################################
+
+def parse_control_changes(csv_lines):
+    """
+    Parses control change sections for all instruments.
+    Returns: 
+        {instr_num: {control_num: [(time, value), ...]}}
+    """
+    control_changes = defaultdict(lambda: defaultdict(list))
+    current_instr = None
+    in_control_section = False
+    for line in csv_lines:
+        line = line.strip()
+        if line.startswith('# Instrument'):
+            parts = line.split(':', 1)
+            num_match = re.search(r'\d+', parts[0])
+            if num_match:
+                current_instr = int(num_match.group())
+            else:
+                current_instr = None
+            in_control_section = False
+        elif line.startswith('# Control Changes'):
+            in_control_section = True
+            continue
+        elif in_control_section and line and line[0].isdigit():
+            fields = line.split(',')
+            if len(fields) >= 4:
+                try:
+                    time = float(fields[0])
+                    control_num = int(fields[1])
+                    value = int(fields[3])
+                    control_changes[current_instr][control_num].append((time, value))
+                except Exception:
+                    pass
+        elif line.startswith('#') or not line:
+            in_control_section = False
+    # Sort each control change list by time (for binary search)
+    for instr_dict in control_changes.values():
+        for cc_list in instr_dict.values():
+            cc_list.sort()
+    return control_changes
+
+def get_controller_value_at_time(cc_list, t, default=127):
+    """
+    cc_list: [(time, value), ...] sorted by time
+    Returns value at time `t` (or default if before first event).
+    """
+    if not cc_list:
+        return default
+    idx = bisect.bisect_right(cc_list, (t, float('inf'))) - 1
+    if idx >= 0:
+        return cc_list[idx][1]
+    return default
+
+###########################################
+#         CSV/PEDALS/PARTS PARSER         #
+###########################################
+
+def read_csv_with_pedals_and_control_changes(song_csv_file):
+    """
+    Returns:
+        - instruments: list of (instr_num, instr_name, notes)
+        - pedal_events: dict of sustain/soft events
+        - control_changes: {instr_num: {cc_num: [(time, value), ...]}}
+    """
     instruments, pedal_events = [], defaultdict(list)
     current_instrument = None
     current_instr_number = None
     current_instr_name = None
     current_notes = []
     reading_control_changes = False
+    csv_lines = []
     with open(song_csv_file, 'r') as f:
         lines = f.readlines()
+    csv_lines = lines[:]  # For parse_control_changes later
+
     i = 0
     while i < len(lines):
         line = lines[i].strip()
@@ -261,6 +332,7 @@ def read_csv_with_pedals(song_csv_file):
                     time = float(fields[0])
                     control_num = int(fields[1])
                     value = int(fields[3])
+                    # Only collect pedal events here for backward compat
                     if control_num in (64, 67):
                         pedal_events[current_instr_number].append({
                             'time': time, 'control_num': control_num, 'value': value
@@ -288,29 +360,48 @@ def read_csv_with_pedals(song_csv_file):
         i += 1
     if current_instrument is not None and current_notes:
         instruments.append((current_instr_number, current_instr_name, current_notes))
-    return instruments, pedal_events
 
-def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sust_pedal_thresh):
+    # Parse all control changes (for all CC types, all instruments)
+    control_changes = parse_control_changes(csv_lines)
+    return instruments, pedal_events, control_changes
+
+def process_pedal_and_volume_effects(
+        instruments, pedal_events, control_changes, 
+        soft_pedal_factor, sust_pedal_thresh
+    ):
+    """
+    Processes both pedals and velocity*volume logic.
+    Returns processed_notes, all_pedal_events.
+    Each processed_note includes the adjusted velocity.
+    """
     all_processed_notes = []
     all_pedal_events = []
+
     for instr_num, instr_name, notes in instruments:
-        instrument_pedal_events = pedal_events.get(instr_num, [])
-        instrument_pedal_events.sort(key=lambda x: x['time'])
+        # --- Build pedal event lists for sustain/soft (legacy) ---
         sustain_state = []
         soft_state = []
-        for event in instrument_pedal_events:
+        for event in pedal_events.get(instr_num, []):
             if event['control_num'] == 64:
                 sustain_state.append({'time': event['time'], 'value': event['value'], 'type': 'sustain', 'instrument': instr_num})
                 all_pedal_events.append({'time': event['time'], 'value': event['value'], 'type': 'sustain', 'instrument': instr_num})
             elif event['control_num'] == 67:
                 soft_state.append({'time': event['time'], 'value': event['value'], 'type': 'soft', 'instrument': instr_num})
                 all_pedal_events.append({'time': event['time'], 'value': event['value'], 'type': 'soft', 'instrument': instr_num})
+
+        # --- Build controller lists (including volume: CC7) ---
+        volume_cc = control_changes[instr_num].get(7, [])  # CC7 = Volume
+        # Other controllers (pan etc) can be fetched the same way
+
+        # --- Process notes ---
         for note in notes:
             processed_note = note.copy()
             processed_note['original_velocity'] = note['velocity']
             processed_note['original_duration'] = note['duration']
             processed_note['velocity_modified'] = False
             processed_note['duration_modified'] = False
+
+            # Soft pedal effect
             soft_pedal_active = False
             for event in soft_state:
                 if event['time'] <= note['start']:
@@ -320,6 +411,15 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sust_ped
             if soft_pedal_active:
                 processed_note['velocity'] = max(1, int(note['velocity'] * (1 - soft_pedal_factor)))
                 processed_note['velocity_modified'] = True
+
+            # Volume × Velocity dynamic (use latest volume at note start)
+            # Both in range [0,127], result should also be 0..127 (rounded, clamped)
+            cc_volume = get_controller_value_at_time(volume_cc, note['start'], default=127)
+            combined_vel = int(round((note['velocity'] * cc_volume) / 127))
+            combined_vel = max(1, min(127, combined_vel))  # Clamp
+            processed_note['velocity'] = combined_vel
+
+            # Sustain pedal effect
             sustain_on_time = None
             sustain_off_time = None
             for event in sustain_state:
@@ -342,10 +442,19 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sust_ped
                     processed_note['end'] = sustain_off_time
                     processed_note['duration'] = sustain_off_time - note['start']
                     processed_note['duration_modified'] = True
+
             all_processed_notes.append(processed_note)
+
     all_processed_notes.sort(key=lambda x: x['start'])
     all_pedal_events.sort(key=lambda x: x['time'])
     return all_processed_notes, all_pedal_events
+
+def build_sample_info_map(defs, base_samples_dir):
+    sf_to_samples = {}
+    for sfn in defs.sf_to_row:
+        folder = defs.folder_for_sf(base_samples_dir, sfn)
+        sf_to_samples[sfn] = list_sample_pitches_and_durations(folder)
+    return sf_to_samples
 
 def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf_to_samples, num_channels, min_duration_ms, decay_ms):
     processed_notes.sort(key=lambda n: n['start'])
@@ -454,9 +563,9 @@ def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh,
         print(f" Files: {os.listdir(os.path.dirname(song_csv_file) or '.')}")
         return
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
-    instruments, pedal_events = read_csv_with_pedals(song_csv_file)
-    processed_notes, all_pedal_events = process_pedal_effects(
-        instruments, pedal_events, soft_pedal_factor, sust_pedal_thresh
+    instruments, pedal_events, control_changes = read_csv_with_pedals_and_control_changes(song_csv_file)
+    processed_notes, all_pedal_events = process_pedal_and_volume_effects(
+        instruments, pedal_events, control_changes, soft_pedal_factor, sust_pedal_thresh
     )
     defs = InstrumentDefs(instrument_defs_csv)
     sf_to_samples = build_sample_info_map(defs, base_samples_dir)
@@ -469,6 +578,8 @@ def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh,
     print(f" Total instruments: {len(instruments)}")
     print(f" Total notes after processing: {len(processed_notes)}")
     print(f" Total pedal events: {len(all_pedal_events)}")
+
+
 
 ################
 # MAIN         #
@@ -491,8 +602,8 @@ instrument_number,instrument_name,bank,preset,soundfont_name,duration,velocity,o
 6,Orchestral Harp,0,46,Harp,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
 7,Bright Acoustic Piano,0,1,Bright Yamaha Grand,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
 8,String Ensemble 1,0,48,Strings,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-9,String Ensemble 1,0,48,Strings,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-10,Tremolo Strings,0,48,Strings,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,50,Synth Strings 1,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,0,44,Tremolo,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
 11,Timpani,0,47,Timpani,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
     """
 
