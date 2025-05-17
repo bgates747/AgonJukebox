@@ -129,7 +129,6 @@ enable_channels_end:
 ; ###############################################
 ; Main loop
 ; ###############################################
-
 main:
     call printInline
     asciz "Loading samples "
@@ -147,68 +146,35 @@ main:
     call pp_load_sample
     ld a,'.'
     rst.lil $10
-
 ; advance the file pointer and loop
     pop bc
     pop ix
     lea ix,ix+9
     djnz @sample_loop
-
-; ; BEGIN DEBUG
-;     ld hl,@cmd0
-;     ld bc,@end-@cmd0
-;     rst.lil $18
-;     ret
-; ; set waveform command
-;     @cmd0:       db 23,0,0x85
-;     @channel1:   db 0x00
-;                  db 4    ; set waveform command
-;                  db 8    ; waveform type: sample
-;     @bufferId:   dw 57
-; ; set volume envelope
-; ; Type 1: ADSR
-; ; VDU 23, 0, &85, channel, 6, 1, attack; decay; sustain, release;
-;                  db 23,0,0x85
-;     @channel3:   db 0x00
-;                  db 6    ; set volume envelope command
-;                  db 1    ; type 1 = plain ADSR
-;     @attack:     dw 0    ; attack (ms)
-;     @decay:      dw 0    ; decay (ms)
-;     @sustain:    db 255   ; sustain (0-255)
-;     @release:    dw 200  ; release (ms)
-; ; play note command
-;                  db 23,0,0x85
-;     @channel2:   db 0x00
-;                  db 0x00 ; play note command
-;     @volume:     db 127
-;     @frequency:  dw 220 ; frequency
-;     @duration:   dw 1   ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
-;     @end:        db 0x00 ; padding
-; ; END DEBUG
-
 ; play the midi file
+    ld hl,0
+    ld (notes_played),hl
+    call vdu_cls
     ld iy,midi_data
     call prt_irq_init
     call prt_start
     call get_input
-
 ; cleanup and exit
     call prt_stop
     ei 
-    ; ld a,0
-    ; call vdu_set_screen_mode
+    call vdu_cls
     ret
+; end main
 
 get_input:
 ; wait for the user to push a button
     ei ; enable interrupts
     MOSCALL mos_getkey ; a = ascii code of key pressed
     di ; disable interrupts
-
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
     ret z 
     cp 'q' ; quit
     ret z
-    
     jr get_input ; if not escape or q, continue
+; end get_input

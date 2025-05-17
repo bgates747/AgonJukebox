@@ -158,13 +158,31 @@ prt_irq_handler:
     dec hl
     ld (note_counter),hl
     
-; if timer expired, play the next note
+; if timer expired, play the next note if not at EOF
     SIGN_UHL
-    call z,play_note
+    jr z,@check_eof
     jp p,@done
     ld hl,1
     ld (note_counter),hl
+    jr @done
 
+@check_eof:
+; check whether we are at the end of the file
+    ld hl,total_notes
+    ld de,(notes_played)
+    or a ; clear carry
+    sbc hl,de ; subtract total notes from the number of notes played
+    call vdu_home_cursor ; DEBUG
+    call printDec ; DEBUG
+    jr z,@eof ; if zero, we are at the end of the file
+    jp m,@eof ; if negative we are past the end of the file
+    call play_note
+    jr @done
+@eof:
+    call prt_stop
+    call vdu_cls
+    call printInline
+    asciz "End of file reached, press any Esc or Q to quit."
 @done:
 ; restore regular registers and enable interrupts
     exx

@@ -52,7 +52,9 @@
 
     pp_max_chunk_size: equ 32768 ; max size of a chunk
 
-    note_counter: dl 0
+    note_counter: dl 0 ; count-down timer for the next note
+
+    notes_played: dl 0 ; number of notes played
 
 ; Format of each note record:
     tnext_lo:    equ 0     ; 1 byte. Time to next note in ms (low byte)
@@ -129,6 +131,11 @@ play_note:
     @end:        db 0x00 ; padding
 
     lea iy,iy+bytes_per_note ; move to next note
+
+    ld hl,(notes_played)
+    inc hl
+    ld (notes_played),hl ; increment the number of notes played
+
     ret
 
 pp_load_sample:

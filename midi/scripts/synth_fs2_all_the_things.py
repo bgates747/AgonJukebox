@@ -216,18 +216,6 @@ def write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
 # CSV Track Assembly
 ###########################################
 
-import os
-import re
-import csv
-from collections import defaultdict
-from io import StringIO
-import wave
-import bisect
-
-###########################################
-#           CONTROL CHANGE HELPERS        #
-###########################################
-
 def parse_control_changes(csv_lines):
     """
     Parses control change sections for all instruments.
@@ -279,10 +267,6 @@ def get_controller_value_at_time(cc_list, t, default=127):
     if idx >= 0:
         return cc_list[idx][1]
     return default
-
-###########################################
-#         CSV/PEDALS/PARTS PARSER         #
-###########################################
 
 def read_csv_with_pedals_and_control_changes(song_csv_file):
     """
@@ -364,6 +348,14 @@ def read_csv_with_pedals_and_control_changes(song_csv_file):
     # Parse all control changes (for all CC types, all instruments)
     control_changes = parse_control_changes(csv_lines)
     return instruments, pedal_events, control_changes
+
+def apply_velocity_with_global(note_velocity, volume, global_volume, global_volume_exp_fact):
+    # Standard linear: out = round(volume * note_velocity / 127 * global_volume)
+    # Exponential curve for "more natural" gain (optional):
+    pre_clip = (volume * note_velocity / 127)
+    boosted = pre_clip * (global_volume ** global_volume_exp_fact)
+    # Clamp and round to nearest int in MIDI range
+    return int(min(round(boosted), 127))
 
 def process_pedal_and_volume_effects(
         instruments, pedal_events, control_changes, 
@@ -456,7 +448,7 @@ def build_sample_info_map(defs, base_samples_dir):
         sf_to_samples[sfn] = list_sample_pitches_and_durations(folder)
     return sf_to_samples
 
-def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf_to_samples, num_channels, min_duration_ms, decay_ms):
+def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf_to_samples,num_channels, min_duration_ms, decay_ms, ctrl_events, global_volume, global_volume_exp_fact):
     processed_notes.sort(key=lambda n: n['start'])
     for i in range(len(processed_notes) - 1):
         dt_s = processed_notes[i+1]['start'] - processed_notes[i]['start']
@@ -499,13 +491,10 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf
                 note_idx += 1
                 dt_ms = note['delta_ms']
                 note_pitch = note['pitch']
-                vel = note['velocity']
                 inst = note['instrument']
                 start_s = note['start']
                 soundfont_name = defs.instnum_to_sf[inst]
                 sample_info = sf_to_samples[soundfont_name]
-                pool_min_instr = defs.sf_to_min_instnum[soundfont_name]
-                # Find closest sample in this pool
                 sample_pitch, sample_duration = find_closest_sample(sample_info, note_pitch)
                 pitch_factor = 2 ** ((sample_pitch - note_pitch) / 12)
                 sample_max_dur = max(1, int(sample_duration * pitch_factor))
@@ -517,6 +506,18 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf
                 freq_lo = freq & 0xFF
                 freq_hi = (freq >> 8) & 0xFF
                 note_start_time = note['start'] * 1000
+
+                # === Get volume control (CC7) at note time, default to 127 ===
+                volume = 127
+                if inst in ctrl_events and 7 in ctrl_events[inst]:
+                    volume = get_controller_value_at_time(ctrl_events[inst][7], note['start'])
+
+                # === Apply velocity, volume, and global multiplier with exponent ===
+                raw_vel = note['velocity']
+                base = raw_vel * volume / 127
+                boosted = base * (global_volume ** global_volume_exp_fact)
+                vel_final = int(round(min(max(boosted, 0), 127)))
+
                 # Channel allocation
                 found_channel = None
                 earliest_free_time = float('inf')
@@ -551,12 +552,13 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf
                 f.write(
                     f"    db {dt_ms & 0xFF},{(dt_ms>>8)&0xFF},"
                     f"{dur_ms & 0xFF},{(dur_ms>>8)&0xFF},"
-                    f"{sample_pitch},{vel},{inst},{ch},"
+                    f"{sample_pitch},{vel_final},{inst},{ch},"
                     f"{freq_lo},{freq_hi},{buffer_id_lo},{buffer_id_hi}  ; n{note_idx} {comment}\n"
                 )
         f.write("    db 255,255,255,255,255,255,255,255,255,255,255,255  ; End marker\n")
 
-def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh, base_samples_dir, instrument_defs_csv, num_channels, min_duration_ms, decay_ms):
+
+def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh, base_samples_dir, instrument_defs_csv, num_channels, min_duration_ms, decay_ms, global_volume, global_volume_exp_fact):
     if not os.path.exists(song_csv_file):
         print(f"Error: Input file '{song_csv_file}' not found.")
         print(f" CWD: {os.getcwd()}")
@@ -569,10 +571,7 @@ def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh,
     )
     defs = InstrumentDefs(instrument_defs_csv)
     sf_to_samples = build_sample_info_map(defs, base_samples_dir)
-    convert_to_assembly(
-        processed_notes, all_pedal_events, output_file, defs, sf_to_samples,
-        num_channels, min_duration_ms, decay_ms
-    )
+    convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf_to_samples,num_channels, min_duration_ms, decay_ms, control_changes, global_volume, global_volume_exp_fact)
     print(f"Conversion complete! Assembly written to {output_file}")
     print(f"Soft pedal factor = {soft_pedal_factor}, Sustain threshold = {sust_pedal_thresh}")
     print(f" Total instruments: {len(instruments)}")
@@ -607,12 +606,12 @@ instrument_number,instrument_name,bank,preset,soundfont_name,duration,velocity,o
 11,Timpani,0,47,Timpani,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
     """
 
-    # note_names = ["A"]
-    # octaves = range(0, 8)
-    # make_tunable_samples(note_names, octaves, instrument_defs, samples_base_dir)
+    note_names = ["A"]
+    octaves = range(0, 8)
+    make_tunable_samples(note_names, octaves, instrument_defs, samples_base_dir)
 
-    # defs = InstrumentDefs(instrument_defs)
-    # write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
+    defs = InstrumentDefs(instrument_defs)
+    write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
 
     # song_base_name = 'Beethoven__Moonlight_Sonata_v1'
     # song_base_name = 'Beethoven__Moonlight_Sonata_v2'
@@ -629,4 +628,6 @@ instrument_number,instrument_name,bank,preset,soundfont_name,duration,velocity,o
     num_channels = 32
     min_duration_ms = 1
     decay_ms = 200
-    csv_to_inc(song_csv_file, song_inc_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, instrument_defs, num_channels, min_duration_ms, decay_ms)
+    global_volume = 1.0
+    global_volume_exp_fact = 1.0
+    csv_to_inc(song_csv_file, song_inc_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, instrument_defs, num_channels, min_duration_ms, decay_ms, global_volume, global_volume_exp_fact)
