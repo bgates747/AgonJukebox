@@ -1,242 +1,103 @@
-
-num_samples: equ 72
+num_samples: equ 30
 
 ; Format: filename pointer, frequency, bufferId
 sample_dictionary:
-
 ; ---- Instrument 1: Bassoon ----
-; Bank: 0  Preset: 70  SoundFont: Bassoon
-; Duration: 1.3627  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Bassoon
-    dl fn_0115, 28, 0x0115 ; pitch=21 (A0)
-    dl fn_0121, 55, 0x0121 ; pitch=33 (A1)
-    dl fn_012d, 110, 0x012d ; pitch=45 (A2)
-    dl fn_0139, 220, 0x0139 ; pitch=57 (A3)
-    dl fn_0145, 440, 0x0145 ; pitch=69 (A4)
-    dl fn_0151, 880, 0x0151 ; pitch=81 (A5)
-    dl fn_015d, 1760, 0x015d ; pitch=93 (A6)
-    dl fn_0169, 3520, 0x0169 ; pitch=105 (A7)
-
+; SoundFont: Bassoon, Bank: 0, Preset: 70
+    dl fn_013f, 311, 0x013f ; pitch=63 (D#4)
+    dl fn_014b, 622, 0x014b ; pitch=75 (D#5)
 ; ---- Instrument 2: Flute ----
-; Bank: 0  Preset: 73  SoundFont: Flute
-; Duration: 0.4148  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Flute
-    dl fn_0215, 28, 0x0215 ; pitch=21 (A0)
-    dl fn_0221, 55, 0x0221 ; pitch=33 (A1)
-    dl fn_022d, 110, 0x022d ; pitch=45 (A2)
-    dl fn_0239, 220, 0x0239 ; pitch=57 (A3)
-    dl fn_0245, 440, 0x0245 ; pitch=69 (A4)
-    dl fn_0251, 880, 0x0251 ; pitch=81 (A5)
-    dl fn_025d, 1760, 0x025d ; pitch=93 (A6)
-    dl fn_0269, 3520, 0x0269 ; pitch=105 (A7)
-
+; SoundFont: Flute, Bank: 0, Preset: 73
+    dl fn_0250, 831, 0x0250 ; pitch=80 (G#5)
 ; ---- Instrument 3: French_Horns ----
-; Bank: 0  Preset: 60  SoundFont: French Horns
-; Duration: 3.7846  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/French_Horns
-    dl fn_0315, 28, 0x0315 ; pitch=21 (A0)
-    dl fn_0321, 55, 0x0321 ; pitch=33 (A1)
-    dl fn_032d, 110, 0x032d ; pitch=45 (A2)
-    dl fn_0339, 220, 0x0339 ; pitch=57 (A3)
-    dl fn_0345, 440, 0x0345 ; pitch=69 (A4)
-    dl fn_0351, 880, 0x0351 ; pitch=81 (A5)
-    dl fn_035d, 1760, 0x035d ; pitch=93 (A6)
-    dl fn_0369, 3520, 0x0369 ; pitch=105 (A7)
-
+; SoundFont: French Horns, Bank: 0, Preset: 60
+    dl fn_0333, 156, 0x0333 ; pitch=51 (D#3)
+    dl fn_033f, 311, 0x033f ; pitch=63 (D#4)
 ; ---- Instrument 4: Trumpet ----
-; Bank: 0  Preset: 56  SoundFont: Trumpet
-; Duration: 3.9669  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Trumpet
-    dl fn_0415, 28, 0x0415 ; pitch=21 (A0)
-    dl fn_0421, 55, 0x0421 ; pitch=33 (A1)
-    dl fn_042d, 110, 0x042d ; pitch=45 (A2)
-    dl fn_0439, 220, 0x0439 ; pitch=57 (A3)
-    dl fn_0445, 440, 0x0445 ; pitch=69 (A4)
-    dl fn_0451, 880, 0x0451 ; pitch=81 (A5)
-    dl fn_045d, 1760, 0x045d ; pitch=93 (A6)
-    dl fn_0469, 3520, 0x0469 ; pitch=105 (A7)
-
+; SoundFont: Trumpet, Bank: 0, Preset: 56
+    dl fn_043a, 233, 0x043a ; pitch=58 (A#3)
+    dl fn_0446, 466, 0x0446 ; pitch=70 (A#4)
+    dl fn_0452, 932, 0x0452 ; pitch=82 (A#5)
 ; ---- Instrument 5: Trombone ----
-; Bank: 0  Preset: 57  SoundFont: Trombone
-; Duration: 2.8984  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Trombone
-    dl fn_0515, 28, 0x0515 ; pitch=21 (A0)
-    dl fn_0521, 55, 0x0521 ; pitch=33 (A1)
-    dl fn_052d, 110, 0x052d ; pitch=45 (A2)
-    dl fn_0539, 220, 0x0539 ; pitch=57 (A3)
-    dl fn_0545, 440, 0x0545 ; pitch=69 (A4)
-    dl fn_0551, 880, 0x0551 ; pitch=81 (A5)
-    dl fn_055d, 1760, 0x055d ; pitch=93 (A6)
-    dl fn_0569, 3520, 0x0569 ; pitch=105 (A7)
-
+; SoundFont: Trombone, Bank: 0, Preset: 57
+    dl fn_0537, 196, 0x0537 ; pitch=55 (G3)
+    dl fn_0543, 392, 0x0543 ; pitch=67 (G4)
+    dl fn_054f, 784, 0x054f ; pitch=79 (G5)
 ; ---- Instrument 6: Orchestral Harp ----
-; Bank: 0  Preset: 46  SoundFont: Harp
-; Duration: 0.4316  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Harp
-    dl fn_0615, 28, 0x0615 ; pitch=21 (A0)
-    dl fn_0621, 55, 0x0621 ; pitch=33 (A1)
-    dl fn_062d, 110, 0x062d ; pitch=45 (A2)
-    dl fn_0639, 220, 0x0639 ; pitch=57 (A3)
-    dl fn_0645, 440, 0x0645 ; pitch=69 (A4)
-    dl fn_0651, 880, 0x0651 ; pitch=81 (A5)
-    dl fn_065d, 1760, 0x065d ; pitch=93 (A6)
-    dl fn_0669, 3520, 0x0669 ; pitch=105 (A7)
-
+; SoundFont: Harp, Bank: 0, Preset: 46
+    dl fn_0635, 175, 0x0635 ; pitch=53 (F3)
+    dl fn_0641, 349, 0x0641 ; pitch=65 (F4)
+    dl fn_064d, 698, 0x064d ; pitch=77 (F5)
+    dl fn_0659, 1397, 0x0659 ; pitch=89 (F6)
 ; ---- Instrument 7: Bright Acoustic Piano ----
-; Bank: 0  Preset: 1  SoundFont: Bright Yamaha Grand
-; Duration: 0.1202  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Bright_Yamaha_Grand
-    dl fn_0715, 28, 0x0715 ; pitch=21 (A0)
-    dl fn_0721, 55, 0x0721 ; pitch=33 (A1)
-    dl fn_072d, 110, 0x072d ; pitch=45 (A2)
-    dl fn_0739, 220, 0x0739 ; pitch=57 (A3)
-    dl fn_0745, 440, 0x0745 ; pitch=69 (A4)
-    dl fn_0751, 880, 0x0751 ; pitch=81 (A5)
-    dl fn_075d, 1760, 0x075d ; pitch=93 (A6)
-    dl fn_0769, 3520, 0x0769 ; pitch=105 (A7)
-
+; SoundFont: Bright Yamaha Grand, Bank: 0, Preset: 1
+    dl fn_0741, 349, 0x0741 ; pitch=65 (F4)
+    dl fn_074d, 698, 0x074d ; pitch=77 (F5)
+    dl fn_0759, 1397, 0x0759 ; pitch=89 (F6)
 ; ---- Instrument 8: String Ensemble 1 ----
-; Bank: 0  Preset: 50  SoundFont: Synth Strings 1
-; Duration: 8.875  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Synth_Strings_1
-    dl fn_0815, 28, 0x0815 ; pitch=21 (A0)
-    dl fn_0821, 55, 0x0821 ; pitch=33 (A1)
-    dl fn_082d, 110, 0x082d ; pitch=45 (A2)
-    dl fn_0839, 220, 0x0839 ; pitch=57 (A3)
-    dl fn_0845, 440, 0x0845 ; pitch=69 (A4)
-    dl fn_0851, 880, 0x0851 ; pitch=81 (A5)
-    dl fn_085d, 1760, 0x085d ; pitch=93 (A6)
-    dl fn_0869, 3520, 0x0869 ; pitch=105 (A7)
-
+; SoundFont: Synth Strings 1, Bank: 0, Preset: 50
+    dl fn_081f, 49, 0x081f ; pitch=31 (G1)
+    dl fn_0829, 87, 0x0829 ; pitch=41 (F2)
+    dl fn_082b, 98, 0x082b ; pitch=43 (G2)
+    dl fn_0835, 175, 0x0835 ; pitch=53 (F3)
+    dl fn_0837, 196, 0x0837 ; pitch=55 (G3)
+    dl fn_0841, 349, 0x0841 ; pitch=65 (F4)
+    dl fn_0843, 392, 0x0843 ; pitch=67 (G4)
+    dl fn_084d, 698, 0x084d ; pitch=77 (F5)
+    dl fn_0859, 1397, 0x0859 ; pitch=89 (F6)
 ; ---- Instrument 11: Timpani ----
-; Bank: 0  Preset: 47  SoundFont: Timpani
-; Duration: 1.6408  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Timpani
-    dl fn_0b15, 28, 0x0b15 ; pitch=21 (A0)
-    dl fn_0b21, 55, 0x0b21 ; pitch=33 (A1)
-    dl fn_0b2d, 110, 0x0b2d ; pitch=45 (A2)
-    dl fn_0b39, 220, 0x0b39 ; pitch=57 (A3)
-    dl fn_0b45, 440, 0x0b45 ; pitch=69 (A4)
-    dl fn_0b51, 880, 0x0b51 ; pitch=81 (A5)
-    dl fn_0b5d, 1760, 0x0b5d ; pitch=93 (A6)
-    dl fn_0b69, 3520, 0x0b69 ; pitch=105 (A7)
+; SoundFont: Timpani, Bank: 0, Preset: 47
+    dl fn_0b1d, 44, 0x0b1d ; pitch=29 (F1)
+    dl fn_0b29, 87, 0x0b29 ; pitch=41 (F2)
+    dl fn_0b35, 175, 0x0b35 ; pitch=53 (F3)
 
 ; Sample filename strings
 sample_filenames:
-
 ; ---- Instrument 1: Bassoon ----
-; Bank: 0  Preset: 70  SoundFont: Bassoon
-; Duration: 1.3627  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Bassoon
-    fn_0115: asciz "Samples/Bassoon/021.wav"
-    fn_0121: asciz "Samples/Bassoon/033.wav"
-    fn_012d: asciz "Samples/Bassoon/045.wav"
-    fn_0139: asciz "Samples/Bassoon/057.wav"
-    fn_0145: asciz "Samples/Bassoon/069.wav"
-    fn_0151: asciz "Samples/Bassoon/081.wav"
-    fn_015d: asciz "Samples/Bassoon/093.wav"
-    fn_0169: asciz "Samples/Bassoon/105.wav"
-
+; SoundFont: Bassoon, Bank: 0, Preset: 70
+    fn_013f: asciz "Samples/Bassoon/063.wav"
+    fn_014b: asciz "Samples/Bassoon/075.wav"
 ; ---- Instrument 2: Flute ----
-; Bank: 0  Preset: 73  SoundFont: Flute
-; Duration: 0.4148  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Flute
-    fn_0215: asciz "Samples/Flute/021.wav"
-    fn_0221: asciz "Samples/Flute/033.wav"
-    fn_022d: asciz "Samples/Flute/045.wav"
-    fn_0239: asciz "Samples/Flute/057.wav"
-    fn_0245: asciz "Samples/Flute/069.wav"
-    fn_0251: asciz "Samples/Flute/081.wav"
-    fn_025d: asciz "Samples/Flute/093.wav"
-    fn_0269: asciz "Samples/Flute/105.wav"
-
+; SoundFont: Flute, Bank: 0, Preset: 73
+    fn_0250: asciz "Samples/Flute/080.wav"
 ; ---- Instrument 3: French_Horns ----
-; Bank: 0  Preset: 60  SoundFont: French Horns
-; Duration: 3.7846  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/French_Horns
-    fn_0315: asciz "Samples/French_Horns/021.wav"
-    fn_0321: asciz "Samples/French_Horns/033.wav"
-    fn_032d: asciz "Samples/French_Horns/045.wav"
-    fn_0339: asciz "Samples/French_Horns/057.wav"
-    fn_0345: asciz "Samples/French_Horns/069.wav"
-    fn_0351: asciz "Samples/French_Horns/081.wav"
-    fn_035d: asciz "Samples/French_Horns/093.wav"
-    fn_0369: asciz "Samples/French_Horns/105.wav"
-
+; SoundFont: French Horns, Bank: 0, Preset: 60
+    fn_0333: asciz "Samples/French_Horns/051.wav"
+    fn_033f: asciz "Samples/French_Horns/063.wav"
 ; ---- Instrument 4: Trumpet ----
-; Bank: 0  Preset: 56  SoundFont: Trumpet
-; Duration: 3.9669  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Trumpet
-    fn_0415: asciz "Samples/Trumpet/021.wav"
-    fn_0421: asciz "Samples/Trumpet/033.wav"
-    fn_042d: asciz "Samples/Trumpet/045.wav"
-    fn_0439: asciz "Samples/Trumpet/057.wav"
-    fn_0445: asciz "Samples/Trumpet/069.wav"
-    fn_0451: asciz "Samples/Trumpet/081.wav"
-    fn_045d: asciz "Samples/Trumpet/093.wav"
-    fn_0469: asciz "Samples/Trumpet/105.wav"
-
+; SoundFont: Trumpet, Bank: 0, Preset: 56
+    fn_043a: asciz "Samples/Trumpet/058.wav"
+    fn_0446: asciz "Samples/Trumpet/070.wav"
+    fn_0452: asciz "Samples/Trumpet/082.wav"
 ; ---- Instrument 5: Trombone ----
-; Bank: 0  Preset: 57  SoundFont: Trombone
-; Duration: 2.8984  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Trombone
-    fn_0515: asciz "Samples/Trombone/021.wav"
-    fn_0521: asciz "Samples/Trombone/033.wav"
-    fn_052d: asciz "Samples/Trombone/045.wav"
-    fn_0539: asciz "Samples/Trombone/057.wav"
-    fn_0545: asciz "Samples/Trombone/069.wav"
-    fn_0551: asciz "Samples/Trombone/081.wav"
-    fn_055d: asciz "Samples/Trombone/093.wav"
-    fn_0569: asciz "Samples/Trombone/105.wav"
-
+; SoundFont: Trombone, Bank: 0, Preset: 57
+    fn_0537: asciz "Samples/Trombone/055.wav"
+    fn_0543: asciz "Samples/Trombone/067.wav"
+    fn_054f: asciz "Samples/Trombone/079.wav"
 ; ---- Instrument 6: Orchestral Harp ----
-; Bank: 0  Preset: 46  SoundFont: Harp
-; Duration: 0.4316  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Harp
-    fn_0615: asciz "Samples/Harp/021.wav"
-    fn_0621: asciz "Samples/Harp/033.wav"
-    fn_062d: asciz "Samples/Harp/045.wav"
-    fn_0639: asciz "Samples/Harp/057.wav"
-    fn_0645: asciz "Samples/Harp/069.wav"
-    fn_0651: asciz "Samples/Harp/081.wav"
-    fn_065d: asciz "Samples/Harp/093.wav"
-    fn_0669: asciz "Samples/Harp/105.wav"
-
+; SoundFont: Harp, Bank: 0, Preset: 46
+    fn_0635: asciz "Samples/Harp/053.wav"
+    fn_0641: asciz "Samples/Harp/065.wav"
+    fn_064d: asciz "Samples/Harp/077.wav"
+    fn_0659: asciz "Samples/Harp/089.wav"
 ; ---- Instrument 7: Bright Acoustic Piano ----
-; Bank: 0  Preset: 1  SoundFont: Bright Yamaha Grand
-; Duration: 0.1202  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Bright_Yamaha_Grand
-    fn_0715: asciz "Samples/Bright_Yamaha_Grand/021.wav"
-    fn_0721: asciz "Samples/Bright_Yamaha_Grand/033.wav"
-    fn_072d: asciz "Samples/Bright_Yamaha_Grand/045.wav"
-    fn_0739: asciz "Samples/Bright_Yamaha_Grand/057.wav"
-    fn_0745: asciz "Samples/Bright_Yamaha_Grand/069.wav"
-    fn_0751: asciz "Samples/Bright_Yamaha_Grand/081.wav"
-    fn_075d: asciz "Samples/Bright_Yamaha_Grand/093.wav"
-    fn_0769: asciz "Samples/Bright_Yamaha_Grand/105.wav"
-
+; SoundFont: Bright Yamaha Grand, Bank: 0, Preset: 1
+    fn_0741: asciz "Samples/Bright_Yamaha_Grand/065.wav"
+    fn_074d: asciz "Samples/Bright_Yamaha_Grand/077.wav"
+    fn_0759: asciz "Samples/Bright_Yamaha_Grand/089.wav"
 ; ---- Instrument 8: String Ensemble 1 ----
-; Bank: 0  Preset: 50  SoundFont: Synth Strings 1
-; Duration: 8.875  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Synth_Strings_1
-    fn_0815: asciz "Samples/Synth_Strings_1/021.wav"
-    fn_0821: asciz "Samples/Synth_Strings_1/033.wav"
-    fn_082d: asciz "Samples/Synth_Strings_1/045.wav"
-    fn_0839: asciz "Samples/Synth_Strings_1/057.wav"
-    fn_0845: asciz "Samples/Synth_Strings_1/069.wav"
-    fn_0851: asciz "Samples/Synth_Strings_1/081.wav"
-    fn_085d: asciz "Samples/Synth_Strings_1/093.wav"
-    fn_0869: asciz "Samples/Synth_Strings_1/105.wav"
-
+; SoundFont: Synth Strings 1, Bank: 0, Preset: 50
+    fn_081f: asciz "Samples/Synth_Strings_1/031.wav"
+    fn_0829: asciz "Samples/Synth_Strings_1/041.wav"
+    fn_082b: asciz "Samples/Synth_Strings_1/043.wav"
+    fn_0835: asciz "Samples/Synth_Strings_1/053.wav"
+    fn_0837: asciz "Samples/Synth_Strings_1/055.wav"
+    fn_0841: asciz "Samples/Synth_Strings_1/065.wav"
+    fn_0843: asciz "Samples/Synth_Strings_1/067.wav"
+    fn_084d: asciz "Samples/Synth_Strings_1/077.wav"
+    fn_0859: asciz "Samples/Synth_Strings_1/089.wav"
 ; ---- Instrument 11: Timpani ----
-; Bank: 0  Preset: 47  SoundFont: Timpani
-; Duration: 1.6408  Velocity: 127  Sample Rate: 32000
-; Folder: midi/tgt/Samples/Timpani
-    fn_0b15: asciz "Samples/Timpani/021.wav"
-    fn_0b21: asciz "Samples/Timpani/033.wav"
-    fn_0b2d: asciz "Samples/Timpani/045.wav"
-    fn_0b39: asciz "Samples/Timpani/057.wav"
-    fn_0b45: asciz "Samples/Timpani/069.wav"
-    fn_0b51: asciz "Samples/Timpani/081.wav"
-    fn_0b5d: asciz "Samples/Timpani/093.wav"
-    fn_0b69: asciz "Samples/Timpani/105.wav"
+; SoundFont: Timpani, Bank: 0, Preset: 47
+    fn_0b1d: asciz "Samples/Timpani/029.wav"
+    fn_0b29: asciz "Samples/Timpani/041.wav"
+    fn_0b35: asciz "Samples/Timpani/053.wav"
