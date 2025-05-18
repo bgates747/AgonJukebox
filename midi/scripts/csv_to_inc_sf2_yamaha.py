@@ -53,7 +53,7 @@ def read_csv_with_pedals(csv_file):
     Read a CSV file containing MIDI notes data and extract notes and pedal events for each instrument.
     
     Returns:
-    - instruments: list of (instrument_number, instrument_name, notes) tuples
+    - instruments: list of (instrument_number, midi_instrument_name, notes) tuples
     - pedal_events: dict mapping instrument_number to list of pedal events
     """
     instruments = []
@@ -170,7 +170,7 @@ def process_pedal_effects(instruments, pedal_events, soft_pedal_factor, sustain_
     Process pedal effects for each instrument's notes.
     
     Parameters:
-    - instruments: list of (instrument_number, instrument_name, notes) tuples
+    - instruments: list of (instrument_number, midi_instrument_name, notes) tuples
     - pedal_events: dict mapping instrument_number to list of pedal events
     - soft_pedal_factor: how much the soft pedal reduces velocity (0.3 = 30% reduction)
     - sustain_threshold: minimum value for pedal to be considered "on" (typically 1)

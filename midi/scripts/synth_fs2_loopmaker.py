@@ -106,7 +106,7 @@ def extract_and_save_samples(sf2_path, sample_map, output_dir):
     sf2_file.close()
 
 if __name__ == "__main__":
-    sf2_path   = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    sf2_path   = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     txt_path   = "midi/sf2/FluidR3_GM.txt"
     out_dir    = "midi/sf2/samples"
     key, vel   = 69, 64

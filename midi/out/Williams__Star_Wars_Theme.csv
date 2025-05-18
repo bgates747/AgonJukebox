@@ -5,7 +5,7 @@ Tempo Adjustment Factor,1.00
 Resolution (ticks/beat),120
 
 # Tempo Changes
-Time (seconds),Tempo (BPM)
+Time (s),Tempo (BPM)
 0.0000,103.00
 8.7379,134.00
 9.6334,104.00
@@ -56,12 +56,18 @@ Time (seconds),Tempo (BPM)
 190.2298,123.00
 
 # Time Signature Changes
-Time (seconds),Numerator,Denominator
+Time (s),Numerator,Denominator
 0.0000,4,4
 160.6192,3,4
 
+# Key Signature Changes
+Time (s),Key Number
+0.0000,0
+
 # Instrument 1: Bassoon
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,70,Bassoon,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,3.1699,0.8398,82,A#5,70,70,0
 2,2.3301,3.1796,0.8495,70,A#4,62,62,0
 3,6.3932,6.4515,0.0583,68,G#4,66,66,0
@@ -97,7 +103,9 @@ Time (s),Control Number,Control Name,Value
 0.0243,18,Control 18,0
 
 # Instrument 2: Flute
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,73,Flute,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,117.0396,117.3870,0.3474,81,A5,57,57,0
 2,117.3764,117.6950,0.3186,80,G#5,48,48,0
 3,117.6842,118.0767,0.3925,81,A5,46,46,0
@@ -126,7 +134,9 @@ Time (s),Control Number,Control Name,Value
 0.0049,18,Control 18,0
 
 # Instrument 3: French Horn
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,60,French Horn,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.9223,3.7136,0.7913,58,A#3,114,114,0
 2,3.7961,3.9029,0.1068,58,A#3,114,114,0
 3,4.0874,4.2087,0.1214,58,A#3,114,114,0
@@ -396,7 +406,9 @@ Time (s),Control Number,Control Name,Value
 156.9477,18,Control 18,63
 
 # Instrument 4: Trumpet
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,56,Trumpet,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,4.9272,4.9757,0.0485,70,A#4,114,114,0
 2,5.0000,5.0485,0.0485,70,A#4,114,114,0
 3,5.0728,5.1165,0.0437,70,A#4,114,114,0
@@ -830,7 +842,9 @@ Time (s),Control Number,Control Name,Value
 9.1894,7,Volume,124
 
 # Instrument 5: Trombone
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,57,Trombone,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,3.1214,0.7913,58,A#3,114,114,0
 2,3.2039,3.2767,0.0728,58,A#3,114,114,0
 3,3.2816,3.3447,0.0631,58,A#3,114,114,0
@@ -1531,7 +1545,9 @@ Time (s),Control Number,Control Name,Value
 0.0388,18,Control 18,64
 
 # Instrument 6: Orchestral Harp
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,46,Orchestral Harp,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,11.9555,12.0084,0.0529,70,A#4,68,68,0
 2,12.0661,12.1190,0.0529,75,D#5,56,56,0
 3,12.1526,12.2055,0.0529,77,F5,56,56,0
@@ -1815,7 +1831,9 @@ Time (s),Control Number,Control Name,Value
 174.6835,18,Control 18,64
 
 # Instrument 7: Bright Acoustic Piano
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,1,Bright Acoustic Piano,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,28.1045,28.2247,0.1202,75,D#5,71,71,0
 2,28.2728,28.3930,0.1202,70,A#4,66,66,0
 3,28.4603,28.5805,0.1202,65,F4,68,68,0
@@ -1874,7 +1892,9 @@ Time (s),Control Number,Control Name,Value
 43.5989,18,Control 18,0
 
 # Instrument 8: String Ensemble 1
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,48,String Ensemble 1,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,8.5680,6.2379,82,A#5,59,59,0
 2,2.3544,2.9854,0.6311,53,F3,108,108,0
 3,2.3544,4.6116,2.2573,62,D4,67,67,0
@@ -3125,7 +3145,9 @@ Time (s),Control Number,Control Name,Value
 0.0631,18,Control 18,64
 
 # Instrument 9: String Ensemble 1
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,48,String Ensemble 1,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,3.0583,0.7282,62,D4,114,114,0
 2,2.3301,3.2767,0.9466,70,A#4,114,114,0
 3,2.3301,3.3107,0.9806,46,A#2,114,114,0
@@ -4053,7 +4075,9 @@ Time (s),Control Number,Control Name,Value
 56.9813,18,Control 18,65
 
 # Instrument 10: Tremolo Strings
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,44,Tremolo Strings,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,96.2554,96.3083,0.0529,31,G1,127,127,0
 2,96.2554,96.3083,0.0529,43,G2,127,127,0
 3,96.3467,96.4092,0.0625,31,G1,127,127,0
@@ -4312,7 +4336,9 @@ Time (s),Control Number,Control Name,Value
 0.0728,18,Control 18,64
 
 # Instrument 11: Timpani
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+0,47,Timpani,False
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,3.9709,1.6408,46,A#2,119,119,0
 2,2.3301,3.9709,1.6408,34,A#1,72,72,0
 3,8.8871,9.0102,0.1231,41,F2,87,87,0
@@ -4655,7 +4681,9 @@ Time (s),Control Number,Control Name,Value
 0.0485,18,Control 18,64
 
 # Instrument 12: Drum Kit
-Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Note-on Velocity,Note-off Velocity
+Bank,Program,Program Name,Is Drum
+128,0,Standard,True
+Note #,Start (s),End (s),Duration (s),Pitch,Note Name,Velocity,Original Velocity,Note-off Velocity
 1,2.3301,6.6942,4.3641,59,B3,95,95,0
 2,2.3301,6.6942,4.3641,57,A3,95,95,0
 3,10.0228,10.0757,0.0529,38,D2,50,50,0

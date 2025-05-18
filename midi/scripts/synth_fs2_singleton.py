@@ -310,7 +310,7 @@ def main(instrument_lines, pitch, velocity, duration_ms, sf2_path, sample_rate, 
 
 if __name__ == "__main__":
     # Configuration
-    sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     sample_rate = 32000  # Hz
     output_folder = "midi/sf2/singletons"
 

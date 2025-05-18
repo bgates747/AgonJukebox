@@ -53,9 +53,9 @@ def sanitize_folder_name(name):
 class InstrumentDefs:
     """
     Parses and centralizes all mappings:
-      - instrument_number <-> soundfont_name
-      - soundfont_name <-> min instrument_number (buffer pool)
-      - soundfont_name <-> canonical row (for params)
+      - instrument_number <-> sf_instrument_name
+      - sf_instrument_name <-> min instrument_number (buffer pool)
+      - sf_instrument_name <-> canonical row (for params)
     """
     def __init__(self, csv_content):
         self.rows = list(csv.DictReader(StringIO(csv_content.strip())))
@@ -64,7 +64,7 @@ class InstrumentDefs:
         self.sf_to_row = {}
         for row in self.rows:
             instr_num = int(row["instrument_number"])
-            sfn = row["soundfont_name"]
+            sfn = row["sf_instrument_name"]
             self.instnum_to_sf[instr_num] = sfn
             if sfn not in self.sf_to_min_instnum or instr_num < self.sf_to_min_instnum[sfn]:
                 self.sf_to_min_instnum[sfn] = instr_num
@@ -74,7 +74,7 @@ class InstrumentDefs:
         """Yield each unique soundfont row once (first encountered)."""
         seen = set()
         for row in self.rows:
-            sfn = row["soundfont_name"]
+            sfn = row["sf_instrument_name"]
             if sfn not in seen:
                 seen.add(sfn)
                 yield row
@@ -128,12 +128,12 @@ def make_tunable_samples(note_names, octaves, instrument_defs_csv, samples_base_
     midi_numbers = [midi_note_number(note, octv) for note in note_names for octv in octaves]
     print("Rendering MIDI notes:", midi_numbers)
     for row in defs.pooled_soundfonts():
-        folder = defs.folder_for_sf(samples_base_dir, row['soundfont_name'])
+        folder = defs.folder_for_sf(samples_base_dir, row['sf_instrument_name'])
         os.makedirs(folder, exist_ok=True)
         for f in os.listdir(folder):
             f_path = os.path.join(folder, f)
             if os.path.isfile(f_path): os.remove(f_path)
-        print(f"Rendering samples for {row['soundfont_name']} (bank {row['bank']}, preset {row['preset']}) → {folder}")
+        print(f"Rendering samples for {row['sf_instrument_name']} (bank {row['bank']}, preset {row['preset']}) → {folder}")
         bank = int(row['bank'])
         preset = int(row['preset'])
         duration = float(row['duration'])
@@ -180,7 +180,7 @@ def write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
     for sfn, row in defs.sf_to_row.items():
         folder = defs.folder_for_sf(samples_base_dir, sfn)
         header_comment = (
-            f"\n; ---- Instrument {row['instrument_number']}: {row['instrument_name']} ----\n"
+            f"\n; ---- Instrument {row['instrument_number']}: {row['midi_instrument_name']} ----\n"
             f"; Bank: {row['bank']}  Preset: {row['preset']}  SoundFont: {sfn}\n"
             f"; Duration: {row['duration']}  Velocity: {row['velocity']}  Sample Rate: {row['sample_rate']}\n"
             f"; Folder: {folder}"
@@ -493,8 +493,8 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf
                 note_pitch = note['pitch']
                 inst = note['instrument']
                 start_s = note['start']
-                soundfont_name = defs.instnum_to_sf[inst]
-                sample_info = sf_to_samples[soundfont_name]
+                sf_instrument_name = defs.instnum_to_sf[inst]
+                sample_info = sf_to_samples[sf_instrument_name]
                 sample_pitch, sample_duration = find_closest_sample(sample_info, note_pitch)
                 pitch_factor = 2 ** ((sample_pitch - note_pitch) / 12)
                 sample_max_dur = max(1, int(sample_duration * pitch_factor))
@@ -539,7 +539,7 @@ def convert_to_assembly(processed_notes, all_pedal_events, output_file, defs, sf
                     ch = found_channel
                 channel_release_time[ch] = note_start_time + occupy_ms
                 channel_note_start[ch] = note_start_time
-                buffer_id_lo, buffer_id_hi = defs.buffer_id_bytes(sample_pitch, soundfont_name)
+                buffer_id_lo, buffer_id_hi = defs.buffer_id_bytes(sample_pitch, sf_instrument_name)
                 comment = f"t={start_s:.3f}s dur={dur_ms}ms"
                 if note.get('velocity_modified'):
                     ov = note['original_velocity']
@@ -592,18 +592,18 @@ if __name__ == "__main__":
     midi_out_dir = 'midi/out'
 
     instrument_defs = """
-instrument_number,instrument_name,bank,preset,soundfont_name,duration,velocity,output_gain,sample_rate,sf2_path
-1,Bassoon,0,70,Bassoon,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-2,Flute,0,73,Flute,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-3,French_Horns,0,60,French Horns,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-4,Trumpet,0,56,Trumpet,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-5,Trombone,0,57,Trombone,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-6,Orchestral Harp,0,46,Harp,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-7,Bright Acoustic Piano,0,1,Bright Yamaha Grand,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-8,String Ensemble 1,0,48,Strings,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-9,String Ensemble 1,0,50,Synth Strings 1,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-10,Tremolo Strings,0,44,Tremolo,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-11,Timpani,0,47,Timpani,2,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+instrument_number,midi_instrument_name,bank,preset,sf_instrument_name,duration,velocity,output_gain,sample_rate,sf2_path
+1,Bassoon,0,70,Bassoon,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+2,Flute,0,73,Flute,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,French_Horns,0,60,French Horns,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,Trumpet,0,56,Trumpet,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Trombone,0,57,Trombone,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Orchestral Harp,0,46,Harp,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+7,Bright Acoustic Piano,0,1,Bright Yamaha Grand,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,String Ensemble 1,0,48,Strings,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,50,Synth Strings 1,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,0,44,Tremolo,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+11,Timpani,0,47,Timpani,2,127,1,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
     """
 
     note_names = ["A"]

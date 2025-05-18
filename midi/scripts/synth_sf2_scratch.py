@@ -1,6 +1,6 @@
 
 # from sf2utils.sf2parse import Sf2File
-# sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+# sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
 # with open(sf2_path, "rb") as f:
 #     sf2 = Sf2File(f)
 #     real_presets = [p for p in sf2.presets if getattr(p, "name", "") != "EOP"]
@@ -199,98 +199,6 @@
 # Bank 128, Preset 42: Brush 2
 # Bank 128, Preset 48: Orchestra Kit
 
-# import os
-# from sf2utils.sf2parse import Sf2File
-
-# # Configuration
-# sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
-# out_dir   = "midi/sf2"
-# out_file  = os.path.join(out_dir, "FluidR3_GM.txt")
-
-# # Ensure output directory exists
-# os.makedirs(out_dir, exist_ok=True)
-
-# # Parse and write summary
-# with open(out_file, "w") as f:
-#     # 1) reference the original SF2
-#     f.write(f"{sf2_path}\n\n")
-#     # 2) load and dump the Yamaha Grand Piano preset
-#     with open(sf2_path, "rb") as sf2_file:
-#         sf2 = Sf2File(sf2_file)
-#         for preset in sf2.presets:
-#             if preset.bank == 0 and preset.preset == 0:
-#                 f.write(preset.pretty_print())
-#                 break
-
-# print(f"Wrote SF2 summary to {out_file}")
-
-
-# =======================================================================
-
-import re
-
-def match_zone(line, key, velocity):
-    # Example: "keys: [60, 72]   vels: [0, 127]"
-    key_match = re.search(r'keys:\s*\[?(\d+),\s*(\d+)\]?', line)
-    vel_match = re.search(r'vels:\s*\[?(\d+),\s*(\d+)\]?', line)
-    if key_match:
-        k1, k2 = int(key_match[1]), int(key_match[2])
-        if not (k1 <= key <= k2):
-            return False
-    if vel_match:
-        v1, v2 = int(vel_match[1]), int(vel_match[2])
-        if not (v1 <= velocity <= v2):
-            return False
-    return True  # matches if in range
-
-def extract_matching_zones(txt_path, key=69, velocity=64):
-    with open(txt_path, 'r') as f:
-        lines = f.readlines()
-
-    matches = []
-    block = []
-    capturing = False
-    current_applies = False
-
-    for line in lines:
-        line = line.rstrip()
-
-        # Start of a new zone/bag
-        if line.startswith("Bag #") or line.startswith("Preset["):
-            # Finish previous block
-            if capturing and current_applies:
-                matches.append('\n'.join(block))
-            block = [line]
-            capturing = True
-            current_applies = False
-            continue
-
-        if capturing:
-            block.append(line)
-            if 'keys:' in line or 'vels:' in line:
-                if match_zone(line, key, velocity):
-                    current_applies = True
-
-    # Catch last block
-    if capturing and current_applies:
-        matches.append('\n'.join(block))
-
-    return matches
-
-
-# sample_lines = []
-# matches = extract_matching_zones("midi/sf2/FluidR3_GM.txt", key=69, velocity=64)
-
-# for m in matches:
-#     for line in m.splitlines():
-#         if "sample #" in line:
-#             sample_lines.append(line.strip())
-
-# # deduplicate
-# unique_samples = sorted(set(sample_lines), key=lambda x: int(x.split('#')[1]))
-# for line in unique_samples:
-#     print(line)
-
 # =======================================================================
 
 def extract_sf2_sample(sf2_path: str, sample_index: int, output_dir: str) -> str:
@@ -334,38 +242,6 @@ def extract_sf2_sample(sf2_path: str, sample_index: int, output_dir: str) -> str
 
     return out_path
 
-
-
-# if __name__ == "__main__":
-#     # Configuration
-#     sf2_path       = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
-#     txt_summary    = "midi/sf2/FluidR3_GM.txt"
-#     output_dir     = "midi/sf2/samples"
-#     key            = 69
-#     velocity       = 64
-
-#     # 1) Find matching zones and extract sample lines
-#     sample_lines = []
-#     matches = extract_matching_zones(txt_summary, key=key, velocity=velocity)
-#     for m in matches:
-#         for line in m.splitlines():
-#             if "sample #" in line:
-#                 sample_lines.append(line.strip())
-
-#     # 2) Deduplicate and sort
-#     unique_samples = sorted(
-#         set(sample_lines),
-#         key=lambda x: int(x.split('#')[1])
-#     )
-
-#     # 3) Extract each sample from the SF2
-#     for line in unique_samples:
-#         idx = int(line.split('#')[1])
-#         wav_path = extract_sf2_sample(sf2_path, idx, output_dir)
-#         print(f"Extracted sample #{idx} → {wav_path}")
-
-# ========================================================================
-
 from sf2utils.sf2parse import Sf2File
 
 def print_sample_loop_info(sf2_path: str, sample_index: int):
@@ -394,6 +270,6 @@ def print_sample_loop_info(sf2_path: str, sample_index: int):
 
 # Run the function for sample 1133
 if __name__ == "__main__":
-    sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     print_sample_loop_info(sf2_path, sample_index=1133)
 

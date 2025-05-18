@@ -63,7 +63,7 @@ def sanitize_folder_name(name):
     return re.sub(r'[^A-Za-z0-9_\-]', '_', name)
 
 def main():
-    sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     sample_rate = 32000
     wav_folder = "midi/tgt/Samples"
     duration = 4.0

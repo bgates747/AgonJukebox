@@ -212,7 +212,7 @@ def main(csv_path, instrument_line, sf2_path, sample_rate, output_wav):
 # ── Configuration & Invocation ─────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     sample_rate = 16384  # Hz
     csv_folder = "midi/out"
     wav_folder = "midi/wav"

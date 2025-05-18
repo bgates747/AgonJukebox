@@ -277,7 +277,7 @@ def midi_to_note_name(midi_number):
 
 def main():
     # Default values
-    default_sf2_path = "/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2"
+    default_sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
     default_output_dir = "midi/sf2"
     
     import argparse

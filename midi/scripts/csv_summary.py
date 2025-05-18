@@ -1,99 +1,95 @@
+import os
 import re
+from sf2utils.sf2parse import Sf2File
 
-def summarize_song_csv(csv_path):
-    with open(csv_path, 'r') as f:
+def extract_sf2_preset_map(sf2_path):
+    with open(sf2_path, "rb") as f:
+        sf2 = Sf2File(f)
+        presets = [
+            p for p in sf2.presets
+            if getattr(p, "name", "") != "EOP"
+        ]
+        return {
+            (p.bank, p.preset): p.name
+            for p in presets
+        }
+
+def parse_instruments_from_csv(csv_path):
+    """
+    Parses the new minimalist instrument blocks:
+    # Instrument 1: Bassoon
+    Bank,Program,Program Name,Is Drum
+    0,70,Bassoon,False
+    """
+    with open(csv_path, "r") as f:
         lines = f.readlines()
 
+    instruments = []
     idx = 0
     N = len(lines)
-    instrument_blocks = []
 
     while idx < N:
         line = lines[idx].strip()
-        # Find instrument header
         if line.startswith("# Instrument"):
             m = re.match(r"# Instrument (\d+):\s*(.*)", line)
             instr_num = int(m.group(1))
             instr_name = m.group(2).strip()
-            # Find note CSV header
+
+            # Expect the next line to be the header, and then the values
             idx += 1
-            while idx < N and not lines[idx].startswith("Note #"):
+            while idx < N and not lines[idx].strip().startswith("Bank,Program,Program Name,Is Drum"):
                 idx += 1
-            if idx >= N:
-                break
-            note_header = [h.strip() for h in lines[idx].strip().split(",")]
-            # Read note rows
-            note_rows = []
-            idx += 1
-            while idx < N and lines[idx].strip() and not lines[idx].startswith("#"):
-                fields = lines[idx].strip().split(",")
-                if len(fields) == len(note_header):
-                    note_rows.append(dict(zip(note_header, fields)))
-                idx += 1
-            instrument_blocks.append({
+            if idx < N:
+                idx += 1  # move to value row
+                if idx < N:
+                    parts = [x.strip() for x in lines[idx].strip().split(",")]
+                    if len(parts) >= 4:
+                        try:
+                            bank = int(parts[0])
+                            preset = int(parts[1])
+                            # program_name = parts[2]  # can be included if needed
+                            is_drum = parts[3].strip().lower() == "true"
+                        except Exception:
+                            bank = 0
+                            preset = 0
+                            is_drum = False
+                    else:
+                        bank = 0
+                        preset = 0
+                        is_drum = False
+                else:
+                    bank = 0
+                    preset = 0
+                    is_drum = False
+            else:
+                bank = 0
+                preset = 0
+                is_drum = False
+
+            instruments.append({
                 'number': instr_num,
                 'name': instr_name,
-                'notes': note_rows,
+                'bank': bank,
+                'preset': preset,
+                'is_drum': is_drum,
             })
-        else:
-            idx += 1
+        idx += 1
+    return instruments
 
-    print("\n====== Instrument Usage Summary ======\n")
-
-    for block in instrument_blocks:
-        notes = block['notes']
-        if not notes:
-            continue
-
-        # Extract and cast relevant fields
-        durations = [float(n['Duration (s)']) for n in notes]
-        starts    = [float(n['Start (s)']) for n in notes]
-        ends      = [float(n['End (s)']) for n in notes]
-        pitches   = [int(n['Pitch']) for n in notes]
-        note_names = [n['Note Name'] for n in notes]
-
-        min_duration = min(durations)
-        max_duration = max(durations)
-        avg_duration = sum(durations) / len(durations)
-        min_pitch = min(pitches)
-        max_pitch = max(pitches)
-        num_notes = len(notes)
-        min_pitch_name = note_names[pitches.index(min_pitch)]
-        max_pitch_name = note_names[pitches.index(max_pitch)]
-
-        # Time between *start* times, ignoring 0s
-        starts_sorted = sorted(starts)
-        gaps = [s2 - s1 for s1, s2 in zip(starts_sorted, starts_sorted[1:]) if (s2 - s1) > 0]
-        min_gap = min(gaps) if gaps else 0
-
-        # Polyphony: sweep line to count overlapping notes
-        time_points = []
-        for s, e in zip(starts, ends):
-            time_points.append((s, +1))
-            time_points.append((e, -1))
-        time_points.sort()
-        curr_poly = 0
-        max_poly = 0
-        for t, delta in time_points:
-            curr_poly += delta
-            if curr_poly > max_poly:
-                max_poly = curr_poly
-
-        print(f"Instrument {block['number']}: {block['name']}")
-        print(f"  Notes: {num_notes}")
-        print(f"  Duration (s): min={min_duration:.4f}  max={max_duration:.4f}  avg={avg_duration:.4f}")
-        print(f"  Pitch: min={min_pitch} ({min_pitch_name}), max={max_pitch} ({max_pitch_name})")
-        print(f"  Minimum time between notes: {min_gap:.4f} s")
-        print(f"  Max notes sounding simultaneously: {max_poly}\n")
+def summarize_song_csv(csv_path, sf2_path):
+    preset_map = extract_sf2_preset_map(sf2_path)
+    instruments = parse_instruments_from_csv(csv_path)
 
     print("\n====== Instrument Definitions CSV ======\n")
-    print("instrument_number,instrument_name")
-    for block in instrument_blocks:
-        print(f'{block["number"]},"{block["name"]}"')
-
+    print("instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name")
+    for inst in instruments:
+        key = (inst['bank'], inst['preset'])
+        sf_inst_name = preset_map.get(key, "Not Found")
+        print(f'{inst["number"]},"{inst["name"]}",{inst["bank"]},{inst["preset"]},{inst["is_drum"]},{sf_inst_name}')
 
 if __name__ == "__main__":
-    midi_out_dir = 'midi/out'
-    song_base_name = 'Williams__Raiders_of_the_Lost_Ark'
-    csv_path = f"{midi_out_dir}/{song_base_name}.csv"
-    summarize_song_csv(csv_path)
+    midi_out_dir   = 'midi/out'
+    song_base_name = 'Williams__Star_Wars_Theme'
+    csv_path       = f"{midi_out_dir}/{song_base_name}.csv"
+    sf2_path       = 'midi/sf2/FluidR3_GM/FluidR3_GM.sf2'
+    summarize_song_csv(csv_path, sf2_path)
