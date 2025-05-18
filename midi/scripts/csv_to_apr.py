@@ -15,6 +15,7 @@ import sys
 import contextlib
 import tempfile
 import subprocess
+import shutil
 
 # ------------------- Utilities -------------------
 NOTE_NAMES = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
@@ -176,7 +177,6 @@ def aggregate_sample_plan_by_soundfont(sample_plan, defs):
         sfn = row['soundfont_name']
         sf_aggregate[sfn] = {
             'samples': {},  # pitch -> dict of aggregated values
-            'output_gain': float(row['output_gain']),
             'sample_rate': int(row['sample_rate'])
         }
 
@@ -198,9 +198,8 @@ def aggregate_sample_plan_by_soundfont(sample_plan, defs):
                 # take maxima
                 rec['required_duration_ms'] = max(rec['required_duration_ms'], dur_ms)
                 rec['required_sample_rate'] = max(rec['required_sample_rate'], req_sr)
-        # also update output_gain and sample_rate if higher
+        # also update sample_rate if higher
         params = defs.params_for_sf(sfn)
-        pool['output_gain'] = max(pool['output_gain'], float(params['output_gain']))
         pool['sample_rate'] = max(pool['sample_rate'], int(params['sample_rate']))
 
     # convert sample dicts to sorted lists
@@ -235,7 +234,7 @@ def suppress_stderr():
         os.close(devnull)
         os.close(saved_fd)
 
-# def render_sample(sf2_path, midi_pm, sample_rate, output_gain):
+# def render_sample(sf2_path, midi_pm, sample_rate):
 #     # ——— Create and start the synth with no stderr noise ———
 #     with suppress_stderr():
 #         fs = Synth(samplerate=sample_rate)
@@ -260,50 +259,52 @@ def suppress_stderr():
 #     if data.ndim > 1:
 #         data = data.mean(axis=1)
 
-#     # Apply gain
-#     if output_gain != 1.0:
-#         data *= output_gain
-
 #     return data, sample_rate
 
-def render_sample(sf2_path, midi_pm, sample_rate, output_gain):
+def render_sample(sf2_path, midi_pm, sample_rate):
     """
-    Render a PrettyMIDI object via FluidSynth CLI into a float32 NumPy array.
+    Render a PrettyMIDI object via fluidsynth CLI into a float32 NumPy array.
     Returns (data_mono: np.ndarray (float32), sample_rate: int).
+    All fluidsynth CLI output is suppressed, and gain is fixed at 1.0.
     """
-    # 1) Dump the PrettyMIDI to a temporary .mid file
+    # 1) Write the MIDI to a temp file
     with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tmp_mid:
         midi_path = tmp_mid.name
         midi_pm.write(midi_path)
 
-    # 2) Render via fluidsynth CLI into a temp WAV
+    # 2) Render to a temp WAV via fluidsynth (gain=1.0)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
 
     try:
         cmd = [
-            "fluidsynth", "-ni", sf2_path, midi_path,
-            "-F", wav_path, "-r", str(sample_rate), "-g", str(output_gain),
+            "fluidsynth", "-ni",
+            sf2_path, midi_path,
+            "-F", wav_path,
+            "-r", str(sample_rate),
+            "-g", "1.0"
         ]
-        subprocess.run(cmd, check=True)
+        # Suppress all fluidsynth console output
+        subprocess.run(cmd, check=True,
+                       stdout=subprocess.DEVNULL,
+                       stderr=subprocess.DEVNULL)
 
         # 3) Read back the WAV as float32
         data, sr = sf.read(wav_path, dtype='float32')
         if data.ndim > 1:
             data = data.mean(axis=1)
 
-        # 4) Trim exactly to the longest note duration
+        # 4) Trim to the exact longest note duration
         duration_s = max(n.end for inst in midi_pm.instruments for n in inst.notes)
         nsamp = int(round(duration_s * sr))
         data = data[:nsamp]
 
     finally:
-        # Clean up the temporary MIDI and WAV files
+        # Clean up temp files
         os.remove(midi_path)
         os.remove(wav_path)
 
     return data, sample_rate
-
 
 def resample_audio(data, orig_sr, target_sr):
     if orig_sr == target_sr:
@@ -380,7 +381,6 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
         preset     = int(params['preset'])
         velocity   = int(params['velocity'])
         native_sr  = int(params['sample_rate'])
-        gain       = pool['output_gain']
 
         out_folder = defs.folder_for_sf(samples_base_dir, sfn)
         os.makedirs(out_folder, exist_ok=True)
@@ -395,7 +395,7 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
 
             # render at native rate
             pm, sr = make_single_note_pm(pitch, dur_s, velocity, preset, bank), native_sr
-            wav, _ = render_sample(sf2_path, pm, sr, gain)
+            wav, _ = render_sample(sf2_path, pm, sr)
 
             # downsample+filter if needed
             if req_sr != sr:
@@ -729,159 +729,180 @@ def convert_to_assembly(
     decay_ms
 ):
     """
-    Convert processed note events into an .inc assembly track using pooled samples.
+    Convert processed note events into an .inc assembly track, reusing
+    channels when the same note (pitch + soundfont) is already sounding.
     """
-    # 1) Build pedal events
+    from collections import defaultdict
+
+    # 1) Build pedal events list
     all_pedal_events = []
     for ev in control_events:
         if ev['control_num'] == 64:
-            type_ = 'sustain'
+            ev_type = 'sustain'
         elif ev['control_num'] == 67:
-            type_ = 'soft'
+            ev_type = 'soft'
         else:
             continue
         all_pedal_events.append({
-            'time': ev['time'],
-            'value': ev['value'],
-            'type': type_,
+            'time':       ev['time'],
+            'value':      ev['value'],
+            'type':       ev_type,
             'instrument': ev['instrument']
         })
 
-    # 2) Build control map for CC7
-    from collections import defaultdict
+    # 2) Build controller map (for CC7 volume)
     ctrl_map = defaultdict(lambda: defaultdict(list))
     for ev in control_events:
-        instr = ev['instrument']
-        cc    = ev['control_num']
+        instr, cc = ev['instrument'], ev['control_num']
         ctrl_map[instr][cc].append((ev['time'], ev['value']))
     for instr_dict in ctrl_map.values():
         for lst in instr_dict.values():
             lst.sort(key=lambda x: x[0])
 
-    # 3) Sort notes and compute delta_ms
+    # 3) Sort notes & compute delta_ms
     processed = sorted(notes, key=lambda n: n['start'])
-    for i in range(len(processed)-1):
-        dt_s = processed[i+1]['start'] - processed[i]['start']
-        processed[i]['delta_ms'] = round(dt_s * 1000)
+    for i in range(len(processed) - 1):
+        dt = processed[i+1]['start'] - processed[i]['start']
+        processed[i]['delta_ms'] = round(dt * 1000)
     if processed:
         processed[-1]['delta_ms'] = 0
 
-    # 4) Build timeline
+    # 4) Build unified timeline
     timeline = (
-        [{'type':'note','time':n['start'],'data':n} for n in processed] +
-        [{'type':'pedal','time':e['time'],'data':e} for e in all_pedal_events]
+        [{'type': 'note',  'time': n['start'],        'data': n} for n in processed] +
+        [{'type': 'pedal', 'time': e['time'],         'data': e} for e in all_pedal_events]
     )
     timeline.sort(key=lambda x: x['time'])
 
-    # 5) Prepare sample lookup
+    # 5) Prepare sample lookup: sfn -> list of (pitch, duration_ms)
     sf_to_samples = {
         sfn: [(s['pitch'], s['required_duration_ms']) for s in pool['samples']]
         for sfn, pool in sf_plan.items()
     }
 
-    # 6) Channel tracking
-    channel_release_time = [0.0] * num_channels
-    channel_note_start   = [None] * num_channels
+    # 6) Channel state
+    channel_release_time    = [0.0] * num_channels
+    channel_note_start      = [0.0] * num_channels
+    channel_current_sfn     = [None] * num_channels
+    channel_current_pitch   = [None] * num_channels
 
     # 7) Write .inc
     with open(output_file, 'w') as f:
+        # header comments
         f.write("; Piano note data with dynamic channel assignment\n\n")
-        f.write("; Field offsets:\n")
-        f.write(";   tnext_lo    equ 0    ; next-note dt low byte\n")
-        f.write(";   tnext_hi    equ 1    ; next-note dt high byte\n")
-        f.write(";   duration_lo equ 2    ; duration low byte\n")
-        f.write(";   duration_hi equ 3    ; duration high byte\n")
-        f.write(";   sample_pitch equ 4   ; MIDI pitch of sample file\n")
-        f.write(";   velocity    equ 5    ; MIDI velocity\n")
-        f.write(";   instrument  equ 6    ; instrument ID\n")
-        f.write(";   channel     equ 7    ; Agon channel (0–31)\n")
-        f.write(";   freq_lo     equ 8    ; note frequency low byte\n")
-        f.write(";   freq_hi     equ 9    ; note frequency high byte\n")
-        f.write(";   buffer_id_lo equ 10  ; buffer ID low byte (sample pitch)\n")
-        f.write(";   buffer_id_hi equ 11  ; buffer ID hi byte (sample pool instr#)\n")
-        f.write(";   bytes_per_note equ 12\n\n")
+        f.write("; Format of each note record:\n")
+        f.write(";     tnext_lo:     equ 0     ; next-note time low byte\n")
+        f.write(";     tnext_hi:     equ 1     ; next-note time high byte\n")
+        f.write(";     duration_lo:  equ 2     ; duration low byte\n")
+        f.write(";     duration_hi:  equ 3     ; duration high byte\n")
+        f.write(";     pitch:        equ 4     ; MIDI pitch (0–127)\n")
+        f.write(";     velocity:     equ 5     ; MIDI velocity (0–127)\n")
+        f.write(";     instrument:   equ 6     ; instrument number (1–255)\n")
+        f.write(";     channel:      equ 7     ; channel number (0–31)\n")
+        f.write(";     freq_lo:      equ 8     ; frequency low byte\n")
+        f.write(";     freq_hi:      equ 9     ; frequency high byte\n")
+        f.write(";     buffer_id_lo: equ 10    ; buffer ID low byte\n")
+        f.write(";     buffer_id_hi: equ 11    ; buffer ID high byte\n")
+        f.write(";     bytes_per_note: equ 12  ; total fields per note\n\n")
         f.write(f"total_notes: equ {len(processed)}\n")
         f.write("midi_data:\n")
-        note_idx = 0
 
+        note_idx = 0
         for item in timeline:
             if item['type'] == 'pedal':
                 ev = item['data']
                 ptype = "Sustain" if ev['type'] == 'sustain' else "Soft"
                 f.write(f"; t {ev['time']:.4f} {ptype} {ev['value']} (Instr {ev['instrument']})\n")
-            else:
-                note = item['data']
-                note_idx += 1
-                dt_ms = note['delta_ms']
-                pitch = note['pitch']
-                inst  = note['instrument']
-                start_s = note['start']
+                continue
 
-                # locate sample
-                sfn = defs.instnum_to_sf[inst]
-                sample_info = sf_to_samples[sfn]
-                sample_pitch, sample_duration = find_closest_sample(sample_info, pitch)
+            note = item['data']
+            note_idx += 1
+            dt_ms     = note['delta_ms']
+            pitch     = note['pitch']
+            inst      = note['instrument']
+            start_ms  = note['start'] * 1000
 
-                # duration and occupy
-                factor = 2 ** ((sample_pitch - pitch) / 12)
-                sample_max = max(1, int(sample_duration * factor))
-                dur_ms = int(note['duration'] * 1000)
-                dur_ms = min(dur_ms, sample_max)
-                dur_ms = max(dur_ms, min_duration_ms)
-                occupy_ms = dur_ms + decay_ms
+            # locate sample
+            sfn = defs.instnum_to_sf[inst]
+            sample_info = sf_to_samples[sfn]
+            sample_pitch, sample_duration = find_closest_sample(sample_info, pitch)
 
-                # frequency bytes
-                freq = round(440 * 2 ** ((pitch - 69) / 12))
-                freq_lo, freq_hi = freq & 0xFF, (freq >> 8) & 0xFF
-                note_time_ms = start_s * 1000
+            # compute durations
+            factor = 2 ** ((sample_pitch - pitch) / 12)
+            sample_max = max(1, int(sample_duration * factor))
+            dur_ms = int(note['duration'] * 1000)
+            dur_ms = min(dur_ms, sample_max)
+            dur_ms = max(dur_ms, min_duration_ms)
+            occupy_ms = dur_ms + decay_ms
 
-                # volume via CC7
-                cc7_list = ctrl_map[inst].get(7, [])
-                volume = get_controller_value_at_time(cc7_list, start_s, default=127)
-                vel_final = int(round((note['velocity'] * volume) / 127))
+            # frequency bytes
+            freq = round(440 * 2 ** ((pitch - 69) / 12))
+            freq_lo, freq_hi = freq & 0xFF, (freq >> 8) & 0xFF
 
-                # channel allocation
-                found = None
-                oldest = 0
+            # volume from CC7
+            cc7_list = ctrl_map[inst].get(7, [])
+            volume = get_controller_value_at_time(cc7_list, note['start'], default=127)
+            vel_final = int(round((note['velocity'] * volume) / 127))
+
+            # channel reuse: same sfn + pitch still sounding?
+            chosen_ch = None
+            for ch in range(num_channels):
+                if (channel_current_sfn[ch] == sfn
+                        and channel_current_pitch[ch] == sample_pitch
+                        and channel_release_time[ch] > start_ms):
+                    chosen_ch = ch
+                    break
+
+            # if none, find free or steal oldest
+            trunc = ""
+            if chosen_ch is None:
                 earliest = float('inf')
+                oldest = 0
                 for ch in range(num_channels):
                     rel = channel_release_time[ch]
-                    if rel <= note_time_ms:
-                        found = ch
+                    if rel <= start_ms:
+                        chosen_ch = ch
                         break
                     if rel < earliest:
                         earliest = rel
                         oldest = ch
-                if found is None:
-                    ch = oldest
-                    prev = channel_note_start[ch]
-                    trunc = f" [TRUNCATE prev:ch{ch} @ {prev:.1f} ms -> {note_time_ms:.1f} ms]"
-                else:
-                    ch = found
-                    trunc = ""
+                if chosen_ch is None:
+                    # steal
+                    chosen_ch = oldest
+                    prev = channel_note_start[chosen_ch]
+                    trunc = f" [TRUNCATE prev:ch{chosen_ch} @{prev:.1f}ms -> {start_ms:.1f}ms]"
+                # else chosen_ch set to free channel
 
-                channel_release_time[ch] = note_time_ms + occupy_ms
-                channel_note_start[ch] = note_time_ms
+            ch = chosen_ch
+            # update channel state
+            channel_release_time[ch]    = start_ms + occupy_ms
+            channel_note_start[ch]      = start_ms
+            channel_current_sfn[ch]     = sfn
+            channel_current_pitch[ch]   = sample_pitch
 
-                # buffer ID
-                lo, hi = defs.buffer_id_bytes(sample_pitch, sfn)
+            # buffer id
+            lo, hi = defs.buffer_id_bytes(sample_pitch, sfn)
 
-                # comment
-                comment = f"t={start_s:.3f}s dur={dur_ms}ms"
-                if note.get('velocity_modified'):
-                    comment += f", vel {note['original_velocity']}->{note['velocity']}"
-                if note.get('duration_modified'):
-                    od = round(note['original_duration'] * 1000)
-                    comment += f", sust {od}->{dur_ms}"
-                comment += f", freq={freq}Hz, sample={sample_pitch}, buffer_id={hi:02X}:{lo:02X}{trunc}"
+            # assemble comment
+            comment = f"t={note['start']:.3f}s dur={dur_ms}ms"
+            if note.get('velocity_modified'):
+                ov = note['original_velocity']
+                nv = note['velocity']
+                comment += f", vel {ov}->{nv}"
+            if note.get('duration_modified'):
+                od = round(note['original_duration'] * 1000)
+                comment += f", sust {od}->{dur_ms}"
+            comment += f", freq={freq}Hz, sample={sample_pitch}, buffer_id={hi:02X}:{lo:02X}{trunc}"
 
-                f.write(
-                    f"    db {dt_ms & 0xFF},{(dt_ms >> 8) & 0xFF},"
-                    f"{dur_ms & 0xFF},{(dur_ms >> 8) & 0xFF},"
-                    f"{sample_pitch},{vel_final},{inst},{ch},"
-                    f"{freq_lo},{freq_hi},{lo},{hi}  ; n{note_idx} {comment}\n"
-                )
+            # write record
+            f.write(
+                f"    db {dt_ms & 0xFF},{(dt_ms >> 8) & 0xFF},"
+                f"{dur_ms & 0xFF},{(dur_ms >> 8) & 0xFF},"
+                f"{sample_pitch},{vel_final},{inst},{ch},"
+                f"{freq_lo},{freq_hi},{lo},{hi}  ; n{note_idx} {comment}\n"
+            )
 
+        # end marker
         f.write("    db 255,255,255,255,255,255,255,255,255,255,255,255  ; End marker\n")
 
 # ------------------ MAIN ------------------
@@ -893,14 +914,46 @@ if __name__ == '__main__':
     midi_out_dir = 'midi/out'
 
     # CSV→Assembly conversion
-    song = 'Williams__Star_Wars_Theme'
+    # song = 'Williams__Star_Wars_Theme'
     # song = 'Beethoven__Moonlight_Sonata_v1'
+    # song = 'Over_the_Rainbow'
+    # song = 'Young_Guns'
+    song = 'Williams__Raiders_of_the_Lost_Ark'
     csv_file = f"{midi_out_dir}/{song}.csv"
     inc_file = f"{midi_out_dir}/{song}.inc"
     sustain_threshold = 1 # value at which to consider the sustain pedal "on"
 
     # Parse notes & controls
     instruments, note_events, control_events = parse_song_csv(csv_file)
+
+    instrument_defs = """
+instrument_number,instrument_name,bank,preset,soundfont_name,velocity,sample_rate,sf2_path
+1,Tuba,0,58,Tuba,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+2,String Ensemble 1,0,48,Strings,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,Pizzicato Strings,0,45,Pizzicato Section,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,French Horn,0,60,French Horns,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Trumpet,0,56,Trumpet,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Tremolo Strings,8,50,Synth Strings 3,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+7,String Ensemble 1,0,48,Strings,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,Tremolo Strings,8,50,Synth Strings 3,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,48,Strings,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,8,50,Synth Strings 3,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+11,String Ensemble 1,0,48,Strings,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+12,Pizzicato Strings,0,45,Pizzicato Section,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+13,String Ensemble 1,0,48,Strings,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+14,Trombone,0,57,Trombone,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+16,Flute,0,73,Flute,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+17,Piccolo,0,72,Piccolo,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+18,Clarinet,0,71,Clarinet,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+19,Bassoon,0,70,Bassoon,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+20,Glockenspiel,0,9,Glockenspiel,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+21,Timpani,0,47,Timpani,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+22,Orchestral Harp,0,30,Distortion Guitar,127,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
+    """
+
+    defs = InstrumentDefs(instrument_defs)
+
+    instruments, note_events, control_events = purge_undefined_instruments(defs, instruments, note_events, control_events)
 
     # Only useful for songs with sustain pedal events, but can be either included or skipped as desired
     note_events = sustain_pedal_mod_durations(note_events, control_events, sustain_threshold)
@@ -909,36 +962,18 @@ if __name__ == '__main__':
 
     # print_instruments_and_controls_summary(instruments, note_events_sum, control_events_sum)
 
-    instrument_defs = """
-instrument_number,instrument_name,bank,preset,soundfont_name,velocity,output_gain,sample_rate,sf2_path
-1,Bassoon,0,70,Bassoon,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-2,Flute,0,73,Flute,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-3,French_Horns,0,60,French Horns,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-4,Trumpet,0,56,Trumpet,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-5,Trombone,0,57,Trombone,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-6,Orchestral Harp,0,46,Harp,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-7,Bright Acoustic Piano,0,1,Bright Yamaha Grand,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-8,String Ensemble 1,0,50,Synth Strings 1,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-9,String Ensemble 1,0,50,Synth Strings 1,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-10,Tremolo Strings,0,50,Synth Strings 1,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-11,Timpani,0,47,Timpani,127,1,32000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-    """
-
-    defs = InstrumentDefs(instrument_defs)
-
-    instruments, note_events, control_events = purge_undefined_instruments(defs, instruments, note_events, control_events)
-
     max_harmonic = 8
-    min_interval = 12
-    max_interval = 12
+    min_interval = 1
+    max_interval = 2
+    min_sample_rate = 3200
     sample_plan = compute_required_sample_rates_and_durations(note_events_sum, max_harmonic, min_interval, max_interval)
 
-    # for instr, specs in sample_plan.items():
-    #     name = instruments.get(instr, "<Unknown>")
-    #     print(f"Instrument {instr}: {name}")
-    #     for base_pitch, base_name, req_dur, req_sr in specs:
-    #         print(f"  Sample {base_pitch} ({base_name}): dur={req_dur}ms, sr={req_sr}Hz")
-    #     print()
+    for instr, specs in sample_plan.items():
+        name = instruments.get(instr, "<Unknown>")
+        print(f"Instrument {instr}: {name}")
+        for base_pitch, base_name, req_dur, req_sr in specs:
+            print(f"  Sample {base_pitch} ({base_name}): dur={req_dur}ms, sr={req_sr}Hz")
+        print()
 
 
     sf_plan = aggregate_sample_plan_by_soundfont(sample_plan, defs)
@@ -960,87 +995,20 @@ instrument_number,instrument_name,bank,preset,soundfont_name,velocity,output_gai
     #         print("  Samples: None")
 
     #     # echo the chosen pool-level parameters
-    #     print(f"  Output Gain: {data['output_gain']}, Sample Rate: {data['sample_rate']}Hz\n")
+    #     print(f"  Sample Rate: {data['sample_rate']}Hz\n")
 
-    min_sample_rate = 16000
+
+    # Clean up files and folders in samples_base_dir (delete everything, then recreate)
+    if os.path.exists(samples_base_dir):
+        shutil.rmtree(samples_base_dir)
+    os.makedirs(samples_base_dir, exist_ok=True)
 
     generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, max_harmonic)
 
     write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file)
 
-    convert_to_assembly(
-        note_events,
-        control_events,
-        sf_plan,
-        defs,
-        inc_file,
-        num_channels=32,
-        min_duration_ms=1,
-        decay_ms=200
-    )
+    num_channels=32
+    min_duration_ms=1
+    release_ms=200
 
-# from io import StringIO
-# import subprocess
-
-# def test_render_sample_for_instrument(
-#     instrument_defs_line: str,
-#     midi_pitch: int,
-#     duration_s: float = 1.0,
-#     samples_base_dir: str = 'midi/tgt/Samples'
-# ):
-#     """
-#     Quickly render and save a single note for testing.
-
-#     Args:
-#       instrument_defs_line: One CSV row (without header) defining:
-#         instrument_number,instrument_name,bank,preset,soundfont_name,velocity,output_gain,sample_rate,sf2_path
-#       midi_pitch:          MIDI note number to render
-#       duration_s:          Note length in seconds
-#       samples_base_dir:    Base folder to save the test .wav
-#     """
-#     # 1) Build a minimal CSV and defs
-#     header = "instrument_number,instrument_name,bank,preset,soundfont_name,velocity,output_gain,sample_rate,sf2_path"
-#     csv_content = f"{header}\n{instrument_defs_line.strip()}\n"
-#     defs = InstrumentDefs(csv_content)
-
-#     # 2) Extract parameters
-#     row    = defs.rows[0]
-#     sfn    = row['soundfont_name']
-#     bank   = int(row['bank'])
-#     preset = int(row['preset'])
-#     vel    = int(row['velocity'])
-#     gain   = float(row['output_gain'])
-#     native_sr = int(row['sample_rate'])
-#     sf2_path  = row['sf2_path']
-
-#     # 3) Build a single-note PrettyMIDI
-#     pm = make_single_note_pm(
-#         midi_pitch,
-#         duration_s,
-#         vel,
-#         preset,
-#         bank=bank,
-#         is_drum=False
-#     )
-
-#     # 4) Render via FluidSynth
-#     wav, sr = render_sample(sf2_path, pm, native_sr, gain)
-
-#     # 5) Save to the normal samples folder
-#     out_dir = defs.folder_for_sf(samples_base_dir, sfn)
-#     os.makedirs(out_dir, exist_ok=True)
-#     out_path = os.path.join(out_dir, f"{midi_pitch:03d}.wav")
-#     sf.write(out_path, wav, sr, subtype='PCM_U8')
-#     print(f"Test sample written to {out_path} (sr={sr}Hz, dur≈{len(wav)/sr:.3f}s)")
-
-#     # 6) Play it back (requires 'aplay' or similar on your system)
-#     try:
-#         subprocess.run(['aplay', out_path], check=True)
-#     except FileNotFoundError:
-#         print("Playback skipped: 'aplay' not found. You can manually play the file.")
-
-# instrument_defs_line = ("""
-# 8,String Ensemble 1,8,80,Sine Wave,127,1,16000,/home/smith/Agon/mystuff/assets/sound/sf2/FluidR3_GM/FluidR3_GM.sf2
-# """)
-# midi_pitch = 31
-# test_render_sample_for_instrument(instrument_defs_line, midi_pitch)
+    convert_to_assembly(note_events, control_events, sf_plan, defs, inc_file, num_channels, min_duration_ms, release_ms)

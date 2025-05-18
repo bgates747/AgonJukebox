@@ -120,8 +120,9 @@ enable_channels_end:
     ; include "../../out/Beethoven__Ode_to_Joy.inc"
     ; include "../../out/Brahms__Sonata_F_minor.inc" 
     ; include "../../out/STARWARSTHEME.inc"
-    include "../../out/Williams__Star_Wars_Theme.inc"
-    ; include "../../out/Williams__Star_Wars_Theme_mod.inc"
+    ; include "../../out/Williams__Star_Wars_Theme.inc"
+    ; include "../../out/Over_the_Rainbow.inc"
+    include "../../out/Williams__Raiders_of_the_Lost_Ark.inc"
 
     ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
     ; include "../../out/Thoinot__Pavana.inc"

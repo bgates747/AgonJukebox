@@ -38,6 +38,8 @@ def summarize_song_csv(csv_path):
         else:
             idx += 1
 
+    print("\n====== Instrument Usage Summary ======\n")
+
     for block in instrument_blocks:
         notes = block['notes']
         if not notes:
@@ -67,8 +69,8 @@ def summarize_song_csv(csv_path):
         # Polyphony: sweep line to count overlapping notes
         time_points = []
         for s, e in zip(starts, ends):
-            time_points.append( (s, +1) )
-            time_points.append( (e, -1) )
+            time_points.append((s, +1))
+            time_points.append((e, -1))
         time_points.sort()
         curr_poly = 0
         max_poly = 0
@@ -84,8 +86,14 @@ def summarize_song_csv(csv_path):
         print(f"  Minimum time between notes: {min_gap:.4f} s")
         print(f"  Max notes sounding simultaneously: {max_poly}\n")
 
+    print("\n====== Instrument Definitions CSV ======\n")
+    print("instrument_number,instrument_name")
+    for block in instrument_blocks:
+        print(f'{block["number"]},"{block["name"]}"')
+
+
 if __name__ == "__main__":
     midi_out_dir = 'midi/out'
-    song_base_name = 'Williams__Star_Wars_Theme_mod'
+    song_base_name = 'Williams__Raiders_of_the_Lost_Ark'
     csv_path = f"{midi_out_dir}/{song_base_name}.csv"
     summarize_song_csv(csv_path)
