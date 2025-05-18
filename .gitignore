@@ -1,19 +1,22 @@
+# Large media files
+midi/sf2/
+
+# Build and target directories
 assets/
+build/utils/
 tgt/music/
 tgt/music_bak/
 tgt/video/
-agon-utils/
-agon-utils 
-build/utils/
 tgt/images/
+agon-utils/
+agon-utils
 
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.pyc
 
-# Environments
+# Environment and editor
 .venv
 .vscode
 
@@ -21,11 +24,9 @@ __pycache__/
 .DS_Store
 .DS_Store?
 ._.DS_Store
+._*
 .Spotlight-V100
 .Trashes
-._*
 .AppleDouble
 .LSOverride
-
-# macOS directory attributes
-Icon?midi/sf2/
+Icon?
