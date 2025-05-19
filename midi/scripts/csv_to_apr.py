@@ -223,17 +223,12 @@ def aggregate_sample_plan_by_soundfont(sample_plan, defs):
     return sf_aggregate
 
 def render_sample(sf2_path, midi_pm, sample_rate):
-    """
-    Render a PrettyMIDI object via fluidsynth CLI into a float32 NumPy array.
-    Returns (data_mono: np.ndarray (float32), sample_rate: int).
-    All fluidsynth CLI output is suppressed, and gain is fixed at 1.0.
-    """
     # 1) Write the MIDI to a temp file
     with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tmp_mid:
         midi_path = tmp_mid.name
         midi_pm.write(midi_path)
 
-    # 2) Render to a temp WAV via fluidsynth (gain=1.0)
+    # 2) Render to a temp WAV via fluidsynth (fixed gain)
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
 
@@ -243,7 +238,7 @@ def render_sample(sf2_path, midi_pm, sample_rate):
             sf2_path, midi_path,
             "-F", wav_path,
             "-r", str(sample_rate),
-            "-g", "1.0"
+            "-g", "3.0"
         ]
         # Suppress all fluidsynth console output
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -298,36 +293,36 @@ def make_single_note_pm(pitch, duration_s, velocity, preset, bank=0, is_drum=Fal
 
 def choose_sample_rate(freq, min_sample_rate, max_sample_rate, max_harmonic=8):
     """
-    Choose an optimal sample rate for rendering a fundamental frequency.
-    - Ensures at least max_harmonic are preserved, but clamps to [min, max].
-    - If max_sample_rate is too low, reduces harmonics until it fits.
-    - If min_sample_rate is too high, increases harmonics until it exceeds min.
+    Choose a sample rate for a given fundamental frequency:
+      - Attempts to cover up to `max_harmonic` harmonics (sample_rate = 2 * freq * harmonics)
+      - Never returns a rate below min_sample_rate or above max_sample_rate
+      - If min > max, clamps both to max_sample_rate
     Returns: (sample_rate, harmonics_used)
     """
-    # Guard against 0Hz
+    # Protect against edge cases
     freq = max(freq, 1.0)
-    harmonics = max_harmonic
-    sample_rate = int(2 * freq * harmonics)
+    min_sample_rate = int(min_sample_rate)
+    max_sample_rate = int(max_sample_rate)
+    if min_sample_rate > max_sample_rate:
+        min_sample_rate = max_sample_rate
 
-    # Clamp down if above max_sample_rate by reducing harmonics
-    if sample_rate > max_sample_rate:
-        for h in range(harmonics, 0, -1):
-            sr = int(2 * freq * h)
-            if sr <= max_sample_rate:
-                return sr, h
-        # If even 1 harmonic exceeds max_sample_rate, just use max_sample_rate and 1
-        return max_sample_rate, 1
+    # Start with desired harmonics
+    h = max_harmonic
+    sample_rate = int(2 * freq * h)
 
-    # Clamp up if below min_sample_rate by increasing harmonics
-    if sample_rate < min_sample_rate:
-        h = harmonics
-        while True:
-            h += 1
-            sr = int(2 * freq * h)
-            if sr >= min_sample_rate or h > 128:  # avoid infinite loop
-                return max(sr, min_sample_rate), h
-    # Already in range
-    return sample_rate, harmonics
+    # Clamp down: reduce harmonics if above max_sample_rate
+    while sample_rate > max_sample_rate and h > 1:
+        h -= 1
+        sample_rate = int(2 * freq * h)
+
+    # Clamp up: increase harmonics if below min_sample_rate (up to limit)
+    while sample_rate < min_sample_rate and h < 128:
+        h += 1
+        sample_rate = int(2 * freq * h)
+
+    # Final clamp to ensure range
+    sample_rate = max(min_sample_rate, min(sample_rate, max_sample_rate))
+    return sample_rate, h
 
 def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=32000):
     """
@@ -392,24 +387,25 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
             dur_ms = max(samp['required_duration_ms'], min_trial_duration)
             dur_s = dur_ms / 1000.0
 
+            # Always render at the instrument's sample rate
             sr = native_sr
             req_sr = native_sr
 
             pm = make_single_note_pm(pitch, dur_s, velocity, preset, bank, is_drum=is_drum)
             wav, _ = render_sample(sf2_path, pm, sr)
 
-            # For melodic: resample, lowpass, and normalize as needed
             if not is_drum:
                 freq = midi_to_hz(pitch)
+                # Compute requested sample rate, clamped to [min_sample_rate, native_sr]
                 req_sr, harmonics = choose_sample_rate(freq, min_sample_rate, native_sr, max_harmonic)
+                req_sr = max(min_sample_rate, min(req_sr, native_sr))   # <<< always clamp!
                 if req_sr != sr:
                     wav, _ = resample_audio(wav, sr, req_sr)
                     cutoff = req_sr / 2 - 500
                     wav = lowpass_audio(wav, req_sr, cutoff)
                     sr = req_sr
 
-            wav = normalize_audio(wav)
-
+            # Envelope trim always uses the actual sample rate after resampling
             trimmed_wav = envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=sr)
             trimmed_len = len(trimmed_wav) / sr
             if trimmed_len > 0:
@@ -422,10 +418,14 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
             out_path = os.path.join(out_folder, f"{pitch:03d}.wav")
             samp['filename'] = out_path
 
+            # <<< assert for debugging!
+            assert min_sample_rate <= sr <= native_sr, f"Sample rate {sr} not in [{min_sample_rate}, {native_sr}]"
+
             print(f"Trimmed sample pitch {pitch}: {dur_s:.3f}s → {trimmed_len:.3f}s")
             sf.write(out_path, wav, sr, subtype='PCM_U8')
             print(f"Wrote {out_path} (sr={sr}Hz, dur≈{len(wav)/sr:.3f}s, is_drum={is_drum})")
     return sf_plan
+
 
 # ------------------ Song CSV Parsing and Metadata Generation ------------------
 
@@ -724,10 +724,12 @@ def write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file):
         f.write("sample_filenames:\n")
         f.write("\n".join(filenames) + "\n")
 
-def convert_to_assembly(notes,control_events,sf_plan,defs,output_file,num_channels,min_duration_ms,decay_ms):
+
+def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_channels, min_duration_ms, decay_ms):
     """
     Convert processed note events into an .inc assembly track, reusing
-    channels when the same note (pitch + soundfont) is already sounding.
+    channels when the same note (pitch + soundfont) is already sounding
+    and has played for at least min_duration_ms.
     """
     from collections import defaultdict
 
@@ -839,36 +841,42 @@ def convert_to_assembly(notes,control_events,sf_plan,defs,output_file,num_channe
             # volume from CC7
             cc7_list = ctrl_map[inst].get(7, [])
             volume = get_controller_value_at_time(cc7_list, note['start'], default=127)
-            vel_final = int(round((note['velocity'] * volume) / 127))
+            # vel_final = int(round((note['velocity'] * volume) / 127))
+            vel_final = volume
 
-            # channel reuse: same sfn + pitch still sounding?
+            # ---------------- Channel selection logic: STACCATO SAFE ----------------
             chosen_ch = None
-            for ch in range(num_channels):
-                if (channel_current_sfn[ch] == sfn
-                        and channel_current_pitch[ch] == sample_pitch
-                        and channel_release_time[ch] > start_ms):
-                    chosen_ch = ch
-                    break
+            free_chs = []
+            stealable_chs = []
 
-            # if none, find free or steal oldest
+            for ch in range(num_channels):
+                # Not the same note? Consider for regular free/steal.
+                if channel_current_sfn[ch] != sfn or channel_current_pitch[ch] != sample_pitch:
+                    if channel_release_time[ch] <= start_ms:
+                        free_chs.append(ch)
+                    continue
+
+                # Same note, check min_duration_ms requirement
+                elapsed_ms = start_ms - channel_note_start[ch]
+                if elapsed_ms >= min_duration_ms:
+                    stealable_chs.append(ch)
+                elif channel_release_time[ch] <= start_ms:
+                    free_chs.append(ch)
+
             trunc = ""
-            if chosen_ch is None:
-                earliest = float('inf')
-                oldest = 0
-                for ch in range(num_channels):
-                    rel = channel_release_time[ch]
-                    if rel <= start_ms:
-                        chosen_ch = ch
-                        break
-                    if rel < earliest:
-                        earliest = rel
-                        oldest = ch
-                if chosen_ch is None:
-                    # steal
-                    chosen_ch = oldest
-                    prev = channel_note_start[chosen_ch]
-                    trunc = f" [TRUNCATE prev:ch{chosen_ch} @{prev:.1f}ms -> {start_ms:.1f}ms]"
-                # else chosen_ch set to free channel
+            if free_chs:
+                chosen_ch = free_chs[0]
+            elif stealable_chs:
+                # Choose the oldest of those that can be stolen (i.e., played for >= min_duration_ms)
+                oldest = min(stealable_chs, key=lambda c: channel_note_start[c])
+                trunc = f" [TRUNCATE prev:ch{oldest} @{channel_note_start[oldest]:.1f}ms -> {start_ms:.1f}ms]"
+                chosen_ch = oldest
+            else:
+                # All channels busy or all “same note” are within min_duration_ms: steal oldest channel
+                oldest = min(range(num_channels), key=lambda c: channel_note_start[c])
+                trunc = f" [TRUNCATE prev:ch{oldest} @{channel_note_start[oldest]:.1f}ms -> {start_ms:.1f}ms]"
+                chosen_ch = oldest
+            # ------------------------------------------------------------------------
 
             ch = chosen_ch
             # update channel state
@@ -916,6 +924,7 @@ if __name__ == '__main__':
     # song = 'Over_the_Rainbow'
     # song = 'Young_Guns'
     # song = 'Williams__Raiders_of_the_Lost_Ark'
+    # song = 'Breakout'
     csv_file = f"{midi_out_dir}/{song}.csv"
     inc_file = f"{midi_out_dir}/{song}.inc"
     sustain_threshold = 1 # value at which to consider the sustain pedal "on"
@@ -936,8 +945,7 @@ instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,ve
 9,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
 10,Tremolo Strings,0,44,FALSE,Tremolo,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
 11,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-12,Drum Kit,128,0,TRUE,Standard,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-    """
+"""
 
     defs = InstrumentDefs(instrument_defs)
 
@@ -951,9 +959,9 @@ instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,ve
     # print_instruments_and_controls_summary(instruments, note_events_sum, control_events_sum)
 
     max_harmonic = 8
-    min_interval = 1
-    max_interval = 1
-    min_sample_rate = 3200
+    min_interval = 5
+    max_interval = 12
+    min_sample_rate = 16000
     min_trial_duration = 500
     
     sample_plan = compute_required_sample_rates_and_durations(note_events_sum, max_harmonic, min_interval, max_interval, defs)

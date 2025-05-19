@@ -90,6 +90,8 @@ def summarize_song_csv(csv_path, sf2_path):
 if __name__ == "__main__":
     midi_out_dir   = 'midi/out'
     song_base_name = 'Williams__Star_Wars_Theme'
+    song_base_name = 'Breakout'
     csv_path       = f"{midi_out_dir}/{song_base_name}.csv"
     sf2_path       = 'midi/sf2/FluidR3_GM/FluidR3_GM.sf2'
+    # sf2_path       = 'midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2'
     summarize_song_csv(csv_path, sf2_path)

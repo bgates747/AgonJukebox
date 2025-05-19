@@ -77,8 +77,14 @@ play_note:
     ld h,(iy+tnext_hi) ; high byte
     ld (note_counter),hl ; set the note counter
 
-; play the note
+; check for eof
     ld a,(iy+channel)
+    cp 255 ; eof marker
+    ret z
+
+    push hl ; save the note counter
+
+; play the note
     ld (@channel1),a
     ld (@channel2),a
     ld (@channel3),a
@@ -131,12 +137,16 @@ play_note:
     @end:        db 0x00 ; padding
 
     lea iy,iy+bytes_per_note ; move to next note
-
     ld hl,(notes_played)
     inc hl
     ld (notes_played),hl ; increment the number of notes played
 
-    ret
+    pop hl ; restore the note counter
+    SIGN_UHL ; if zero ...
+    jp z,play_note ; play next note immediately
+
+    ret ; if we get here, zero flag is reset, signaling not eof
+; end play_note
 
 pp_load_sample:
     push bc ; save sample frequency

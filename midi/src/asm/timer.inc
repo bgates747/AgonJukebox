@@ -144,49 +144,38 @@ prt_irq_handler:
     di
     ex af,af'
     exx
-
 ; clear sysvar_keyascii
 	MOSCALL mos_sysvars
 	xor a
 	ld (IX+sysvar_keyascii),a
-
 ; read the timer interrupt 
     in0 a,(TMR1_CTL+TMR_REG_CTL)
-
 ; decrement the next note counter
     ld hl,(note_counter)
     dec hl
     ld (note_counter),hl
-    
 ; if timer expired, play the next note if not at EOF
     SIGN_UHL
-    jr z,@check_eof
     jp p,@done
-    ld hl,1
-    ld (note_counter),hl
-    jr @done
-
-@check_eof:
-; check whether we are at the end of the file
+; update the number of notes played
     ld hl,total_notes
     ld de,(notes_played)
     or a ; clear carry
     sbc hl,de ; subtract total notes from the number of notes played
     call vdu_home_cursor ; DEBUG
     call printDec ; DEBUG
-    jr z,@eof ; if zero, we are at the end of the file
-    jp m,@eof ; if negative we are past the end of the file
-    call play_note
-    jr @done
-@eof:
-    call prt_stop
-    call vdu_cls
-    call printInline
-    asciz "End of file reached, press any Esc or Q to quit."
+    call play_note ; zero flag set if eof
+    jr z,@eof
 @done:
 ; restore regular registers and enable interrupts
     exx
     ex af,af'
     ei
     reti.l
+@eof:
+    call prt_stop
+    call vdu_cls
+    call printInline
+    asciz "End of file reached, press any Esc or Q to quit."
+    jr @done
 ; end prt_irq_handler
