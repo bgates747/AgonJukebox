@@ -87,7 +87,7 @@ play_note:
 ; play the note
     ld (@channel1),a
     ld (@channel2),a
-    ld (@channel3),a
+    ; ld (@channel3),a
 
     ld a,(iy+freq_lo)
     ld (@frequency),a
@@ -118,15 +118,15 @@ play_note:
                  db 4    ; set waveform command
                  db 8    ; waveform type: sample
     @bufferId:   dw 0x0000
-; set volume envelope command
-                 db 23,0,0x85
-    @channel3:   db 0x00
-                 db 6    ; set volume envelope command
-                 db 1    ; type 1 = plain ADSR
-    @attack:     dw 0    ; attack (ms)
-    @decay:      dw 0    ; decay (ms)
-    @sustain:    db 127   ; sustain (0-255)
-    @release:    dw 200  ; release (ms)
+; ; set volume envelope command
+;                  db 23,0,0x85
+;     @channel3:   db 0x00
+;                  db 6    ; set volume envelope command
+;                  db 1    ; type 1 = plain ADSR
+;     @attack:     dw 0    ; attack (ms)
+;     @decay:      dw 0    ; decay (ms)
+;     @sustain:    db 127   ; sustain (0-255)
+;     @release:    dw 200  ; release (ms)
 ; play note command
                  db 23,0,0x85
     @channel2:   db 0x00
