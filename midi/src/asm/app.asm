@@ -73,8 +73,8 @@ enable_channels_cmd:
     db 23, 0, $85, 11, 8
     db 23, 0, $85, 12, 8
     db 23, 0, $85, 13, 8
-    ; db 23, 0, $85, 14, 8
-    ; db 23, 0, $85, 15, 8
+    db 23, 0, $85, 14, 8
+    db 23, 0, $85, 15, 8
     ; db 23, 0, $85, 16, 8
     ; db 23, 0, $85, 17, 8
     ; db 23, 0, $85, 18, 8
@@ -115,8 +115,8 @@ set_adsr_envelopes:
     db 23,0,0x85,11,6,1,0,0,0,0,127,DECAY_MS,0
     db 23,0,0x85,12,6,1,0,0,0,0,127,DECAY_MS,0
     db 23,0,0x85,13,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,14,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,15,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,14,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,15,6,1,0,0,0,0,127,DECAY_MS,0
     ; db 23,0,0x85,16,6,1,0,0,0,0,127,DECAY_MS,0
     ; db 23,0,0x85,17,6,1,0,0,0,0,127,DECAY_MS,0
     ; db 23,0,0x85,18,6,1,0,0,0,0,127,DECAY_MS,0
@@ -164,9 +164,9 @@ set_adsr_envelopes_end:
     ; include "../../out/Beethoven__Ode_to_Joy.inc"
     ; include "../../out/Brahms__Sonata_F_minor.inc" 
     ; include "../../out/STARWARSTHEME.inc"
-    ; include "../../out/Williams__Star_Wars_Theme.inc"
+    include "../../out/Williams__Star_Wars_Theme.inc"
     ; include "../../out/Over_the_Rainbow.inc"
-    include "../../out/Williams__Raiders_of_the_Lost_Ark.inc"
+    ; include "../../out/Williams__Raiders_of_the_Lost_Ark.inc"
     ; include "../../out/Bond.inc"
     ; include "../../out/Breakout.inc"
 

@@ -107,7 +107,7 @@ def compute_required_sample_rates_and_durations(note_events_sum, max_harmonic, m
         if is_drum:
             # For drums: one sample per pitch, always at instrument_defs sample_rate
             plan = []
-            drum_sr = int(params.get('sample_rate', 32000))
+            drum_sr = int(params.get('sample_rate', 16000))
             for p, rec in pitch_map.items():
                 note_name = rec['note_name'] if rec['note_name'] else f"Drum{p}"
                 dur_ms = rec['max_dur_ms']
@@ -329,14 +329,12 @@ def choose_sample_rate(freq, min_sample_rate, max_sample_rate, max_harmonic=8):
       - If min > max, clamps both to max_sample_rate
     Returns: (sample_rate, harmonics_used)
     """
-    # Protect against edge cases
     freq = max(freq, 1.0)
     min_sample_rate = int(min_sample_rate)
     max_sample_rate = int(max_sample_rate)
     if min_sample_rate > max_sample_rate:
         min_sample_rate = max_sample_rate
 
-    # Start with desired harmonics
     h = max_harmonic
     sample_rate = int(2 * freq * h)
 
@@ -350,11 +348,11 @@ def choose_sample_rate(freq, min_sample_rate, max_sample_rate, max_harmonic=8):
         h += 1
         sample_rate = int(2 * freq * h)
 
-    # Final clamp to ensure range
+    # Final clamp: never exceed bounds (always, always)
     sample_rate = max(min_sample_rate, min(sample_rate, max_sample_rate))
     return sample_rate, h
 
-def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=32000):
+def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=16000):
     """
     Trims both head and tail using *separate* thresholds for each.
     Finds first/last envelope crossings and trims to nearest zero-crossing.
@@ -1020,39 +1018,30 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
 
     sustain_threshold = 1
     max_harmonic = 8
-    min_interval = 4
+    min_interval = 1
     max_interval = 12
     min_sample_rate = 16000
     min_trial_duration = 500
 
-    num_channels = 14
+    num_channels = 16
     min_duration_ms = 100
     release_ms = 200
 
-    song = 'Williams__Raiders_of_the_Lost_Ark'
+    song = 'Williams__Star_Wars_Theme'
 
     instrument_defs = """
 instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,velocity,sample_rate,sf2_path
-1,Tuba,0,58,FALSE,Tuba,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-2,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-3,Pizzicato Strings,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-4,French Horn,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-5,Trumpet,0,56,FALSE,Trumpet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-6,Tremolo Strings,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-7,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-8,Tremolo Strings,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-9,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-10,Tremolo Strings,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-11,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-12,Pizzicato Strings,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-13,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-14,Trombone,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-16,Flute,0,73,FALSE,Flute,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-17,Piccolo,0,72,FALSE,Piccolo,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-18,Clarinet,0,71,FALSE,Clarinet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-19,Bassoon,0,70,FALSE,Bassoon,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-20,Glockenspiel,0,9,FALSE,Glockenspiel,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-22,Orchestral Harp,0,46,FALSE,Orchestral Harp,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+# 1,Bassoon,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 2,Flute,0,73,FALSE,Flute,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,French Horn,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,Trumpet,0,56,FALSE,Trumpet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Trombone,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Orchestral Harp,0,46,FALSE,Harp,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 7,Bright Acoustic Piano,0,1,FALSE,Bright Yamaha Grand,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,String Ensemble 1,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 11,Timpani,0,47,FALSE,Timpani,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
 """
 
     csv_file = f"{midi_out_dir}/{song}.csv"
