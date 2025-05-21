@@ -152,30 +152,30 @@ midi_data:
     db 77,0,100,0,50,108,9,13,147,0,50,8  ; n133 t=11.172s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,43,108,9,14,87,0,43,8  ; n134 t=11.249s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 5,0,101,0,50,108,9,15,147,0,50,8  ; n135 t=11.249s dur=101ms, freq=147Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,58,125,5,2,233,0,58,5  ; n136 t=11.254s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch2 @11075.7ms -> 11253.6ms]
-    db 0,0,100,0,58,108,9,6,233,0,58,8  ; n137 t=11.254s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch6 @11085.3ms -> 11253.6ms]
-    db 5,0,100,0,31,108,9,8,58,0,31,8  ; n138 t=11.254s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch8 @11085.3ms -> 11253.6ms]
-    db 120,0,100,0,53,125,5,5,175,0,53,5  ; n139 t=11.258s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35 [TRUNCATE prev:ch5 @11085.3ms -> 11258.4ms]
-    db 0,0,100,0,53,125,5,3,175,0,53,5  ; n140 t=11.379s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
-    db 0,0,105,0,43,108,9,4,87,0,43,8  ; n141 t=11.379s dur=105ms, freq=87Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch4 @11075.7ms -> 11378.6ms]
-    db 0,0,110,0,58,108,9,12,233,0,58,8  ; n142 t=11.379s dur=110ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch12 @11171.8ms -> 11378.6ms]
-    db 5,0,110,0,31,108,9,11,58,0,31,8  ; n143 t=11.379s dur=110ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch11 @11171.8ms -> 11378.6ms]
-    db 0,0,105,0,58,125,5,7,233,0,58,5  ; n144 t=11.383s dur=105ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch7 @11171.8ms -> 11383.4ms]
-    db 13,1,115,0,50,108,9,13,147,0,50,8  ; n145 t=11.383s dur=115ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch13 @11171.8ms -> 11383.4ms]
-    db 0,0,100,0,55,125,5,2,208,0,55,5  ; n146 t=11.653s dur=100ms, freq=208Hz, sample=55, buffer_id=05:37
-    db 0,0,120,0,58,125,5,5,233,0,58,5  ; n147 t=11.653s dur=120ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,56,108,9,6,208,0,56,8  ; n148 t=11.653s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 0,0,100,0,58,125,5,16,233,0,58,5  ; n136 t=11.254s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,58,108,9,17,233,0,58,8  ; n137 t=11.254s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 5,0,100,0,31,108,9,18,58,0,31,8  ; n138 t=11.254s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 120,0,100,0,53,125,5,19,175,0,53,5  ; n139 t=11.258s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,100,0,53,125,5,2,175,0,53,5  ; n140 t=11.379s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,105,0,43,108,9,3,87,0,43,8  ; n141 t=11.379s dur=105ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 0,0,110,0,58,108,9,4,233,0,58,8  ; n142 t=11.379s dur=110ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 5,0,110,0,31,108,9,20,58,0,31,8  ; n143 t=11.379s dur=110ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 0,0,105,0,58,125,5,21,233,0,58,5  ; n144 t=11.383s dur=105ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 13,1,115,0,50,108,9,22,147,0,50,8  ; n145 t=11.383s dur=115ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,55,125,5,5,208,0,55,5  ; n146 t=11.653s dur=100ms, freq=208Hz, sample=55, buffer_id=05:37
+    db 0,0,120,0,58,125,5,6,233,0,58,5  ; n147 t=11.653s dur=120ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,56,108,9,7,208,0,56,8  ; n148 t=11.653s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
     db 0,0,110,0,43,108,9,8,87,0,43,8  ; n149 t=11.653s dur=110ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 5,0,110,0,29,108,9,9,44,0,29,8  ; n150 t=11.653s dur=110ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 32,1,110,0,58,108,9,10,233,0,58,8  ; n151 t=11.657s dur=110ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 10,0,100,0,75,124,4,3,110,2,75,4  ; n152 t=11.946s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
-    db 111,0,100,0,70,102,6,2,210,1,70,6  ; n153 t=11.956s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 10,0,100,0,75,124,4,2,110,2,75,4  ; n152 t=11.946s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
+    db 111,0,100,0,70,102,6,3,210,1,70,6  ; n153 t=11.956s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 48,0,100,0,75,102,6,0,110,2,75,6  ; n154 t=12.066s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 38,0,100,0,74,124,4,4,75,2,74,4  ; n155 t=12.114s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 77,0,100,0,77,102,6,5,186,2,77,6  ; n156 t=12.153s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 0,0,120,0,55,125,5,6,208,0,55,5  ; n157 t=12.229s dur=120ms, freq=208Hz, sample=55, buffer_id=05:37
-    db 0,0,144,0,58,125,5,8,233,0,58,5  ; n158 t=12.229s dur=144ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 5,0,182,0,29,108,9,7,44,0,29,8  ; n159 t=12.229s dur=182ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 0,0,144,0,58,125,5,7,233,0,58,5  ; n158 t=12.229s dur=144ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,182,0,29,108,9,8,44,0,29,8  ; n159 t=12.229s dur=182ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 0,0,149,0,56,108,9,9,208,0,56,8  ; n160 t=12.234s dur=149ms, freq=208Hz, sample=56, buffer_id=08:38
     db 5,0,187,0,53,108,9,10,175,0,53,8  ; n161 t=12.234s dur=187ms, freq=175Hz, sample=53, buffer_id=08:35
     db 67,0,100,0,82,102,6,11,164,3,82,6  ; n162 t=12.239s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
@@ -189,8 +189,8 @@ midi_data:
     db 5,0,144,0,63,125,5,3,55,1,63,5  ; n170 t=12.797s dur=144ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 5,0,120,0,58,125,5,4,233,0,58,5  ; n171 t=12.802s dur=120ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 0,0,173,0,56,108,9,7,208,0,56,8  ; n172 t=12.806s dur=173ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 5,0,173,0,29,108,9,8,44,0,29,8  ; n173 t=12.806s dur=173ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 19,0,115,0,58,108,9,9,233,0,58,8  ; n174 t=12.811s dur=115ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 5,0,173,0,29,108,9,9,44,0,29,8  ; n173 t=12.806s dur=173ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 19,0,115,0,58,108,9,8,233,0,58,8  ; n174 t=12.811s dur=115ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 96,0,100,0,82,102,6,10,164,3,82,6  ; n175 t=12.831s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 91,0,100,0,77,102,6,5,186,2,77,6  ; n176 t=12.927s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 82,0,100,0,75,102,6,11,110,2,75,6  ; n177 t=13.018s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
@@ -200,155 +200,155 @@ midi_data:
     db 0,0,100,0,70,102,6,12,210,1,70,6  ; n181 t=13.114s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 0,0,100,0,56,108,9,14,208,0,56,8  ; n182 t=13.114s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
     db 0,0,100,0,63,108,9,15,55,1,63,8  ; n183 t=13.114s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 91,0,125,0,29,108,9,8,44,0,29,8  ; n184 t=13.114s dur=125ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch8 @12806.5ms -> 13114.2ms]
+    db 91,0,125,0,29,108,9,16,44,0,29,8  ; n184 t=13.114s dur=125ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 96,0,100,0,70,102,6,3,11,2,70,6  ; n185 t=13.206s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
     db 72,0,100,0,77,102,6,4,186,2,77,6  ; n186 t=13.302s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 0,0,100,0,58,125,5,5,233,0,58,5  ; n187 t=13.374s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 10,0,100,0,29,108,9,7,44,0,29,8  ; n188 t=13.374s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 0,0,100,0,63,125,5,9,55,1,63,5  ; n189 t=13.383s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,58,108,9,10,233,0,58,8  ; n190 t=13.383s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,56,108,9,11,208,0,56,8  ; n191 t=13.388s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 14,0,100,0,63,108,9,15,55,1,63,8  ; n192 t=13.388s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @13114.2ms -> 13388.2ms]
+    db 0,0,100,0,63,125,5,8,55,1,63,5  ; n189 t=13.383s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,108,9,9,233,0,58,8  ; n190 t=13.383s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,56,108,9,10,208,0,56,8  ; n191 t=13.388s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 14,0,100,0,63,108,9,11,55,1,63,8  ; n192 t=13.388s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 67,0,100,0,82,102,6,2,164,3,82,6  ; n193 t=13.403s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 10,0,100,0,58,125,5,6,233,0,58,5  ; n194 t=13.470s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,63,125,5,8,55,1,63,5  ; n195 t=13.479s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,58,108,9,12,233,0,58,8  ; n196 t=13.479s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,63,125,5,12,55,1,63,5  ; n195 t=13.479s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,108,9,14,233,0,58,8  ; n196 t=13.479s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,56,108,9,13,208,0,56,8  ; n197 t=13.484s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 0,0,100,0,63,108,9,14,55,1,63,8  ; n198 t=13.484s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 5,0,100,0,29,108,9,7,44,0,29,8  ; n199 t=13.484s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch7 @13373.8ms -> 13484.3ms]
-    db 77,0,100,0,77,102,6,4,186,2,77,6  ; n200 t=13.489s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D [TRUNCATE prev:ch4 @13301.7ms -> 13489.2ms]
+    db 0,0,100,0,63,108,9,16,55,1,63,8  ; n198 t=13.484s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,29,108,9,15,44,0,29,8  ; n199 t=13.484s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 77,0,100,0,77,102,6,17,186,2,77,6  ; n200 t=13.489s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 5,0,100,0,58,125,5,3,233,0,58,5  ; n201 t=13.566s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,63,125,5,9,55,1,63,5  ; n202 t=13.571s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch9 @13383.4ms -> 13570.9ms]
-    db 5,0,100,0,58,108,9,10,233,0,58,8  ; n203 t=13.571s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @13383.4ms -> 13570.9ms]
-    db 0,0,100,0,70,102,6,1,11,2,70,6  ; n204 t=13.576s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch1 @9532.6ms -> 13575.7ms]
-    db 0,0,100,0,63,108,9,15,55,1,63,8  ; n205 t=13.576s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @13388.2ms -> 13575.7ms]
-    db 0,0,100,0,29,108,9,0,44,0,29,8  ; n206 t=13.576s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch0 @12527.6ms -> 13575.7ms]
-    db 96,0,100,0,56,108,9,11,208,0,56,8  ; n207 t=13.576s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch11 @13388.2ms -> 13575.7ms]
-    db 0,0,100,0,58,125,5,5,233,0,58,5  ; n208 t=13.672s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch5 @13373.8ms -> 13671.8ms]
-    db 5,0,100,0,53,125,5,2,175,0,53,5  ; n209 t=13.672s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35 [TRUNCATE prev:ch2 @13402.6ms -> 13671.8ms]
-    db 0,0,167,1,77,124,4,6,186,2,77,4  ; n210 t=13.677s dur=423ms, freq=698Hz, sample=77, buffer_id=04:4D [TRUNCATE prev:ch6 @13469.9ms -> 13676.7ms]
-    db 0,0,100,0,70,102,6,1,210,1,70,6  ; n211 t=13.677s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch1 @13575.7ms -> 13676.7ms]
-    db 0,0,100,0,50,108,9,8,147,0,50,8  ; n212 t=13.677s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @13479.5ms -> 13676.7ms]
-    db 0,0,100,0,58,108,9,12,233,0,58,8  ; n213 t=13.677s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch12 @13479.5ms -> 13676.7ms]
-    db 0,0,100,0,31,108,9,7,58,0,31,8  ; n214 t=13.677s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch7 @13484.3ms -> 13676.7ms]
-    db 0,0,100,0,53,108,9,13,175,0,53,8  ; n215 t=13.677s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch13 @13484.3ms -> 13676.7ms]
-    db 96,0,100,0,47,108,9,14,117,0,47,8  ; n216 t=13.677s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch14 @13484.3ms -> 13676.7ms]
-    db 91,0,100,0,70,102,6,4,11,2,70,6  ; n217 t=13.773s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch4 @13489.2ms -> 13772.8ms]
-    db 0,0,100,0,58,125,5,3,233,0,58,5  ; n218 t=13.864s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch3 @13566.1ms -> 13864.2ms]
-    db 0,0,100,0,53,125,5,2,175,0,53,5  ; n219 t=13.864s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35 [TRUNCATE prev:ch2 @13671.8ms -> 13864.2ms]
-    db 5,0,100,0,77,102,6,9,186,2,77,6  ; n220 t=13.864s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D [TRUNCATE prev:ch9 @13570.9ms -> 13864.2ms]
-    db 0,0,100,0,58,108,9,10,233,0,58,8  ; n221 t=13.869s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @13570.9ms -> 13869.0ms]
-    db 0,0,100,0,50,108,9,8,147,0,50,8  ; n222 t=13.869s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @13676.7ms -> 13869.0ms]
-    db 0,0,100,0,31,108,9,7,58,0,31,8  ; n223 t=13.869s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch7 @13676.7ms -> 13869.0ms]
-    db 0,0,100,0,53,108,9,13,175,0,53,8  ; n224 t=13.869s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch13 @13676.7ms -> 13869.0ms]
-    db 91,0,100,0,47,108,9,14,117,0,47,8  ; n225 t=13.869s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch14 @13676.7ms -> 13869.0ms]
-    db 96,0,100,0,82,102,6,0,164,3,82,6  ; n226 t=13.960s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 0,0,100,0,53,125,5,1,175,0,53,5  ; n227 t=14.056s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
-    db 0,0,100,0,58,125,5,11,233,0,58,5  ; n228 t=14.056s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 5,0,100,0,77,102,6,5,186,2,77,6  ; n229 t=14.056s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 0,0,100,0,47,108,9,12,117,0,47,8  ; n230 t=14.061s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
-    db 0,0,100,0,53,108,9,15,175,0,53,8  ; n231 t=14.061s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
-    db 0,0,100,0,50,108,9,8,147,0,50,8  ; n232 t=14.061s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @13869.0ms -> 14061.3ms]
-    db 0,0,100,0,58,108,9,10,233,0,58,8  ; n233 t=14.061s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @13869.0ms -> 14061.3ms]
-    db 87,0,101,0,31,108,9,7,58,0,31,8  ; n234 t=14.061s dur=101ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch7 @13869.0ms -> 14061.3ms]
-    db 82,0,100,0,70,102,6,4,11,2,70,6  ; n235 t=14.148s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch4 @13772.8ms -> 14147.8ms]
-    db 10,0,100,0,75,124,4,2,110,2,75,4  ; n236 t=14.229s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
-    db 101,0,100,0,70,102,6,3,210,1,70,6  ; n237 t=14.239s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 58,0,100,0,75,102,6,0,110,2,75,6  ; n238 t=14.340s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 34,0,100,0,74,124,4,1,75,2,74,4  ; n239 t=14.398s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
-    db 96,0,100,0,77,102,6,6,186,2,77,6  ; n240 t=14.431s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 10,0,100,0,82,102,6,4,164,3,82,6  ; n241 t=14.528s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 0,0,120,0,53,125,5,2,175,0,53,5  ; n242 t=14.537s dur=120ms, freq=175Hz, sample=53, buffer_id=05:35
-    db 0,0,144,0,58,125,5,5,233,0,58,5  ; n243 t=14.537s dur=144ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,5,18,55,1,63,5  ; n202 t=13.571s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,108,9,19,233,0,58,8  ; n203 t=13.571s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,70,102,6,20,11,2,70,6  ; n204 t=13.576s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,63,108,9,21,55,1,63,8  ; n205 t=13.576s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,29,108,9,22,44,0,29,8  ; n206 t=13.576s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 96,0,100,0,56,108,9,23,208,0,56,8  ; n207 t=13.576s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 0,0,100,0,58,125,5,4,233,0,58,5  ; n208 t=13.672s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,100,0,53,125,5,24,175,0,53,5  ; n209 t=13.672s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,167,1,77,124,4,5,186,2,77,4  ; n210 t=13.677s dur=423ms, freq=698Hz, sample=77, buffer_id=04:4D
+    db 0,0,100,0,70,102,6,7,210,1,70,6  ; n211 t=13.677s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,50,108,9,25,147,0,50,8  ; n212 t=13.677s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,108,9,26,233,0,58,8  ; n213 t=13.677s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,31,108,9,27,58,0,31,8  ; n214 t=13.677s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,53,108,9,28,175,0,53,8  ; n215 t=13.677s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 96,0,100,0,47,108,9,29,117,0,47,8  ; n216 t=13.677s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 91,0,100,0,70,102,6,0,11,2,70,6  ; n217 t=13.773s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,58,125,5,2,233,0,58,5  ; n218 t=13.864s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,53,125,5,6,175,0,53,5  ; n219 t=13.864s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 5,0,100,0,77,102,6,8,186,2,77,6  ; n220 t=13.864s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,58,108,9,3,233,0,58,8  ; n221 t=13.869s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,50,108,9,9,147,0,50,8  ; n222 t=13.869s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,31,108,9,10,58,0,31,8  ; n223 t=13.869s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,53,108,9,11,175,0,53,8  ; n224 t=13.869s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 91,0,100,0,47,108,9,12,117,0,47,8  ; n225 t=13.869s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 96,0,100,0,82,102,6,13,164,3,82,6  ; n226 t=13.960s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 0,0,100,0,53,125,5,4,175,0,53,5  ; n227 t=14.056s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,100,0,58,125,5,7,233,0,58,5  ; n228 t=14.056s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,100,0,77,102,6,14,186,2,77,6  ; n229 t=14.056s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,47,108,9,15,117,0,47,8  ; n230 t=14.061s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 0,0,100,0,53,108,9,16,175,0,53,8  ; n231 t=14.061s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 0,0,100,0,50,108,9,17,147,0,50,8  ; n232 t=14.061s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,108,9,18,233,0,58,8  ; n233 t=14.061s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 87,0,101,0,31,108,9,19,58,0,31,8  ; n234 t=14.061s dur=101ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 82,0,100,0,70,102,6,21,11,2,70,6  ; n235 t=14.148s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 10,0,100,0,75,124,4,0,110,2,75,4  ; n236 t=14.229s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
+    db 101,0,100,0,70,102,6,2,210,1,70,6  ; n237 t=14.239s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 58,0,100,0,75,102,6,3,110,2,75,6  ; n238 t=14.340s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 34,0,100,0,74,124,4,4,75,2,74,4  ; n239 t=14.398s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
+    db 96,0,100,0,77,102,6,5,186,2,77,6  ; n240 t=14.431s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 10,0,100,0,82,102,6,6,164,3,82,6  ; n241 t=14.528s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 0,0,120,0,53,125,5,0,175,0,53,5  ; n242 t=14.537s dur=120ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,144,0,58,125,5,8,233,0,58,5  ; n243 t=14.537s dur=144ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 0,0,173,0,58,108,9,7,233,0,58,8  ; n244 t=14.537s dur=173ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 5,0,182,0,29,108,9,8,44,0,29,8  ; n245 t=14.537s dur=182ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 0,0,149,0,56,108,9,3,208,0,56,8  ; n246 t=14.542s dur=149ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 53,0,173,0,50,108,9,9,156,0,50,8  ; n247 t=14.542s dur=173ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 29,0,100,0,72,124,4,10,11,2,72,4  ; n248 t=14.595s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 87,0,100,0,77,102,6,11,186,2,77,6  ; n249 t=14.624s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 96,0,100,0,75,102,6,1,110,2,75,6  ; n250 t=14.710s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 19,0,100,0,70,102,6,0,210,1,70,6  ; n251 t=14.806s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 87,0,33,4,82,124,4,6,164,3,82,4  ; n252 t=14.826s dur=1057ms, freq=932Hz, sample=82, buffer_id=04:52
-    db 82,0,100,0,75,102,6,2,110,2,75,6  ; n253 t=14.912s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 101,0,100,0,77,102,6,3,186,2,77,6  ; n254 t=14.994s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 10,0,100,0,82,102,6,1,164,3,82,6  ; n255 t=15.095s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 5,0,144,0,63,125,5,4,55,1,63,5  ; n256 t=15.104s dur=144ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 5,0,120,0,58,125,5,0,233,0,58,5  ; n257 t=15.109s dur=120ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,173,0,56,108,9,5,208,0,56,8  ; n258 t=15.114s dur=173ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 5,0,173,0,29,108,9,7,44,0,29,8  ; n259 t=15.114s dur=173ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 0,0,115,0,58,108,9,8,233,0,58,8  ; n260 t=15.119s dur=115ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 72,0,158,0,50,108,9,10,156,0,50,8  ; n261 t=15.119s dur=158ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 96,0,100,0,77,102,6,9,186,2,77,6  ; n262 t=15.191s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 101,0,100,0,75,102,6,11,110,2,75,6  ; n263 t=15.287s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 19,0,100,0,70,102,6,2,210,1,70,6  ; n264 t=15.388s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 10,0,101,0,58,125,5,1,233,0,58,5  ; n265 t=15.407s dur=101ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,63,125,5,3,55,1,63,5  ; n266 t=15.417s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,101,0,50,108,9,12,156,0,50,8  ; n267 t=15.417s dur=101ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 5,0,101,0,58,108,9,13,233,0,58,8  ; n268 t=15.417s dur=101ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,56,108,9,14,208,0,56,8  ; n269 t=15.422s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 0,0,100,0,63,108,9,15,55,1,63,8  ; n270 t=15.422s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 62,0,125,0,29,108,9,7,44,0,29,8  ; n271 t=15.422s dur=125ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch7 @15114.2ms -> 15421.8ms]
-    db 91,0,100,0,70,102,6,0,11,2,70,6  ; n272 t=15.484s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
-    db 106,0,100,0,77,102,6,4,186,2,77,6  ; n273 t=15.576s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 0,0,100,0,58,125,5,5,233,0,58,5  ; n274 t=15.681s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,182,0,29,108,9,9,44,0,29,8  ; n245 t=14.537s dur=182ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 0,0,149,0,56,108,9,2,208,0,56,8  ; n246 t=14.542s dur=149ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 53,0,173,0,50,108,9,10,156,0,50,8  ; n247 t=14.542s dur=173ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 29,0,100,0,72,124,4,11,11,2,72,4  ; n248 t=14.595s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 87,0,100,0,77,102,6,12,186,2,77,6  ; n249 t=14.624s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 96,0,100,0,75,102,6,4,110,2,75,6  ; n250 t=14.710s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 19,0,100,0,70,102,6,3,210,1,70,6  ; n251 t=14.806s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 87,0,33,4,82,124,4,5,164,3,82,4  ; n252 t=14.826s dur=1057ms, freq=932Hz, sample=82, buffer_id=04:52
+    db 82,0,100,0,75,102,6,0,110,2,75,6  ; n253 t=14.912s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 101,0,100,0,77,102,6,2,186,2,77,6  ; n254 t=14.994s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 10,0,100,0,82,102,6,4,164,3,82,6  ; n255 t=15.095s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 5,0,144,0,63,125,5,6,55,1,63,5  ; n256 t=15.104s dur=144ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 5,0,120,0,58,125,5,3,233,0,58,5  ; n257 t=15.109s dur=120ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,173,0,56,108,9,7,208,0,56,8  ; n258 t=15.114s dur=173ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 5,0,173,0,29,108,9,8,44,0,29,8  ; n259 t=15.114s dur=173ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 0,0,115,0,58,108,9,9,233,0,58,8  ; n260 t=15.119s dur=115ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 72,0,158,0,50,108,9,11,156,0,50,8  ; n261 t=15.119s dur=158ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 96,0,100,0,77,102,6,10,186,2,77,6  ; n262 t=15.191s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 101,0,100,0,75,102,6,12,110,2,75,6  ; n263 t=15.287s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 19,0,100,0,70,102,6,0,210,1,70,6  ; n264 t=15.388s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 10,0,101,0,58,125,5,2,233,0,58,5  ; n265 t=15.407s dur=101ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,5,4,55,1,63,5  ; n266 t=15.417s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,101,0,50,108,9,13,156,0,50,8  ; n267 t=15.417s dur=101ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 5,0,101,0,58,108,9,14,233,0,58,8  ; n268 t=15.417s dur=101ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,56,108,9,15,208,0,56,8  ; n269 t=15.422s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 0,0,100,0,63,108,9,16,55,1,63,8  ; n270 t=15.422s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 62,0,125,0,29,108,9,17,44,0,29,8  ; n271 t=15.422s dur=125ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 91,0,100,0,70,102,6,3,11,2,70,6  ; n272 t=15.484s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 106,0,100,0,77,102,6,6,186,2,77,6  ; n273 t=15.576s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,58,125,5,7,233,0,58,5  ; n274 t=15.681s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,82,102,6,8,164,3,82,6  ; n275 t=15.681s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 10,0,100,0,29,108,9,9,44,0,29,8  ; n276 t=15.681s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n277 t=15.691s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n277 t=15.691s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,58,108,9,10,233,0,58,8  ; n278 t=15.691s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 5,0,100,0,50,108,9,11,156,0,50,8  ; n279 t=15.691s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,56,108,9,14,208,0,56,8  ; n280 t=15.696s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch14 @15421.8ms -> 15695.9ms]
-    db 82,0,100,0,63,108,9,15,55,1,63,8  ; n281 t=15.696s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @15421.8ms -> 15695.9ms]
-    db 0,0,100,0,58,125,5,3,233,0,58,5  ; n282 t=15.778s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 10,0,100,0,77,102,6,1,186,2,77,6  ; n283 t=15.778s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n284 t=15.787s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,50,108,9,7,156,0,50,8  ; n285 t=15.787s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 5,0,100,0,58,108,9,12,233,0,58,8  ; n286 t=15.787s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,56,108,9,13,208,0,56,8  ; n287 t=15.792s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 0,0,100,0,63,108,9,6,55,1,63,8  ; n288 t=15.792s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch6 @14825.7ms -> 15792.0ms]
-    db 58,0,100,0,29,108,9,9,44,0,29,8  ; n289 t=15.792s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch9 @15681.5ms -> 15792.0ms]
-    db 19,0,100,0,58,125,5,5,233,0,58,5  ; n290 t=15.850s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch5 @15681.5ms -> 15849.7ms]
-    db 10,0,100,0,70,102,6,4,11,2,70,6  ; n291 t=15.869s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch4 @15575.7ms -> 15869.0ms]
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n292 t=15.879s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch2 @15691.1ms -> 15878.6ms]
-    db 0,0,100,0,50,108,9,11,156,0,50,8  ; n293 t=15.879s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch11 @15691.1ms -> 15878.6ms]
-    db 5,0,100,0,58,108,9,10,233,0,58,8  ; n294 t=15.879s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @15691.1ms -> 15878.6ms]
-    db 0,0,100,0,63,108,9,15,55,1,63,8  ; n295 t=15.883s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @15695.9ms -> 15883.4ms]
-    db 0,0,100,0,56,108,9,14,208,0,56,8  ; n296 t=15.883s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch14 @15695.9ms -> 15883.4ms]
-    db 77,0,100,0,29,108,9,8,44,0,29,8  ; n297 t=15.883s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D [TRUNCATE prev:ch8 @15681.5ms -> 15883.4ms]
-    db 19,0,100,0,70,102,6,1,210,1,70,6  ; n298 t=15.960s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch1 @15777.6ms -> 15960.3ms]
-    db 0,0,100,0,58,125,5,3,233,0,58,5  ; n299 t=15.979s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch3 @15777.6ms -> 15979.5ms]
-    db 5,0,100,0,53,125,5,0,175,0,53,5  ; n300 t=15.979s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35 [TRUNCATE prev:ch0 @15787.2ms -> 15979.5ms]
-    db 0,0,100,0,50,108,9,7,156,0,50,8  ; n301 t=15.984s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch7 @15787.2ms -> 15984.3ms]
-    db 0,0,100,0,58,108,9,12,233,0,58,8  ; n302 t=15.984s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch12 @15787.2ms -> 15984.3ms]
-    db 0,0,100,0,31,108,9,6,58,0,31,8  ; n303 t=15.984s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @15792.0ms -> 15984.3ms]
-    db 0,0,100,0,53,108,9,9,175,0,53,8  ; n304 t=15.984s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch9 @15792.0ms -> 15984.3ms]
-    db 19,0,100,0,47,108,9,13,117,0,47,8  ; n305 t=15.984s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch13 @15792.0ms -> 15984.3ms]
-    db 53,0,80,1,77,124,4,5,186,2,77,4  ; n306 t=16.004s dur=336ms, freq=698Hz, sample=77, buffer_id=04:4D [TRUNCATE prev:ch5 @15849.7ms -> 16003.6ms]
-    db 96,0,100,0,70,102,6,4,11,2,70,6  ; n307 t=16.056s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch4 @15869.0ms -> 16056.5ms]
-    db 19,0,100,0,77,102,6,2,186,2,77,6  ; n308 t=16.153s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D [TRUNCATE prev:ch2 @15878.6ms -> 16152.6ms]
-    db 0,0,100,0,58,125,5,3,233,0,58,5  ; n309 t=16.172s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch3 @15979.5ms -> 16171.8ms]
-    db 5,0,100,0,53,125,5,0,175,0,53,5  ; n310 t=16.172s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35 [TRUNCATE prev:ch0 @15979.5ms -> 16171.8ms]
-    db 0,0,100,0,58,108,9,10,233,0,58,8  ; n311 t=16.177s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @15878.6ms -> 16176.7ms]
-    db 0,0,100,0,50,108,9,11,147,0,50,8  ; n312 t=16.177s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch11 @15878.6ms -> 16176.7ms]
-    db 0,0,100,0,31,108,9,6,58,0,31,8  ; n313 t=16.177s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @15984.3ms -> 16176.7ms]
-    db 0,0,100,0,53,108,9,9,175,0,53,8  ; n314 t=16.177s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch9 @15984.3ms -> 16176.7ms]
-    db 67,0,100,0,47,108,9,13,117,0,47,8  ; n315 t=16.177s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch13 @15984.3ms -> 16176.7ms]
-    db 101,0,100,0,82,102,6,8,164,3,82,6  ; n316 t=16.244s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 19,0,100,0,77,102,6,1,186,2,77,6  ; n317 t=16.345s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 0,0,100,0,53,125,5,4,175,0,53,5  ; n318 t=16.364s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
-    db 5,0,100,0,58,125,5,7,233,0,58,5  ; n319 t=16.364s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,47,108,9,12,117,0,47,8  ; n320 t=16.369s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
-    db 0,0,100,0,53,108,9,14,175,0,53,8  ; n321 t=16.369s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
-    db 0,0,100,0,50,108,9,15,147,0,50,8  ; n322 t=16.369s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,58,108,9,10,233,0,58,8  ; n323 t=16.369s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch10 @16176.7ms -> 16369.0ms]
-    db 67,0,101,0,31,108,9,6,58,0,31,8  ; n324 t=16.369s dur=101ms, freq=58Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @16176.7ms -> 16369.0ms]
-    db 120,0,100,0,70,102,6,5,11,2,70,6  ; n325 t=16.436s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch5 @16003.6ms -> 16436.3ms]
+    db 5,0,100,0,50,108,9,12,156,0,50,8  ; n279 t=15.691s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,56,108,9,11,208,0,56,8  ; n280 t=15.696s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 82,0,100,0,63,108,9,18,55,1,63,8  ; n281 t=15.696s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,58,125,5,4,233,0,58,5  ; n282 t=15.778s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 10,0,100,0,77,102,6,2,186,2,77,6  ; n283 t=15.778s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,63,125,5,3,55,1,63,5  ; n284 t=15.787s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,50,108,9,14,156,0,50,8  ; n285 t=15.787s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,58,108,9,13,233,0,58,8  ; n286 t=15.787s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,56,108,9,16,208,0,56,8  ; n287 t=15.792s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 0,0,100,0,63,108,9,15,55,1,63,8  ; n288 t=15.792s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 58,0,100,0,29,108,9,19,44,0,29,8  ; n289 t=15.792s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 19,0,100,0,58,125,5,17,233,0,58,5  ; n290 t=15.850s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 10,0,100,0,70,102,6,22,11,2,70,6  ; n291 t=15.869s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,63,125,5,6,55,1,63,5  ; n292 t=15.879s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,50,108,9,20,156,0,50,8  ; n293 t=15.879s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,58,108,9,21,233,0,58,8  ; n294 t=15.879s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,63,108,9,23,55,1,63,8  ; n295 t=15.883s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,56,108,9,24,208,0,56,8  ; n296 t=15.883s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 77,0,100,0,29,108,9,25,44,0,29,8  ; n297 t=15.883s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 19,0,100,0,70,102,6,26,210,1,70,6  ; n298 t=15.960s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,58,125,5,27,233,0,58,5  ; n299 t=15.979s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,100,0,53,125,5,28,175,0,53,5  ; n300 t=15.979s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,100,0,50,108,9,7,156,0,50,8  ; n301 t=15.984s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,108,9,8,233,0,58,8  ; n302 t=15.984s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,31,108,9,9,58,0,31,8  ; n303 t=15.984s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,53,108,9,29,175,0,53,8  ; n304 t=15.984s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 19,0,100,0,47,108,9,30,117,0,47,8  ; n305 t=15.984s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 53,0,80,1,77,124,4,0,186,2,77,4  ; n306 t=16.004s dur=336ms, freq=698Hz, sample=77, buffer_id=04:4D
+    db 96,0,100,0,70,102,6,10,11,2,70,6  ; n307 t=16.056s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
+    db 19,0,100,0,77,102,6,3,186,2,77,6  ; n308 t=16.153s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,58,125,5,2,233,0,58,5  ; n309 t=16.172s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,100,0,53,125,5,4,175,0,53,5  ; n310 t=16.172s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 0,0,100,0,58,108,9,5,233,0,58,8  ; n311 t=16.177s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,50,108,9,11,147,0,50,8  ; n312 t=16.177s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,31,108,9,12,58,0,31,8  ; n313 t=16.177s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,53,108,9,13,175,0,53,8  ; n314 t=16.177s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 67,0,100,0,47,108,9,14,117,0,47,8  ; n315 t=16.177s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 101,0,100,0,82,102,6,6,164,3,82,6  ; n316 t=16.244s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 19,0,100,0,77,102,6,7,186,2,77,6  ; n317 t=16.345s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 0,0,100,0,53,125,5,8,175,0,53,5  ; n318 t=16.364s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
+    db 5,0,100,0,58,125,5,9,233,0,58,5  ; n319 t=16.364s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,47,108,9,10,117,0,47,8  ; n320 t=16.369s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 0,0,100,0,53,108,9,15,175,0,53,8  ; n321 t=16.369s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 0,0,100,0,50,108,9,16,147,0,50,8  ; n322 t=16.369s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,108,9,17,233,0,58,8  ; n323 t=16.369s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 67,0,101,0,31,108,9,18,58,0,31,8  ; n324 t=16.369s dur=101ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 120,0,100,0,70,102,6,19,11,2,70,6  ; n325 t=16.436s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
     db 14,0,100,0,69,126,3,0,159,1,69,3  ; n326 t=16.556s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
     db 10,0,100,0,75,124,4,2,110,2,75,4  ; n327 t=16.571s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
     db 24,0,100,0,70,102,6,3,210,1,70,6  ; n328 t=16.581s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 135,0,100,0,72,126,3,8,11,2,72,3  ; n329 t=16.605s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
-    db 38,0,100,0,74,124,4,1,75,2,74,4  ; n330 t=16.739s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
-    db 5,0,100,0,70,126,3,4,238,1,70,3  ; n331 t=16.778s dur=100ms, freq=494Hz, sample=70, buffer_id=03:46
-    db 149,0,100,0,65,126,3,5,136,1,65,3  ; n332 t=16.782s dur=100ms, freq=392Hz, sample=65, buffer_id=03:41
+    db 135,0,100,0,72,126,3,4,11,2,72,3  ; n329 t=16.605s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
+    db 38,0,100,0,74,124,4,5,75,2,74,4  ; n330 t=16.739s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
+    db 5,0,100,0,70,126,3,6,238,1,70,3  ; n331 t=16.778s dur=100ms, freq=494Hz, sample=70, buffer_id=03:46
+    db 149,0,100,0,65,126,3,7,136,1,65,3  ; n332 t=16.782s dur=100ms, freq=392Hz, sample=65, buffer_id=03:41
     db 34,0,100,0,75,124,4,0,110,2,75,4  ; n333 t=16.931s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
     db 5,0,100,0,69,126,3,2,159,1,69,3  ; n334 t=16.965s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
     db 159,0,100,0,72,126,3,3,11,2,72,3  ; n335 t=16.970s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
@@ -356,7 +356,7 @@ midi_data:
     db 10,0,125,0,43,108,9,4,87,0,43,8  ; n337 t=17.148s dur=125ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 5,0,9,4,69,126,3,5,184,1,69,3  ; n338 t=17.157s dur=1033ms, freq=440Hz, sample=69, buffer_id=03:45
     db 5,0,100,0,59,125,8,6,6,1,59,8  ; n339 t=17.162s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
-    db 72,0,251,3,65,126,3,7,93,1,65,3  ; n340 t=17.167s dur=1019ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 72,0,251,3,65,126,3,8,93,1,65,3  ; n340 t=17.167s dur=1019ms, freq=349Hz, sample=65, buffer_id=03:41
     db 96,0,100,0,59,125,8,0,247,0,59,8  ; n341 t=17.239s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
     db 87,0,100,0,59,125,8,2,6,1,59,8  ; n342 t=17.335s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
     db 96,0,100,0,62,125,8,3,38,1,62,8  ; n343 t=17.422s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
@@ -368,7 +368,7 @@ midi_data:
     db 10,0,100,0,43,108,9,0,87,0,43,8  ; n349 t=17.980s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 87,0,100,0,67,125,8,6,136,1,67,8  ; n350 t=17.989s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 5,0,100,0,43,108,9,2,87,0,43,8  ; n351 t=18.076s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 77,0,100,0,69,125,8,8,184,1,69,8  ; n352 t=18.081s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
+    db 77,0,100,0,69,125,8,7,184,1,69,8  ; n352 t=18.081s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 14,0,100,0,43,108,9,3,87,0,43,8  ; n353 t=18.157s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 106,0,100,0,70,125,8,9,210,1,70,8  ; n354 t=18.172s dur=100ms, freq=466Hz, sample=70, buffer_id=08:46
     db 5,0,144,0,43,108,9,4,87,0,43,8  ; n355 t=18.278s dur=144ms, freq=87Hz, sample=43, buffer_id=08:2B
@@ -431,7 +431,7 @@ midi_data:
     db 14,0,110,0,82,125,8,4,164,3,82,8  ; n412 t=20.956s dur=110ms, freq=932Hz, sample=82, buffer_id=08:52
     db 10,0,100,0,50,126,3,7,147,0,50,3  ; n413 t=20.970s dur=100ms, freq=147Hz, sample=50, buffer_id=03:32
     db 58,0,100,0,58,125,5,10,233,0,58,5  ; n414 t=20.980s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 111,0,120,0,82,125,8,12,112,3,82,8  ; n415 t=21.037s dur=120ms, freq=880Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch12 @19864.1ms -> 21037.2ms]
+    db 111,0,120,0,82,125,8,16,112,3,82,8  ; n415 t=21.037s dur=120ms, freq=880Hz, sample=82, buffer_id=08:52
     db 14,0,101,0,82,125,8,2,164,3,82,8  ; n416 t=21.148s dur=101ms, freq=932Hz, sample=82, buffer_id=08:52
     db 0,0,7,2,31,108,9,3,49,0,31,8  ; n417 t=21.162s dur=519ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 10,0,7,2,43,108,9,5,98,0,43,8  ; n418 t=21.162s dur=519ms, freq=98Hz, sample=43, buffer_id=08:2B
@@ -474,7 +474,7 @@ midi_data:
     db 5,0,133,1,63,125,5,5,38,1,63,5  ; n455 t=22.879s dur=389ms, freq=294Hz, sample=63, buffer_id=05:3F
     db 5,0,152,1,58,125,5,6,233,0,58,5  ; n456 t=22.883s dur=408ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 10,0,138,1,53,126,3,7,175,0,53,3  ; n457 t=22.888s dur=394ms, freq=175Hz, sample=53, buffer_id=03:35
-    db 10,0,100,0,82,125,8,14,164,3,82,8  ; n458 t=22.898s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch14 @20469.9ms -> 22897.8ms]
+    db 10,0,100,0,82,125,8,17,164,3,82,8  ; n458 t=22.898s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 29,0,215,1,77,124,4,9,186,2,77,4  ; n459 t=22.907s dur=471ms, freq=698Hz, sample=77, buffer_id=04:4D
     db 0,0,100,0,31,108,9,8,58,0,31,8  ; n460 t=22.936s dur=100ms, freq=58Hz, sample=31, buffer_id=08:1F
     db 173,0,100,0,47,108,9,10,117,0,47,8  ; n461 t=22.936s dur=100ms, freq=117Hz, sample=47, buffer_id=08:2F
@@ -506,19 +506,19 @@ midi_data:
     db 0,0,100,0,58,125,5,13,233,0,58,5  ; n487 t=24.056s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 5,0,100,0,63,125,5,14,55,1,63,5  ; n488 t=24.056s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,125,0,31,108,9,15,49,0,31,8  ; n489 t=24.061s dur=125ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 192,0,125,0,43,108,9,7,98,0,43,8  ; n490 t=24.061s dur=125ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch7 @23513.2ms -> 24061.3ms]
+    db 192,0,125,0,43,108,9,16,98,0,43,8  ; n490 t=24.061s dur=125ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,50,126,3,1,156,0,50,3  ; n491 t=24.254s dur=100ms, freq=156Hz, sample=50, buffer_id=03:32
     db 0,0,100,0,63,126,3,0,55,1,63,3  ; n492 t=24.254s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 0,0,100,0,63,125,5,2,55,1,63,5  ; n493 t=24.254s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,58,125,5,6,233,0,58,5  ; n494 t=24.254s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 72,0,110,0,82,125,8,5,164,3,82,8  ; n495 t=24.254s dur=110ms, freq=932Hz, sample=82, buffer_id=08:52
-    db 0,0,125,0,31,108,9,9,55,0,31,8  ; n496 t=24.326s dur=125ms, freq=55Hz, sample=31, buffer_id=08:1F
-    db 10,0,125,0,43,108,9,10,110,0,43,8  ; n497 t=24.326s dur=125ms, freq=110Hz, sample=43, buffer_id=08:2B
+    db 0,0,125,0,31,108,9,7,55,0,31,8  ; n496 t=24.326s dur=125ms, freq=55Hz, sample=31, buffer_id=08:1F
+    db 10,0,125,0,43,108,9,9,110,0,43,8  ; n497 t=24.326s dur=125ms, freq=110Hz, sample=43, buffer_id=08:2B
     db 96,0,129,0,82,125,8,11,112,3,82,8  ; n498 t=24.335s dur=129ms, freq=880Hz, sample=82, buffer_id=08:52
     db 0,0,100,0,63,126,3,3,55,1,63,3  ; n499 t=24.431s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
-    db 0,0,100,0,50,126,3,7,156,0,50,3  ; n500 t=24.431s dur=100ms, freq=156Hz, sample=50, buffer_id=03:32
+    db 0,0,100,0,50,126,3,8,156,0,50,3  ; n500 t=24.431s dur=100ms, freq=156Hz, sample=50, buffer_id=03:32
     db 0,0,100,0,58,125,5,4,233,0,58,5  ; n501 t=24.431s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 10,0,100,0,63,125,5,8,55,1,63,5  ; n502 t=24.431s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,10,55,1,63,5  ; n502 t=24.431s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 96,0,129,0,82,125,8,13,164,3,82,8  ; n503 t=24.441s dur=129ms, freq=932Hz, sample=82, buffer_id=08:52
     db 67,0,101,0,82,125,8,14,112,3,82,8  ; n504 t=24.537s dur=101ms, freq=880Hz, sample=82, buffer_id=08:52
     db 0,0,101,0,31,108,9,0,58,0,31,8  ; n505 t=24.605s dur=101ms, freq=58Hz, sample=31, buffer_id=08:1F
@@ -527,84 +527,84 @@ midi_data:
     db 0,0,224,1,58,126,3,5,220,0,58,3  ; n508 t=24.633s dur=480ms, freq=220Hz, sample=58, buffer_id=03:3A
     db 5,0,186,1,58,125,5,15,233,0,58,5  ; n509 t=24.633s dur=442ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 0,0,191,1,62,126,3,6,38,1,62,3  ; n510 t=24.638s dur=447ms, freq=294Hz, sample=62, buffer_id=03:3E
-    db 0,0,191,1,63,125,5,8,38,1,63,5  ; n511 t=24.638s dur=447ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @24431.5ms -> 24638.2ms]
-    db 163,0,100,0,82,125,8,11,164,3,82,8  ; n512 t=24.638s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch11 @24335.3ms -> 24638.2ms]
+    db 0,0,191,1,63,125,5,16,38,1,63,5  ; n511 t=24.638s dur=447ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 163,0,100,0,82,125,8,18,164,3,82,8  ; n512 t=24.638s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 0,0,100,0,31,108,9,3,55,0,31,8  ; n513 t=24.802s dur=100ms, freq=55Hz, sample=31, buffer_id=08:1F
     db 29,0,100,0,43,108,9,4,110,0,43,8  ; n514 t=24.802s dur=100ms, freq=110Hz, sample=43, buffer_id=08:2B
     db 58,0,100,0,82,125,8,7,164,3,82,8  ; n515 t=24.831s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
-    db 96,0,139,0,82,125,8,9,112,3,82,8  ; n516 t=24.888s dur=139ms, freq=880Hz, sample=82, buffer_id=08:52
+    db 96,0,139,0,82,125,8,8,112,3,82,8  ; n516 t=24.888s dur=139ms, freq=880Hz, sample=82, buffer_id=08:52
     db 0,0,105,0,31,108,9,1,49,0,31,8  ; n517 t=24.984s dur=105ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 10,0,105,0,43,108,9,0,98,0,43,8  ; n518 t=24.984s dur=105ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 96,0,120,0,82,125,8,10,164,3,82,8  ; n519 t=24.994s dur=120ms, freq=932Hz, sample=82, buffer_id=08:52
-    db 106,0,120,0,82,125,8,13,112,3,82,8  ; n520 t=25.090s dur=120ms, freq=880Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch13 @24441.1ms -> 25090.1ms]
+    db 96,0,120,0,82,125,8,9,164,3,82,8  ; n519 t=24.994s dur=120ms, freq=932Hz, sample=82, buffer_id=08:52
+    db 106,0,120,0,82,125,8,10,112,3,82,8  ; n520 t=25.090s dur=120ms, freq=880Hz, sample=82, buffer_id=08:52
     db 0,0,100,0,82,125,8,3,164,3,82,8  ; n521 t=25.196s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 0,0,134,0,29,108,9,4,44,0,29,8  ; n522 t=25.196s dur=134ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 5,0,134,0,43,108,9,7,87,0,43,8  ; n523 t=25.196s dur=134ms, freq=87Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,62,126,3,11,38,1,62,3  ; n524 t=25.201s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
-    db 10,0,100,0,63,125,5,14,38,1,63,5  ; n525 t=25.201s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,126,3,2,233,0,58,3  ; n526 t=25.210s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch2 @24633.4ms -> 25210.3ms]
-    db 0,0,16,2,77,124,4,12,186,2,77,4  ; n527 t=25.210s dur=528ms, freq=698Hz, sample=77, buffer_id=04:4D [TRUNCATE prev:ch12 @24056.5ms -> 25210.3ms]
-    db 173,0,100,0,58,125,5,15,233,0,58,5  ; n528 t=25.210s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch15 @24633.4ms -> 25210.3ms]
+    db 10,0,100,0,63,125,5,13,38,1,63,5  ; n525 t=25.201s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,126,3,14,233,0,58,3  ; n526 t=25.210s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
+    db 0,0,16,2,77,124,4,17,186,2,77,4  ; n527 t=25.210s dur=528ms, freq=698Hz, sample=77, buffer_id=04:4D
+    db 173,0,100,0,58,125,5,18,233,0,58,5  ; n528 t=25.210s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,62,126,3,0,38,1,62,3  ; n529 t=25.383s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 5,0,100,0,63,125,5,1,38,1,63,5  ; n530 t=25.383s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,58,126,3,6,233,0,58,3  ; n531 t=25.388s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
-    db 5,0,100,0,58,125,5,5,233,0,58,5  ; n532 t=25.388s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 82,0,110,0,82,125,8,8,164,3,82,8  ; n533 t=25.393s dur=110ms, freq=932Hz, sample=82, buffer_id=08:52
-    db 19,0,129,0,82,125,8,9,112,3,82,8  ; n534 t=25.475s dur=129ms, freq=880Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch9 @24888.2ms -> 25474.7ms]
-    db 0,0,163,0,31,108,9,10,58,0,31,8  ; n535 t=25.494s dur=163ms, freq=58Hz, sample=31, buffer_id=08:1F
-    db 77,0,163,0,47,108,9,13,117,0,47,8  ; n536 t=25.494s dur=163ms, freq=117Hz, sample=47, buffer_id=08:2F
-    db 0,0,100,0,62,126,3,2,38,1,62,3  ; n537 t=25.571s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
-    db 10,0,100,0,63,125,5,3,38,1,63,5  ; n538 t=25.571s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,126,3,4,233,0,58,3  ; n539 t=25.581s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
-    db 5,0,100,0,58,125,5,7,233,0,58,5  ; n540 t=25.581s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,100,0,58,125,5,2,233,0,58,5  ; n532 t=25.388s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 82,0,110,0,82,125,8,5,164,3,82,8  ; n533 t=25.393s dur=110ms, freq=932Hz, sample=82, buffer_id=08:52
+    db 19,0,129,0,82,125,8,12,112,3,82,8  ; n534 t=25.475s dur=129ms, freq=880Hz, sample=82, buffer_id=08:52
+    db 0,0,163,0,31,108,9,8,58,0,31,8  ; n535 t=25.494s dur=163ms, freq=58Hz, sample=31, buffer_id=08:1F
+    db 77,0,163,0,47,108,9,9,117,0,47,8  ; n536 t=25.494s dur=163ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 0,0,100,0,62,126,3,3,38,1,62,3  ; n537 t=25.571s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
+    db 10,0,100,0,63,125,5,4,38,1,63,5  ; n538 t=25.571s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,126,3,7,233,0,58,3  ; n539 t=25.581s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
+    db 5,0,100,0,58,125,5,10,233,0,58,5  ; n540 t=25.581s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
     db 87,0,125,0,82,125,8,11,164,3,82,8  ; n541 t=25.585s dur=125ms, freq=932Hz, sample=82, buffer_id=08:52
-    db 101,0,110,0,82,125,8,14,112,3,82,8  ; n542 t=25.672s dur=110ms, freq=880Hz, sample=82, buffer_id=08:52
+    db 101,0,110,0,82,125,8,13,112,3,82,8  ; n542 t=25.672s dur=110ms, freq=880Hz, sample=82, buffer_id=08:52
     db 5,0,162,1,53,108,9,0,175,0,53,8  ; n543 t=25.773s dur=418ms, freq=175Hz, sample=53, buffer_id=08:35
     db 0,0,100,0,72,126,3,1,11,2,72,3  ; n544 t=25.778s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
-    db 0,0,100,0,69,126,3,5,159,1,69,3  ; n545 t=25.778s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
-    db 0,0,100,0,63,125,5,6,55,1,63,5  ; n546 t=25.778s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,125,5,8,6,1,58,5  ; n547 t=25.778s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 5,0,191,1,43,108,9,15,87,0,43,8  ; n548 t=25.778s dur=447ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 14,0,100,0,56,108,9,12,208,0,56,8  ; n549 t=25.782s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch12 @25210.3ms -> 25782.4ms]
-    db 5,0,100,0,82,125,8,9,63,3,82,8  ; n550 t=25.797s dur=100ms, freq=831Hz, sample=82, buffer_id=08:52 [TRUNCATE prev:ch9 @25474.7ms -> 25796.8ms]
-    db 154,0,100,0,75,124,4,10,110,2,75,4  ; n551 t=25.802s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B [TRUNCATE prev:ch10 @25494.0ms -> 25801.6ms]
-    db 10,0,100,0,55,108,9,2,196,0,55,8  ; n552 t=25.956s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 14,0,100,0,77,125,8,3,16,3,77,8  ; n553 t=25.965s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 0,0,100,0,70,126,3,4,238,1,70,3  ; n554 t=25.980s dur=100ms, freq=494Hz, sample=70, buffer_id=03:46
-    db 0,0,100,0,65,126,3,7,136,1,65,3  ; n555 t=25.980s dur=100ms, freq=392Hz, sample=65, buffer_id=03:41
-    db 0,0,100,0,63,125,5,11,38,1,63,5  ; n556 t=25.980s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,58,125,5,13,247,0,58,5  ; n557 t=25.980s dur=100ms, freq=247Hz, sample=58, buffer_id=05:3A
-    db 149,0,100,0,74,124,4,14,75,2,74,4  ; n558 t=25.989s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
+    db 0,0,100,0,69,126,3,2,159,1,69,3  ; n545 t=25.778s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
+    db 0,0,100,0,63,125,5,5,55,1,63,5  ; n546 t=25.778s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,125,5,6,6,1,58,5  ; n547 t=25.778s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 5,0,191,1,43,108,9,14,87,0,43,8  ; n548 t=25.778s dur=447ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 14,0,100,0,56,108,9,15,208,0,56,8  ; n549 t=25.782s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 5,0,100,0,82,125,8,16,63,3,82,8  ; n550 t=25.797s dur=100ms, freq=831Hz, sample=82, buffer_id=08:52
+    db 154,0,100,0,75,124,4,18,110,2,75,4  ; n551 t=25.802s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
+    db 10,0,100,0,55,108,9,3,196,0,55,8  ; n552 t=25.956s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 14,0,100,0,77,125,8,4,16,3,77,8  ; n553 t=25.965s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
+    db 0,0,100,0,70,126,3,7,238,1,70,3  ; n554 t=25.980s dur=100ms, freq=494Hz, sample=70, buffer_id=03:46
+    db 0,0,100,0,65,126,3,8,136,1,65,3  ; n555 t=25.980s dur=100ms, freq=392Hz, sample=65, buffer_id=03:41
+    db 0,0,100,0,63,125,5,9,38,1,63,5  ; n556 t=25.980s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,58,125,5,11,247,0,58,5  ; n557 t=25.980s dur=100ms, freq=247Hz, sample=58, buffer_id=05:3A
+    db 149,0,100,0,74,124,4,10,75,2,74,4  ; n558 t=25.989s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 14,0,100,0,82,125,8,1,63,3,82,8  ; n559 t=26.138s dur=100ms, freq=831Hz, sample=82, buffer_id=08:52
-    db 19,0,100,0,56,108,9,5,208,0,56,8  ; n560 t=26.153s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
-    db 0,0,100,0,69,126,3,6,159,1,69,3  ; n561 t=26.172s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
-    db 5,0,100,0,58,125,5,9,6,1,58,5  ; n562 t=26.172s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,72,126,3,8,11,2,72,3  ; n563 t=26.177s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
-    db 0,0,100,0,75,124,4,12,110,2,75,4  ; n564 t=26.177s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
-    db 144,0,100,0,63,125,5,10,55,1,63,5  ; n565 t=26.177s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,234,1,77,125,8,2,186,2,77,8  ; n566 t=26.321s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
-    db 5,0,100,0,29,108,9,3,44,0,29,8  ; n567 t=26.321s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 10,0,100,0,43,108,9,4,87,0,43,8  ; n568 t=26.326s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 29,0,226,4,53,108,9,7,175,0,53,8  ; n569 t=26.335s dur=1250ms, freq=175Hz, sample=53, buffer_id=08:35
-    db 5,0,38,4,72,124,4,11,11,2,72,4  ; n570 t=26.364s dur=1062ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,212,3,69,126,3,13,184,1,69,3  ; n571 t=26.369s dur=980ms, freq=440Hz, sample=69, buffer_id=03:45
-    db 0,0,232,3,65,126,3,14,93,1,65,3  ; n572 t=26.369s dur=1000ms, freq=349Hz, sample=65, buffer_id=03:41
-    db 0,0,252,3,58,125,5,9,6,1,58,5  ; n573 t=26.369s dur=1020ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch9 @26171.8ms -> 26369.0ms]
-    db 125,0,57,4,58,125,5,0,220,0,58,5  ; n574 t=26.369s dur=1081ms, freq=220Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @25772.8ms -> 26369.0ms]
-    db 14,0,100,0,29,108,9,1,44,0,29,8  ; n575 t=26.494s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 168,0,100,0,43,108,9,5,87,0,43,8  ; n576 t=26.508s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 10,0,100,0,29,108,9,4,44,0,29,8  ; n577 t=26.677s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 212,0,105,0,43,108,9,3,87,0,43,8  ; n578 t=26.686s dur=105ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 10,0,248,1,29,108,9,5,44,0,29,8  ; n579 t=26.898s dur=504ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 55,2,239,1,43,108,9,1,87,0,43,8  ; n580 t=26.907s dur=495ms, freq=87Hz, sample=43, buffer_id=08:2B
-    db 0,0,143,1,77,125,8,3,186,2,77,8  ; n581 t=27.475s dur=399ms, freq=698Hz, sample=77, buffer_id=08:4D
-    db 43,0,66,1,65,108,9,2,93,1,65,8  ; n582 t=27.475s dur=322ms, freq=349Hz, sample=65, buffer_id=08:41
-    db 153,1,192,0,29,108,9,6,44,0,29,8  ; n583 t=27.518s dur=192ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 19,0,100,0,56,108,9,2,208,0,56,8  ; n560 t=26.153s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 0,0,100,0,69,126,3,5,159,1,69,3  ; n561 t=26.172s dur=100ms, freq=415Hz, sample=69, buffer_id=03:45
+    db 5,0,100,0,58,125,5,12,6,1,58,5  ; n562 t=26.172s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,72,126,3,6,11,2,72,3  ; n563 t=26.177s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
+    db 0,0,100,0,75,124,4,13,110,2,75,4  ; n564 t=26.177s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
+    db 144,0,100,0,63,125,5,15,55,1,63,5  ; n565 t=26.177s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,234,1,77,125,8,3,186,2,77,8  ; n566 t=26.321s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 5,0,100,0,29,108,9,4,44,0,29,8  ; n567 t=26.321s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 10,0,100,0,43,108,9,7,87,0,43,8  ; n568 t=26.326s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 29,0,226,4,53,108,9,8,175,0,53,8  ; n569 t=26.335s dur=1250ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 5,0,38,4,72,124,4,9,11,2,72,4  ; n570 t=26.364s dur=1062ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,212,3,69,126,3,10,184,1,69,3  ; n571 t=26.369s dur=980ms, freq=440Hz, sample=69, buffer_id=03:45
+    db 0,0,232,3,65,126,3,11,93,1,65,3  ; n572 t=26.369s dur=1000ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 0,0,252,3,58,125,5,16,6,1,58,5  ; n573 t=26.369s dur=1020ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 125,0,57,4,58,125,5,17,220,0,58,5  ; n574 t=26.369s dur=1081ms, freq=220Hz, sample=58, buffer_id=05:3A
+    db 14,0,100,0,29,108,9,0,44,0,29,8  ; n575 t=26.494s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 168,0,100,0,43,108,9,1,87,0,43,8  ; n576 t=26.508s dur=100ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,29,108,9,2,44,0,29,8  ; n577 t=26.677s dur=100ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 212,0,105,0,43,108,9,4,87,0,43,8  ; n578 t=26.686s dur=105ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 10,0,248,1,29,108,9,1,44,0,29,8  ; n579 t=26.898s dur=504ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 55,2,239,1,43,108,9,0,87,0,43,8  ; n580 t=26.907s dur=495ms, freq=87Hz, sample=43, buffer_id=08:2B
+    db 0,0,143,1,77,125,8,2,186,2,77,8  ; n581 t=27.475s dur=399ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 43,0,66,1,65,108,9,3,93,1,65,8  ; n582 t=27.475s dur=322ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 153,1,192,0,29,108,9,4,44,0,29,8  ; n583 t=27.518s dur=192ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 0,0,173,0,77,125,8,0,186,2,77,8  ; n584 t=27.927s dur=173ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 173,0,173,0,65,108,9,1,93,1,65,8  ; n585 t=27.927s dur=173ms, freq=349Hz, sample=65, buffer_id=08:41
     db 0,0,239,1,55,126,3,2,196,0,55,3  ; n586 t=28.100s dur=495ms, freq=196Hz, sample=55, buffer_id=03:37
-    db 0,0,180,1,77,125,8,4,16,3,77,8  ; n587 t=28.100s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 5,0,25,3,67,108,9,3,136,1,67,8  ; n588 t=28.100s dur=793ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,180,1,77,125,8,3,16,3,77,8  ; n587 t=28.100s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
+    db 5,0,25,3,67,108,9,4,136,1,67,8  ; n588 t=28.100s dur=793ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,224,1,63,126,3,5,55,1,63,3  ; n589 t=28.105s dur=480ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 87,0,100,0,65,102,6,6,93,1,65,6  ; n590 t=28.105s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 77,0,100,0,67,102,6,7,136,1,67,6  ; n591 t=28.191s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
@@ -619,12 +619,12 @@ midi_data:
     db 91,0,100,0,67,102,6,10,136,1,67,6  ; n600 t=28.725s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 77,0,100,0,70,102,6,1,210,1,70,6  ; n601 t=28.816s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 0,0,180,1,77,125,8,2,16,3,77,8  ; n602 t=28.893s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 19,0,25,3,67,108,9,4,136,1,67,8  ; n603 t=28.893s dur=793ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 19,0,25,3,67,108,9,3,136,1,67,8  ; n603 t=28.893s dur=793ms, freq=392Hz, sample=67, buffer_id=08:43
     db 87,0,100,0,75,102,6,5,110,2,75,6  ; n604 t=28.912s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 87,0,100,0,77,102,6,6,186,2,77,6  ; n605 t=28.999s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 82,0,100,0,82,102,6,8,164,3,82,6  ; n606 t=29.085s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 0,0,66,1,87,125,8,1,221,4,87,8  ; n607 t=29.167s dur=322ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 24,0,66,1,75,108,9,3,110,2,75,8  ; n608 t=29.167s dur=322ms, freq=622Hz, sample=75, buffer_id=08:4B
+    db 24,0,66,1,75,108,9,4,110,2,75,8  ; n608 t=29.167s dur=322ms, freq=622Hz, sample=75, buffer_id=08:4B
     db 96,0,100,0,65,102,6,10,93,1,65,6  ; n609 t=29.191s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 96,0,100,0,67,102,6,5,136,1,67,6  ; n610 t=29.287s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 96,0,100,0,70,102,6,6,210,1,70,6  ; n611 t=29.383s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
@@ -634,71 +634,71 @@ midi_data:
     db 91,0,100,0,77,102,6,2,186,2,77,6  ; n615 t=29.590s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 58,0,100,0,82,102,6,5,164,3,82,6  ; n616 t=29.681s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 0,0,56,1,82,125,8,1,23,4,82,8  ; n617 t=29.739s dur=312ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 5,0,56,1,72,108,9,3,11,2,72,8  ; n618 t=29.739s dur=312ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 5,0,56,1,72,108,9,4,11,2,72,8  ; n618 t=29.739s dur=312ms, freq=523Hz, sample=72, buffer_id=08:48
     db 58,0,102,3,29,108,9,6,44,0,29,8  ; n619 t=29.744s dur=870ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 0,0,248,1,55,126,3,7,196,0,55,3  ; n620 t=29.802s dur=504ms, freq=196Hz, sample=55, buffer_id=03:37
     db 5,0,100,0,65,102,6,10,93,1,65,6  ; n621 t=29.802s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 87,0,224,1,63,126,3,12,55,1,63,3  ; n622 t=29.806s dur=480ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 91,0,100,0,67,102,6,0,136,1,67,6  ; n623 t=29.893s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 53,0,100,0,70,102,6,2,210,1,70,6  ; n624 t=29.984s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 0,0,32,1,82,125,8,4,164,3,82,8  ; n625 t=30.037s dur=288ms, freq=932Hz, sample=82, buffer_id=08:52
+    db 0,0,32,1,82,125,8,3,164,3,82,8  ; n625 t=30.037s dur=288ms, freq=932Hz, sample=82, buffer_id=08:52
     db 58,0,32,1,70,108,9,5,210,1,70,8  ; n626 t=30.037s dur=288ms, freq=466Hz, sample=70, buffer_id=08:46
     db 72,0,100,0,75,102,6,8,110,2,75,6  ; n627 t=30.095s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 91,0,100,0,77,102,6,9,186,2,77,6  ; n628 t=30.167s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 96,0,100,0,82,102,6,0,164,3,82,6  ; n629 t=30.258s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 0,0,230,0,82,125,8,2,164,3,82,8  ; n630 t=30.355s dur=230ms, freq=932Hz, sample=82, buffer_id=08:52
     db 14,0,230,0,70,108,9,1,210,1,70,8  ; n631 t=30.355s dur=230ms, freq=466Hz, sample=70, buffer_id=08:46
-    db 14,0,100,0,65,102,6,3,93,1,65,6  ; n632 t=30.369s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
+    db 14,0,100,0,65,102,6,4,93,1,65,6  ; n632 t=30.369s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 0,0,34,3,55,126,3,10,196,0,55,3  ; n633 t=30.383s dur=802ms, freq=196Hz, sample=55, buffer_id=03:37
     db 72,0,54,3,63,126,3,11,55,1,63,3  ; n634 t=30.383s dur=822ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 77,0,100,0,67,102,6,8,136,1,67,6  ; n635 t=30.456s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 0,0,168,0,82,125,8,5,23,4,82,8  ; n636 t=30.532s dur=168ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 14,0,168,0,72,108,9,4,11,2,72,8  ; n637 t=30.532s dur=168ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 14,0,168,0,72,108,9,3,11,2,72,8  ; n637 t=30.532s dur=168ms, freq=523Hz, sample=72, buffer_id=08:48
     db 111,0,100,0,70,102,6,7,210,1,70,6  ; n638 t=30.547s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 48,0,100,0,75,102,6,0,110,2,75,6  ; n639 t=30.657s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 0,0,221,0,87,125,8,3,151,4,87,8  ; n640 t=30.706s dur=221ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 0,0,221,0,87,125,8,4,151,4,87,8  ; n640 t=30.706s dur=221ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 48,0,221,0,74,108,9,9,75,2,74,8  ; n641 t=30.706s dur=221ms, freq=587Hz, sample=74, buffer_id=08:4A
     db 82,0,100,0,77,102,6,12,186,2,77,6  ; n642 t=30.754s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 101,0,100,0,82,102,6,1,164,3,82,6  ; n643 t=30.835s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 0,0,152,1,82,125,8,4,23,4,82,8  ; n644 t=30.936s dur=408ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 0,0,152,1,82,125,8,3,23,4,82,8  ; n644 t=30.936s dur=408ms, freq=1047Hz, sample=82, buffer_id=08:52
     db 10,0,152,1,72,108,9,2,11,2,72,8  ; n645 t=30.936s dur=408ms, freq=523Hz, sample=72, buffer_id=08:48
     db 0,0,100,0,65,102,6,5,93,1,65,6  ; n646 t=30.946s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 86,0,49,3,29,108,9,7,44,0,29,8  ; n647 t=30.946s dur=817ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 101,0,100,0,67,102,6,0,136,1,67,6  ; n648 t=31.032s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
-    db 106,0,100,0,70,102,6,3,210,1,70,6  ; n649 t=31.133s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
+    db 106,0,100,0,70,102,6,4,210,1,70,6  ; n649 t=31.133s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 38,0,100,0,75,102,6,1,110,2,75,6  ; n650 t=31.239s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 43,0,201,0,55,126,3,5,196,0,55,3  ; n651 t=31.278s dur=201ms, freq=196Hz, sample=55, buffer_id=03:37
     db 43,0,100,0,77,102,6,6,186,2,77,6  ; n652 t=31.321s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 0,0,168,0,77,125,8,0,16,3,77,8  ; n653 t=31.364s dur=168ms, freq=784Hz, sample=77, buffer_id=08:4D
     db 48,0,168,0,67,108,9,8,136,1,67,8  ; n654 t=31.364s dur=168ms, freq=392Hz, sample=67, buffer_id=08:43
     db 125,0,100,0,82,102,6,9,164,3,82,6  ; n655 t=31.412s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 0,0,26,2,82,125,8,3,112,3,82,8  ; n656 t=31.537s dur=538ms, freq=880Hz, sample=82, buffer_id=08:52
+    db 0,0,26,2,82,125,8,4,112,3,82,8  ; n656 t=31.537s dur=538ms, freq=880Hz, sample=82, buffer_id=08:52
     db 10,0,100,0,69,108,9,10,184,1,69,8  ; n657 t=31.537s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 0,0,87,3,58,126,3,1,220,0,58,3  ; n658 t=31.547s dur=855ms, freq=220Hz, sample=58, buffer_id=03:3A
     db 31,2,97,3,65,126,3,2,93,1,65,3  ; n659 t=31.547s dur=865ms, freq=349Hz, sample=65, buffer_id=03:41
     db 14,0,247,2,29,108,9,0,44,0,29,8  ; n660 t=32.090s dur=759ms, freq=44Hz, sample=29, buffer_id=08:1D
-    db 0,0,80,1,77,125,8,4,186,2,77,8  ; n661 t=32.105s dur=336ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 0,0,80,1,77,125,8,3,186,2,77,8  ; n661 t=32.105s dur=336ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 85,1,66,1,65,108,9,5,93,1,65,8  ; n662 t=32.105s dur=322ms, freq=349Hz, sample=65, buffer_id=08:41
-    db 87,0,149,0,58,126,3,3,220,0,58,3  ; n663 t=32.446s dur=149ms, freq=220Hz, sample=58, buffer_id=03:3A
+    db 87,0,149,0,58,126,3,4,220,0,58,3  ; n663 t=32.446s dur=149ms, freq=220Hz, sample=58, buffer_id=03:3A
     db 0,0,197,0,77,125,8,6,186,2,77,8  ; n664 t=32.532s dur=197ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 154,0,197,0,65,108,9,7,93,1,65,8  ; n665 t=32.532s dur=197ms, freq=349Hz, sample=65, buffer_id=08:41
     db 0,0,180,1,77,125,8,1,16,3,77,8  ; n666 t=32.686s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
     db 24,0,39,3,67,108,9,2,136,1,67,8  ; n667 t=32.686s dur=807ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 5,0,32,1,63,126,3,4,55,1,63,3  ; n668 t=32.710s dur=288ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 5,0,32,1,63,126,3,3,55,1,63,3  ; n668 t=32.710s dur=288ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 5,0,254,0,55,126,3,5,196,0,55,3  ; n669 t=32.715s dur=254ms, freq=196Hz, sample=55, buffer_id=03:37
     db 87,0,100,0,65,102,6,8,93,1,65,6  ; n670 t=32.720s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
-    db 77,0,100,0,67,102,6,3,136,1,67,6  ; n671 t=32.806s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 77,0,100,0,67,102,6,4,136,1,67,6  ; n671 t=32.806s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 96,0,100,0,70,102,6,9,210,1,70,6  ; n672 t=32.883s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 82,0,100,0,75,102,6,6,110,2,75,6  ; n673 t=32.980s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 86,0,100,0,77,102,6,0,186,2,77,6  ; n674 t=33.061s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 72,0,100,0,82,102,6,3,164,3,82,6  ; n675 t=33.148s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
-    db 34,0,87,3,29,108,9,4,44,0,29,8  ; n676 t=33.220s dur=855ms, freq=44Hz, sample=29, buffer_id=08:1D
+    db 72,0,100,0,82,102,6,4,164,3,82,6  ; n675 t=33.148s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 34,0,87,3,29,108,9,3,44,0,29,8  ; n676 t=33.220s dur=855ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 29,0,100,0,65,102,6,5,93,1,65,6  ; n677 t=33.254s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 5,0,28,4,63,126,3,6,55,1,63,3  ; n678 t=33.282s dur=1052ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 53,0,246,3,55,126,3,7,196,0,55,3  ; n679 t=33.287s dur=1014ms, freq=196Hz, sample=55, buffer_id=03:37
     db 91,0,100,0,67,102,6,1,136,1,67,6  ; n680 t=33.340s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 96,0,100,0,70,102,6,0,210,1,70,6  ; n681 t=33.431s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 14,0,100,0,75,102,6,3,110,2,75,6  ; n682 t=33.528s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 14,0,100,0,75,102,6,4,110,2,75,6  ; n682 t=33.528s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 0,0,129,0,77,125,8,8,16,3,77,8  ; n683 t=33.542s dur=129ms, freq=784Hz, sample=77, buffer_id=08:4D
     db 72,0,129,0,67,108,9,9,136,1,67,8  ; n684 t=33.542s dur=129ms, freq=392Hz, sample=67, buffer_id=08:43
     db 48,0,100,0,77,102,6,5,186,2,77,6  ; n685 t=33.614s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
@@ -708,22 +708,22 @@ midi_data:
     db 10,0,100,0,65,102,6,0,93,1,65,6  ; n689 t=33.806s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 0,0,8,1,87,125,8,11,221,4,87,8  ; n690 t=33.816s dur=264ms, freq=1245Hz, sample=87, buffer_id=08:57
     db 87,0,8,1,75,108,9,12,110,2,75,8  ; n691 t=33.816s dur=264ms, freq=622Hz, sample=75, buffer_id=08:4B
-    db 96,0,100,0,67,102,6,3,136,1,67,6  ; n692 t=33.903s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 96,0,100,0,67,102,6,4,136,1,67,6  ; n692 t=33.903s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 86,0,100,0,70,102,6,1,210,1,70,6  ; n693 t=33.999s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
     db 0,0,8,1,87,125,8,2,151,4,87,8  ; n694 t=34.085s dur=264ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 24,0,8,1,74,108,9,5,75,2,74,8  ; n695 t=34.085s dur=264ms, freq=587Hz, sample=74, buffer_id=08:4A
     db 96,0,100,0,75,102,6,0,110,2,75,6  ; n696 t=34.109s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
-    db 91,0,100,0,77,102,6,3,186,2,77,6  ; n697 t=34.206s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 58,0,100,0,82,102,6,4,164,3,82,6  ; n698 t=34.297s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
+    db 91,0,100,0,77,102,6,4,186,2,77,6  ; n697 t=34.206s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 58,0,100,0,82,102,6,3,164,3,82,6  ; n698 t=34.297s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 0,0,37,1,82,125,8,1,23,4,82,8  ; n699 t=34.355s dur=293ms, freq=1047Hz, sample=82, buffer_id=08:52
     db 38,0,37,1,72,108,9,8,11,2,72,8  ; n700 t=34.355s dur=293ms, freq=523Hz, sample=72, buffer_id=08:48
     db 24,0,36,2,29,108,9,9,44,0,29,8  ; n701 t=34.393s dur=548ms, freq=44Hz, sample=29, buffer_id=08:1D
     db 5,0,100,0,65,102,6,0,93,1,65,6  ; n702 t=34.417s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 10,0,224,1,63,126,3,10,55,1,63,3  ; n703 t=34.422s dur=480ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 77,0,205,1,55,126,3,11,196,0,55,3  ; n704 t=34.431s dur=461ms, freq=196Hz, sample=55, buffer_id=03:37
-    db 91,0,100,0,67,102,6,3,136,1,67,6  ; n705 t=34.508s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 91,0,100,0,67,102,6,4,136,1,67,6  ; n705 t=34.508s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 58,0,100,0,70,102,6,2,210,1,70,6  ; n706 t=34.600s dur=100ms, freq=466Hz, sample=70, buffer_id=06:46
-    db 0,0,192,0,82,125,8,4,164,3,82,8  ; n707 t=34.657s dur=192ms, freq=932Hz, sample=82, buffer_id=08:52
+    db 0,0,192,0,82,125,8,3,164,3,82,8  ; n707 t=34.657s dur=192ms, freq=932Hz, sample=82, buffer_id=08:52
     db 53,0,192,0,70,108,9,5,210,1,70,8  ; n708 t=34.657s dur=192ms, freq=466Hz, sample=70, buffer_id=08:46
     db 72,0,100,0,75,102,6,6,110,2,75,6  ; n709 t=34.710s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
     db 5,0,100,0,77,102,6,0,186,2,77,6  ; n710 t=34.782s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
@@ -731,16 +731,16 @@ midi_data:
     db 87,0,100,0,77,108,9,12,186,2,77,8  ; n712 t=34.787s dur=100ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 38,0,100,0,82,102,6,1,164,3,82,6  ; n713 t=34.874s dur=100ms, freq=932Hz, sample=82, buffer_id=06:52
     db 0,0,234,1,89,125,8,2,117,5,89,8  ; n714 t=34.912s dur=490ms, freq=1397Hz, sample=89, buffer_id=08:59
-    db 72,0,234,1,77,108,9,3,186,2,77,8  ; n715 t=34.912s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 72,0,234,1,77,108,9,4,186,2,77,8  ; n715 t=34.912s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 15,0,100,0,65,102,6,8,93,1,65,6  ; n716 t=34.984s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 10,0,2,2,38,108,9,13,69,0,38,8  ; n717 t=34.999s dur=514ms, freq=69Hz, sample=38, buffer_id=08:26
     db 5,0,239,1,55,126,3,14,208,0,55,3  ; n718 t=35.008s dur=495ms, freq=208Hz, sample=55, buffer_id=03:37
     db 58,0,2,2,62,126,3,6,21,1,62,3  ; n719 t=35.013s dur=514ms, freq=277Hz, sample=62, buffer_id=03:3E
-    db 91,0,100,0,67,102,6,4,159,1,67,6  ; n720 t=35.071s dur=100ms, freq=415Hz, sample=67, buffer_id=06:43
+    db 91,0,100,0,67,102,6,3,159,1,67,6  ; n720 t=35.071s dur=100ms, freq=415Hz, sample=67, buffer_id=06:43
     db 111,0,100,0,70,102,6,0,11,2,70,6  ; n721 t=35.162s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
     db 96,0,100,0,75,102,6,1,42,2,75,6  ; n722 t=35.273s dur=100ms, freq=554Hz, sample=75, buffer_id=06:4B
     db 38,0,100,0,77,102,6,5,186,2,77,6  ; n723 t=35.369s dur=100ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 0,0,100,0,82,125,8,4,23,4,82,8  ; n724 t=35.407s dur=100ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 0,0,100,0,82,125,8,3,23,4,82,8  ; n724 t=35.407s dur=100ms, freq=1047Hz, sample=82, buffer_id=08:52
     db 43,0,100,0,72,108,9,7,11,2,72,8  ; n725 t=35.407s dur=100ms, freq=523Hz, sample=72, buffer_id=08:48
     db 77,0,100,0,82,102,6,8,63,3,82,6  ; n726 t=35.451s dur=100ms, freq=831Hz, sample=82, buffer_id=06:52
     db 0,0,45,6,82,125,8,0,23,4,82,8  ; n727 t=35.528s dur=1581ms, freq=1047Hz, sample=82, buffer_id=08:52
@@ -839,7 +839,7 @@ midi_data:
     db 0,0,100,0,75,124,4,12,110,2,75,4  ; n820 t=42.510s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
     db 19,0,49,1,50,108,9,14,156,0,50,8  ; n821 t=42.510s dur=305ms, freq=156Hz, sample=50, buffer_id=08:32
     db 9,0,80,1,65,126,3,15,114,1,65,3  ; n822 t=42.529s dur=336ms, freq=370Hz, sample=65, buffer_id=03:41
-    db 127,1,80,1,63,126,3,3,55,1,63,3  ; n823 t=42.538s dur=336ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch3 @41920.6ms -> 42538.3ms]
+    db 127,1,80,1,63,126,3,16,55,1,63,3  ; n823 t=42.538s dur=336ms, freq=311Hz, sample=63, buffer_id=03:3F
     db 5,0,100,0,77,124,4,0,186,2,77,4  ; n824 t=42.921s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
     db 0,0,100,0,62,126,3,1,21,1,62,3  ; n825 t=42.925s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
     db 0,0,100,0,65,126,3,4,93,1,65,3  ; n826 t=42.925s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
@@ -852,32 +852,32 @@ midi_data:
     db 9,0,63,1,53,108,9,7,185,0,53,8  ; n833 t=43.063s dur=319ms, freq=185Hz, sample=53, buffer_id=08:35
     db 0,0,14,1,75,124,4,11,110,2,75,4  ; n834 t=43.072s dur=270ms, freq=622Hz, sample=75, buffer_id=04:4B
     db 9,0,81,1,43,108,9,12,92,0,43,8  ; n835 t=43.072s dur=337ms, freq=92Hz, sample=43, buffer_id=08:2B
-    db 5,0,135,0,72,124,4,3,11,2,72,4  ; n836 t=43.081s dur=135ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 5,0,27,1,63,126,3,13,55,1,63,3  ; n837 t=43.085s dur=283ms, freq=311Hz, sample=63, buffer_id=03:3F
-    db 0,0,41,1,58,126,3,14,6,1,58,3  ; n838 t=43.090s dur=297ms, freq=262Hz, sample=58, buffer_id=03:3A
-    db 109,1,211,0,82,125,8,15,23,4,82,8  ; n839 t=43.090s dur=211ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 5,0,135,0,72,124,4,13,11,2,72,4  ; n836 t=43.081s dur=135ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 5,0,27,1,63,126,3,14,55,1,63,3  ; n837 t=43.085s dur=283ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 0,0,41,1,58,126,3,15,6,1,58,3  ; n838 t=43.090s dur=297ms, freq=262Hz, sample=58, buffer_id=03:3A
+    db 109,1,211,0,82,125,8,16,23,4,82,8  ; n839 t=43.090s dur=211ms, freq=1047Hz, sample=82, buffer_id=08:52
     db 0,0,100,0,58,126,3,0,233,0,58,3  ; n840 t=43.455s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
     db 18,0,100,0,82,125,8,1,164,3,82,8  ; n841 t=43.455s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 5,0,100,0,72,124,4,2,42,2,72,4  ; n842 t=43.473s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
-    db 18,0,100,0,70,124,4,3,210,1,70,4  ; n843 t=43.477s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,62,126,3,4,21,1,62,3  ; n844 t=43.495s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
-    db 14,0,100,0,87,125,8,5,85,4,87,8  ; n845 t=43.495s dur=100ms, freq=1109Hz, sample=87, buffer_id=08:57
+    db 18,0,100,0,70,124,4,4,210,1,70,4  ; n843 t=43.477s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,62,126,3,5,21,1,62,3  ; n844 t=43.495s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 14,0,100,0,87,125,8,9,85,4,87,8  ; n845 t=43.495s dur=100ms, freq=1109Hz, sample=87, buffer_id=08:57
     db 0,0,100,0,43,108,9,6,104,0,43,8  ; n846 t=43.509s dur=100ms, freq=104Hz, sample=43, buffer_id=08:2B
     db 90,0,100,0,56,108,9,8,208,0,56,8  ; n847 t=43.509s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
     db 0,0,220,0,55,126,3,7,208,0,55,3  ; n848 t=43.599s dur=220ms, freq=208Hz, sample=55, buffer_id=03:37
-    db 9,0,220,0,82,125,8,9,63,3,82,8  ; n849 t=43.599s dur=220ms, freq=831Hz, sample=82, buffer_id=08:52
-    db 14,0,18,1,72,124,4,10,11,2,72,4  ; n850 t=43.608s dur=274ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,198,0,58,126,3,11,6,1,58,3  ; n851 t=43.621s dur=198ms, freq=262Hz, sample=58, buffer_id=03:3A
-    db 0,0,135,0,70,124,4,12,159,1,70,4  ; n852 t=43.621s dur=135ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 9,0,220,0,82,125,8,13,23,4,82,8  ; n853 t=43.621s dur=220ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 5,0,50,1,47,108,9,14,117,0,47,8  ; n854 t=43.630s dur=306ms, freq=117Hz, sample=47, buffer_id=08:2F
-    db 82,1,63,1,58,108,9,15,233,0,58,8  ; n855 t=43.635s dur=319ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 9,0,220,0,82,125,8,10,63,3,82,8  ; n849 t=43.599s dur=220ms, freq=831Hz, sample=82, buffer_id=08:52
+    db 14,0,18,1,72,124,4,11,11,2,72,4  ; n850 t=43.608s dur=274ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,198,0,58,126,3,12,6,1,58,3  ; n851 t=43.621s dur=198ms, freq=262Hz, sample=58, buffer_id=03:3A
+    db 0,0,135,0,70,124,4,13,159,1,70,4  ; n852 t=43.621s dur=135ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 9,0,220,0,82,125,8,14,23,4,82,8  ; n853 t=43.621s dur=220ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 5,0,50,1,47,108,9,15,117,0,47,8  ; n854 t=43.630s dur=306ms, freq=117Hz, sample=47, buffer_id=08:2F
+    db 82,1,63,1,58,108,9,16,233,0,58,8  ; n855 t=43.635s dur=319ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 9,0,100,0,82,125,8,0,164,3,82,8  ; n856 t=43.973s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 0,0,100,0,53,126,3,1,185,0,53,3  ; n857 t=43.982s dur=100ms, freq=185Hz, sample=53, buffer_id=03:35
     db 5,0,100,0,77,125,8,2,228,2,77,8  ; n858 t=43.982s dur=100ms, freq=740Hz, sample=77, buffer_id=08:4D
-    db 9,0,100,0,70,124,4,4,210,1,70,4  ; n859 t=43.986s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 144,0,100,0,58,126,3,3,233,0,58,3  ; n860 t=43.995s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
-    db 0,0,128,0,58,125,5,5,6,1,58,5  ; n861 t=44.139s dur=128ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 9,0,100,0,70,124,4,5,210,1,70,4  ; n859 t=43.986s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 144,0,100,0,58,126,3,4,233,0,58,3  ; n860 t=43.995s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
+    db 0,0,128,0,58,125,5,3,6,1,58,5  ; n861 t=44.139s dur=128ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,186,3,63,125,5,6,93,1,63,5  ; n862 t=44.139s dur=954ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 4,0,47,3,53,108,9,7,175,0,53,8  ; n863 t=44.139s dur=815ms, freq=175Hz, sample=53, buffer_id=08:35
     db 4,0,175,1,89,102,6,8,117,5,89,6  ; n864 t=44.144s dur=431ms, freq=1397Hz, sample=89, buffer_id=06:59
@@ -999,8 +999,8 @@ midi_data:
     db 0,0,100,0,65,124,4,11,136,1,65,4  ; n980 t=50.122s dur=100ms, freq=392Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,70,124,4,12,210,1,70,4  ; n981 t=50.122s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,53,125,5,15,175,0,53,5  ; n982 t=50.122s dur=100ms, freq=175Hz, sample=53, buffer_id=05:35
-    db 0,0,100,0,65,125,8,14,93,1,65,8  ; n983 t=50.122s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch14 @49873.8ms -> 50121.8ms]
-    db 248,0,111,0,53,76,9,13,175,0,53,8  ; n984 t=50.122s dur=111ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch13 @49873.8ms -> 50121.8ms]
+    db 0,0,100,0,65,125,8,16,93,1,65,8  ; n983 t=50.122s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 248,0,111,0,53,76,9,17,175,0,53,8  ; n984 t=50.122s dur=111ms, freq=175Hz, sample=53, buffer_id=08:35
     db 0,0,65,15,65,124,4,0,74,1,65,4  ; n985 t=50.370s dur=3905ms, freq=330Hz, sample=65, buffer_id=04:41
     db 0,0,44,12,58,124,4,1,6,1,58,4  ; n986 t=50.370s dur=3116ms, freq=262Hz, sample=58, buffer_id=04:3A
     db 124,0,101,14,65,124,4,2,136,1,65,4  ; n987 t=50.370s dur=3685ms, freq=392Hz, sample=65, buffer_id=04:41
@@ -1198,82 +1198,82 @@ midi_data:
     db 0,0,132,0,62,126,3,9,38,1,62,3  ; n1179 t=60.423s dur=132ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 8,0,128,0,87,125,8,15,221,4,87,8  ; n1180 t=60.423s dur=128ms, freq=1245Hz, sample=87, buffer_id=08:57
     db 0,0,132,0,74,124,4,13,75,2,74,4  ; n1181 t=60.432s dur=132ms, freq=587Hz, sample=74, buffer_id=04:4A
-    db 4,0,100,0,74,125,5,8,110,2,74,5  ; n1182 t=60.432s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch8 @60063.9ms -> 60431.7ms]
-    db 91,0,100,0,69,125,5,2,159,1,69,5  ; n1183 t=60.436s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch2 @60163.1ms -> 60435.8ms]
-    db 0,0,100,0,65,124,4,14,93,1,65,4  ; n1184 t=60.527s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 8,0,210,1,74,125,5,6,11,2,74,5  ; n1185 t=60.527s dur=466ms, freq=523Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch6 @60411.0ms -> 60526.7ms]
-    db 0,0,124,0,87,125,8,10,151,4,87,8  ; n1186 t=60.535s dur=124ms, freq=1175Hz, sample=87, buffer_id=08:57 [TRUNCATE prev:ch10 @60299.4ms -> 60535.0ms]
-    db 4,0,111,0,55,76,9,3,196,0,55,8  ; n1187 t=60.535s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37 [TRUNCATE prev:ch3 @60287.1ms -> 60535.0ms]
-    db 0,0,100,0,70,124,4,11,184,1,70,4  ; n1188 t=60.539s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46 [TRUNCATE prev:ch11 @60307.7ms -> 60539.1ms]
-    db 8,0,144,0,72,124,4,0,11,2,72,4  ; n1189 t=60.539s dur=144ms, freq=523Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch0 @60299.4ms -> 60539.1ms]
-    db 8,0,124,0,58,126,3,1,6,1,58,3  ; n1190 t=60.547s dur=124ms, freq=262Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch1 @60299.4ms -> 60547.4ms]
-    db 4,0,0,2,69,125,5,2,159,1,69,5  ; n1191 t=60.556s dur=512ms, freq=415Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch2 @60435.8ms -> 60555.6ms]
-    db 91,0,12,2,74,125,5,8,110,2,74,5  ; n1192 t=60.560s dur=524ms, freq=622Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch8 @60431.7ms -> 60559.8ms]
-    db 124,0,144,0,87,125,8,15,221,4,87,8  ; n1193 t=60.651s dur=144ms, freq=1245Hz, sample=87, buffer_id=08:57 [TRUNCATE prev:ch15 @60423.4ms -> 60650.7ms]
-    db 29,0,136,0,87,125,8,4,151,4,87,8  ; n1194 t=60.775s dur=136ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 87,0,136,1,58,126,3,5,220,0,58,3  ; n1195 t=60.804s dur=392ms, freq=220Hz, sample=58, buffer_id=03:3A
-    db 17,0,128,0,87,125,8,0,221,4,87,8  ; n1196 t=60.890s dur=128ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 95,0,111,0,55,76,9,1,196,0,55,8  ; n1197 t=60.907s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 29,0,128,0,87,125,8,3,151,4,87,8  ; n1198 t=61.002s dur=128ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 0,0,136,0,69,125,5,7,238,1,69,5  ; n1199 t=61.031s dur=136ms, freq=494Hz, sample=69, buffer_id=05:45
-    db 12,0,111,0,55,76,9,9,196,0,55,8  ; n1200 t=61.031s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,124,0,69,125,5,10,136,1,69,5  ; n1201 t=61.043s dur=124ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 70,0,124,0,74,125,5,11,75,2,74,5  ; n1202 t=61.043s dur=124ms, freq=587Hz, sample=74, buffer_id=05:4A
-    db 128,0,140,0,87,125,8,12,221,4,87,8  ; n1203 t=61.114s dur=140ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 29,0,132,0,87,125,8,1,151,4,87,8  ; n1204 t=61.242s dur=132ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 21,0,198,0,74,125,5,0,110,2,74,5  ; n1205 t=61.270s dur=198ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 4,0,100,0,74,125,5,16,110,2,74,5  ; n1182 t=60.432s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 91,0,100,0,69,125,5,17,159,1,69,5  ; n1183 t=60.436s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n1184 t=60.527s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 8,0,210,1,74,125,5,8,11,2,74,5  ; n1185 t=60.527s dur=466ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 0,0,124,0,87,125,8,18,151,4,87,8  ; n1186 t=60.535s dur=124ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 4,0,111,0,55,76,9,14,196,0,55,8  ; n1187 t=60.535s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,70,124,4,19,184,1,70,4  ; n1188 t=60.539s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 8,0,144,0,72,124,4,20,11,2,72,4  ; n1189 t=60.539s dur=144ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 8,0,124,0,58,126,3,21,6,1,58,3  ; n1190 t=60.547s dur=124ms, freq=262Hz, sample=58, buffer_id=03:3A
+    db 4,0,0,2,69,125,5,22,159,1,69,5  ; n1191 t=60.556s dur=512ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 91,0,12,2,74,125,5,23,110,2,74,5  ; n1192 t=60.560s dur=524ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 124,0,144,0,87,125,8,0,221,4,87,8  ; n1193 t=60.651s dur=144ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 29,0,136,0,87,125,8,1,151,4,87,8  ; n1194 t=60.775s dur=136ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 87,0,136,1,58,126,3,3,220,0,58,3  ; n1195 t=60.804s dur=392ms, freq=220Hz, sample=58, buffer_id=03:3A
+    db 17,0,128,0,87,125,8,2,221,4,87,8  ; n1196 t=60.890s dur=128ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 95,0,111,0,55,76,9,4,196,0,55,8  ; n1197 t=60.907s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 29,0,128,0,87,125,8,5,151,4,87,8  ; n1198 t=61.002s dur=128ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 0,0,136,0,69,125,5,0,238,1,69,5  ; n1199 t=61.031s dur=136ms, freq=494Hz, sample=69, buffer_id=05:45
+    db 12,0,111,0,55,76,9,6,196,0,55,8  ; n1200 t=61.031s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,124,0,69,125,5,7,136,1,69,5  ; n1201 t=61.043s dur=124ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 70,0,124,0,74,125,5,9,75,2,74,5  ; n1202 t=61.043s dur=124ms, freq=587Hz, sample=74, buffer_id=05:4A
+    db 128,0,140,0,87,125,8,11,221,4,87,8  ; n1203 t=61.114s dur=140ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 29,0,132,0,87,125,8,4,151,4,87,8  ; n1204 t=61.242s dur=132ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 21,0,198,0,74,125,5,1,110,2,74,5  ; n1205 t=61.270s dur=198ms, freq=622Hz, sample=74, buffer_id=05:4A
     db 8,0,100,0,74,125,5,2,11,2,74,5  ; n1206 t=61.291s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
-    db 62,0,136,0,69,125,5,4,159,1,69,5  ; n1207 t=61.299s dur=136ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 62,0,136,0,69,125,5,8,159,1,69,5  ; n1207 t=61.299s dur=136ms, freq=415Hz, sample=69, buffer_id=05:45
     db 33,0,144,0,87,125,8,6,221,4,87,8  ; n1208 t=61.361s dur=144ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 8,0,136,0,69,125,5,3,238,1,69,5  ; n1209 t=61.395s dur=136ms, freq=494Hz, sample=69, buffer_id=05:45
-    db 0,0,132,0,69,125,5,5,136,1,69,5  ; n1210 t=61.403s dur=132ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 21,0,111,0,55,76,9,7,196,0,55,8  ; n1211 t=61.403s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 62,0,132,0,74,125,5,9,75,2,74,5  ; n1212 t=61.423s dur=132ms, freq=587Hz, sample=74, buffer_id=05:4A
-    db 33,0,124,0,87,125,8,8,151,4,87,8  ; n1213 t=61.485s dur=124ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 8,0,136,0,69,125,5,5,238,1,69,5  ; n1209 t=61.395s dur=136ms, freq=494Hz, sample=69, buffer_id=05:45
+    db 0,0,132,0,69,125,5,3,136,1,69,5  ; n1210 t=61.403s dur=132ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 21,0,111,0,55,76,9,0,196,0,55,8  ; n1211 t=61.403s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 62,0,132,0,74,125,5,7,75,2,74,5  ; n1212 t=61.423s dur=132ms, freq=587Hz, sample=74, buffer_id=05:4A
+    db 33,0,124,0,87,125,8,9,151,4,87,8  ; n1213 t=61.485s dur=124ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 8,0,100,0,63,125,5,10,93,1,63,5  ; n1214 t=61.519s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 4,0,111,0,50,76,9,11,156,0,50,8  ; n1215 t=61.527s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,69,125,5,12,184,1,69,5  ; n1216 t=61.531s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
     db 74,0,100,0,74,125,5,13,11,2,74,5  ; n1217 t=61.531s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
     db 45,0,136,0,87,125,8,2,221,4,87,8  ; n1218 t=61.605s dur=136ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 66,0,111,0,50,76,9,1,156,0,50,8  ; n1219 t=61.651s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 66,0,111,0,50,76,9,4,156,0,50,8  ; n1219 t=61.651s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
     db 21,0,136,0,87,125,8,0,151,4,87,8  ; n1220 t=61.717s dur=136ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 17,0,129,6,69,125,5,6,184,1,69,5  ; n1221 t=61.737s dur=1665ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 17,0,129,6,69,125,5,1,184,1,69,5  ; n1221 t=61.737s dur=1665ms, freq=440Hz, sample=69, buffer_id=05:45
     db 21,0,71,6,63,125,5,3,38,1,63,5  ; n1222 t=61.754s dur=1607ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 70,0,111,0,50,76,9,4,156,0,50,8  ; n1223 t=61.775s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 54,0,148,0,87,125,8,5,221,4,87,8  ; n1224 t=61.845s dur=148ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 54,0,111,0,50,76,9,7,156,0,50,8  ; n1225 t=61.899s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 70,0,148,0,87,125,8,9,151,4,87,8  ; n1226 t=61.952s dur=148ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 62,0,111,0,55,76,9,1,196,0,55,8  ; n1227 t=62.023s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 120,0,152,0,87,125,8,10,221,4,87,8  ; n1228 t=62.085s dur=152ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 132,0,144,0,87,125,8,4,151,4,87,8  ; n1229 t=62.204s dur=144ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 58,0,148,0,87,125,8,1,221,4,87,8  ; n1230 t=62.337s dur=148ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 70,0,111,0,50,76,9,5,156,0,50,8  ; n1223 t=61.775s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 54,0,148,0,87,125,8,7,221,4,87,8  ; n1224 t=61.845s dur=148ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 54,0,111,0,50,76,9,6,156,0,50,8  ; n1225 t=61.899s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 70,0,148,0,87,125,8,8,151,4,87,8  ; n1226 t=61.952s dur=148ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 62,0,111,0,55,76,9,2,196,0,55,8  ; n1227 t=62.023s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 120,0,152,0,87,125,8,4,221,4,87,8  ; n1228 t=62.085s dur=152ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 132,0,144,0,87,125,8,5,151,4,87,8  ; n1229 t=62.204s dur=144ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 58,0,148,0,87,125,8,2,221,4,87,8  ; n1230 t=62.337s dur=148ms, freq=1245Hz, sample=87, buffer_id=08:57
     db 50,0,111,0,55,76,9,0,196,0,55,8  ; n1231 t=62.395s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 74,0,148,0,87,125,8,7,151,4,87,8  ; n1232 t=62.444s dur=148ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 45,0,111,0,55,76,9,2,196,0,55,8  ; n1233 t=62.519s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 99,0,136,0,87,125,8,11,221,4,87,8  ; n1234 t=62.564s dur=136ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 83,0,119,0,87,125,8,12,151,4,87,8  ; n1235 t=62.663s dur=119ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 74,0,148,0,87,125,8,6,151,4,87,8  ; n1232 t=62.444s dur=148ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 45,0,111,0,55,76,9,4,196,0,55,8  ; n1233 t=62.519s dur=111ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 99,0,136,0,87,125,8,10,221,4,87,8  ; n1234 t=62.564s dur=136ms, freq=1245Hz, sample=87, buffer_id=08:57
+    db 83,0,119,0,87,125,8,11,151,4,87,8  ; n1235 t=62.663s dur=119ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 112,0,115,0,82,125,8,0,23,4,82,8  ; n1236 t=62.746s dur=115ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 120,0,103,0,87,125,8,2,85,4,87,8  ; n1237 t=62.857s dur=103ms, freq=1109Hz, sample=87, buffer_id=08:57
-    db 37,0,128,0,87,125,8,13,151,4,87,8  ; n1238 t=62.977s dur=128ms, freq=1175Hz, sample=87, buffer_id=08:57
-    db 95,0,111,0,50,76,9,1,156,0,50,8  ; n1239 t=63.014s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 120,0,103,0,87,125,8,4,85,4,87,8  ; n1237 t=62.857s dur=103ms, freq=1109Hz, sample=87, buffer_id=08:57
+    db 37,0,128,0,87,125,8,12,151,4,87,8  ; n1238 t=62.977s dur=128ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 95,0,111,0,50,76,9,2,156,0,50,8  ; n1239 t=63.014s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
     db 29,0,100,0,87,125,8,0,221,4,87,8  ; n1240 t=63.109s dur=100ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 95,0,111,0,50,76,9,4,156,0,50,8  ; n1241 t=63.138s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 17,0,103,0,87,125,8,14,39,5,87,8  ; n1242 t=63.233s dur=103ms, freq=1319Hz, sample=87, buffer_id=08:57
-    db 12,0,100,0,75,124,4,2,147,2,75,4  ; n1243 t=63.250s dur=100ms, freq=659Hz, sample=75, buffer_id=04:4B
-    db 74,0,111,0,50,76,9,5,156,0,50,8  ; n1244 t=63.262s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 17,0,100,0,89,125,8,1,117,5,89,8  ; n1245 t=63.337s dur=100ms, freq=1397Hz, sample=89, buffer_id=08:59
+    db 95,0,111,0,50,76,9,5,156,0,50,8  ; n1241 t=63.138s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 17,0,103,0,87,125,8,13,39,5,87,8  ; n1242 t=63.233s dur=103ms, freq=1319Hz, sample=87, buffer_id=08:57
+    db 12,0,100,0,75,124,4,4,147,2,75,4  ; n1243 t=63.250s dur=100ms, freq=659Hz, sample=75, buffer_id=04:4B
+    db 74,0,111,0,50,76,9,6,156,0,50,8  ; n1244 t=63.262s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 17,0,100,0,89,125,8,2,117,5,89,8  ; n1245 t=63.337s dur=100ms, freq=1397Hz, sample=89, buffer_id=08:59
     db 33,0,100,0,77,124,4,7,186,2,77,4  ; n1246 t=63.353s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
     db 33,0,111,0,50,76,9,8,156,0,50,8  ; n1247 t=63.386s dur=111ms, freq=156Hz, sample=50, buffer_id=08:32
     db 33,0,114,0,89,125,8,0,200,5,89,8  ; n1248 t=63.419s dur=114ms, freq=1480Hz, sample=89, buffer_id=08:59
-    db 63,0,115,0,78,124,4,4,228,2,78,4  ; n1249 t=63.452s dur=115ms, freq=740Hz, sample=78, buffer_id=04:4E
+    db 63,0,115,0,78,124,4,5,228,2,78,4  ; n1249 t=63.452s dur=115ms, freq=740Hz, sample=78, buffer_id=04:4E
     db 14,0,239,1,91,125,8,9,32,6,91,8  ; n1250 t=63.515s dur=495ms, freq=1568Hz, sample=91, buffer_id=08:5B
     db 29,0,80,1,78,124,4,10,16,3,78,4  ; n1251 t=63.529s dur=336ms, freq=784Hz, sample=78, buffer_id=04:4E
-    db 5,0,127,6,62,126,3,2,38,1,62,3  ; n1252 t=63.558s dur=1663ms, freq=294Hz, sample=62, buffer_id=03:3E
+    db 5,0,127,6,62,126,3,4,38,1,62,3  ; n1252 t=63.558s dur=1663ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 10,0,27,1,43,76,9,3,98,0,43,8  ; n1253 t=63.563s dur=283ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 50,2,228,6,55,126,3,11,196,0,55,3  ; n1254 t=63.573s dur=1764ms, freq=196Hz, sample=55, buffer_id=03:37
     db 0,0,100,0,31,76,9,0,49,0,31,8  ; n1255 t=64.135s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 23,1,100,0,43,76,9,1,98,0,43,8  ; n1256 t=64.135s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 0,0,100,0,43,76,9,4,98,0,43,8  ; n1257 t=64.414s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,43,76,9,2,98,0,43,8  ; n1257 t=64.414s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 19,0,100,0,31,76,9,3,49,0,31,8  ; n1258 t=64.414s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 77,0,100,0,55,125,8,5,196,0,55,8  ; n1259 t=64.433s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,31,76,9,1,49,0,31,8  ; n1260 t=64.510s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
@@ -1287,9 +1287,9 @@ midi_data:
     db 32,1,100,0,43,76,9,13,98,0,43,8  ; n1268 t=64.712s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,43,76,9,1,98,0,43,8  ; n1269 t=65.001s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 14,0,100,0,31,76,9,0,49,0,31,8  ; n1270 t=65.001s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 82,0,100,0,55,125,8,3,196,0,55,8  ; n1271 t=65.015s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,31,76,9,4,49,0,31,8  ; n1272 t=65.097s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 14,0,100,0,43,76,9,5,98,0,43,8  ; n1273 t=65.097s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,55,125,8,2,196,0,55,8  ; n1271 t=65.015s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,31,76,9,5,49,0,31,8  ; n1272 t=65.097s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 14,0,100,0,43,76,9,3,98,0,43,8  ; n1273 t=65.097s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 82,0,100,0,55,125,8,7,196,0,55,8  ; n1274 t=65.111s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,43,76,9,6,98,0,43,8  ; n1275 t=65.193s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 5,0,100,0,31,76,9,9,49,0,31,8  ; n1276 t=65.193s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
@@ -1300,9 +1300,9 @@ midi_data:
     db 82,0,100,0,58,76,9,14,233,0,58,8  ; n1281 t=65.294s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,27,76,9,0,39,0,27,8  ; n1282 t=65.376s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
     db 10,0,100,0,38,76,9,1,78,0,38,8  ; n1283 t=65.376s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,63,125,8,3,55,1,63,8  ; n1284 t=65.385s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,63,125,8,2,55,1,63,8  ; n1284 t=65.385s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 77,0,100,0,58,76,9,15,233,0,58,8  ; n1285 t=65.390s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,27,76,9,2,39,0,27,8  ; n1286 t=65.467s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 0,0,100,0,27,76,9,3,39,0,27,8  ; n1286 t=65.467s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
     db 14,0,100,0,38,76,9,4,78,0,38,8  ; n1287 t=65.467s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 10,0,100,0,63,125,8,5,55,1,63,8  ; n1288 t=65.481s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 77,0,100,0,58,76,9,7,233,0,58,8  ; n1289 t=65.491s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
@@ -1350,22 +1350,22 @@ midi_data:
     db 10,0,100,0,58,76,9,13,233,0,58,8  ; n1331 t=67.602s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,51,125,5,14,156,0,51,5  ; n1332 t=67.611s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
     db 0,0,100,0,27,76,9,15,39,0,27,8  ; n1333 t=67.611s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
-    db 87,0,100,0,38,76,9,1,78,0,38,8  ; n1334 t=67.611s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @67317.9ms -> 67611.2ms]
+    db 87,0,100,0,38,76,9,16,78,0,38,8  ; n1334 t=67.611s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,51,125,5,0,156,0,51,5  ; n1335 t=67.698s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,63,125,8,2,55,1,63,8  ; n1336 t=67.698s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,58,76,9,3,233,0,58,8  ; n1337 t=67.698s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,27,76,9,4,39,0,27,8  ; n1338 t=67.698s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch4 @67414.0ms -> 67697.7ms]
-    db 91,0,100,0,38,76,9,5,78,0,38,8  ; n1339 t=67.698s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch5 @67428.5ms -> 67697.7ms]
-    db 0,0,100,0,51,125,5,6,156,0,51,5  ; n1340 t=67.789s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,63,125,8,7,55,1,63,8  ; n1341 t=67.789s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,38,76,9,1,78,0,38,8  ; n1342 t=67.789s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @67611.2ms -> 67789.0ms]
-    db 5,0,100,0,27,76,9,15,39,0,27,8  ; n1343 t=67.789s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch15 @67611.2ms -> 67789.0ms]
-    db 91,0,100,0,58,76,9,13,233,0,58,8  ; n1344 t=67.794s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch13 @67601.5ms -> 67793.8ms]
+    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1336 t=67.698s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,58,76,9,2,233,0,58,8  ; n1337 t=67.698s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,27,76,9,3,39,0,27,8  ; n1338 t=67.698s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 91,0,100,0,38,76,9,17,78,0,38,8  ; n1339 t=67.698s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,51,125,5,4,156,0,51,5  ; n1340 t=67.789s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,63,125,8,5,55,1,63,8  ; n1341 t=67.789s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,38,76,9,6,78,0,38,8  ; n1342 t=67.789s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,27,76,9,7,39,0,27,8  ; n1343 t=67.789s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 91,0,100,0,58,76,9,18,233,0,58,8  ; n1344 t=67.794s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,51,125,5,8,156,0,51,5  ; n1345 t=67.885s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
     db 0,0,100,0,27,76,9,9,39,0,27,8  ; n1346 t=67.885s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
     db 0,0,100,0,38,76,9,10,78,0,38,8  ; n1347 t=67.885s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 5,0,100,0,58,76,9,11,233,0,58,8  ; n1348 t=67.885s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 245,0,100,0,63,125,8,12,55,1,63,8  ; n1349 t=67.890s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch12 @67601.5ms -> 67890.0ms]
+    db 245,0,100,0,63,125,8,19,55,1,63,8  ; n1349 t=67.890s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 43,0,176,1,65,124,4,0,136,1,65,4  ; n1350 t=68.135s dur=432ms, freq=392Hz, sample=65, buffer_id=04:41
     db 10,0,100,0,55,125,8,1,196,0,55,8  ; n1351 t=68.178s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 50,2,66,1,69,125,5,2,136,1,69,5  ; n1352 t=68.188s dur=322ms, freq=392Hz, sample=69, buffer_id=05:45
@@ -1390,64 +1390,64 @@ midi_data:
     db 5,0,100,0,55,125,8,1,196,0,55,8  ; n1371 t=69.328s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1372 t=69.332s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,15,98,0,43,8  ; n1373 t=69.332s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 24,0,100,0,31,76,9,2,49,0,31,8  ; n1374 t=69.332s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch2 @69053.5ms -> 69332.3ms]
+    db 24,0,100,0,31,76,9,16,49,0,31,8  ; n1374 t=69.332s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 19,0,99,1,69,125,5,0,136,1,69,5  ; n1375 t=69.356s dur=355ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 245,0,90,1,65,124,4,3,136,1,65,4  ; n1376 t=69.376s dur=346ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,55,125,5,5,196,0,55,5  ; n1377 t=69.621s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 245,0,90,1,65,124,4,2,136,1,65,4  ; n1376 t=69.376s dur=346ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n1377 t=69.621s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,31,76,9,4,49,0,31,8  ; n1378 t=69.621s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 10,0,100,0,43,76,9,6,98,0,43,8  ; n1379 t=69.621s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 87,0,100,0,55,125,8,7,196,0,55,8  ; n1380 t=69.630s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 87,0,100,0,55,125,8,5,196,0,55,8  ; n1380 t=69.630s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1381 t=69.717s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,2,98,0,43,8  ; n1382 t=69.717s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 5,0,100,0,31,76,9,9,49,0,31,8  ; n1383 t=69.717s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 87,0,100,0,55,125,8,8,196,0,55,8  ; n1384 t=69.722s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,55,125,5,11,196,0,55,5  ; n1385 t=69.808s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,10,49,0,31,8  ; n1386 t=69.808s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,13,98,0,43,8  ; n1387 t=69.808s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 87,0,100,0,55,125,8,12,196,0,55,8  ; n1388 t=69.818s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 5,0,100,0,63,125,8,14,55,1,63,8  ; n1389 t=69.904s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,43,76,9,8,98,0,43,8  ; n1382 t=69.717s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 5,0,100,0,31,76,9,7,49,0,31,8  ; n1383 t=69.717s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 87,0,100,0,55,125,8,10,196,0,55,8  ; n1384 t=69.722s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1385 t=69.808s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,12,49,0,31,8  ; n1386 t=69.808s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,11,98,0,43,8  ; n1387 t=69.808s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 87,0,100,0,55,125,8,14,196,0,55,8  ; n1388 t=69.818s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,100,0,63,125,8,13,55,1,63,8  ; n1389 t=69.904s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,37,1,65,124,4,15,55,1,65,4  ; n1390 t=69.909s dur=293ms, freq=311Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,51,125,5,0,156,0,51,5  ; n1391 t=69.909s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch0 @69356.3ms -> 69909.2ms]
-    db 0,0,100,0,55,125,8,7,196,0,55,8  ; n1392 t=69.909s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37 [TRUNCATE prev:ch7 @69630.4ms -> 69909.2ms]
-    db 0,0,100,0,27,76,9,3,39,0,27,8  ; n1393 t=69.909s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch3 @69375.6ms -> 69909.2ms]
-    db 10,0,100,0,38,76,9,4,78,0,38,8  ; n1394 t=69.909s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch4 @69620.8ms -> 69909.2ms]
-    db 77,0,22,1,63,125,5,5,55,1,63,5  ; n1395 t=69.919s dur=278ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch5 @69620.8ms -> 69918.8ms]
-    db 0,0,100,0,51,125,5,6,156,0,51,5  ; n1396 t=69.996s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,38,76,9,1,78,0,38,8  ; n1397 t=69.996s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @69716.9ms -> 69995.8ms]
-    db 5,0,100,0,27,76,9,2,39,0,27,8  ; n1398 t=69.996s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch2 @69716.9ms -> 69995.8ms]
-    db 5,0,100,0,55,125,8,8,196,0,55,8  ; n1399 t=70.001s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37 [TRUNCATE prev:ch8 @69721.7ms -> 70000.6ms]
-    db 82,0,100,0,63,125,8,14,55,1,63,8  ; n1400 t=70.005s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch14 @69904.4ms -> 70005.4ms]
-    db 5,0,100,0,55,125,8,9,196,0,55,8  ; n1401 t=70.087s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,51,125,5,0,156,0,51,5  ; n1402 t=70.092s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch0 @69909.2ms -> 70091.9ms]
-    db 0,0,100,0,27,76,9,3,39,0,27,8  ; n1403 t=70.092s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch3 @69909.2ms -> 70091.9ms]
-    db 10,0,100,0,38,76,9,4,78,0,38,8  ; n1404 t=70.092s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch4 @69909.2ms -> 70091.9ms]
-    db 87,0,100,0,63,125,8,10,55,1,63,8  ; n1405 t=70.102s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch10 @69808.3ms -> 70101.5ms]
-    db 5,0,100,0,55,125,8,11,196,0,55,8  ; n1406 t=70.188s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,51,125,5,12,156,0,51,5  ; n1407 t=70.193s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,63,125,8,13,55,1,63,8  ; n1408 t=70.193s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,27,76,9,2,39,0,27,8  ; n1409 t=70.193s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch2 @69995.8ms -> 70192.9ms]
-    db 130,0,100,0,38,76,9,1,78,0,38,8  ; n1410 t=70.193s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @69995.8ms -> 70192.9ms]
-    db 19,0,100,0,70,124,4,6,210,1,70,4  ; n1411 t=70.323s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 139,0,100,0,69,125,5,7,210,1,69,5  ; n1412 t=70.342s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,51,125,5,16,156,0,51,5  ; n1391 t=69.909s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,55,125,8,17,196,0,55,8  ; n1392 t=69.909s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,27,76,9,18,39,0,27,8  ; n1393 t=69.909s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 10,0,100,0,38,76,9,19,78,0,38,8  ; n1394 t=69.909s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 77,0,22,1,63,125,5,0,55,1,63,5  ; n1395 t=69.919s dur=278ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,51,125,5,2,156,0,51,5  ; n1396 t=69.996s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,38,76,9,3,78,0,38,8  ; n1397 t=69.996s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,27,76,9,4,39,0,27,8  ; n1398 t=69.996s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 5,0,100,0,55,125,8,6,196,0,55,8  ; n1399 t=70.001s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 82,0,100,0,63,125,8,5,55,1,63,8  ; n1400 t=70.005s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,55,125,8,1,196,0,55,8  ; n1401 t=70.087s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,51,125,5,7,156,0,51,5  ; n1402 t=70.092s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,8,39,0,27,8  ; n1403 t=70.092s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 10,0,100,0,38,76,9,10,78,0,38,8  ; n1404 t=70.092s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 87,0,100,0,63,125,8,20,55,1,63,8  ; n1405 t=70.102s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,55,125,8,9,196,0,55,8  ; n1406 t=70.188s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,51,125,5,11,156,0,51,5  ; n1407 t=70.193s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,63,125,8,12,55,1,63,8  ; n1408 t=70.193s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,27,76,9,14,39,0,27,8  ; n1409 t=70.193s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 130,0,100,0,38,76,9,21,78,0,38,8  ; n1410 t=70.193s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 19,0,100,0,70,124,4,2,210,1,70,4  ; n1411 t=70.323s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 139,0,100,0,69,125,5,3,210,1,69,5  ; n1412 t=70.342s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
     db 10,0,205,1,65,124,4,0,136,1,65,4  ; n1413 t=70.481s dur=461ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 5,0,147,1,69,125,5,3,136,1,69,5  ; n1414 t=70.491s dur=403ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1415 t=70.496s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,2,98,0,43,8  ; n1416 t=70.496s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 10,0,100,0,31,76,9,4,49,0,31,8  ; n1417 t=70.496s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 41,2,100,0,55,125,8,5,196,0,55,8  ; n1418 t=70.505s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,147,1,69,125,5,1,136,1,69,5  ; n1414 t=70.491s dur=403ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1415 t=70.496s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,43,76,9,5,98,0,43,8  ; n1416 t=70.496s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,31,76,9,6,49,0,31,8  ; n1417 t=70.496s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 41,2,100,0,55,125,8,7,196,0,55,8  ; n1418 t=70.505s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1419 t=71.058s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,1,49,0,31,8  ; n1420 t=71.058s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,31,76,9,3,49,0,31,8  ; n1420 t=71.058s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 5,0,100,0,43,76,9,4,98,0,43,8  ; n1421 t=71.058s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 5,0,22,1,63,125,5,5,55,1,63,5  ; n1422 t=71.063s dur=278ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 5,0,250,0,65,124,4,6,55,1,65,4  ; n1423 t=71.068s dur=250ms, freq=311Hz, sample=65, buffer_id=04:41
-    db 18,1,100,0,55,125,8,7,196,0,55,8  ; n1424 t=71.073s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 18,1,100,0,55,125,8,8,196,0,55,8  ; n1424 t=71.073s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,0,196,0,55,5  ; n1425 t=71.347s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,3,98,0,43,8  ; n1426 t=71.347s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 24,0,100,0,31,76,9,8,49,0,31,8  ; n1427 t=71.347s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 72,0,100,0,55,125,8,1,196,0,55,8  ; n1428 t=71.371s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1429 t=71.443s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,2,49,0,31,8  ; n1430 t=71.443s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,7,98,0,43,8  ; n1431 t=71.443s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,43,76,9,1,98,0,43,8  ; n1426 t=71.347s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 24,0,100,0,31,76,9,7,49,0,31,8  ; n1427 t=71.347s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 72,0,100,0,55,125,8,2,196,0,55,8  ; n1428 t=71.371s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n1429 t=71.443s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,4,49,0,31,8  ; n1430 t=71.443s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,8,98,0,43,8  ; n1431 t=71.443s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 58,0,100,0,55,125,8,10,196,0,55,8  ; n1432 t=71.453s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,70,124,4,9,210,1,70,4  ; n1433 t=71.510s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
     db 29,0,100,0,69,125,5,11,210,1,69,5  ; n1434 t=71.510s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
@@ -1457,42 +1457,42 @@ midi_data:
     db 72,0,100,0,55,125,8,5,196,0,55,8  ; n1438 t=71.549s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 14,0,100,0,55,125,8,14,196,0,55,8  ; n1439 t=71.621s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,15,196,0,55,5  ; n1440 t=71.635s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,8,49,0,31,8  ; n1441 t=71.635s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch8 @71346.7ms -> 71635.2ms]
-    db 10,0,100,0,43,76,9,3,98,0,43,8  ; n1442 t=71.635s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch3 @71346.7ms -> 71635.2ms]
-    db 14,0,218,2,69,125,5,11,136,1,69,5  ; n1443 t=71.645s dur=730ms, freq=392Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch11 @71510.2ms -> 71644.8ms]
+    db 0,0,100,0,31,76,9,16,49,0,31,8  ; n1441 t=71.635s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,17,98,0,43,8  ; n1442 t=71.635s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 14,0,218,2,69,125,5,18,136,1,69,5  ; n1443 t=71.645s dur=730ms, freq=392Hz, sample=69, buffer_id=05:45
     db 255,0,242,2,65,124,4,0,136,1,65,4  ; n1444 t=71.659s dur=754ms, freq=392Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1445 t=71.914s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,2,98,0,43,8  ; n1446 t=71.914s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 29,0,100,0,31,76,9,4,49,0,31,8  ; n1447 t=71.914s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 67,0,100,0,55,125,8,3,196,0,55,8  ; n1448 t=71.943s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 29,0,100,0,31,76,9,3,49,0,31,8  ; n1447 t=71.914s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 67,0,100,0,55,125,8,4,196,0,55,8  ; n1448 t=71.943s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,5,196,0,55,5  ; n1449 t=72.010s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1450 t=72.010s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 24,0,100,0,43,76,9,8,98,0,43,8  ; n1451 t=72.010s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 82,0,100,0,55,125,8,7,196,0,55,8  ; n1452 t=72.034s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 24,0,100,0,43,76,9,7,98,0,43,8  ; n1451 t=72.010s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,55,125,8,8,196,0,55,8  ; n1452 t=72.034s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1453 t=72.116s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,10,98,0,43,8  ; n1454 t=72.116s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 5,0,100,0,31,76,9,12,49,0,31,8  ; n1455 t=72.116s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 82,0,100,0,55,125,8,13,196,0,55,8  ; n1456 t=72.121s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 5,0,100,0,55,125,8,15,196,0,55,8  ; n1457 t=72.203s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,100,0,31,76,9,11,49,0,31,8  ; n1455 t=72.116s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 82,0,100,0,55,125,8,12,196,0,55,8  ; n1456 t=72.121s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,100,0,55,125,8,13,196,0,55,8  ; n1457 t=72.203s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 5,0,100,0,58,125,8,14,233,0,58,8  ; n1458 t=72.207s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,51,125,5,11,156,0,51,5  ; n1459 t=72.212s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch11 @71644.8ms -> 72212.1ms]
-    db 0,0,100,0,27,76,9,0,39,0,27,8  ; n1460 t=72.212s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch0 @71659.2ms -> 72212.1ms]
-    db 96,0,100,0,38,76,9,1,78,0,38,8  ; n1461 t=72.212s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @71914.0ms -> 72212.1ms]
-    db 0,0,100,0,51,125,5,2,156,0,51,5  ; n1462 t=72.308s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,55,125,8,4,196,0,55,8  ; n1463 t=72.308s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,51,125,5,15,156,0,51,5  ; n1459 t=72.212s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,16,39,0,27,8  ; n1460 t=72.212s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 96,0,100,0,38,76,9,17,78,0,38,8  ; n1461 t=72.212s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,51,125,5,1,156,0,51,5  ; n1462 t=72.308s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,55,125,8,2,196,0,55,8  ; n1463 t=72.308s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,58,125,8,3,233,0,58,8  ; n1464 t=72.308s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,27,76,9,5,39,0,27,8  ; n1465 t=72.308s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch5 @72010.2ms -> 72308.3ms]
-    db 72,0,100,0,38,76,9,6,78,0,38,8  ; n1466 t=72.308s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @72010.2ms -> 72308.3ms]
-    db 14,0,100,0,55,125,8,8,196,0,55,8  ; n1467 t=72.380s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,51,125,5,7,156,0,51,5  ; n1468 t=72.395s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,58,125,8,14,233,0,58,8  ; n1469 t=72.395s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch14 @72207.3ms -> 72394.8ms]
-    db 0,0,100,0,27,76,9,0,39,0,27,8  ; n1470 t=72.395s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch0 @72212.1ms -> 72394.8ms]
-    db 91,0,100,0,38,76,9,1,78,0,38,8  ; n1471 t=72.395s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch1 @72212.1ms -> 72394.8ms]
+    db 0,0,100,0,27,76,9,4,39,0,27,8  ; n1465 t=72.308s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 72,0,100,0,38,76,9,20,78,0,38,8  ; n1466 t=72.308s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,55,125,8,5,196,0,55,8  ; n1467 t=72.380s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 0,0,100,0,51,125,5,6,156,0,51,5  ; n1468 t=72.395s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,58,125,8,7,233,0,58,8  ; n1469 t=72.395s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,27,76,9,8,39,0,27,8  ; n1470 t=72.395s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 91,0,100,0,38,76,9,22,78,0,38,8  ; n1471 t=72.395s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 5,0,100,0,58,125,8,9,233,0,58,8  ; n1472 t=72.486s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 10,0,100,0,55,125,8,10,196,0,55,8  ; n1473 t=72.491s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,51,125,5,12,156,0,51,5  ; n1474 t=72.501s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,27,76,9,13,39,0,27,8  ; n1475 t=72.501s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
-    db 37,1,100,0,38,76,9,6,78,0,38,8  ; n1476 t=72.501s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @72308.3ms -> 72500.6ms]
+    db 0,0,100,0,51,125,5,11,156,0,51,5  ; n1474 t=72.501s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,12,39,0,27,8  ; n1475 t=72.501s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 37,1,100,0,38,76,9,23,78,0,38,8  ; n1476 t=72.501s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 0,0,109,1,74,125,5,0,75,2,74,5  ; n1477 t=72.794s dur=365ms, freq=587Hz, sample=74, buffer_id=05:4A
     db 5,0,100,0,55,125,8,1,196,0,55,8  ; n1478 t=72.794s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1479 t=72.799s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
@@ -1516,76 +1516,76 @@ midi_data:
     db 0,0,100,0,55,125,5,10,196,0,55,5  ; n1497 t=73.856s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,11,98,0,43,8  ; n1498 t=73.856s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 24,0,100,0,31,76,9,12,49,0,31,8  ; n1499 t=73.856s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 62,0,100,0,55,125,8,13,196,0,55,8  ; n1500 t=73.880s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 5,0,119,1,74,125,5,14,75,2,74,5  ; n1501 t=73.943s dur=375ms, freq=587Hz, sample=74, buffer_id=05:4A
+    db 62,0,100,0,55,125,8,14,196,0,55,8  ; n1500 t=73.880s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,119,1,74,125,5,13,75,2,74,5  ; n1501 t=73.943s dur=375ms, freq=587Hz, sample=74, buffer_id=05:4A
     db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1502 t=73.948s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,31,76,9,15,49,0,31,8  ; n1503 t=73.948s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,7,98,0,43,8  ; n1504 t=73.948s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch7 @73668.8ms -> 73947.7ms]
-    db 10,0,100,0,55,125,8,3,196,0,55,8  ; n1505 t=73.957s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37 [TRUNCATE prev:ch3 @73688.1ms -> 73957.3ms]
-    db 13,1,128,1,74,124,4,2,75,2,74,4  ; n1506 t=73.967s dur=384ms, freq=587Hz, sample=74, buffer_id=04:4A [TRUNCATE prev:ch2 @73380.4ms -> 73966.9ms]
+    db 10,0,100,0,43,76,9,16,98,0,43,8  ; n1504 t=73.948s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,55,125,8,17,196,0,55,8  ; n1505 t=73.957s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 13,1,128,1,74,124,4,18,75,2,74,4  ; n1506 t=73.967s dur=384ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 10,0,100,0,55,125,8,0,196,0,55,8  ; n1507 t=74.236s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1508 t=74.246s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,5,98,0,43,8  ; n1509 t=74.246s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 87,0,100,0,31,76,9,6,49,0,31,8  ; n1510 t=74.246s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1508 t=74.246s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,43,76,9,3,98,0,43,8  ; n1509 t=74.246s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 87,0,100,0,31,76,9,5,49,0,31,8  ; n1510 t=74.246s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 5,0,100,0,55,125,8,1,196,0,55,8  ; n1511 t=74.332s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n1512 t=74.337s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,7,49,0,31,8  ; n1513 t=74.337s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1512 t=74.337s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1513 t=74.337s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 91,0,100,0,43,76,9,8,98,0,43,8  ; n1514 t=74.337s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 5,0,100,0,55,125,8,10,196,0,55,8  ; n1515 t=74.428s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 5,0,100,0,55,125,8,7,196,0,55,8  ; n1515 t=74.428s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1516 t=74.433s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,12,98,0,43,8  ; n1517 t=74.433s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,43,76,9,10,98,0,43,8  ; n1517 t=74.433s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 87,0,100,0,31,76,9,11,49,0,31,8  ; n1518 t=74.433s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 0,0,100,0,65,125,8,13,114,1,65,8  ; n1519 t=74.520s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 5,0,100,0,58,125,8,14,233,0,58,8  ; n1520 t=74.520s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,51,125,5,15,156,0,51,5  ; n1521 t=74.525s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,27,76,9,2,39,0,27,8  ; n1522 t=74.525s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch2 @73966.9ms -> 74524.6ms]
-    db 0,0,100,0,38,76,9,0,78,0,38,8  ; n1523 t=74.525s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @74236.2ms -> 74524.6ms]
-    db 14,0,100,0,58,76,9,4,233,0,58,8  ; n1524 t=74.525s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch4 @74245.8ms -> 74524.6ms]
-    db 5,0,250,0,74,125,5,5,110,2,74,5  ; n1525 t=74.539s dur=250ms, freq=622Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch5 @74245.8ms -> 74539.0ms]
-    db 72,0,254,0,75,124,4,6,110,2,75,4  ; n1526 t=74.544s dur=254ms, freq=622Hz, sample=75, buffer_id=04:4B [TRUNCATE prev:ch6 @74245.8ms -> 74543.8ms]
-    db 0,0,100,0,58,125,8,1,233,0,58,8  ; n1527 t=74.616s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch1 @74332.3ms -> 74616.0ms]
-    db 0,0,100,0,65,125,8,3,114,1,65,8  ; n1528 t=74.616s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch3 @74337.1ms -> 74616.0ms]
-    db 5,0,100,0,58,76,9,7,233,0,58,8  ; n1529 t=74.616s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch7 @74337.1ms -> 74616.0ms]
-    db 0,0,100,0,51,125,5,8,156,0,51,5  ; n1530 t=74.621s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch8 @74337.1ms -> 74620.8ms]
-    db 0,0,100,0,27,76,9,10,39,0,27,8  ; n1531 t=74.621s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch10 @74428.5ms -> 74620.8ms]
-    db 91,0,100,0,38,76,9,9,78,0,38,8  ; n1532 t=74.621s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @74433.3ms -> 74620.8ms]
-    db 5,0,100,0,65,125,8,13,114,1,65,8  ; n1533 t=74.712s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch13 @74519.8ms -> 74712.1ms]
-    db 0,0,100,0,51,125,5,15,156,0,51,5  ; n1534 t=74.717s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch15 @74524.6ms -> 74716.9ms]
-    db 0,0,100,0,58,125,8,14,233,0,58,8  ; n1535 t=74.717s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch14 @74519.8ms -> 74716.9ms]
-    db 0,0,100,0,27,76,9,2,39,0,27,8  ; n1536 t=74.717s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch2 @74524.6ms -> 74716.9ms]
-    db 0,0,100,0,38,76,9,0,78,0,38,8  ; n1537 t=74.717s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @74524.6ms -> 74716.9ms]
-    db 91,0,100,0,58,76,9,4,233,0,58,8  ; n1538 t=74.717s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch4 @74524.6ms -> 74716.9ms]
-    db 0,0,100,0,58,125,8,11,233,0,58,8  ; n1539 t=74.808s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,65,125,8,12,114,1,65,8  ; n1540 t=74.808s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 10,0,100,0,58,76,9,1,233,0,58,8  ; n1541 t=74.808s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A [TRUNCATE prev:ch1 @74616.0ms -> 74808.3ms]
-    db 0,0,100,0,51,125,5,8,156,0,51,5  ; n1542 t=74.818s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch8 @74620.8ms -> 74817.9ms]
-    db 0,0,100,0,27,76,9,10,39,0,27,8  ; n1543 t=74.818s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch10 @74620.8ms -> 74817.9ms]
-    db 139,0,100,0,38,76,9,9,78,0,38,8  ; n1544 t=74.818s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @74620.8ms -> 74817.9ms]
-    db 5,0,100,0,69,125,5,3,210,1,69,5  ; n1545 t=74.957s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 125,0,100,0,70,124,4,7,210,1,70,4  ; n1546 t=74.962s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,125,8,12,114,1,65,8  ; n1519 t=74.520s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 5,0,100,0,58,125,8,13,233,0,58,8  ; n1520 t=74.520s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,51,125,5,14,156,0,51,5  ; n1521 t=74.525s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,15,39,0,27,8  ; n1522 t=74.525s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 0,0,100,0,38,76,9,16,78,0,38,8  ; n1523 t=74.525s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,58,76,9,17,233,0,58,8  ; n1524 t=74.525s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 5,0,250,0,74,125,5,0,110,2,74,5  ; n1525 t=74.539s dur=250ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 72,0,254,0,75,124,4,19,110,2,75,4  ; n1526 t=74.544s dur=254ms, freq=622Hz, sample=75, buffer_id=04:4B
+    db 0,0,100,0,58,125,8,2,233,0,58,8  ; n1527 t=74.616s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,65,125,8,3,114,1,65,8  ; n1528 t=74.616s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 5,0,100,0,58,76,9,5,233,0,58,8  ; n1529 t=74.616s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,51,125,5,18,156,0,51,5  ; n1530 t=74.621s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,20,39,0,27,8  ; n1531 t=74.621s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 91,0,100,0,38,76,9,24,78,0,38,8  ; n1532 t=74.621s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,65,125,8,1,114,1,65,8  ; n1533 t=74.712s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,51,125,5,4,156,0,51,5  ; n1534 t=74.717s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,58,125,8,6,233,0,58,8  ; n1535 t=74.717s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,27,76,9,8,39,0,27,8  ; n1536 t=74.717s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 0,0,100,0,38,76,9,25,78,0,38,8  ; n1537 t=74.717s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 91,0,100,0,58,76,9,21,233,0,58,8  ; n1538 t=74.717s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,58,125,8,7,233,0,58,8  ; n1539 t=74.808s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,65,125,8,9,114,1,65,8  ; n1540 t=74.808s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 10,0,100,0,58,76,9,10,233,0,58,8  ; n1541 t=74.808s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,51,125,5,11,156,0,51,5  ; n1542 t=74.818s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,22,39,0,27,8  ; n1543 t=74.818s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 139,0,100,0,38,76,9,26,78,0,38,8  ; n1544 t=74.818s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,69,125,5,2,210,1,69,5  ; n1545 t=74.957s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 125,0,100,0,70,124,4,3,210,1,70,4  ; n1546 t=74.962s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,63,125,5,0,55,1,63,5  ; n1547 t=75.087s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,50,76,9,2,156,0,50,8  ; n1548 t=75.087s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,50,76,9,1,156,0,50,8  ; n1548 t=75.087s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 24,0,100,0,38,76,9,4,78,0,38,8  ; n1549 t=75.087s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 0,0,104,1,65,124,4,1,114,1,65,4  ; n1550 t=75.111s dur=360ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,8,5,55,1,63,8  ; n1551 t=75.111s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 10,0,100,0,58,125,8,6,233,0,58,8  ; n1552 t=75.111s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 41,2,147,1,63,125,5,8,114,1,63,5  ; n1553 t=75.121s dur=403ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,104,1,65,124,4,5,114,1,65,4  ; n1550 t=75.111s dur=360ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,8,6,55,1,63,8  ; n1551 t=75.111s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,58,125,8,8,233,0,58,8  ; n1552 t=75.111s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 41,2,147,1,63,125,5,7,114,1,63,5  ; n1553 t=75.121s dur=403ms, freq=370Hz, sample=63, buffer_id=05:3F
     db 0,0,56,1,65,124,4,0,55,1,65,4  ; n1554 t=75.674s dur=312ms, freq=311Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,58,125,5,1,6,1,58,5  ; n1555 t=75.674s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,63,125,8,2,55,1,63,8  ; n1556 t=75.674s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,47,76,9,3,131,0,47,8  ; n1557 t=75.674s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
     db 5,0,100,0,38,76,9,5,65,0,38,8  ; n1558 t=75.674s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
     db 5,0,240,0,63,125,5,4,55,1,63,5  ; n1559 t=75.678s dur=240ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 28,1,100,0,63,125,8,6,55,1,63,8  ; n1560 t=75.683s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,58,125,5,7,6,1,58,5  ; n1561 t=75.967s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,47,76,9,8,131,0,47,8  ; n1562 t=75.967s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
-    db 38,0,100,0,38,76,9,10,65,0,38,8  ; n1563 t=75.967s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 28,1,100,0,63,125,8,8,55,1,63,8  ; n1560 t=75.683s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,58,125,5,6,6,1,58,5  ; n1561 t=75.967s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,47,76,9,7,131,0,47,8  ; n1562 t=75.967s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 38,0,100,0,38,76,9,9,65,0,38,8  ; n1563 t=75.967s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
     db 58,0,100,0,63,125,8,1,55,1,63,8  ; n1564 t=76.005s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,58,125,5,2,6,1,58,5  ; n1565 t=76.063s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,47,76,9,5,131,0,47,8  ; n1566 t=76.063s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
     db 24,0,100,0,38,76,9,3,65,0,38,8  ; n1567 t=76.063s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
-    db 10,0,100,0,63,125,8,9,55,1,63,8  ; n1568 t=76.087s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 10,0,100,0,69,125,5,6,210,1,69,5  ; n1569 t=76.097s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 10,0,100,0,63,125,8,10,55,1,63,8  ; n1568 t=76.087s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,69,125,5,8,210,1,69,5  ; n1569 t=76.097s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
     db 53,0,100,0,70,124,4,11,210,1,70,4  ; n1570 t=76.106s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,58,125,5,4,6,1,58,5  ; n1571 t=76.159s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,47,76,9,12,131,0,47,8  ; n1572 t=76.159s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
@@ -1593,74 +1593,74 @@ midi_data:
     db 72,0,100,0,63,125,8,14,55,1,63,8  ; n1574 t=76.178s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,55,125,5,0,196,0,55,5  ; n1575 t=76.251s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,15,98,0,43,8  ; n1576 t=76.251s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 5,0,100,0,31,76,9,7,49,0,31,8  ; n1577 t=76.251s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch7 @75966.9ms -> 76250.6ms]
-    db 5,0,189,2,69,125,5,6,136,1,69,5  ; n1578 t=76.255s dur=701ms, freq=392Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch6 @76096.7ms -> 76255.4ms]
-    db 5,0,100,0,55,125,8,8,196,0,55,8  ; n1579 t=76.260s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37 [TRUNCATE prev:ch8 @75966.9ms -> 76260.2ms]
-    db 18,1,189,2,65,124,4,10,136,1,65,4  ; n1580 t=76.265s dur=701ms, freq=392Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch10 @75966.9ms -> 76265.0ms]
+    db 5,0,100,0,31,76,9,16,49,0,31,8  ; n1577 t=76.251s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,189,2,69,125,5,17,136,1,69,5  ; n1578 t=76.255s dur=701ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,55,125,8,18,196,0,55,8  ; n1579 t=76.260s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 18,1,189,2,65,124,4,19,136,1,65,4  ; n1580 t=76.265s dur=701ms, freq=392Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,58,126,3,1,233,0,58,3  ; n1581 t=76.539s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
     db 5,0,100,0,58,125,8,2,233,0,58,8  ; n1582 t=76.539s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,62,126,3,3,38,1,62,3  ; n1583 t=76.544s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 91,0,100,0,62,125,8,4,38,1,62,8  ; n1584 t=76.544s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
     db 0,0,100,0,58,126,3,0,233,0,58,3  ; n1585 t=76.635s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
     db 0,0,100,0,58,125,8,5,233,0,58,8  ; n1586 t=76.635s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 5,0,100,0,62,125,8,7,38,1,62,8  ; n1587 t=76.635s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
-    db 0,0,100,0,62,126,3,8,38,1,62,3  ; n1588 t=76.640s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
-    db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1589 t=76.640s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,11,49,0,31,8  ; n1590 t=76.640s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 91,0,100,0,43,76,9,12,98,0,43,8  ; n1591 t=76.640s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 0,0,100,0,58,126,3,13,233,0,58,3  ; n1592 t=76.731s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
-    db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1593 t=76.731s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,58,125,8,15,233,0,58,8  ; n1594 t=76.731s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
-    db 0,0,100,0,62,125,8,4,38,1,62,8  ; n1595 t=76.731s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E [TRUNCATE prev:ch4 @76543.8ms -> 76731.3ms]
-    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1596 t=76.731s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @76255.4ms -> 76731.3ms]
-    db 5,0,100,0,43,76,9,10,98,0,43,8  ; n1597 t=76.731s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch10 @76265.0ms -> 76731.3ms]
-    db 91,0,100,0,62,126,3,3,38,1,62,3  ; n1598 t=76.736s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch3 @76543.8ms -> 76736.2ms]
-    db 0,0,100,0,63,126,3,1,55,1,63,3  ; n1599 t=76.828s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch1 @76539.0ms -> 76827.5ms]
-    db 0,0,100,0,58,126,3,0,247,0,58,3  ; n1600 t=76.828s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch0 @76635.2ms -> 76827.5ms]
-    db 0,0,100,0,59,125,8,2,247,0,59,8  ; n1601 t=76.828s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch2 @76539.0ms -> 76827.5ms]
-    db 5,0,100,0,63,125,8,5,55,1,63,8  ; n1602 t=76.828s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch5 @76635.2ms -> 76827.5ms]
-    db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1603 t=76.832s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch9 @76640.0ms -> 76832.3ms]
-    db 0,0,100,0,31,76,9,11,49,0,31,8  ; n1604 t=76.832s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch11 @76640.0ms -> 76832.3ms]
-    db 10,0,100,0,43,76,9,12,98,0,43,8  ; n1605 t=76.832s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch12 @76640.0ms -> 76832.3ms]
-    db 82,0,100,0,50,76,9,7,147,0,50,8  ; n1606 t=76.842s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch7 @76635.2ms -> 76841.9ms]
-    db 0,0,100,0,58,126,3,13,247,0,58,3  ; n1607 t=76.924s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch13 @76731.3ms -> 76923.7ms]
-    db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1608 t=76.924s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch14 @76731.3ms -> 76923.7ms]
-    db 0,0,100,0,59,125,8,8,247,0,59,8  ; n1609 t=76.924s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch8 @76640.0ms -> 76923.7ms]
-    db 0,0,100,0,63,125,8,4,55,1,63,8  ; n1610 t=76.924s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch4 @76731.3ms -> 76923.7ms]
-    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1611 t=76.924s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @76731.3ms -> 76923.7ms]
-    db 5,0,100,0,43,76,9,10,98,0,43,8  ; n1612 t=76.924s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch10 @76731.3ms -> 76923.7ms]
-    db 10,0,100,0,63,126,3,1,55,1,63,3  ; n1613 t=76.928s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch1 @76827.5ms -> 76928.5ms]
-    db 77,0,100,0,50,76,9,15,147,0,50,8  ; n1614 t=76.938s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch15 @76731.3ms -> 76938.1ms]
-    db 5,0,100,0,58,126,3,0,247,0,58,3  ; n1615 t=77.015s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch0 @76827.5ms -> 77015.0ms]
-    db 0,0,100,0,63,126,3,3,55,1,63,3  ; n1616 t=77.020s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch3 @76736.2ms -> 77019.8ms]
-    db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1617 t=77.020s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch9 @76832.3ms -> 77019.8ms]
-    db 0,0,100,0,63,125,8,5,55,1,63,8  ; n1618 t=77.020s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch5 @76827.5ms -> 77019.8ms]
-    db 0,0,100,0,59,125,8,2,247,0,59,8  ; n1619 t=77.020s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch2 @76827.5ms -> 77019.8ms]
-    db 0,0,100,0,31,76,9,11,49,0,31,8  ; n1620 t=77.020s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch11 @76832.3ms -> 77019.8ms]
-    db 14,0,100,0,43,76,9,12,98,0,43,8  ; n1621 t=77.020s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch12 @76832.3ms -> 77019.8ms]
-    db 82,0,100,0,50,76,9,7,147,0,50,8  ; n1622 t=77.034s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch7 @76841.9ms -> 77034.2ms]
-    db 0,0,100,0,62,126,3,4,21,1,62,3  ; n1623 t=77.116s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch4 @76923.7ms -> 77116.0ms]
-    db 0,0,100,0,65,126,3,6,93,1,65,3  ; n1624 t=77.116s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch6 @76923.7ms -> 77116.0ms]
-    db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1625 t=77.116s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch14 @76923.7ms -> 77116.0ms]
-    db 0,0,100,0,65,125,8,8,93,1,65,8  ; n1626 t=77.116s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch8 @76923.7ms -> 77116.0ms]
-    db 0,0,100,0,61,125,8,10,21,1,61,8  ; n1627 t=77.116s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch10 @76923.7ms -> 77116.0ms]
-    db 0,0,100,0,31,76,9,13,49,0,31,8  ; n1628 t=77.116s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch13 @76923.7ms -> 77116.0ms]
-    db 10,0,100,0,43,76,9,1,98,0,43,8  ; n1629 t=77.116s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch1 @76928.5ms -> 77116.0ms]
-    db 82,0,100,0,50,76,9,15,147,0,50,8  ; n1630 t=77.126s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch15 @76938.1ms -> 77125.6ms]
-    db 0,0,100,0,65,126,3,0,93,1,65,3  ; n1631 t=77.207s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch0 @77015.0ms -> 77207.3ms]
-    db 5,0,100,0,62,126,3,2,21,1,62,3  ; n1632 t=77.207s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch2 @77019.8ms -> 77207.3ms]
-    db 0,0,100,0,61,125,8,3,21,1,61,8  ; n1633 t=77.212s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch3 @77019.8ms -> 77212.1ms]
-    db 87,0,100,0,65,125,8,5,93,1,65,8  ; n1634 t=77.212s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch5 @77019.8ms -> 77212.1ms]
-    db 10,0,100,0,65,126,3,6,93,1,65,3  ; n1635 t=77.299s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch6 @77116.0ms -> 77298.7ms]
-    db 0,0,100,0,62,126,3,4,21,1,62,3  ; n1636 t=77.308s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch4 @77116.0ms -> 77308.3ms]
-    db 0,0,100,0,61,125,8,10,21,1,61,8  ; n1637 t=77.308s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch10 @77116.0ms -> 77308.3ms]
-    db 96,0,100,0,65,125,8,8,93,1,65,8  ; n1638 t=77.308s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch8 @77116.0ms -> 77308.3ms]
-    db 0,0,100,0,55,125,5,7,196,0,55,5  ; n1639 t=77.404s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,186,1,79,125,5,9,16,3,79,5  ; n1640 t=77.404s dur=442ms, freq=784Hz, sample=79, buffer_id=05:4F
-    db 0,0,100,0,31,76,9,12,49,0,31,8  ; n1641 t=77.404s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 5,0,100,0,43,76,9,11,98,0,43,8  ; n1642 t=77.404s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 29,0,100,0,67,125,8,1,136,1,67,8  ; n1643 t=77.409s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch1 @77116.0ms -> 77409.2ms]
-    db 31,2,90,1,78,124,4,13,16,3,78,4  ; n1644 t=77.438s dur=346ms, freq=784Hz, sample=78, buffer_id=04:4E
+    db 5,0,100,0,62,125,8,6,38,1,62,8  ; n1587 t=76.635s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
+    db 0,0,100,0,62,126,3,7,38,1,62,3  ; n1588 t=76.640s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,55,125,5,8,196,0,55,5  ; n1589 t=76.640s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,9,49,0,31,8  ; n1590 t=76.640s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 91,0,100,0,43,76,9,10,98,0,43,8  ; n1591 t=76.640s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,58,126,3,11,233,0,58,3  ; n1592 t=76.731s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,55,125,5,12,196,0,55,5  ; n1593 t=76.731s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,58,125,8,13,233,0,58,8  ; n1594 t=76.731s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
+    db 0,0,100,0,62,125,8,14,38,1,62,8  ; n1595 t=76.731s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
+    db 0,0,100,0,31,76,9,15,49,0,31,8  ; n1596 t=76.731s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,100,0,43,76,9,16,98,0,43,8  ; n1597 t=76.731s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 91,0,100,0,62,126,3,18,38,1,62,3  ; n1598 t=76.736s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,63,126,3,20,55,1,63,3  ; n1599 t=76.828s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 0,0,100,0,58,126,3,21,247,0,58,3  ; n1600 t=76.828s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,59,125,8,22,247,0,59,8  ; n1601 t=76.828s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 5,0,100,0,63,125,8,23,55,1,63,8  ; n1602 t=76.828s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,55,125,5,24,196,0,55,5  ; n1603 t=76.832s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,25,49,0,31,8  ; n1604 t=76.832s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,26,98,0,43,8  ; n1605 t=76.832s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,50,76,9,1,147,0,50,8  ; n1606 t=76.842s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,126,3,2,247,0,58,3  ; n1607 t=76.924s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n1608 t=76.924s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,59,125,8,4,247,0,59,8  ; n1609 t=76.924s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 0,0,100,0,63,125,8,27,55,1,63,8  ; n1610 t=76.924s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,31,76,9,28,49,0,31,8  ; n1611 t=76.924s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,100,0,43,76,9,29,98,0,43,8  ; n1612 t=76.924s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,63,126,3,30,55,1,63,3  ; n1613 t=76.928s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 77,0,100,0,50,76,9,0,147,0,50,8  ; n1614 t=76.938s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,58,126,3,5,247,0,58,3  ; n1615 t=77.015s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,63,126,3,6,55,1,63,3  ; n1616 t=77.020s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 0,0,100,0,55,125,5,7,196,0,55,5  ; n1617 t=77.020s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,63,125,8,8,55,1,63,8  ; n1618 t=77.020s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,59,125,8,9,247,0,59,8  ; n1619 t=77.020s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 0,0,100,0,31,76,9,10,49,0,31,8  ; n1620 t=77.020s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 14,0,100,0,43,76,9,31,98,0,43,8  ; n1621 t=77.020s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,50,76,9,11,147,0,50,8  ; n1622 t=77.034s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,62,126,3,12,21,1,62,3  ; n1623 t=77.116s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,65,126,3,13,93,1,65,3  ; n1624 t=77.116s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1625 t=77.116s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,65,125,8,15,93,1,65,8  ; n1626 t=77.116s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,61,125,8,16,21,1,61,8  ; n1627 t=77.116s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 0,0,100,0,31,76,9,18,49,0,31,8  ; n1628 t=77.116s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,26,98,0,43,8  ; n1629 t=77.116s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch26 @76832.3ms -> 77116.0ms]
+    db 82,0,100,0,50,76,9,1,147,0,50,8  ; n1630 t=77.126s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch1 @76841.9ms -> 77125.6ms]
+    db 0,0,100,0,65,126,3,17,93,1,65,3  ; n1631 t=77.207s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 5,0,100,0,62,126,3,19,21,1,62,3  ; n1632 t=77.207s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,61,125,8,20,21,1,61,8  ; n1633 t=77.212s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 87,0,100,0,65,125,8,21,93,1,65,8  ; n1634 t=77.212s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 10,0,100,0,65,126,3,0,93,1,65,3  ; n1635 t=77.299s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 0,0,100,0,62,126,3,2,21,1,62,3  ; n1636 t=77.308s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,61,125,8,3,21,1,61,8  ; n1637 t=77.308s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 96,0,100,0,65,125,8,4,93,1,65,8  ; n1638 t=77.308s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,55,125,5,5,196,0,55,5  ; n1639 t=77.404s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,186,1,79,125,5,6,16,3,79,5  ; n1640 t=77.404s dur=442ms, freq=784Hz, sample=79, buffer_id=05:4F
+    db 0,0,100,0,31,76,9,7,49,0,31,8  ; n1641 t=77.404s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,100,0,43,76,9,8,98,0,43,8  ; n1642 t=77.404s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 29,0,100,0,67,125,8,9,136,1,67,8  ; n1643 t=77.409s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 31,2,90,1,78,124,4,1,16,3,78,4  ; n1644 t=77.438s dur=346ms, freq=784Hz, sample=78, buffer_id=04:4E
     db 0,0,211,0,65,124,4,0,136,1,65,4  ; n1645 t=77.981s dur=211ms, freq=392Hz, sample=65, buffer_id=04:41
     db 5,0,100,0,67,125,8,2,136,1,67,8  ; n1646 t=77.981s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1647 t=77.986s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
@@ -1674,78 +1674,78 @@ midi_data:
     db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1655 t=78.380s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,43,76,9,5,98,0,43,8  ; n1656 t=78.380s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 10,0,100,0,31,76,9,8,49,0,31,8  ; n1657 t=78.380s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 48,0,100,0,67,125,8,9,136,1,67,8  ; n1658 t=78.390s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 48,0,100,0,67,125,8,10,136,1,67,8  ; n1658 t=78.390s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 14,0,110,0,69,125,5,0,136,1,69,5  ; n1659 t=78.438s dur=110ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 19,0,100,0,65,124,4,10,136,1,65,4  ; n1660 t=78.453s dur=100ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 19,0,100,0,65,124,4,9,136,1,65,4  ; n1660 t=78.453s dur=100ms, freq=392Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,55,125,5,11,196,0,55,5  ; n1661 t=78.472s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,13,49,0,31,8  ; n1662 t=78.472s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,12,98,0,43,8  ; n1663 t=78.472s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,31,76,9,12,49,0,31,8  ; n1662 t=78.472s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,13,98,0,43,8  ; n1663 t=78.472s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 77,0,100,0,67,125,8,3,136,1,67,8  ; n1664 t=78.481s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 5,0,100,0,67,125,8,14,136,1,67,8  ; n1665 t=78.558s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,55,125,5,15,196,0,55,5  ; n1666 t=78.563s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,7,98,0,43,8  ; n1667 t=78.563s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch7 @78284.2ms -> 78563.1ms]
-    db 19,0,100,0,31,76,9,6,49,0,31,8  ; n1668 t=78.563s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch6 @78284.2ms -> 78563.1ms]
-    db 5,0,109,1,79,125,5,2,16,3,79,5  ; n1669 t=78.582s dur=365ms, freq=784Hz, sample=79, buffer_id=05:4F [TRUNCATE prev:ch2 @78284.2ms -> 78582.3ms]
-    db 8,1,133,1,78,124,4,1,16,3,78,4  ; n1670 t=78.587s dur=389ms, freq=784Hz, sample=78, buffer_id=04:4E [TRUNCATE prev:ch1 @78298.7ms -> 78587.1ms]
+    db 0,0,100,0,43,76,9,16,98,0,43,8  ; n1667 t=78.563s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 19,0,100,0,31,76,9,17,49,0,31,8  ; n1668 t=78.563s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,109,1,79,125,5,18,16,3,79,5  ; n1669 t=78.582s dur=365ms, freq=784Hz, sample=79, buffer_id=05:4F
+    db 8,1,133,1,78,124,4,2,16,3,78,4  ; n1670 t=78.587s dur=389ms, freq=784Hz, sample=78, buffer_id=04:4E
     db 0,0,100,0,55,125,5,0,196,0,55,5  ; n1671 t=78.852s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,3,49,0,31,8  ; n1672 t=78.852s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,4,98,0,43,8  ; n1673 t=78.852s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 87,0,100,0,67,125,8,5,136,1,67,8  ; n1674 t=78.861s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,55,125,5,6,196,0,55,5  ; n1675 t=78.948s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,8,98,0,43,8  ; n1676 t=78.948s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,31,76,9,1,49,0,31,8  ; n1672 t=78.852s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,3,98,0,43,8  ; n1673 t=78.852s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 87,0,100,0,67,125,8,4,136,1,67,8  ; n1674 t=78.861s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,55,125,5,5,196,0,55,5  ; n1675 t=78.948s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,43,76,9,6,98,0,43,8  ; n1676 t=78.948s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 5,0,100,0,31,76,9,7,49,0,31,8  ; n1677 t=78.948s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 87,0,100,0,67,125,8,10,136,1,67,8  ; n1678 t=78.953s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 87,0,100,0,67,125,8,8,136,1,67,8  ; n1678 t=78.953s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1679 t=79.039s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,11,49,0,31,8  ; n1680 t=79.039s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,100,0,43,76,9,13,98,0,43,8  ; n1681 t=79.039s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,31,76,9,10,49,0,31,8  ; n1680 t=79.039s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,76,9,11,98,0,43,8  ; n1681 t=79.039s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 58,0,100,0,67,125,8,12,136,1,67,8  ; n1682 t=79.049s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 29,0,56,1,79,125,5,14,228,2,79,5  ; n1683 t=79.106s dur=312ms, freq=740Hz, sample=79, buffer_id=05:4F
-    db 5,0,100,0,63,125,8,15,55,1,63,8  ; n1684 t=79.135s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,51,125,5,2,156,0,51,5  ; n1685 t=79.140s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch2 @78582.3ms -> 79140.0ms]
-    db 0,0,100,0,67,125,8,5,136,1,67,8  ; n1686 t=79.140s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch5 @78861.2ms -> 79140.0ms]
-    db 0,0,100,0,27,76,9,1,39,0,27,8  ; n1687 t=79.140s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch1 @78587.1ms -> 79140.0ms]
-    db 24,0,100,0,38,76,9,0,78,0,38,8  ; n1688 t=79.140s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @78851.5ms -> 79140.0ms]
-    db 62,0,42,1,78,124,4,3,228,2,78,4  ; n1689 t=79.164s dur=298ms, freq=740Hz, sample=78, buffer_id=04:4E
-    db 0,0,100,0,51,125,5,4,156,0,51,5  ; n1690 t=79.227s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,38,76,9,6,78,0,38,8  ; n1691 t=79.227s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @78947.7ms -> 79226.5ms]
-    db 5,0,100,0,27,76,9,7,39,0,27,8  ; n1692 t=79.227s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch7 @78947.7ms -> 79226.5ms]
-    db 5,0,100,0,67,125,8,10,136,1,67,8  ; n1693 t=79.231s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch10 @78952.5ms -> 79231.3ms]
-    db 82,0,100,0,63,125,8,15,55,1,63,8  ; n1694 t=79.236s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @79135.2ms -> 79236.2ms]
-    db 5,0,100,0,67,125,8,8,136,1,67,8  ; n1695 t=79.318s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,51,125,5,2,156,0,51,5  ; n1696 t=79.323s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch2 @79140.0ms -> 79322.7ms]
-    db 0,0,100,0,27,76,9,1,39,0,27,8  ; n1697 t=79.323s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch1 @79140.0ms -> 79322.7ms]
-    db 10,0,100,0,38,76,9,0,78,0,38,8  ; n1698 t=79.323s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @79140.0ms -> 79322.7ms]
-    db 87,0,100,0,63,125,8,9,55,1,63,8  ; n1699 t=79.332s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch9 @79039.0ms -> 79332.3ms]
-    db 5,0,100,0,67,125,8,11,136,1,67,8  ; n1700 t=79.419s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,51,125,5,12,156,0,51,5  ; n1701 t=79.424s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,63,125,8,13,55,1,63,8  ; n1702 t=79.424s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,27,76,9,7,39,0,27,8  ; n1703 t=79.424s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch7 @79226.5ms -> 79423.7ms]
-    db 154,0,100,0,38,76,9,6,78,0,38,8  ; n1704 t=79.424s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @79226.5ms -> 79423.7ms]
-    db 29,0,100,0,79,125,5,4,186,2,79,5  ; n1705 t=79.578s dur=100ms, freq=698Hz, sample=79, buffer_id=05:4F
-    db 96,0,100,0,77,124,4,5,186,2,77,4  ; n1706 t=79.606s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
+    db 29,0,56,1,79,125,5,13,228,2,79,5  ; n1683 t=79.106s dur=312ms, freq=740Hz, sample=79, buffer_id=05:4F
+    db 5,0,100,0,63,125,8,14,55,1,63,8  ; n1684 t=79.135s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,51,125,5,15,156,0,51,5  ; n1685 t=79.140s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,67,125,8,16,136,1,67,8  ; n1686 t=79.140s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,27,76,9,17,39,0,27,8  ; n1687 t=79.140s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 24,0,100,0,38,76,9,19,78,0,38,8  ; n1688 t=79.140s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 62,0,42,1,78,124,4,0,228,2,78,4  ; n1689 t=79.164s dur=298ms, freq=740Hz, sample=78, buffer_id=04:4E
+    db 0,0,100,0,51,125,5,1,156,0,51,5  ; n1690 t=79.227s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,38,76,9,2,78,0,38,8  ; n1691 t=79.227s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,27,76,9,3,39,0,27,8  ; n1692 t=79.227s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 5,0,100,0,67,125,8,18,136,1,67,8  ; n1693 t=79.231s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 82,0,100,0,63,125,8,4,55,1,63,8  ; n1694 t=79.236s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,67,125,8,5,136,1,67,8  ; n1695 t=79.318s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,51,125,5,6,156,0,51,5  ; n1696 t=79.323s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,7,39,0,27,8  ; n1697 t=79.323s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 10,0,100,0,38,76,9,8,78,0,38,8  ; n1698 t=79.323s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 87,0,100,0,63,125,8,20,55,1,63,8  ; n1699 t=79.332s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,67,125,8,9,136,1,67,8  ; n1700 t=79.419s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,51,125,5,10,156,0,51,5  ; n1701 t=79.424s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,63,125,8,11,55,1,63,8  ; n1702 t=79.424s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,27,76,9,12,39,0,27,8  ; n1703 t=79.424s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 154,0,100,0,38,76,9,21,78,0,38,8  ; n1704 t=79.424s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 29,0,100,0,79,125,5,1,186,2,79,5  ; n1705 t=79.578s dur=100ms, freq=698Hz, sample=79, buffer_id=05:4F
+    db 96,0,100,0,77,124,4,2,186,2,77,4  ; n1706 t=79.606s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
     db 5,0,134,0,74,125,5,0,147,2,74,5  ; n1707 t=79.703s dur=134ms, freq=659Hz, sample=74, buffer_id=05:4A
-    db 0,0,100,0,63,125,5,1,21,1,63,5  ; n1708 t=79.707s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 14,0,100,0,50,76,9,2,139,0,50,8  ; n1709 t=79.707s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,68,125,8,3,159,1,68,8  ; n1710 t=79.722s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 5,0,100,0,63,125,8,8,74,1,63,8  ; n1711 t=79.722s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n1708 t=79.707s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 14,0,100,0,50,76,9,4,139,0,50,8  ; n1709 t=79.707s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,68,125,8,5,159,1,68,8  ; n1710 t=79.722s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 5,0,100,0,63,125,8,6,74,1,63,8  ; n1711 t=79.722s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
     db 10,0,100,0,38,76,9,7,69,0,38,8  ; n1712 t=79.727s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 135,0,105,0,75,124,4,6,147,2,75,4  ; n1713 t=79.736s dur=105ms, freq=659Hz, sample=75, buffer_id=04:4B
+    db 135,0,105,0,75,124,4,8,147,2,75,4  ; n1713 t=79.736s dur=105ms, freq=659Hz, sample=75, buffer_id=04:4B
     db 24,0,100,0,75,124,4,9,110,2,75,4  ; n1714 t=79.871s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
-    db 91,0,100,0,74,125,5,4,110,2,74,5  ; n1715 t=79.895s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A
-    db 14,0,187,0,75,124,4,5,147,2,75,4  ; n1716 t=79.986s dur=187ms, freq=659Hz, sample=75, buffer_id=04:4B
+    db 91,0,100,0,74,125,5,1,110,2,74,5  ; n1715 t=79.895s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 14,0,187,0,75,124,4,2,147,2,75,4  ; n1716 t=79.986s dur=187ms, freq=659Hz, sample=75, buffer_id=04:4B
     db 18,1,129,0,74,125,5,10,147,2,74,5  ; n1717 t=80.001s dur=129ms, freq=659Hz, sample=74, buffer_id=05:4A
     db 0,0,100,0,63,125,5,0,21,1,63,5  ; n1718 t=80.275s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 14,0,100,0,50,76,9,1,139,0,50,8  ; n1719 t=80.275s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 14,0,100,0,38,76,9,2,69,0,38,8  ; n1720 t=80.289s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 0,0,100,0,63,125,8,3,74,1,63,8  ; n1721 t=80.303s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 18,1,100,0,68,125,8,4,159,1,68,8  ; n1722 t=80.303s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 14,0,100,0,38,76,9,3,69,0,38,8  ; n1720 t=80.289s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,8,4,74,1,63,8  ; n1721 t=80.303s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 18,1,100,0,68,125,8,6,159,1,68,8  ; n1722 t=80.303s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 0,0,100,0,63,125,5,1,21,1,63,5  ; n1723 t=80.578s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,0,69,0,38,8  ; n1724 t=80.578s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,50,76,9,5,139,0,50,8  ; n1725 t=80.578s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 10,0,105,0,70,124,4,6,159,1,70,4  ; n1726 t=80.582s dur=105ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 14,0,110,0,69,125,5,2,159,1,69,5  ; n1727 t=80.592s dur=110ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,8,4,74,1,63,8  ; n1728 t=80.606s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 67,0,100,0,68,125,8,3,159,1,68,8  ; n1729 t=80.606s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 5,0,100,0,50,76,9,2,139,0,50,8  ; n1725 t=80.578s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 10,0,105,0,70,124,4,5,159,1,70,4  ; n1726 t=80.582s dur=105ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 14,0,110,0,69,125,5,3,159,1,69,5  ; n1727 t=80.592s dur=110ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,8,6,74,1,63,8  ; n1728 t=80.606s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 67,0,100,0,68,125,8,4,159,1,68,8  ; n1729 t=80.606s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 0,0,100,0,63,125,5,7,21,1,63,5  ; n1730 t=80.674s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,8,69,0,38,8  ; n1731 t=80.674s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 14,0,100,0,50,76,9,9,139,0,50,8  ; n1732 t=80.674s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
@@ -1754,76 +1754,76 @@ midi_data:
     db 0,0,100,0,63,125,5,12,21,1,63,5  ; n1735 t=80.770s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,13,69,0,38,8  ; n1736 t=80.770s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 14,0,100,0,50,76,9,14,139,0,50,8  ; n1737 t=80.770s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,63,125,8,15,74,1,63,8  ; n1738 t=80.784s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @79236.2ms -> 80784.2ms]
-    db 72,0,100,0,68,125,8,3,159,1,68,8  ; n1739 t=80.784s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch3 @80606.3ms -> 80784.2ms]
-    db 0,0,100,0,63,125,8,4,74,1,63,8  ; n1740 t=80.856s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch4 @80606.3ms -> 80856.3ms]
-    db 10,0,100,0,68,125,8,11,159,1,68,8  ; n1741 t=80.856s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch11 @80688.1ms -> 80856.3ms]
-    db 0,0,100,0,63,125,5,1,21,1,63,5  ; n1742 t=80.866s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch1 @80577.5ms -> 80866.0ms]
-    db 0,0,100,0,38,76,9,0,69,0,38,8  ; n1743 t=80.866s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @80577.5ms -> 80866.0ms]
-    db 14,0,100,0,50,76,9,5,139,0,50,8  ; n1744 t=80.866s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch5 @80577.5ms -> 80866.0ms]
-    db 10,0,128,1,74,125,5,6,42,2,74,5  ; n1745 t=80.880s dur=384ms, freq=554Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch6 @80582.3ms -> 80880.4ms]
-    db 255,0,176,1,72,124,4,2,42,2,72,4  ; n1746 t=80.890s dur=432ms, freq=554Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch2 @80591.9ms -> 80890.0ms]
-    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n1747 t=81.145s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,50,76,9,7,139,0,50,8  ; n1748 t=81.145s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 34,0,100,0,38,76,9,9,69,0,38,8  ; n1749 t=81.145s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 0,0,100,0,63,125,8,0,74,1,63,8  ; n1750 t=81.178s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 62,0,100,0,68,125,8,1,159,1,68,8  ; n1751 t=81.178s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 0,0,100,0,63,125,5,4,21,1,63,5  ; n1752 t=81.241s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,38,76,9,5,69,0,38,8  ; n1753 t=81.241s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 34,0,100,0,50,76,9,8,139,0,50,8  ; n1754 t=81.241s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,63,125,8,11,74,1,63,8  ; n1755 t=81.275s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 72,0,100,0,68,125,8,10,159,1,68,8  ; n1756 t=81.275s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 0,0,100,0,63,125,5,13,21,1,63,5  ; n1757 t=81.347s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,38,76,9,12,69,0,38,8  ; n1758 t=81.347s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 10,0,100,0,50,76,9,15,139,0,50,8  ; n1759 t=81.347s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,63,125,8,14,74,1,63,8  ; n1760 t=81.356s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 87,0,100,0,68,125,8,1,159,1,68,8  ; n1761 t=81.356s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @81178.5ms -> 81356.3ms]
-    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n1762 t=81.443s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch3 @81144.8ms -> 81442.9ms]
-    db 0,0,100,0,68,125,8,10,159,1,68,8  ; n1763 t=81.443s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch10 @81274.6ms -> 81442.9ms]
-    db 0,0,100,0,63,125,8,0,74,1,63,8  ; n1764 t=81.443s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @81178.5ms -> 81442.9ms]
-    db 0,0,100,0,38,76,9,9,69,0,38,8  ; n1765 t=81.443s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @81144.8ms -> 81442.9ms]
-    db 14,0,100,0,50,76,9,7,139,0,50,8  ; n1766 t=81.443s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch7 @81144.8ms -> 81442.9ms]
-    db 0,0,104,1,72,124,4,2,11,2,72,4  ; n1767 t=81.457s dur=360ms, freq=523Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch2 @80890.0ms -> 81457.3ms]
-    db 82,0,61,1,74,125,5,6,11,2,74,5  ; n1768 t=81.457s dur=317ms, freq=523Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch6 @80880.4ms -> 81457.3ms]
-    db 0,0,100,0,63,125,5,4,21,1,63,5  ; n1769 t=81.539s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch4 @81241.0ms -> 81539.0ms]
-    db 0,0,100,0,38,76,9,5,69,0,38,8  ; n1770 t=81.539s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch5 @81241.0ms -> 81539.0ms]
-    db 5,0,100,0,50,76,9,8,139,0,50,8  ; n1771 t=81.539s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @81241.0ms -> 81539.0ms]
-    db 0,0,100,0,63,125,8,11,74,1,63,8  ; n1772 t=81.544s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch11 @81274.6ms -> 81543.8ms]
-    db 72,0,100,0,68,125,8,1,159,1,68,8  ; n1773 t=81.544s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @81356.3ms -> 81543.8ms]
-    db 0,0,100,0,63,125,8,14,74,1,63,8  ; n1774 t=81.616s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch14 @81356.3ms -> 81616.0ms]
-    db 10,0,100,0,68,125,8,10,159,1,68,8  ; n1775 t=81.616s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch10 @81442.9ms -> 81616.0ms]
-    db 0,0,100,0,63,125,5,13,21,1,63,5  ; n1776 t=81.626s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch13 @81346.7ms -> 81625.6ms]
-    db 0,0,100,0,38,76,9,12,69,0,38,8  ; n1777 t=81.626s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch12 @81346.7ms -> 81625.6ms]
-    db 101,0,100,0,50,76,9,15,139,0,50,8  ; n1778 t=81.626s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch15 @81346.7ms -> 81625.6ms]
-    db 0,0,100,0,63,125,8,0,74,1,63,8  ; n1779 t=81.727s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @81442.9ms -> 81726.5ms]
-    db 5,0,100,0,68,125,8,1,159,1,68,8  ; n1780 t=81.727s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @81543.8ms -> 81726.5ms]
-    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n1781 t=81.731s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch3 @81442.9ms -> 81731.3ms]
-    db 0,0,100,0,38,76,9,9,69,0,38,8  ; n1782 t=81.731s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @81442.9ms -> 81731.3ms]
-    db 159,0,100,0,50,76,9,7,139,0,50,8  ; n1783 t=81.731s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch7 @81442.9ms -> 81731.3ms]
-    db 10,0,105,0,69,125,5,4,238,1,69,5  ; n1784 t=81.890s dur=105ms, freq=494Hz, sample=69, buffer_id=05:45
-    db 115,0,101,0,70,124,4,5,238,1,70,4  ; n1785 t=81.900s dur=101ms, freq=494Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,6,55,1,63,5  ; n1786 t=82.015s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,50,76,9,10,156,0,50,8  ; n1787 t=82.015s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,15,74,1,63,8  ; n1738 t=80.784s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 72,0,100,0,68,125,8,16,159,1,68,8  ; n1739 t=80.784s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,8,17,74,1,63,8  ; n1740 t=80.856s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,68,125,8,18,159,1,68,8  ; n1741 t=80.856s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,19,21,1,63,5  ; n1742 t=80.866s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,20,69,0,38,8  ; n1743 t=80.866s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,50,76,9,21,139,0,50,8  ; n1744 t=80.866s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 10,0,128,1,74,125,5,0,42,2,74,5  ; n1745 t=80.880s dur=384ms, freq=554Hz, sample=74, buffer_id=05:4A
+    db 255,0,176,1,72,124,4,1,42,2,72,4  ; n1746 t=80.890s dur=432ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,63,125,5,2,21,1,63,5  ; n1747 t=81.145s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,50,76,9,3,139,0,50,8  ; n1748 t=81.145s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 34,0,100,0,38,76,9,4,69,0,38,8  ; n1749 t=81.145s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,8,5,74,1,63,8  ; n1750 t=81.178s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 62,0,100,0,68,125,8,6,159,1,68,8  ; n1751 t=81.178s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,8,21,1,63,5  ; n1752 t=81.241s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,7,69,0,38,8  ; n1753 t=81.241s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 34,0,100,0,50,76,9,10,139,0,50,8  ; n1754 t=81.241s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,9,74,1,63,8  ; n1755 t=81.275s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 72,0,100,0,68,125,8,12,159,1,68,8  ; n1756 t=81.275s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,11,21,1,63,5  ; n1757 t=81.347s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,14,69,0,38,8  ; n1758 t=81.347s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 10,0,100,0,50,76,9,13,139,0,50,8  ; n1759 t=81.347s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,16,74,1,63,8  ; n1760 t=81.356s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 87,0,100,0,68,125,8,15,159,1,68,8  ; n1761 t=81.356s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,17,21,1,63,5  ; n1762 t=81.443s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,68,125,8,19,159,1,68,8  ; n1763 t=81.443s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,8,18,74,1,63,8  ; n1764 t=81.443s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,38,76,9,21,69,0,38,8  ; n1765 t=81.443s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,50,76,9,20,139,0,50,8  ; n1766 t=81.443s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,104,1,72,124,4,2,11,2,72,4  ; n1767 t=81.457s dur=360ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 82,0,61,1,74,125,5,3,11,2,74,5  ; n1768 t=81.457s dur=317ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 0,0,100,0,63,125,5,0,21,1,63,5  ; n1769 t=81.539s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,1,69,0,38,8  ; n1770 t=81.539s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,50,76,9,4,139,0,50,8  ; n1771 t=81.539s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,6,74,1,63,8  ; n1772 t=81.544s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 72,0,100,0,68,125,8,5,159,1,68,8  ; n1773 t=81.544s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,8,7,74,1,63,8  ; n1774 t=81.616s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,68,125,8,8,159,1,68,8  ; n1775 t=81.616s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,9,21,1,63,5  ; n1776 t=81.626s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,10,69,0,38,8  ; n1777 t=81.626s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 101,0,100,0,50,76,9,12,139,0,50,8  ; n1778 t=81.626s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,11,74,1,63,8  ; n1779 t=81.727s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,68,125,8,13,159,1,68,8  ; n1780 t=81.727s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,14,21,1,63,5  ; n1781 t=81.731s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,15,69,0,38,8  ; n1782 t=81.731s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 159,0,100,0,50,76,9,16,139,0,50,8  ; n1783 t=81.731s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 10,0,105,0,69,125,5,0,238,1,69,5  ; n1784 t=81.890s dur=105ms, freq=494Hz, sample=69, buffer_id=05:45
+    db 115,0,101,0,70,124,4,1,238,1,70,4  ; n1785 t=81.900s dur=101ms, freq=494Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,63,125,5,3,55,1,63,5  ; n1786 t=82.015s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,50,76,9,5,156,0,50,8  ; n1787 t=82.015s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 10,0,100,0,38,76,9,2,78,0,38,8  ; n1788 t=82.025s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1789 t=82.034s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 10,0,100,0,65,125,8,0,114,1,65,8  ; n1790 t=82.034s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 5,0,110,0,69,125,5,3,210,1,69,5  ; n1791 t=82.044s dur=110ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 125,0,105,0,70,124,4,7,210,1,70,4  ; n1792 t=82.049s dur=105ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 14,0,100,0,69,125,5,8,184,1,69,5  ; n1793 t=82.174s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 135,0,100,0,70,124,4,9,184,1,70,4  ; n1794 t=82.188s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 14,0,125,0,69,125,5,5,210,1,69,5  ; n1795 t=82.323s dur=125ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,8,4,55,1,63,8  ; n1789 t=82.034s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,65,125,8,6,114,1,65,8  ; n1790 t=82.034s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 5,0,110,0,69,125,5,7,210,1,69,5  ; n1791 t=82.044s dur=110ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 125,0,105,0,70,124,4,8,210,1,70,4  ; n1792 t=82.049s dur=105ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 14,0,100,0,69,125,5,9,184,1,69,5  ; n1793 t=82.174s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 135,0,100,0,70,124,4,10,184,1,70,4  ; n1794 t=82.188s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 14,0,125,0,69,125,5,1,210,1,69,5  ; n1795 t=82.323s dur=125ms, freq=466Hz, sample=69, buffer_id=05:45
     db 245,0,100,0,70,124,4,0,210,1,70,4  ; n1796 t=82.337s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,1,55,1,63,5  ; n1797 t=82.582s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,2,55,1,63,8  ; n1798 t=82.582s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,3,114,1,65,8  ; n1799 t=82.582s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,38,76,9,4,78,0,38,8  ; n1800 t=82.582s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n1797 t=82.582s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,3,55,1,63,8  ; n1798 t=82.582s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,4,114,1,65,8  ; n1799 t=82.582s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,5,78,0,38,8  ; n1800 t=82.582s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 47,1,100,0,50,76,9,6,156,0,50,8  ; n1801 t=82.582s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,63,125,5,0,55,1,63,5  ; n1802 t=82.885s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1803 t=82.885s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,2,114,1,65,8  ; n1804 t=82.885s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
     db 0,0,100,0,50,76,9,3,156,0,50,8  ; n1805 t=82.885s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 24,0,100,0,38,76,9,5,78,0,38,8  ; n1806 t=82.885s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,63,125,5,4,55,1,63,5  ; n1807 t=82.909s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 24,0,100,0,38,76,9,4,78,0,38,8  ; n1806 t=82.885s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,63,125,5,5,55,1,63,5  ; n1807 t=82.909s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 67,0,101,0,65,124,4,6,55,1,65,4  ; n1808 t=82.914s dur=101ms, freq=311Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,63,125,5,7,55,1,63,5  ; n1809 t=82.981s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,63,125,8,8,55,1,63,8  ; n1810 t=82.981s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
@@ -1832,55 +1832,55 @@ midi_data:
     db 91,0,100,0,50,76,9,11,156,0,50,8  ; n1813 t=82.981s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,63,125,5,12,55,1,63,5  ; n1814 t=83.073s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 5,0,100,0,50,76,9,13,156,0,50,8  ; n1815 t=83.073s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,63,125,8,15,55,1,63,8  ; n1816 t=83.078s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,14,114,1,65,8  ; n1817 t=83.078s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 96,0,100,0,38,76,9,5,78,0,38,8  ; n1818 t=83.078s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch5 @82885.2ms -> 83077.5ms]
-    db 0,0,120,0,63,125,5,0,38,1,63,5  ; n1819 t=83.174s dur=120ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch0 @82885.2ms -> 83173.7ms]
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1820 t=83.174s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch1 @82885.2ms -> 83173.7ms]
-    db 0,0,100,0,65,125,8,2,114,1,65,8  ; n1821 t=83.174s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch2 @82885.2ms -> 83173.7ms]
-    db 0,0,120,0,50,76,9,3,147,0,50,8  ; n1822 t=83.174s dur=120ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch3 @82885.2ms -> 83173.7ms]
-    db 19,0,149,0,38,76,9,10,73,0,38,8  ; n1823 t=83.174s dur=149ms, freq=73Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch10 @82981.3ms -> 83173.7ms]
-    db 5,0,147,1,65,124,4,6,114,1,65,4  ; n1824 t=83.193s dur=403ms, freq=370Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch6 @82914.0ms -> 83192.9ms]
-    db 41,2,90,1,63,125,5,4,114,1,63,5  ; n1825 t=83.198s dur=346ms, freq=370Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch4 @82909.2ms -> 83197.7ms]
-    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n1826 t=83.751s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,8,14,55,1,63,8  ; n1816 t=83.078s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,15,114,1,65,8  ; n1817 t=83.078s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 96,0,100,0,38,76,9,16,78,0,38,8  ; n1818 t=83.078s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,120,0,63,125,5,18,38,1,63,5  ; n1819 t=83.174s dur=120ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,17,55,1,63,8  ; n1820 t=83.174s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,19,114,1,65,8  ; n1821 t=83.174s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,120,0,50,76,9,21,147,0,50,8  ; n1822 t=83.174s dur=120ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 19,0,149,0,38,76,9,20,73,0,38,8  ; n1823 t=83.174s dur=149ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 5,0,147,1,65,124,4,0,114,1,65,4  ; n1824 t=83.193s dur=403ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 41,2,90,1,63,125,5,1,114,1,63,5  ; n1825 t=83.198s dur=346ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,125,5,1,6,1,58,5  ; n1826 t=83.751s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,63,125,8,2,55,1,63,8  ; n1827 t=83.751s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,1,114,1,65,8  ; n1828 t=83.751s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,38,76,9,3,65,0,38,8  ; n1829 t=83.751s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,65,125,8,3,114,1,65,8  ; n1828 t=83.751s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,5,65,0,38,8  ; n1829 t=83.751s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
     db 14,0,100,0,47,76,9,4,131,0,47,8  ; n1830 t=83.751s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
-    db 19,0,104,1,65,124,4,5,55,1,65,4  ; n1831 t=83.765s dur=360ms, freq=311Hz, sample=65, buffer_id=04:41
-    db 62,0,70,1,63,125,5,8,55,1,63,5  ; n1832 t=83.784s dur=326ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,125,5,6,6,1,58,5  ; n1833 t=83.847s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,63,125,8,7,55,1,63,8  ; n1834 t=83.847s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,10,114,1,65,8  ; n1835 t=83.847s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,47,76,9,9,131,0,47,8  ; n1836 t=83.847s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 19,0,104,1,65,124,4,7,55,1,65,4  ; n1831 t=83.765s dur=360ms, freq=311Hz, sample=65, buffer_id=04:41
+    db 62,0,70,1,63,125,5,6,55,1,63,5  ; n1832 t=83.784s dur=326ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n1833 t=83.847s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,8,9,55,1,63,8  ; n1834 t=83.847s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,8,114,1,65,8  ; n1835 t=83.847s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,47,76,9,10,131,0,47,8  ; n1836 t=83.847s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
     db 87,0,100,0,38,76,9,11,65,0,38,8  ; n1837 t=83.847s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,58,125,5,12,6,1,58,5  ; n1838 t=83.933s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,63,125,8,13,55,1,63,8  ; n1839 t=83.933s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,15,114,1,65,8  ; n1840 t=83.933s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,38,76,9,14,65,0,38,8  ; n1841 t=83.933s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
-    db 106,0,100,0,47,76,9,4,131,0,47,8  ; n1842 t=83.933s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch4 @83750.6ms -> 83933.3ms]
-    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n1843 t=84.039s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @83750.6ms -> 84039.0ms]
-    db 0,0,100,0,63,125,8,2,55,1,63,8  ; n1844 t=84.039s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch2 @83750.6ms -> 84039.0ms]
-    db 0,0,100,0,65,125,8,1,114,1,65,8  ; n1845 t=84.039s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch1 @83750.6ms -> 84039.0ms]
-    db 0,0,100,0,47,76,9,9,131,0,47,8  ; n1846 t=84.039s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch9 @83846.7ms -> 84039.0ms]
-    db 168,0,100,0,38,76,9,3,65,0,38,8  ; n1847 t=84.039s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch3 @83750.6ms -> 84039.0ms]
-    db 5,0,100,0,65,124,4,6,114,1,65,4  ; n1848 t=84.207s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 120,0,100,0,63,125,5,7,114,1,63,5  ; n1849 t=84.212s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1850 t=84.332s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,67,125,8,5,136,1,67,8  ; n1851 t=84.332s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,8,49,0,31,8  ; n1852 t=84.332s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 24,0,100,0,43,76,9,10,98,0,43,8  ; n1853 t=84.332s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 19,0,143,1,70,124,4,0,210,1,70,4  ; n1854 t=84.356s dur=399ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 17,2,133,1,69,125,5,1,210,1,69,5  ; n1855 t=84.376s dur=389ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n1856 t=84.904s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,3,55,1,63,8  ; n1857 t=84.904s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,67,125,8,4,136,1,67,8  ; n1858 t=84.904s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,50,76,9,5,156,0,50,8  ; n1859 t=84.904s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 24,0,100,0,38,76,9,6,78,0,38,8  ; n1860 t=84.904s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 10,0,66,1,69,125,5,7,136,1,69,5  ; n1861 t=84.928s dur=322ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,125,8,14,114,1,65,8  ; n1840 t=83.933s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,15,65,0,38,8  ; n1841 t=83.933s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 106,0,100,0,47,76,9,16,131,0,47,8  ; n1842 t=83.933s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 0,0,100,0,58,125,5,17,6,1,58,5  ; n1843 t=84.039s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,8,18,55,1,63,8  ; n1844 t=84.039s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,20,114,1,65,8  ; n1845 t=84.039s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,47,76,9,19,131,0,47,8  ; n1846 t=84.039s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 168,0,100,0,38,76,9,21,65,0,38,8  ; n1847 t=84.039s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,65,124,4,0,114,1,65,4  ; n1848 t=84.207s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 120,0,100,0,63,125,5,1,114,1,63,5  ; n1849 t=84.212s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1850 t=84.332s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,67,125,8,3,136,1,67,8  ; n1851 t=84.332s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,31,76,9,4,49,0,31,8  ; n1852 t=84.332s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 24,0,100,0,43,76,9,5,98,0,43,8  ; n1853 t=84.332s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 19,0,143,1,70,124,4,6,210,1,70,4  ; n1854 t=84.356s dur=399ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 17,2,133,1,69,125,5,7,210,1,69,5  ; n1855 t=84.376s dur=389ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n1856 t=84.904s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1857 t=84.904s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,67,125,8,2,136,1,67,8  ; n1858 t=84.904s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,50,76,9,3,156,0,50,8  ; n1859 t=84.904s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 24,0,100,0,38,76,9,4,78,0,38,8  ; n1860 t=84.904s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 10,0,66,1,69,125,5,5,136,1,69,5  ; n1861 t=84.928s dur=322ms, freq=392Hz, sample=69, buffer_id=05:45
     db 62,0,32,1,65,124,4,8,136,1,65,4  ; n1862 t=84.938s dur=288ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n1863 t=85.001s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n1864 t=85.001s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,63,125,5,6,55,1,63,5  ; n1863 t=85.001s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,7,55,1,63,8  ; n1864 t=85.001s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,67,125,8,9,136,1,67,8  ; n1865 t=85.001s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,38,76,9,10,78,0,38,8  ; n1866 t=85.001s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 87,0,100,0,50,76,9,11,156,0,50,8  ; n1867 t=85.001s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
@@ -1888,12 +1888,12 @@ midi_data:
     db 0,0,100,0,63,125,8,14,55,1,63,8  ; n1869 t=85.087s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,67,125,8,13,136,1,67,8  ; n1870 t=85.087s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,50,76,9,15,156,0,50,8  ; n1871 t=85.087s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 106,0,100,0,38,76,9,6,78,0,38,8  ; n1872 t=85.087s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @84904.4ms -> 85087.1ms]
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n1873 t=85.193s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch2 @84904.4ms -> 85192.9ms]
-    db 0,0,100,0,63,125,8,3,55,1,63,8  ; n1874 t=85.193s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch3 @84904.4ms -> 85192.9ms]
-    db 0,0,100,0,67,125,8,4,136,1,67,8  ; n1875 t=85.193s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch4 @84904.4ms -> 85192.9ms]
-    db 5,0,100,0,50,76,9,5,156,0,50,8  ; n1876 t=85.193s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch5 @84904.4ms -> 85192.9ms]
-    db 163,0,100,0,38,76,9,10,78,0,38,8  ; n1877 t=85.198s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch10 @85000.6ms -> 85197.7ms]
+    db 106,0,100,0,38,76,9,16,78,0,38,8  ; n1872 t=85.087s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,5,17,55,1,63,5  ; n1873 t=85.193s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,19,55,1,63,8  ; n1874 t=85.193s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,67,125,8,18,136,1,67,8  ; n1875 t=85.193s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 5,0,100,0,50,76,9,20,156,0,50,8  ; n1876 t=85.193s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 163,0,100,0,38,76,9,22,78,0,38,8  ; n1877 t=85.198s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,70,124,4,0,210,1,70,4  ; n1878 t=85.361s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
     db 135,0,100,0,69,125,5,1,210,1,69,5  ; n1879 t=85.361s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
     db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1880 t=85.496s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
@@ -1916,120 +1916,120 @@ midi_data:
     db 96,0,100,0,43,76,9,13,98,0,43,8  ; n1897 t=85.967s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1898 t=86.063s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,15,136,1,67,8  ; n1899 t=86.063s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,43,76,9,9,98,0,43,8  ; n1900 t=86.063s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch9 @85774.6ms -> 86063.1ms]
-    db 91,0,100,0,31,76,9,8,49,0,31,8  ; n1901 t=86.063s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch8 @85774.6ms -> 86063.1ms]
+    db 0,0,100,0,43,76,9,16,98,0,43,8  ; n1900 t=86.063s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 91,0,100,0,31,76,9,17,49,0,31,8  ; n1901 t=86.063s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 0,0,100,0,55,125,5,1,196,0,55,5  ; n1902 t=86.154s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,0,136,1,67,8  ; n1903 t=86.154s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,4,49,0,31,8  ; n1904 t=86.154s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch4 @85870.8ms -> 86154.4ms]
-    db 96,0,100,0,43,76,9,5,98,0,43,8  ; n1905 t=86.154s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch5 @85870.8ms -> 86154.4ms]
+    db 0,0,100,0,31,76,9,9,49,0,31,8  ; n1904 t=86.154s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 96,0,100,0,43,76,9,8,98,0,43,8  ; n1905 t=86.154s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1906 t=86.251s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,3,136,1,67,8  ; n1907 t=86.251s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,43,76,9,13,98,0,43,8  ; n1908 t=86.251s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch13 @85966.9ms -> 86250.6ms]
-    db 101,0,100,0,31,76,9,12,49,0,31,8  ; n1909 t=86.251s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch12 @85966.9ms -> 86250.6ms]
+    db 0,0,100,0,43,76,9,4,98,0,43,8  ; n1908 t=86.251s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 101,0,100,0,31,76,9,5,49,0,31,8  ; n1909 t=86.251s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 0,0,100,0,55,125,5,11,196,0,55,5  ; n1910 t=86.352s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,10,136,1,67,8  ; n1911 t=86.352s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,8,49,0,31,8  ; n1912 t=86.352s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch8 @86063.1ms -> 86351.5ms]
-    db 91,0,100,0,43,76,9,9,98,0,43,8  ; n1913 t=86.352s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch9 @86063.1ms -> 86351.5ms]
+    db 0,0,100,0,31,76,9,13,49,0,31,8  ; n1912 t=86.352s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 91,0,100,0,43,76,9,12,98,0,43,8  ; n1913 t=86.352s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,55,125,5,7,196,0,55,5  ; n1914 t=86.443s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,14,136,1,67,8  ; n1915 t=86.443s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,43,76,9,15,98,0,43,8  ; n1916 t=86.443s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 96,0,100,0,31,76,9,4,49,0,31,8  ; n1917 t=86.443s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch4 @86154.4ms -> 86442.9ms]
+    db 96,0,100,0,31,76,9,16,49,0,31,8  ; n1917 t=86.443s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 0,0,100,0,55,125,5,0,196,0,55,5  ; n1918 t=86.539s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,1,136,1,67,8  ; n1919 t=86.539s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,5,49,0,31,8  ; n1920 t=86.539s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 96,0,100,0,43,76,9,6,98,0,43,8  ; n1921 t=86.539s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1920 t=86.539s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 96,0,100,0,43,76,9,9,98,0,43,8  ; n1921 t=86.539s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,63,125,5,2,55,1,63,5  ; n1922 t=86.635s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,186,1,79,125,5,3,16,3,79,5  ; n1923 t=86.635s dur=442ms, freq=784Hz, sample=79, buffer_id=05:4F
-    db 0,0,100,0,50,76,9,12,156,0,50,8  ; n1924 t=86.635s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 5,0,100,0,38,76,9,13,78,0,38,8  ; n1925 t=86.635s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 29,0,100,0,67,125,8,10,136,1,67,8  ; n1926 t=86.640s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch10 @86351.5ms -> 86640.0ms]
-    db 31,2,90,1,78,124,4,8,16,3,78,4  ; n1927 t=86.669s dur=346ms, freq=784Hz, sample=78, buffer_id=04:4E
+    db 0,0,100,0,50,76,9,4,156,0,50,8  ; n1924 t=86.635s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,38,76,9,5,78,0,38,8  ; n1925 t=86.635s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 29,0,100,0,67,125,8,8,136,1,67,8  ; n1926 t=86.640s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 31,2,90,1,78,124,4,10,16,3,78,4  ; n1927 t=86.669s dur=346ms, freq=784Hz, sample=78, buffer_id=04:4E
     db 0,0,211,0,65,124,4,0,136,1,65,4  ; n1928 t=87.212s dur=211ms, freq=392Hz, sample=65, buffer_id=04:41
     db 5,0,100,0,67,125,8,2,136,1,67,8  ; n1929 t=87.212s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,63,125,5,1,55,1,63,5  ; n1930 t=87.217s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,32,1,69,125,5,4,136,1,69,5  ; n1931 t=87.217s dur=288ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,38,76,9,5,78,0,38,8  ; n1932 t=87.217s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 42,1,100,0,50,76,9,6,156,0,50,8  ; n1933 t=87.217s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,38,76,9,6,78,0,38,8  ; n1932 t=87.217s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 42,1,100,0,50,76,9,5,156,0,50,8  ; n1933 t=87.217s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,63,125,5,2,55,1,63,5  ; n1934 t=87.515s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,50,76,9,3,156,0,50,8  ; n1935 t=87.515s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 14,0,100,0,38,76,9,7,78,0,38,8  ; n1936 t=87.515s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 82,0,100,0,67,125,8,1,136,1,67,8  ; n1937 t=87.529s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,63,125,5,5,55,1,63,5  ; n1938 t=87.611s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,38,76,9,6,78,0,38,8  ; n1939 t=87.611s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 10,0,100,0,50,76,9,8,156,0,50,8  ; n1940 t=87.611s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,38,76,9,8,78,0,38,8  ; n1939 t=87.611s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 10,0,100,0,50,76,9,6,156,0,50,8  ; n1940 t=87.611s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 48,0,100,0,67,125,8,9,136,1,67,8  ; n1941 t=87.621s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 14,0,110,0,69,125,5,0,136,1,69,5  ; n1942 t=87.669s dur=110ms, freq=392Hz, sample=69, buffer_id=05:45
     db 19,0,100,0,65,124,4,10,136,1,65,4  ; n1943 t=87.683s dur=100ms, freq=392Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,63,125,5,11,55,1,63,5  ; n1944 t=87.703s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,50,76,9,13,156,0,50,8  ; n1945 t=87.703s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 10,0,100,0,38,76,9,12,78,0,38,8  ; n1946 t=87.703s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,50,76,9,12,156,0,50,8  ; n1945 t=87.703s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 10,0,100,0,38,76,9,13,78,0,38,8  ; n1946 t=87.703s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 77,0,100,0,67,125,8,4,136,1,67,8  ; n1947 t=87.712s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 5,0,100,0,67,125,8,15,136,1,67,8  ; n1948 t=87.789s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,55,125,5,14,196,0,55,5  ; n1949 t=87.794s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,2,49,0,31,8  ; n1950 t=87.794s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch2 @87515.0ms -> 87793.8ms]
-    db 19,0,100,0,43,76,9,3,98,0,43,8  ; n1951 t=87.794s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch3 @87515.0ms -> 87793.8ms]
-    db 5,0,109,1,79,125,5,7,16,3,79,5  ; n1952 t=87.813s dur=365ms, freq=784Hz, sample=79, buffer_id=05:4F [TRUNCATE prev:ch7 @87515.0ms -> 87813.1ms]
-    db 8,1,133,1,78,124,4,1,16,3,78,4  ; n1953 t=87.818s dur=389ms, freq=784Hz, sample=78, buffer_id=04:4E [TRUNCATE prev:ch1 @87529.4ms -> 87817.9ms]
+    db 0,0,100,0,31,76,9,18,49,0,31,8  ; n1950 t=87.794s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 19,0,100,0,43,76,9,16,98,0,43,8  ; n1951 t=87.794s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 5,0,109,1,79,125,5,17,16,3,79,5  ; n1952 t=87.813s dur=365ms, freq=784Hz, sample=79, buffer_id=05:4F
+    db 8,1,133,1,78,124,4,2,16,3,78,4  ; n1953 t=87.818s dur=389ms, freq=784Hz, sample=78, buffer_id=04:4E
     db 0,0,100,0,55,125,5,0,196,0,55,5  ; n1954 t=88.082s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,4,98,0,43,8  ; n1955 t=88.082s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 10,0,100,0,31,76,9,5,49,0,31,8  ; n1956 t=88.082s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 87,0,100,0,67,125,8,6,136,1,67,8  ; n1957 t=88.092s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,55,125,5,2,196,0,55,5  ; n1958 t=88.178s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,76,9,3,49,0,31,8  ; n1959 t=88.178s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 5,0,100,0,43,76,9,8,98,0,43,8  ; n1960 t=88.178s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 87,0,100,0,67,125,8,10,136,1,67,8  ; n1961 t=88.183s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,43,76,9,1,98,0,43,8  ; n1955 t=88.082s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,31,76,9,3,49,0,31,8  ; n1956 t=88.082s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 87,0,100,0,67,125,8,5,136,1,67,8  ; n1957 t=88.092s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,55,125,5,4,196,0,55,5  ; n1958 t=88.178s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n1959 t=88.178s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,100,0,43,76,9,7,98,0,43,8  ; n1960 t=88.178s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 87,0,100,0,67,125,8,8,136,1,67,8  ; n1961 t=88.183s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,55,125,5,9,196,0,55,5  ; n1962 t=88.270s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,43,76,9,11,98,0,43,8  ; n1963 t=88.270s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 10,0,100,0,31,76,9,12,49,0,31,8  ; n1964 t=88.270s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 58,0,100,0,67,125,8,13,136,1,67,8  ; n1965 t=88.279s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 29,0,56,1,79,125,5,14,228,2,79,5  ; n1966 t=88.337s dur=312ms, freq=740Hz, sample=79, buffer_id=05:4F
-    db 5,0,100,0,63,125,8,15,55,1,63,8  ; n1967 t=88.366s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,51,125,5,7,156,0,51,5  ; n1968 t=88.371s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch7 @87813.1ms -> 88370.8ms]
-    db 0,0,100,0,67,125,8,6,136,1,67,8  ; n1969 t=88.371s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch6 @88091.9ms -> 88370.8ms]
-    db 0,0,100,0,27,76,9,1,39,0,27,8  ; n1970 t=88.371s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch1 @87817.9ms -> 88370.8ms]
-    db 24,0,100,0,38,76,9,0,78,0,38,8  ; n1971 t=88.371s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @88082.3ms -> 88370.8ms]
-    db 62,0,42,1,78,124,4,4,228,2,78,4  ; n1972 t=88.395s dur=298ms, freq=740Hz, sample=78, buffer_id=04:4E
-    db 0,0,100,0,51,125,5,5,156,0,51,5  ; n1973 t=88.457s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,38,76,9,2,78,0,38,8  ; n1974 t=88.457s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch2 @88178.5ms -> 88457.3ms]
-    db 5,0,100,0,27,76,9,3,39,0,27,8  ; n1975 t=88.457s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch3 @88178.5ms -> 88457.3ms]
-    db 5,0,100,0,67,125,8,10,136,1,67,8  ; n1976 t=88.462s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43 [TRUNCATE prev:ch10 @88183.3ms -> 88462.1ms]
-    db 82,0,100,0,63,125,8,15,55,1,63,8  ; n1977 t=88.467s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @88366.0ms -> 88466.9ms]
-    db 5,0,100,0,67,125,8,8,136,1,67,8  ; n1978 t=88.549s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,51,125,5,7,156,0,51,5  ; n1979 t=88.553s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33 [TRUNCATE prev:ch7 @88370.8ms -> 88553.5ms]
-    db 0,0,100,0,27,76,9,1,39,0,27,8  ; n1980 t=88.553s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch1 @88370.8ms -> 88553.5ms]
-    db 10,0,100,0,38,76,9,0,78,0,38,8  ; n1981 t=88.553s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @88370.8ms -> 88553.5ms]
-    db 87,0,100,0,63,125,8,9,55,1,63,8  ; n1982 t=88.563s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch9 @88269.8ms -> 88563.1ms]
-    db 5,0,100,0,67,125,8,11,136,1,67,8  ; n1983 t=88.650s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,51,125,5,12,156,0,51,5  ; n1984 t=88.654s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
-    db 0,0,100,0,63,125,8,13,55,1,63,8  ; n1985 t=88.654s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,27,76,9,3,39,0,27,8  ; n1986 t=88.654s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B [TRUNCATE prev:ch3 @88457.3ms -> 88654.4ms]
-    db 154,0,100,0,38,76,9,2,78,0,38,8  ; n1987 t=88.654s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch2 @88457.3ms -> 88654.4ms]
-    db 29,0,100,0,79,125,5,5,186,2,79,5  ; n1988 t=88.808s dur=100ms, freq=698Hz, sample=79, buffer_id=05:4F
-    db 96,0,100,0,77,124,4,6,186,2,77,4  ; n1989 t=88.837s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
+    db 0,0,100,0,43,76,9,10,98,0,43,8  ; n1963 t=88.270s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,31,76,9,11,49,0,31,8  ; n1964 t=88.270s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 58,0,100,0,67,125,8,12,136,1,67,8  ; n1965 t=88.279s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 29,0,56,1,79,125,5,13,228,2,79,5  ; n1966 t=88.337s dur=312ms, freq=740Hz, sample=79, buffer_id=05:4F
+    db 5,0,100,0,63,125,8,14,55,1,63,8  ; n1967 t=88.366s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,51,125,5,15,156,0,51,5  ; n1968 t=88.371s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,67,125,8,16,136,1,67,8  ; n1969 t=88.371s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,27,76,9,18,39,0,27,8  ; n1970 t=88.371s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 24,0,100,0,38,76,9,19,78,0,38,8  ; n1971 t=88.371s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 62,0,42,1,78,124,4,0,228,2,78,4  ; n1972 t=88.395s dur=298ms, freq=740Hz, sample=78, buffer_id=04:4E
+    db 0,0,100,0,51,125,5,1,156,0,51,5  ; n1973 t=88.457s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,38,76,9,2,78,0,38,8  ; n1974 t=88.457s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,27,76,9,3,39,0,27,8  ; n1975 t=88.457s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 5,0,100,0,67,125,8,17,136,1,67,8  ; n1976 t=88.462s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 82,0,100,0,63,125,8,5,55,1,63,8  ; n1977 t=88.467s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,67,125,8,4,136,1,67,8  ; n1978 t=88.549s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,51,125,5,6,156,0,51,5  ; n1979 t=88.553s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,27,76,9,7,39,0,27,8  ; n1980 t=88.553s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 10,0,100,0,38,76,9,8,78,0,38,8  ; n1981 t=88.553s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 87,0,100,0,63,125,8,20,55,1,63,8  ; n1982 t=88.563s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,67,125,8,9,136,1,67,8  ; n1983 t=88.650s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,51,125,5,10,156,0,51,5  ; n1984 t=88.654s dur=100ms, freq=156Hz, sample=51, buffer_id=05:33
+    db 0,0,100,0,63,125,8,11,55,1,63,8  ; n1985 t=88.654s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,27,76,9,12,39,0,27,8  ; n1986 t=88.654s dur=100ms, freq=39Hz, sample=27, buffer_id=08:1B
+    db 154,0,100,0,38,76,9,23,78,0,38,8  ; n1987 t=88.654s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 29,0,100,0,79,125,5,1,186,2,79,5  ; n1988 t=88.808s dur=100ms, freq=698Hz, sample=79, buffer_id=05:4F
+    db 96,0,100,0,77,124,4,2,186,2,77,4  ; n1989 t=88.837s dur=100ms, freq=698Hz, sample=77, buffer_id=04:4D
     db 5,0,134,0,74,125,5,0,147,2,74,5  ; n1990 t=88.933s dur=134ms, freq=659Hz, sample=74, buffer_id=05:4A
-    db 0,0,100,0,63,125,5,1,21,1,63,5  ; n1991 t=88.938s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n1991 t=88.938s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 14,0,100,0,50,76,9,4,139,0,50,8  ; n1992 t=88.938s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,68,125,8,7,159,1,68,8  ; n1993 t=88.953s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 5,0,100,0,63,125,8,8,74,1,63,8  ; n1994 t=88.953s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 10,0,100,0,38,76,9,3,69,0,38,8  ; n1995 t=88.957s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 135,0,105,0,75,124,4,2,147,2,75,4  ; n1996 t=88.967s dur=105ms, freq=659Hz, sample=75, buffer_id=04:4B
+    db 0,0,100,0,68,125,8,5,159,1,68,8  ; n1993 t=88.953s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 5,0,100,0,63,125,8,6,74,1,63,8  ; n1994 t=88.953s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 10,0,100,0,38,76,9,7,69,0,38,8  ; n1995 t=88.957s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 135,0,105,0,75,124,4,8,147,2,75,4  ; n1996 t=88.967s dur=105ms, freq=659Hz, sample=75, buffer_id=04:4B
     db 24,0,100,0,75,124,4,9,110,2,75,4  ; n1997 t=89.102s dur=100ms, freq=622Hz, sample=75, buffer_id=04:4B
-    db 91,0,100,0,74,125,5,5,110,2,74,5  ; n1998 t=89.126s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A
-    db 14,0,187,0,75,124,4,6,147,2,75,4  ; n1999 t=89.217s dur=187ms, freq=659Hz, sample=75, buffer_id=04:4B
+    db 91,0,100,0,74,125,5,1,110,2,74,5  ; n1998 t=89.126s dur=100ms, freq=622Hz, sample=74, buffer_id=05:4A
+    db 14,0,187,0,75,124,4,2,147,2,75,4  ; n1999 t=89.217s dur=187ms, freq=659Hz, sample=75, buffer_id=04:4B
     db 18,1,129,0,74,125,5,10,147,2,74,5  ; n2000 t=89.231s dur=129ms, freq=659Hz, sample=74, buffer_id=05:4A
     db 0,0,100,0,63,125,5,0,21,1,63,5  ; n2001 t=89.505s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 14,0,100,0,50,76,9,1,139,0,50,8  ; n2002 t=89.505s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 14,0,100,0,38,76,9,2,69,0,38,8  ; n2003 t=89.520s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 0,0,100,0,63,125,8,3,74,1,63,8  ; n2004 t=89.534s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 18,1,100,0,68,125,8,4,159,1,68,8  ; n2005 t=89.534s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 14,0,100,0,38,76,9,3,69,0,38,8  ; n2003 t=89.520s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,8,4,74,1,63,8  ; n2004 t=89.534s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 18,1,100,0,68,125,8,6,159,1,68,8  ; n2005 t=89.534s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 0,0,100,0,63,125,5,1,21,1,63,5  ; n2006 t=89.808s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,0,69,0,38,8  ; n2007 t=89.808s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,50,76,9,5,139,0,50,8  ; n2008 t=89.808s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 10,0,105,0,70,124,4,6,159,1,70,4  ; n2009 t=89.813s dur=105ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,110,0,69,125,5,2,159,1,69,5  ; n2010 t=89.823s dur=110ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,50,76,9,2,139,0,50,8  ; n2008 t=89.808s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 10,0,105,0,70,124,4,5,159,1,70,4  ; n2009 t=89.813s dur=105ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,110,0,69,125,5,3,159,1,69,5  ; n2010 t=89.823s dur=110ms, freq=415Hz, sample=69, buffer_id=05:45
     db 14,0,100,0,63,125,8,7,74,1,63,8  ; n2011 t=89.823s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 67,0,100,0,68,125,8,3,159,1,68,8  ; n2012 t=89.837s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 0,0,100,0,63,125,5,4,21,1,63,5  ; n2013 t=89.904s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 67,0,100,0,68,125,8,4,159,1,68,8  ; n2012 t=89.837s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,6,21,1,63,5  ; n2013 t=89.904s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,8,69,0,38,8  ; n2014 t=89.904s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 10,0,100,0,50,76,9,9,139,0,50,8  ; n2015 t=89.904s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
     db 5,0,100,0,63,125,8,10,74,1,63,8  ; n2016 t=89.914s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
@@ -2037,192 +2037,192 @@ midi_data:
     db 0,0,100,0,63,125,5,12,21,1,63,5  ; n2018 t=90.001s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,13,69,0,38,8  ; n2019 t=90.001s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 5,0,100,0,50,76,9,14,139,0,50,8  ; n2020 t=90.001s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 10,0,100,0,63,125,8,15,74,1,63,8  ; n2021 t=90.005s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @88466.9ms -> 90005.4ms]
-    db 72,0,100,0,68,125,8,3,159,1,68,8  ; n2022 t=90.015s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch3 @89837.1ms -> 90015.0ms]
-    db 10,0,100,0,68,125,8,11,159,1,68,8  ; n2023 t=90.087s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch11 @89918.8ms -> 90087.1ms]
-    db 0,0,100,0,63,125,5,1,21,1,63,5  ; n2024 t=90.097s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch1 @89808.3ms -> 90096.7ms]
-    db 0,0,100,0,63,125,8,7,74,1,63,8  ; n2025 t=90.097s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch7 @89822.7ms -> 90096.7ms]
-    db 0,0,100,0,38,76,9,0,69,0,38,8  ; n2026 t=90.097s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @89808.3ms -> 90096.7ms]
-    db 14,0,100,0,50,76,9,5,139,0,50,8  ; n2027 t=90.097s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch5 @89808.3ms -> 90096.7ms]
-    db 10,0,128,1,74,125,5,6,42,2,74,5  ; n2028 t=90.111s dur=384ms, freq=554Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch6 @89813.1ms -> 90111.2ms]
-    db 0,0,176,1,72,124,4,2,42,2,72,4  ; n2029 t=90.121s dur=432ms, freq=554Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch2 @89822.7ms -> 90120.8ms]
-    db 255,0,128,1,69,125,5,4,159,1,69,5  ; n2030 t=90.121s dur=384ms, freq=415Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch4 @89904.4ms -> 90120.8ms]
+    db 10,0,100,0,63,125,8,15,74,1,63,8  ; n2021 t=90.005s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 72,0,100,0,68,125,8,16,159,1,68,8  ; n2022 t=90.015s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 10,0,100,0,68,125,8,17,159,1,68,8  ; n2023 t=90.087s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,18,21,1,63,5  ; n2024 t=90.097s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,19,74,1,63,8  ; n2025 t=90.097s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,38,76,9,20,69,0,38,8  ; n2026 t=90.097s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,50,76,9,21,139,0,50,8  ; n2027 t=90.097s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 10,0,128,1,74,125,5,0,42,2,74,5  ; n2028 t=90.111s dur=384ms, freq=554Hz, sample=74, buffer_id=05:4A
+    db 0,0,176,1,72,124,4,1,42,2,72,4  ; n2029 t=90.121s dur=432ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 255,0,128,1,69,125,5,2,159,1,69,5  ; n2030 t=90.121s dur=384ms, freq=415Hz, sample=69, buffer_id=05:45
     db 0,0,100,0,63,125,5,3,21,1,63,5  ; n2031 t=90.376s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,50,76,9,8,139,0,50,8  ; n2032 t=90.376s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 24,0,100,0,38,76,9,9,69,0,38,8  ; n2033 t=90.376s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
-    db 10,0,100,0,63,125,8,0,74,1,63,8  ; n2034 t=90.400s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 62,0,100,0,68,125,8,1,159,1,68,8  ; n2035 t=90.409s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 0,0,100,0,63,125,5,5,21,1,63,5  ; n2036 t=90.472s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,38,76,9,7,69,0,38,8  ; n2037 t=90.472s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,50,76,9,4,139,0,50,8  ; n2032 t=90.376s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 24,0,100,0,38,76,9,5,69,0,38,8  ; n2033 t=90.376s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 10,0,100,0,63,125,8,6,74,1,63,8  ; n2034 t=90.400s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 62,0,100,0,68,125,8,7,159,1,68,8  ; n2035 t=90.409s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,8,21,1,63,5  ; n2036 t=90.472s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,9,69,0,38,8  ; n2037 t=90.472s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 24,0,100,0,50,76,9,10,139,0,50,8  ; n2038 t=90.472s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
     db 10,0,100,0,63,125,8,11,74,1,63,8  ; n2039 t=90.496s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
     db 72,0,100,0,68,125,8,12,159,1,68,8  ; n2040 t=90.505s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 0,0,100,0,63,125,5,13,21,1,63,5  ; n2041 t=90.578s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,38,76,9,14,69,0,38,8  ; n2042 t=90.578s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
     db 5,0,100,0,50,76,9,15,139,0,50,8  ; n2043 t=90.578s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 5,0,100,0,63,125,8,0,74,1,63,8  ; n2044 t=90.582s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @90399.6ms -> 90582.3ms]
-    db 87,0,100,0,68,125,8,1,159,1,68,8  ; n2045 t=90.587s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @90409.2ms -> 90587.1ms]
-    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n2046 t=90.674s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch3 @90375.6ms -> 90673.7ms]
-    db 0,0,100,0,68,125,8,12,159,1,68,8  ; n2047 t=90.674s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch12 @90505.4ms -> 90673.7ms]
-    db 0,0,100,0,63,125,8,11,74,1,63,8  ; n2048 t=90.674s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch11 @90495.8ms -> 90673.7ms]
-    db 0,0,100,0,38,76,9,9,69,0,38,8  ; n2049 t=90.674s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @90375.6ms -> 90673.7ms]
-    db 14,0,100,0,50,76,9,8,139,0,50,8  ; n2050 t=90.674s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @90375.6ms -> 90673.7ms]
-    db 0,0,104,1,72,124,4,2,11,2,72,4  ; n2051 t=90.688s dur=360ms, freq=523Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch2 @90120.8ms -> 90688.1ms]
-    db 10,0,61,1,74,125,5,6,11,2,74,5  ; n2052 t=90.688s dur=317ms, freq=523Hz, sample=74, buffer_id=05:4A [TRUNCATE prev:ch6 @90111.2ms -> 90688.1ms]
-    db 72,0,254,0,69,125,5,4,159,1,69,5  ; n2053 t=90.698s dur=254ms, freq=415Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch4 @90120.8ms -> 90697.7ms]
-    db 0,0,100,0,63,125,5,5,21,1,63,5  ; n2054 t=90.770s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch5 @90471.7ms -> 90769.8ms]
-    db 0,0,100,0,38,76,9,7,69,0,38,8  ; n2055 t=90.770s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch7 @90471.7ms -> 90769.8ms]
-    db 5,0,100,0,50,76,9,10,139,0,50,8  ; n2056 t=90.770s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch10 @90471.7ms -> 90769.8ms]
-    db 0,0,100,0,63,125,8,0,74,1,63,8  ; n2057 t=90.775s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @90582.3ms -> 90774.6ms]
-    db 72,0,100,0,68,125,8,1,159,1,68,8  ; n2058 t=90.775s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @90587.1ms -> 90774.6ms]
-    db 10,0,100,0,68,125,8,12,159,1,68,8  ; n2059 t=90.847s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch12 @90673.7ms -> 90846.7ms]
-    db 0,0,100,0,63,125,5,13,21,1,63,5  ; n2060 t=90.856s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch13 @90577.5ms -> 90856.3ms]
-    db 0,0,100,0,63,125,8,11,74,1,63,8  ; n2061 t=90.856s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch11 @90673.7ms -> 90856.3ms]
-    db 0,0,100,0,38,76,9,14,69,0,38,8  ; n2062 t=90.856s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch14 @90577.5ms -> 90856.3ms]
-    db 101,0,100,0,50,76,9,15,139,0,50,8  ; n2063 t=90.856s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch15 @90577.5ms -> 90856.3ms]
-    db 5,0,100,0,68,125,8,1,159,1,68,8  ; n2064 t=90.957s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @90774.6ms -> 90957.3ms]
-    db 0,0,100,0,63,125,5,3,21,1,63,5  ; n2065 t=90.962s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch3 @90673.7ms -> 90962.1ms]
-    db 0,0,100,0,63,125,8,0,74,1,63,8  ; n2066 t=90.962s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @90774.6ms -> 90962.1ms]
-    db 0,0,100,0,50,76,9,8,139,0,50,8  ; n2067 t=90.962s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @90673.7ms -> 90962.1ms]
-    db 159,0,100,0,38,76,9,9,69,0,38,8  ; n2068 t=90.962s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch9 @90673.7ms -> 90962.1ms]
-    db 0,0,100,0,69,125,5,5,238,1,69,5  ; n2069 t=91.121s dur=100ms, freq=494Hz, sample=69, buffer_id=05:45
-    db 10,0,100,0,69,125,5,7,159,1,69,5  ; n2070 t=91.121s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 115,0,101,0,70,124,4,10,238,1,70,4  ; n2071 t=91.130s dur=101ms, freq=494Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,4,55,1,63,5  ; n2072 t=91.246s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,50,76,9,6,156,0,50,8  ; n2073 t=91.246s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 10,0,100,0,38,76,9,2,78,0,38,8  ; n2074 t=91.255s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 0,0,110,0,69,125,5,0,210,1,69,5  ; n2075 t=91.265s dur=110ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n2076 t=91.265s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 5,0,100,0,65,125,8,3,114,1,65,8  ; n2077 t=91.265s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 10,0,100,0,63,125,5,8,114,1,63,5  ; n2078 t=91.270s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,63,125,8,16,74,1,63,8  ; n2044 t=90.582s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 87,0,100,0,68,125,8,18,159,1,68,8  ; n2045 t=90.587s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,17,21,1,63,5  ; n2046 t=90.674s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,68,125,8,19,159,1,68,8  ; n2047 t=90.674s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,8,20,74,1,63,8  ; n2048 t=90.674s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,38,76,9,21,69,0,38,8  ; n2049 t=90.674s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 14,0,100,0,50,76,9,22,139,0,50,8  ; n2050 t=90.674s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,104,1,72,124,4,3,11,2,72,4  ; n2051 t=90.688s dur=360ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 10,0,61,1,74,125,5,4,11,2,74,5  ; n2052 t=90.688s dur=317ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 72,0,254,0,69,125,5,0,159,1,69,5  ; n2053 t=90.698s dur=254ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,5,1,21,1,63,5  ; n2054 t=90.770s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,38,76,9,2,69,0,38,8  ; n2055 t=90.770s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,50,76,9,5,139,0,50,8  ; n2056 t=90.770s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,8,7,74,1,63,8  ; n2057 t=90.775s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 72,0,100,0,68,125,8,6,159,1,68,8  ; n2058 t=90.775s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 10,0,100,0,68,125,8,8,159,1,68,8  ; n2059 t=90.847s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,9,21,1,63,5  ; n2060 t=90.856s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,10,74,1,63,8  ; n2061 t=90.856s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,38,76,9,11,69,0,38,8  ; n2062 t=90.856s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 101,0,100,0,50,76,9,12,139,0,50,8  ; n2063 t=90.856s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,68,125,8,13,159,1,68,8  ; n2064 t=90.957s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 0,0,100,0,63,125,5,14,21,1,63,5  ; n2065 t=90.962s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,15,74,1,63,8  ; n2066 t=90.962s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,50,76,9,16,139,0,50,8  ; n2067 t=90.962s dur=100ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 159,0,100,0,38,76,9,18,69,0,38,8  ; n2068 t=90.962s dur=100ms, freq=69Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,69,125,5,1,238,1,69,5  ; n2069 t=91.121s dur=100ms, freq=494Hz, sample=69, buffer_id=05:45
+    db 10,0,100,0,69,125,5,2,159,1,69,5  ; n2070 t=91.121s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 115,0,101,0,70,124,4,5,238,1,70,4  ; n2071 t=91.130s dur=101ms, freq=494Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n2072 t=91.246s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,50,76,9,4,156,0,50,8  ; n2073 t=91.246s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 10,0,100,0,38,76,9,3,78,0,38,8  ; n2074 t=91.255s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,110,0,69,125,5,6,210,1,69,5  ; n2075 t=91.265s dur=110ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,8,8,55,1,63,8  ; n2076 t=91.265s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 5,0,100,0,65,125,8,7,114,1,65,8  ; n2077 t=91.265s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 10,0,100,0,63,125,5,10,114,1,63,5  ; n2078 t=91.270s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
     db 120,0,105,0,70,124,4,9,210,1,70,4  ; n2079 t=91.279s dur=105ms, freq=466Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,69,125,5,11,184,1,69,5  ; n2080 t=91.400s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
     db 19,0,100,0,63,125,5,12,93,1,63,5  ; n2081 t=91.400s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 125,0,100,0,70,124,4,13,184,1,70,4  ; n2082 t=91.419s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 10,0,125,0,69,125,5,10,210,1,69,5  ; n2083 t=91.544s dur=125ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 14,0,110,0,63,125,5,5,114,1,63,5  ; n2084 t=91.553s dur=110ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 245,0,100,0,70,124,4,1,210,1,70,4  ; n2085 t=91.568s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n2086 t=91.813s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,2,55,1,63,8  ; n2087 t=91.813s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 10,0,125,0,69,125,5,5,210,1,69,5  ; n2083 t=91.544s dur=125ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 14,0,110,0,63,125,5,1,114,1,63,5  ; n2084 t=91.553s dur=110ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 245,0,100,0,70,124,4,0,210,1,70,4  ; n2085 t=91.568s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n2086 t=91.813s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,3,55,1,63,8  ; n2087 t=91.813s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,4,114,1,65,8  ; n2088 t=91.813s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,38,76,9,3,78,0,38,8  ; n2089 t=91.813s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,38,76,9,6,78,0,38,8  ; n2089 t=91.813s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 47,1,100,0,50,76,9,7,156,0,50,8  ; n2090 t=91.813s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 0,0,100,0,63,125,5,1,55,1,63,5  ; n2091 t=92.116s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,0,55,1,63,8  ; n2092 t=92.116s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n2091 t=92.116s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n2092 t=92.116s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,2,114,1,65,8  ; n2093 t=92.116s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
     db 0,0,100,0,50,76,9,3,156,0,50,8  ; n2094 t=92.116s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 24,0,100,0,38,76,9,4,78,0,38,8  ; n2095 t=92.116s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,63,125,5,6,55,1,63,5  ; n2096 t=92.140s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 67,0,101,0,65,124,4,5,55,1,65,4  ; n2097 t=92.145s dur=101ms, freq=311Hz, sample=65, buffer_id=04:41
+    db 5,0,100,0,63,125,5,5,55,1,63,5  ; n2096 t=92.140s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 67,0,101,0,65,124,4,6,55,1,65,4  ; n2097 t=92.145s dur=101ms, freq=311Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,63,125,5,7,55,1,63,5  ; n2098 t=92.212s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,8,55,1,63,8  ; n2099 t=92.212s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,9,114,1,65,8  ; n2100 t=92.212s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,63,125,8,9,55,1,63,8  ; n2099 t=92.212s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,8,114,1,65,8  ; n2100 t=92.212s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
     db 0,0,100,0,38,76,9,10,78,0,38,8  ; n2101 t=92.212s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 96,0,100,0,50,76,9,11,156,0,50,8  ; n2102 t=92.212s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 0,0,100,0,63,125,5,13,55,1,63,5  ; n2103 t=92.308s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,63,125,8,12,55,1,63,8  ; n2104 t=92.308s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,14,114,1,65,8  ; n2105 t=92.308s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,50,76,9,15,156,0,50,8  ; n2106 t=92.308s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch15 @90856.3ms -> 92308.3ms]
-    db 96,0,100,0,38,76,9,4,78,0,38,8  ; n2107 t=92.308s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch4 @92116.0ms -> 92308.3ms]
-    db 0,0,100,0,63,125,5,1,55,1,63,5  ; n2108 t=92.404s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch1 @92116.0ms -> 92404.4ms]
-    db 0,0,100,0,63,125,8,0,55,1,63,8  ; n2109 t=92.404s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @92116.0ms -> 92404.4ms]
-    db 0,0,100,0,65,125,8,2,114,1,65,8  ; n2110 t=92.404s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch2 @92116.0ms -> 92404.4ms]
-    db 0,0,100,0,38,76,9,10,78,0,38,8  ; n2111 t=92.404s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch10 @92212.1ms -> 92404.4ms]
-    db 19,0,100,0,50,76,9,3,156,0,50,8  ; n2112 t=92.404s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch3 @92116.0ms -> 92404.4ms]
-    db 5,0,147,1,65,124,4,5,114,1,65,4  ; n2113 t=92.424s dur=403ms, freq=370Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch5 @92144.8ms -> 92423.7ms]
-    db 41,2,90,1,63,125,5,6,114,1,63,5  ; n2114 t=92.428s dur=346ms, freq=370Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch6 @92140.0ms -> 92428.5ms]
-    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n2115 t=92.981s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n2116 t=92.981s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,50,76,9,15,156,0,50,8  ; n2106 t=92.308s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 96,0,100,0,38,76,9,16,78,0,38,8  ; n2107 t=92.308s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,63,125,5,18,55,1,63,5  ; n2108 t=92.404s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,17,55,1,63,8  ; n2109 t=92.404s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,19,114,1,65,8  ; n2110 t=92.404s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,20,78,0,38,8  ; n2111 t=92.404s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 19,0,100,0,50,76,9,21,156,0,50,8  ; n2112 t=92.404s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 5,0,147,1,65,124,4,0,114,1,65,4  ; n2113 t=92.424s dur=403ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 41,2,90,1,63,125,5,1,114,1,63,5  ; n2114 t=92.428s dur=346ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,125,5,1,6,1,58,5  ; n2115 t=92.981s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,8,2,55,1,63,8  ; n2116 t=92.981s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,3,114,1,65,8  ; n2117 t=92.981s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,47,76,9,2,131,0,47,8  ; n2118 t=92.981s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
-    db 5,0,100,0,38,76,9,6,65,0,38,8  ; n2119 t=92.981s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
-    db 10,0,109,1,63,125,5,4,114,1,63,5  ; n2120 t=92.986s dur=365ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,47,76,9,4,131,0,47,8  ; n2118 t=92.981s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 5,0,100,0,38,76,9,5,65,0,38,8  ; n2119 t=92.981s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 10,0,109,1,63,125,5,6,114,1,63,5  ; n2120 t=92.986s dur=365ms, freq=370Hz, sample=63, buffer_id=05:3F
     db 0,0,104,1,65,124,4,7,55,1,65,4  ; n2121 t=92.996s dur=360ms, freq=311Hz, sample=65, buffer_id=04:41
     db 0,0,70,1,63,125,5,8,55,1,63,5  ; n2122 t=92.996s dur=326ms, freq=311Hz, sample=63, buffer_id=05:3F
     db 82,0,123,1,69,125,5,9,210,1,69,5  ; n2123 t=92.996s dur=379ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,58,125,5,5,6,1,58,5  ; n2124 t=93.078s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n2124 t=93.078s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,63,125,8,10,55,1,63,8  ; n2125 t=93.078s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,65,125,8,11,114,1,65,8  ; n2126 t=93.078s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
     db 0,0,100,0,38,76,9,12,65,0,38,8  ; n2127 t=93.078s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
     db 87,0,100,0,47,76,9,13,131,0,47,8  ; n2128 t=93.078s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
     db 0,0,100,0,58,125,5,14,6,1,58,5  ; n2129 t=93.164s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,63,125,8,15,55,1,63,8  ; n2130 t=93.164s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,3,114,1,65,8  ; n2131 t=93.164s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch3 @92981.3ms -> 93164.0ms]
-    db 0,0,100,0,47,76,9,2,131,0,47,8  ; n2132 t=93.164s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch2 @92981.3ms -> 93164.0ms]
-    db 106,0,100,0,38,76,9,6,65,0,38,8  ; n2133 t=93.164s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch6 @92981.3ms -> 93164.0ms]
-    db 0,0,100,0,58,125,5,0,6,1,58,5  ; n2134 t=93.270s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @92981.3ms -> 93269.8ms]
-    db 0,0,100,0,63,125,8,1,55,1,63,8  ; n2135 t=93.270s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch1 @92981.3ms -> 93269.8ms]
-    db 0,0,100,0,65,125,8,11,114,1,65,8  ; n2136 t=93.270s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch11 @93077.5ms -> 93269.8ms]
-    db 0,0,100,0,38,76,9,12,65,0,38,8  ; n2137 t=93.270s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch12 @93077.5ms -> 93269.8ms]
-    db 168,0,100,0,47,76,9,13,131,0,47,8  ; n2138 t=93.270s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch13 @93077.5ms -> 93269.8ms]
-    db 5,0,100,0,70,124,4,5,210,1,70,4  ; n2139 t=93.438s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 120,0,100,0,69,125,5,10,210,1,69,5  ; n2140 t=93.443s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,125,8,16,114,1,65,8  ; n2131 t=93.164s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,47,76,9,17,131,0,47,8  ; n2132 t=93.164s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 106,0,100,0,38,76,9,18,65,0,38,8  ; n2133 t=93.164s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,58,125,5,19,6,1,58,5  ; n2134 t=93.270s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,63,125,8,20,55,1,63,8  ; n2135 t=93.270s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,21,114,1,65,8  ; n2136 t=93.270s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,22,65,0,38,8  ; n2137 t=93.270s dur=100ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 168,0,100,0,47,76,9,23,131,0,47,8  ; n2138 t=93.270s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 5,0,100,0,70,124,4,0,210,1,70,4  ; n2139 t=93.438s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 120,0,100,0,69,125,5,1,210,1,69,5  ; n2140 t=93.443s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
     db 0,0,100,0,55,125,5,2,196,0,55,5  ; n2141 t=93.563s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,3,136,1,67,8  ; n2142 t=93.563s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,43,76,9,4,98,0,43,8  ; n2143 t=93.563s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 14,0,100,0,31,76,9,6,49,0,31,8  ; n2144 t=93.563s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 10,0,128,1,69,125,5,0,136,1,69,5  ; n2145 t=93.578s dur=384ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 36,2,143,1,65,124,4,1,136,1,65,4  ; n2146 t=93.587s dur=399ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n2147 t=94.135s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,80,1,69,125,5,3,210,1,69,5  ; n2148 t=94.135s dur=336ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 0,0,80,1,63,125,5,4,114,1,63,5  ; n2149 t=94.135s dur=336ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,5,55,1,63,8  ; n2150 t=94.135s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,6,114,1,65,8  ; n2151 t=94.135s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,38,76,9,7,78,0,38,8  ; n2152 t=94.135s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
-    db 5,0,100,0,50,76,9,8,156,0,50,8  ; n2153 t=94.135s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 14,0,100,0,31,76,9,5,49,0,31,8  ; n2144 t=93.563s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,128,1,69,125,5,6,136,1,69,5  ; n2145 t=93.578s dur=384ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 36,2,143,1,65,124,4,8,136,1,65,4  ; n2146 t=93.587s dur=399ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n2147 t=94.135s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,80,1,69,125,5,2,210,1,69,5  ; n2148 t=94.135s dur=336ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,80,1,63,125,5,1,114,1,63,5  ; n2149 t=94.135s dur=336ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,3,55,1,63,8  ; n2150 t=94.135s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,4,114,1,65,8  ; n2151 t=94.135s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,5,78,0,38,8  ; n2152 t=94.135s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,50,76,9,7,156,0,50,8  ; n2153 t=94.135s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 29,0,100,0,63,125,5,9,55,1,63,5  ; n2154 t=94.140s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 62,0,32,1,65,124,4,0,55,1,65,4  ; n2155 t=94.169s dur=288ms, freq=311Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,1,55,1,63,5  ; n2156 t=94.231s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,10,55,1,63,8  ; n2157 t=94.231s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 0,0,100,0,65,125,8,12,114,1,65,8  ; n2158 t=94.231s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 0,0,100,0,50,76,9,11,156,0,50,8  ; n2159 t=94.231s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 62,0,32,1,65,124,4,6,55,1,65,4  ; n2155 t=94.169s dur=288ms, freq=311Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,8,55,1,63,5  ; n2156 t=94.231s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,11,55,1,63,8  ; n2157 t=94.231s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,10,114,1,65,8  ; n2158 t=94.231s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,50,76,9,12,156,0,50,8  ; n2159 t=94.231s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 87,0,100,0,38,76,9,13,78,0,38,8  ; n2160 t=94.231s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,63,125,5,14,55,1,63,5  ; n2161 t=94.318s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,63,125,8,15,55,1,63,8  ; n2162 t=94.318s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch15 @93164.0ms -> 94317.9ms]
-    db 0,0,100,0,65,125,8,6,114,1,65,8  ; n2163 t=94.318s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch6 @94135.2ms -> 94317.9ms]
-    db 0,0,100,0,38,76,9,7,78,0,38,8  ; n2164 t=94.318s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch7 @94135.2ms -> 94317.9ms]
-    db 106,0,100,0,50,76,9,8,156,0,50,8  ; n2165 t=94.318s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch8 @94135.2ms -> 94317.9ms]
-    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n2166 t=94.424s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch2 @94135.2ms -> 94423.7ms]
-    db 0,0,100,0,63,125,8,5,55,1,63,8  ; n2167 t=94.424s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch5 @94135.2ms -> 94423.7ms]
-    db 0,0,100,0,65,125,8,12,114,1,65,8  ; n2168 t=94.424s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch12 @94231.3ms -> 94423.7ms]
-    db 0,0,100,0,50,76,9,11,156,0,50,8  ; n2169 t=94.424s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch11 @94231.3ms -> 94423.7ms]
-    db 168,0,100,0,38,76,9,13,78,0,38,8  ; n2170 t=94.424s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch13 @94231.3ms -> 94423.7ms]
-    db 10,0,100,0,70,124,4,1,210,1,70,4  ; n2171 t=94.592s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 125,0,100,0,69,125,5,9,210,1,69,5  ; n2172 t=94.602s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,55,125,5,0,196,0,55,5  ; n2173 t=94.727s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,214,2,69,125,5,2,136,1,69,5  ; n2174 t=94.727s dur=726ms, freq=392Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,67,125,8,3,136,1,67,8  ; n2175 t=94.727s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,4,49,0,31,8  ; n2176 t=94.727s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 14,0,100,0,43,76,9,5,98,0,43,8  ; n2177 t=94.727s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
-    db 8,1,39,3,65,124,4,6,136,1,65,4  ; n2178 t=94.741s dur=807ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,55,125,5,1,196,0,55,5  ; n2179 t=95.005s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,67,125,8,7,136,1,67,8  ; n2180 t=95.005s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,63,125,8,16,55,1,63,8  ; n2162 t=94.318s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,15,114,1,65,8  ; n2163 t=94.318s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,38,76,9,17,78,0,38,8  ; n2164 t=94.318s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 106,0,100,0,50,76,9,18,156,0,50,8  ; n2165 t=94.318s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,63,125,5,19,55,1,63,5  ; n2166 t=94.424s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,63,125,8,21,55,1,63,8  ; n2167 t=94.424s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,65,125,8,20,114,1,65,8  ; n2168 t=94.424s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,50,76,9,22,156,0,50,8  ; n2169 t=94.424s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 168,0,100,0,38,76,9,23,78,0,38,8  ; n2170 t=94.424s dur=100ms, freq=78Hz, sample=38, buffer_id=08:26
+    db 10,0,100,0,70,124,4,0,210,1,70,4  ; n2171 t=94.592s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 125,0,100,0,69,125,5,3,210,1,69,5  ; n2172 t=94.602s dur=100ms, freq=466Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,55,125,5,1,196,0,55,5  ; n2173 t=94.727s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,214,2,69,125,5,4,136,1,69,5  ; n2174 t=94.727s dur=726ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,67,125,8,2,136,1,67,8  ; n2175 t=94.727s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,31,76,9,5,49,0,31,8  ; n2176 t=94.727s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 14,0,100,0,43,76,9,6,98,0,43,8  ; n2177 t=94.727s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 8,1,39,3,65,124,4,7,136,1,65,4  ; n2178 t=94.741s dur=807ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,55,125,5,0,196,0,55,5  ; n2179 t=95.005s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,67,125,8,3,136,1,67,8  ; n2180 t=95.005s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,43,76,9,8,98,0,43,8  ; n2181 t=95.005s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 96,0,100,0,31,76,9,9,49,0,31,8  ; n2182 t=95.005s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n2183 t=95.102s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,67,125,8,0,136,1,67,8  ; n2184 t=95.102s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,5,49,0,31,8  ; n2185 t=95.102s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 96,0,100,0,43,76,9,4,98,0,43,8  ; n2186 t=95.102s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,55,125,5,2,196,0,55,5  ; n2183 t=95.102s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,67,125,8,1,136,1,67,8  ; n2184 t=95.102s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,31,76,9,6,49,0,31,8  ; n2185 t=95.102s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 96,0,100,0,43,76,9,5,98,0,43,8  ; n2186 t=95.102s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,55,125,5,10,196,0,55,5  ; n2187 t=95.198s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,11,136,1,67,8  ; n2188 t=95.198s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 0,0,100,0,43,76,9,12,98,0,43,8  ; n2189 t=95.198s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 96,0,100,0,31,76,9,13,49,0,31,8  ; n2190 t=95.198s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 0,0,100,0,55,125,5,14,196,0,55,5  ; n2191 t=95.294s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,15,136,1,67,8  ; n2192 t=95.294s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,9,49,0,31,8  ; n2193 t=95.294s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch9 @95005.4ms -> 95293.8ms]
-    db 91,0,100,0,43,76,9,8,98,0,43,8  ; n2194 t=95.294s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch8 @95005.4ms -> 95293.8ms]
-    db 0,0,100,0,55,125,5,7,196,0,55,5  ; n2195 t=95.385s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,67,125,8,1,136,1,67,8  ; n2196 t=95.385s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,43,76,9,4,98,0,43,8  ; n2197 t=95.385s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch4 @95101.5ms -> 95385.2ms]
-    db 96,0,100,0,31,76,9,5,49,0,31,8  ; n2198 t=95.385s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch5 @95101.5ms -> 95385.2ms]
-    db 0,0,100,0,55,125,5,0,196,0,55,5  ; n2199 t=95.481s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,67,125,8,3,136,1,67,8  ; n2200 t=95.481s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,31,76,9,13,49,0,31,8  ; n2201 t=95.481s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch13 @95197.7ms -> 95481.3ms]
-    db 101,0,100,0,43,76,9,12,98,0,43,8  ; n2202 t=95.481s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch12 @95197.7ms -> 95481.3ms]
+    db 0,0,100,0,31,76,9,16,49,0,31,8  ; n2193 t=95.294s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 91,0,100,0,43,76,9,17,98,0,43,8  ; n2194 t=95.294s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,55,125,5,3,196,0,55,5  ; n2195 t=95.385s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,67,125,8,0,136,1,67,8  ; n2196 t=95.385s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,43,76,9,9,98,0,43,8  ; n2197 t=95.385s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 96,0,100,0,31,76,9,8,49,0,31,8  ; n2198 t=95.385s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 0,0,100,0,55,125,5,1,196,0,55,5  ; n2199 t=95.481s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,67,125,8,2,136,1,67,8  ; n2200 t=95.481s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 0,0,100,0,31,76,9,5,49,0,31,8  ; n2201 t=95.481s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 101,0,100,0,43,76,9,6,98,0,43,8  ; n2202 t=95.481s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,55,125,5,11,196,0,55,5  ; n2203 t=95.582s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,67,125,8,10,136,1,67,8  ; n2204 t=95.582s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 0,0,100,0,43,76,9,8,98,0,43,8  ; n2205 t=95.582s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch8 @95293.8ms -> 95582.3ms]
-    db 60,2,100,0,31,76,9,9,49,0,31,8  ; n2206 t=95.582s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch9 @95293.8ms -> 95582.3ms]
+    db 0,0,100,0,43,76,9,13,98,0,43,8  ; n2205 t=95.582s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 60,2,100,0,31,76,9,12,49,0,31,8  ; n2206 t=95.582s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
     db 5,0,100,0,58,125,8,0,233,0,58,8  ; n2207 t=96.154s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,58,126,3,1,233,0,58,3  ; n2208 t=96.159s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
     db 0,0,100,0,62,126,3,2,38,1,62,3  ; n2209 t=96.159s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
@@ -2232,63 +2232,63 @@ midi_data:
     db 5,0,100,0,62,125,8,6,38,1,62,8  ; n2213 t=96.251s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
     db 0,0,100,0,62,126,3,7,38,1,62,3  ; n2214 t=96.255s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 0,0,100,0,55,125,5,8,196,0,55,5  ; n2215 t=96.255s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
-    db 0,0,100,0,31,124,10,10,49,0,31,8  ; n2216 t=96.255s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 91,0,100,0,43,124,10,9,98,0,43,8  ; n2217 t=96.255s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 0,0,100,0,31,124,10,9,49,0,31,8  ; n2216 t=96.255s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 91,0,100,0,43,124,10,10,98,0,43,8  ; n2217 t=96.255s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
     db 0,0,100,0,58,126,3,11,233,0,58,3  ; n2218 t=96.347s dur=100ms, freq=233Hz, sample=58, buffer_id=03:3A
     db 0,0,100,0,55,125,5,12,196,0,55,5  ; n2219 t=96.347s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
     db 0,0,100,0,58,125,8,13,233,0,58,8  ; n2220 t=96.347s dur=100ms, freq=233Hz, sample=58, buffer_id=08:3A
     db 0,0,100,0,62,125,8,14,38,1,62,8  ; n2221 t=96.347s dur=100ms, freq=294Hz, sample=62, buffer_id=08:3E
     db 0,0,100,0,31,124,10,15,49,0,31,8  ; n2222 t=96.347s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
-    db 5,0,100,0,43,124,10,0,98,0,43,8  ; n2223 t=96.347s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch0 @96154.4ms -> 96346.7ms]
-    db 91,0,100,0,62,126,3,2,38,1,62,3  ; n2224 t=96.352s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch2 @96159.2ms -> 96351.5ms]
-    db 0,0,100,0,63,126,3,1,55,1,63,3  ; n2225 t=96.443s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch1 @96159.2ms -> 96442.9ms]
-    db 0,0,100,0,58,126,3,4,247,0,58,3  ; n2226 t=96.443s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch4 @96250.6ms -> 96442.9ms]
-    db 0,0,100,0,59,125,8,3,247,0,59,8  ; n2227 t=96.443s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch3 @96159.2ms -> 96442.9ms]
-    db 5,0,100,0,63,125,8,5,55,1,63,8  ; n2228 t=96.443s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch5 @96250.6ms -> 96442.9ms]
-    db 0,0,100,0,55,125,5,8,196,0,55,5  ; n2229 t=96.448s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch8 @96255.4ms -> 96447.7ms]
-    db 0,0,100,0,31,124,10,10,49,0,31,8  ; n2230 t=96.448s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch10 @96255.4ms -> 96447.7ms]
-    db 10,0,100,0,43,124,10,9,98,0,43,8  ; n2231 t=96.448s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch9 @96255.4ms -> 96447.7ms]
-    db 82,0,100,0,50,124,10,6,147,0,50,8  ; n2232 t=96.457s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch6 @96250.6ms -> 96457.3ms]
-    db 0,0,100,0,58,126,3,11,247,0,58,3  ; n2233 t=96.539s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch11 @96346.7ms -> 96539.0ms]
-    db 0,0,100,0,55,125,5,12,196,0,55,5  ; n2234 t=96.539s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch12 @96346.7ms -> 96539.0ms]
-    db 0,0,100,0,59,125,8,7,247,0,59,8  ; n2235 t=96.539s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch7 @96255.4ms -> 96539.0ms]
-    db 0,0,100,0,63,125,8,0,55,1,63,8  ; n2236 t=96.539s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch0 @96346.7ms -> 96539.0ms]
-    db 0,0,100,0,31,124,10,15,49,0,31,8  ; n2237 t=96.539s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch15 @96346.7ms -> 96539.0ms]
-    db 5,0,100,0,43,124,10,13,98,0,43,8  ; n2238 t=96.539s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch13 @96346.7ms -> 96539.0ms]
-    db 10,0,100,0,63,126,3,1,55,1,63,3  ; n2239 t=96.544s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch1 @96442.9ms -> 96543.8ms]
-    db 77,0,100,0,50,124,10,14,147,0,50,8  ; n2240 t=96.553s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch14 @96346.7ms -> 96553.5ms]
-    db 0,0,100,0,58,126,3,4,247,0,58,3  ; n2241 t=96.630s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A [TRUNCATE prev:ch4 @96442.9ms -> 96630.4ms]
-    db 5,0,100,0,63,125,8,5,55,1,63,8  ; n2242 t=96.630s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch5 @96442.9ms -> 96630.4ms]
-    db 0,0,100,0,63,126,3,2,55,1,63,3  ; n2243 t=96.635s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F [TRUNCATE prev:ch2 @96351.5ms -> 96635.2ms]
-    db 0,0,100,0,55,125,5,8,196,0,55,5  ; n2244 t=96.635s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch8 @96447.7ms -> 96635.2ms]
-    db 0,0,100,0,59,125,8,3,247,0,59,8  ; n2245 t=96.635s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch3 @96442.9ms -> 96635.2ms]
-    db 0,0,100,0,31,124,10,10,49,0,31,8  ; n2246 t=96.635s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch10 @96447.7ms -> 96635.2ms]
-    db 14,0,100,0,43,124,10,9,98,0,43,8  ; n2247 t=96.635s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch9 @96447.7ms -> 96635.2ms]
-    db 82,0,100,0,50,124,10,6,147,0,50,8  ; n2248 t=96.650s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch6 @96457.3ms -> 96649.6ms]
-    db 0,0,100,0,62,126,3,0,21,1,62,3  ; n2249 t=96.731s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch0 @96539.0ms -> 96731.3ms]
-    db 0,0,100,0,65,126,3,7,93,1,65,3  ; n2250 t=96.731s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch7 @96539.0ms -> 96731.3ms]
-    db 0,0,100,0,55,125,5,12,196,0,55,5  ; n2251 t=96.731s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37 [TRUNCATE prev:ch12 @96539.0ms -> 96731.3ms]
-    db 0,0,100,0,65,125,8,11,93,1,65,8  ; n2252 t=96.731s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch11 @96539.0ms -> 96731.3ms]
-    db 0,0,100,0,61,125,8,13,21,1,61,8  ; n2253 t=96.731s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch13 @96539.0ms -> 96731.3ms]
-    db 0,0,100,0,31,124,10,15,49,0,31,8  ; n2254 t=96.731s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F [TRUNCATE prev:ch15 @96539.0ms -> 96731.3ms]
-    db 10,0,100,0,43,124,10,1,98,0,43,8  ; n2255 t=96.731s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch1 @96543.8ms -> 96731.3ms]
-    db 77,0,100,0,50,124,10,14,147,0,50,8  ; n2256 t=96.741s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch14 @96553.5ms -> 96741.0ms]
-    db 5,0,100,0,65,125,8,4,93,1,65,8  ; n2257 t=96.818s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch4 @96630.4ms -> 96817.9ms]
-    db 5,0,100,0,62,126,3,5,21,1,62,3  ; n2258 t=96.823s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch5 @96630.4ms -> 96822.7ms]
-    db 0,0,100,0,65,126,3,2,93,1,65,3  ; n2259 t=96.828s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch2 @96635.2ms -> 96827.5ms]
-    db 87,0,100,0,61,125,8,3,21,1,61,8  ; n2260 t=96.828s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch3 @96635.2ms -> 96827.5ms]
-    db 10,0,100,0,65,125,8,11,93,1,65,8  ; n2261 t=96.914s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch11 @96731.3ms -> 96914.0ms]
-    db 0,0,100,0,65,126,3,7,93,1,65,3  ; n2262 t=96.924s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41 [TRUNCATE prev:ch7 @96731.3ms -> 96923.7ms]
-    db 0,0,100,0,62,126,3,0,21,1,62,3  ; n2263 t=96.924s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E [TRUNCATE prev:ch0 @96731.3ms -> 96923.7ms]
-    db 126,0,100,0,61,125,8,13,21,1,61,8  ; n2264 t=96.924s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch13 @96731.3ms -> 96923.7ms]
-    db 16,0,191,1,38,124,10,1,65,0,38,8  ; n2265 t=97.050s dur=447ms, freq=65Hz, sample=38, buffer_id=08:26
+    db 5,0,100,0,43,124,10,16,98,0,43,8  ; n2223 t=96.347s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 91,0,100,0,62,126,3,17,38,1,62,3  ; n2224 t=96.352s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,63,126,3,18,55,1,63,3  ; n2225 t=96.443s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 0,0,100,0,58,126,3,19,247,0,58,3  ; n2226 t=96.443s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,59,125,8,20,247,0,59,8  ; n2227 t=96.443s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 5,0,100,0,63,125,8,22,55,1,63,8  ; n2228 t=96.443s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,55,125,5,21,196,0,55,5  ; n2229 t=96.448s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,31,124,10,23,49,0,31,8  ; n2230 t=96.448s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,124,10,24,98,0,43,8  ; n2231 t=96.448s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,50,124,10,0,147,0,50,8  ; n2232 t=96.457s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,126,3,2,247,0,58,3  ; n2233 t=96.539s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 0,0,100,0,55,125,5,1,196,0,55,5  ; n2234 t=96.539s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,59,125,8,3,247,0,59,8  ; n2235 t=96.539s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 0,0,100,0,63,125,8,25,55,1,63,8  ; n2236 t=96.539s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,31,124,10,26,49,0,31,8  ; n2237 t=96.539s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 5,0,100,0,43,124,10,27,98,0,43,8  ; n2238 t=96.539s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 10,0,100,0,63,126,3,28,55,1,63,3  ; n2239 t=96.544s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 77,0,100,0,50,124,10,4,147,0,50,8  ; n2240 t=96.553s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,58,126,3,5,247,0,58,3  ; n2241 t=96.630s dur=100ms, freq=247Hz, sample=58, buffer_id=03:3A
+    db 5,0,100,0,63,125,8,6,55,1,63,8  ; n2242 t=96.630s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
+    db 0,0,100,0,63,126,3,7,55,1,63,3  ; n2243 t=96.635s dur=100ms, freq=311Hz, sample=63, buffer_id=03:3F
+    db 0,0,100,0,55,125,5,9,196,0,55,5  ; n2244 t=96.635s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,59,125,8,8,247,0,59,8  ; n2245 t=96.635s dur=100ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 0,0,100,0,31,124,10,10,49,0,31,8  ; n2246 t=96.635s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 14,0,100,0,43,124,10,30,98,0,43,8  ; n2247 t=96.635s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B
+    db 82,0,100,0,50,124,10,11,147,0,50,8  ; n2248 t=96.650s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,62,126,3,12,21,1,62,3  ; n2249 t=96.731s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,65,126,3,13,93,1,65,3  ; n2250 t=96.731s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 0,0,100,0,55,125,5,14,196,0,55,5  ; n2251 t=96.731s dur=100ms, freq=196Hz, sample=55, buffer_id=05:37
+    db 0,0,100,0,65,125,8,15,93,1,65,8  ; n2252 t=96.731s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,61,125,8,16,21,1,61,8  ; n2253 t=96.731s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 0,0,100,0,31,124,10,17,49,0,31,8  ; n2254 t=96.731s dur=100ms, freq=49Hz, sample=31, buffer_id=08:1F
+    db 10,0,100,0,43,124,10,29,98,0,43,8  ; n2255 t=96.731s dur=100ms, freq=98Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch29 @76923.7ms -> 96731.3ms]
+    db 77,0,100,0,50,124,10,31,147,0,50,8  ; n2256 t=96.741s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 5,0,100,0,65,125,8,0,93,1,65,8  ; n2257 t=96.818s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 5,0,100,0,62,126,3,18,21,1,62,3  ; n2258 t=96.823s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 0,0,100,0,65,126,3,19,93,1,65,3  ; n2259 t=96.828s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 87,0,100,0,61,125,8,20,21,1,61,8  ; n2260 t=96.828s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 10,0,100,0,65,125,8,1,93,1,65,8  ; n2261 t=96.914s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,100,0,65,126,3,2,93,1,65,3  ; n2262 t=96.924s dur=100ms, freq=349Hz, sample=65, buffer_id=03:41
+    db 0,0,100,0,62,126,3,3,21,1,62,3  ; n2263 t=96.924s dur=100ms, freq=277Hz, sample=62, buffer_id=03:3E
+    db 126,0,100,0,61,125,8,4,21,1,61,8  ; n2264 t=96.924s dur=100ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 16,0,191,1,38,124,10,5,65,0,38,8  ; n2265 t=97.050s dur=447ms, freq=65Hz, sample=38, buffer_id=08:26
     db 5,0,4,1,62,102,6,6,6,1,62,6  ; n2266 t=97.066s dur=260ms, freq=262Hz, sample=62, buffer_id=06:3E
-    db 36,1,239,0,48,102,6,8,131,0,48,6  ; n2267 t=97.071s dur=239ms, freq=131Hz, sample=48, buffer_id=06:30
+    db 36,1,239,0,48,102,6,7,131,0,48,6  ; n2267 t=97.071s dur=239ms, freq=131Hz, sample=48, buffer_id=06:30
     db 10,0,100,0,55,124,10,0,196,0,55,8  ; n2268 t=97.362s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 94,0,100,0,50,124,10,2,156,0,50,8  ; n2269 t=97.373s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 10,0,100,0,55,124,10,3,196,0,55,8  ; n2270 t=97.466s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
-    db 73,0,100,0,50,124,10,4,156,0,50,8  ; n2271 t=97.477s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
-    db 10,0,100,0,50,124,10,5,156,0,50,8  ; n2272 t=97.550s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 94,0,100,0,50,124,10,1,156,0,50,8  ; n2269 t=97.373s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 10,0,100,0,55,124,10,2,196,0,55,8  ; n2270 t=97.466s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
+    db 73,0,100,0,50,124,10,3,156,0,50,8  ; n2271 t=97.477s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
+    db 10,0,100,0,50,124,10,4,156,0,50,8  ; n2272 t=97.550s dur=100ms, freq=156Hz, sample=50, buffer_id=08:32
     db 104,0,100,0,55,124,10,6,196,0,55,8  ; n2273 t=97.560s dur=100ms, freq=196Hz, sample=55, buffer_id=08:37
     db 0,0,100,0,56,124,10,0,208,0,56,8  ; n2274 t=97.664s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
     db 104,0,100,0,47,124,10,7,123,0,47,8  ; n2275 t=97.664s dur=100ms, freq=123Hz, sample=47, buffer_id=08:2F
@@ -2297,7 +2297,7 @@ midi_data:
     db 10,0,100,0,56,124,10,3,208,0,56,8  ; n2278 t=97.868s dur=100ms, freq=208Hz, sample=56, buffer_id=08:38
     db 99,0,100,0,47,124,10,4,123,0,47,8  ; n2279 t=97.878s dur=100ms, freq=123Hz, sample=47, buffer_id=08:2F
     db 10,0,100,0,53,124,10,0,175,0,53,8  ; n2280 t=97.977s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
-    db 94,0,100,0,50,124,10,6,147,0,50,8  ; n2281 t=97.987s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 94,0,100,0,50,124,10,5,147,0,50,8  ; n2281 t=97.987s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
     db 16,0,100,0,53,124,10,1,175,0,53,8  ; n2282 t=98.081s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
     db 83,0,100,0,50,124,10,2,147,0,50,8  ; n2283 t=98.097s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
     db 10,0,100,0,53,124,10,3,175,0,53,8  ; n2284 t=98.180s dur=100ms, freq=175Hz, sample=53, buffer_id=08:35
@@ -2330,8 +2330,8 @@ midi_data:
     db 94,0,100,0,67,124,10,5,136,1,67,8  ; n2311 t=100.045s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
     db 26,0,180,2,38,124,10,7,73,0,38,8  ; n2312 t=100.138s dur=692ms, freq=73Hz, sample=38, buffer_id=08:26
     db 16,0,100,0,65,124,10,0,114,1,65,8  ; n2313 t=100.164s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
-    db 73,0,100,0,59,124,10,8,6,1,59,8  ; n2314 t=100.180s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
-    db 21,0,100,0,59,124,10,9,6,1,59,8  ; n2315 t=100.253s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
+    db 73,0,100,0,59,124,10,9,6,1,59,8  ; n2314 t=100.180s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
+    db 21,0,100,0,59,124,10,10,6,1,59,8  ; n2315 t=100.253s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
     db 78,0,100,0,65,124,10,1,114,1,65,8  ; n2316 t=100.274s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
     db 16,0,100,0,59,124,10,3,6,1,59,8  ; n2317 t=100.352s dur=100ms, freq=262Hz, sample=59, buffer_id=08:3B
     db 104,0,100,0,65,124,10,2,114,1,65,8  ; n2318 t=100.368s dur=100ms, freq=370Hz, sample=65, buffer_id=08:41
@@ -2552,34 +2552,34 @@ midi_data:
     db 52,0,100,0,52,102,6,12,220,0,52,6  ; n2533 t=108.946s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
     db 5,0,109,0,82,125,8,2,164,3,82,8  ; n2534 t=108.998s dur=109ms, freq=932Hz, sample=82, buffer_id=08:52
     db 5,0,100,0,62,102,6,6,247,0,62,6  ; n2535 t=109.003s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
-    db 0,0,104,0,59,125,8,10,6,1,59,8  ; n2536 t=109.008s dur=104ms, freq=262Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch10 @108716.5ms -> 109008.2ms]
-    db 21,0,109,0,43,124,10,1,104,0,43,8  ; n2537 t=109.008s dur=109ms, freq=104Hz, sample=43, buffer_id=08:2B [TRUNCATE prev:ch1 @108904.0ms -> 109008.2ms]
-    db 42,0,104,0,59,124,10,11,6,1,59,8  ; n2538 t=109.029s dur=104ms, freq=262Hz, sample=59, buffer_id=08:3B [TRUNCATE prev:ch11 @108909.2ms -> 109029.0ms]
+    db 0,0,104,0,59,125,8,16,6,1,59,8  ; n2536 t=109.008s dur=104ms, freq=262Hz, sample=59, buffer_id=08:3B
+    db 21,0,109,0,43,124,10,17,104,0,43,8  ; n2537 t=109.008s dur=109ms, freq=104Hz, sample=43, buffer_id=08:2B
+    db 42,0,104,0,59,124,10,18,6,1,59,8  ; n2538 t=109.029s dur=104ms, freq=262Hz, sample=59, buffer_id=08:3B
     db 21,0,100,0,62,102,6,8,6,1,62,6  ; n2539 t=109.071s dur=100ms, freq=262Hz, sample=62, buffer_id=06:3E
     db 16,0,100,0,82,125,8,4,220,3,82,8  ; n2540 t=109.091s dur=100ms, freq=988Hz, sample=82, buffer_id=08:52
     db 5,0,100,0,63,125,8,3,74,1,63,8  ; n2541 t=109.107s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
     db 0,0,100,0,62,102,6,9,38,1,62,6  ; n2542 t=109.112s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
-    db 5,0,109,0,47,124,10,13,123,0,47,8  ; n2543 t=109.112s dur=109ms, freq=123Hz, sample=47, buffer_id=08:2F
-    db 42,0,104,0,59,124,10,14,247,0,59,8  ; n2544 t=109.118s dur=104ms, freq=247Hz, sample=59, buffer_id=08:3B
-    db 42,0,100,0,64,102,6,15,74,1,64,6  ; n2545 t=109.159s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
+    db 5,0,109,0,47,124,10,10,123,0,47,8  ; n2543 t=109.112s dur=109ms, freq=123Hz, sample=47, buffer_id=08:2F
+    db 42,0,104,0,59,124,10,13,247,0,59,8  ; n2544 t=109.118s dur=104ms, freq=247Hz, sample=59, buffer_id=08:3B
+    db 42,0,100,0,64,102,6,14,74,1,64,6  ; n2545 t=109.159s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
     db 5,0,100,0,65,102,6,0,93,1,65,6  ; n2546 t=109.201s dur=100ms, freq=349Hz, sample=65, buffer_id=06:41
     db 5,0,119,0,65,125,8,7,93,1,65,8  ; n2547 t=109.206s dur=119ms, freq=349Hz, sample=65, buffer_id=08:41
-    db 10,0,114,0,70,125,8,5,238,1,70,8  ; n2548 t=109.211s dur=114ms, freq=494Hz, sample=70, buffer_id=08:46 [TRUNCATE prev:ch5 @108924.9ms -> 109211.3ms]
-    db 10,0,100,0,47,124,10,13,131,0,47,8  ; n2549 t=109.222s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch13 @109112.4ms -> 109221.7ms]
-    db 10,0,125,0,56,124,10,12,208,0,56,8  ; n2550 t=109.232s dur=125ms, freq=208Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch12 @108945.7ms -> 109232.1ms]
-    db 42,0,100,0,67,102,6,2,136,1,67,6  ; n2551 t=109.243s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43 [TRUNCATE prev:ch2 @108997.8ms -> 109242.6ms]
-    db 21,0,100,0,70,102,6,6,184,1,70,6  ; n2552 t=109.284s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch6 @109003.0ms -> 109284.2ms]
-    db 0,0,100,0,68,125,8,1,159,1,68,8  ; n2553 t=109.305s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44 [TRUNCATE prev:ch1 @109008.2ms -> 109305.1ms]
-    db 16,0,104,0,72,125,8,10,11,2,72,8  ; n2554 t=109.305s dur=104ms, freq=523Hz, sample=72, buffer_id=08:48 [TRUNCATE prev:ch10 @109008.2ms -> 109305.1ms]
-    db 10,0,109,0,47,124,10,11,123,0,47,8  ; n2555 t=109.321s dur=109ms, freq=123Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch11 @109029.0ms -> 109320.7ms]
-    db 10,0,100,0,70,102,6,8,238,1,70,6  ; n2556 t=109.331s dur=100ms, freq=494Hz, sample=70, buffer_id=06:46 [TRUNCATE prev:ch8 @109070.7ms -> 109331.1ms]
-    db 52,0,100,0,63,124,10,3,74,1,63,8  ; n2557 t=109.341s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F [TRUNCATE prev:ch3 @109107.1ms -> 109341.5ms]
+    db 10,0,114,0,70,125,8,15,238,1,70,8  ; n2548 t=109.211s dur=114ms, freq=494Hz, sample=70, buffer_id=08:46
+    db 10,0,100,0,47,124,10,19,131,0,47,8  ; n2549 t=109.222s dur=100ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 10,0,125,0,56,124,10,5,208,0,56,8  ; n2550 t=109.232s dur=125ms, freq=208Hz, sample=56, buffer_id=08:38
+    db 42,0,100,0,67,102,6,11,136,1,67,6  ; n2551 t=109.243s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 21,0,100,0,70,102,6,1,184,1,70,6  ; n2552 t=109.284s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
+    db 0,0,100,0,68,125,8,6,159,1,68,8  ; n2553 t=109.305s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 16,0,104,0,72,125,8,12,11,2,72,8  ; n2554 t=109.305s dur=104ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 10,0,109,0,47,124,10,2,123,0,47,8  ; n2555 t=109.321s dur=109ms, freq=123Hz, sample=47, buffer_id=08:2F
+    db 10,0,100,0,70,102,6,16,238,1,70,6  ; n2556 t=109.331s dur=100ms, freq=494Hz, sample=70, buffer_id=06:46
+    db 52,0,100,0,63,124,10,17,74,1,63,8  ; n2557 t=109.341s dur=100ms, freq=330Hz, sample=63, buffer_id=08:3F
     db 10,0,100,0,70,102,6,4,11,2,70,6  ; n2558 t=109.394s dur=100ms, freq=523Hz, sample=70, buffer_id=06:46
-    db 5,0,104,0,70,125,8,5,238,1,70,8  ; n2559 t=109.404s dur=104ms, freq=494Hz, sample=70, buffer_id=08:46 [TRUNCATE prev:ch5 @109211.3ms -> 109404.0ms]
-    db 16,0,104,0,75,125,8,9,147,2,75,8  ; n2560 t=109.409s dur=104ms, freq=659Hz, sample=75, buffer_id=08:4B [TRUNCATE prev:ch9 @109112.4ms -> 109409.2ms]
-    db 0,0,100,0,68,124,10,14,159,1,68,8  ; n2561 t=109.425s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 26,0,104,0,47,124,10,13,131,0,47,8  ; n2562 t=109.425s dur=104ms, freq=131Hz, sample=47, buffer_id=08:2F [TRUNCATE prev:ch13 @109221.7ms -> 109424.9ms]
-    db 62,0,100,0,75,102,6,15,75,2,75,6  ; n2563 t=109.451s dur=100ms, freq=587Hz, sample=75, buffer_id=06:4B [TRUNCATE prev:ch15 @109159.2ms -> 109450.9ms]
+    db 5,0,104,0,70,125,8,8,238,1,70,8  ; n2559 t=109.404s dur=104ms, freq=494Hz, sample=70, buffer_id=08:46
+    db 16,0,104,0,75,125,8,3,147,2,75,8  ; n2560 t=109.409s dur=104ms, freq=659Hz, sample=75, buffer_id=08:4B
+    db 0,0,100,0,68,124,10,9,159,1,68,8  ; n2561 t=109.425s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 26,0,104,0,47,124,10,13,131,0,47,8  ; n2562 t=109.425s dur=104ms, freq=131Hz, sample=47, buffer_id=08:2F
+    db 62,0,100,0,75,102,6,10,75,2,75,6  ; n2563 t=109.451s dur=100ms, freq=587Hz, sample=75, buffer_id=06:4B
     db 77,1,125,0,75,102,6,0,147,2,75,6  ; n2564 t=109.513s dur=125ms, freq=659Hz, sample=75, buffer_id=06:4B
     db 0,0,100,0,65,124,4,0,74,1,65,4  ; n2565 t=109.847s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,58,124,4,1,6,1,58,4  ; n2566 t=109.847s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
@@ -2597,319 +2597,319 @@ midi_data:
     db 0,0,100,0,65,124,4,13,74,1,65,4  ; n2578 t=110.050s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,69,125,5,14,159,1,69,5  ; n2579 t=110.050s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
     db 10,0,100,0,63,125,5,15,74,1,63,5  ; n2580 t=110.050s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,124,4,1,6,1,58,4  ; n2581 t=110.060s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch1 @109846.7ms -> 110060.3ms]
-    db 104,0,100,0,58,125,5,3,6,1,58,5  ; n2582 t=110.060s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch3 @109846.7ms -> 110060.3ms]
-    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n2583 t=110.164s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,58,124,4,16,6,1,58,4  ; n2581 t=110.060s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 104,0,100,0,58,125,5,17,6,1,58,5  ; n2582 t=110.060s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,1,93,1,65,4  ; n2583 t=110.164s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,70,124,4,0,184,1,70,4  ; n2584 t=110.164s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,4,93,1,63,5  ; n2585 t=110.164s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,69,125,5,5,184,1,69,5  ; n2586 t=110.164s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch5 @109851.9ms -> 110164.4ms]
-    db 0,0,100,0,58,124,4,8,21,1,58,4  ; n2587 t=110.170s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch8 @109966.5ms -> 110169.6ms]
-    db 94,0,100,0,63,125,5,10,21,1,63,5  ; n2588 t=110.170s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch10 @109966.5ms -> 110169.6ms]
-    db 0,0,100,0,70,124,4,6,184,1,70,4  ; n2589 t=110.263s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46 [TRUNCATE prev:ch6 @109966.5ms -> 110263.4ms]
-    db 0,0,100,0,65,124,4,7,93,1,65,4  ; n2590 t=110.263s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch7 @109966.5ms -> 110263.4ms]
-    db 0,0,100,0,69,125,5,9,184,1,69,5  ; n2591 t=110.263s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch9 @109966.5ms -> 110263.4ms]
-    db 5,0,100,0,63,125,5,15,93,1,63,5  ; n2592 t=110.263s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch15 @110049.9ms -> 110263.4ms]
-    db 0,0,100,0,58,124,4,11,21,1,58,4  ; n2593 t=110.269s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
-    db 94,0,100,0,63,125,5,4,21,1,63,5  ; n2594 t=110.269s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch4 @110164.4ms -> 110268.6ms]
-    db 0,0,100,0,70,124,4,1,184,1,70,4  ; n2595 t=110.362s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,58,124,4,3,21,1,58,4  ; n2596 t=110.362s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,65,124,4,12,93,1,65,4  ; n2597 t=110.362s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,13,184,1,69,5  ; n2598 t=110.362s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,5,14,21,1,63,5  ; n2599 t=110.362s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 125,0,100,0,63,125,5,10,93,1,63,5  ; n2600 t=110.362s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch10 @110169.6ms -> 110362.4ms]
+    db 0,0,100,0,63,125,5,3,93,1,63,5  ; n2585 t=110.164s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,69,125,5,2,184,1,69,5  ; n2586 t=110.164s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,58,124,4,4,21,1,58,4  ; n2587 t=110.170s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 94,0,100,0,63,125,5,5,21,1,63,5  ; n2588 t=110.170s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,18,184,1,70,4  ; n2589 t=110.263s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,19,93,1,65,4  ; n2590 t=110.263s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,20,184,1,69,5  ; n2591 t=110.263s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,63,125,5,21,93,1,63,5  ; n2592 t=110.263s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,6,21,1,58,4  ; n2593 t=110.269s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 94,0,100,0,63,125,5,7,21,1,63,5  ; n2594 t=110.269s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,8,184,1,70,4  ; n2595 t=110.362s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,58,124,4,9,21,1,58,4  ; n2596 t=110.362s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,65,124,4,10,93,1,65,4  ; n2597 t=110.362s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,11,184,1,69,5  ; n2598 t=110.362s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,5,12,21,1,63,5  ; n2599 t=110.362s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 125,0,100,0,63,125,5,13,93,1,63,5  ; n2600 t=110.362s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,65,124,4,0,114,1,65,4  ; n2601 t=110.487s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,58,124,4,2,233,0,58,4  ; n2602 t=110.487s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,63,125,5,5,114,1,63,5  ; n2603 t=110.487s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,58,125,5,8,233,0,58,5  ; n2604 t=110.487s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,65,124,4,7,38,1,65,4  ; n2605 t=110.493s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch7 @110263.4ms -> 110492.6ms]
-    db 89,0,100,0,63,125,5,15,38,1,63,5  ; n2606 t=110.493s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch15 @110263.4ms -> 110492.6ms]
-    db 0,0,100,0,65,124,4,4,114,1,65,4  ; n2607 t=110.581s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,58,124,4,1,233,0,58,4  ; n2602 t=110.487s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,63,125,5,2,114,1,63,5  ; n2603 t=110.487s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,125,5,3,233,0,58,5  ; n2604 t=110.487s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,4,38,1,65,4  ; n2605 t=110.493s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 89,0,100,0,63,125,5,14,38,1,63,5  ; n2606 t=110.493s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,5,114,1,65,4  ; n2607 t=110.581s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,65,124,4,6,38,1,65,4  ; n2608 t=110.581s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,9,114,1,63,5  ; n2609 t=110.581s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,11,38,1,63,5  ; n2610 t=110.581s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,124,4,3,233,0,58,4  ; n2611 t=110.591s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch3 @110362.4ms -> 110591.5ms]
-    db 83,0,100,0,58,125,5,8,233,0,58,5  ; n2612 t=110.591s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch8 @110487.4ms -> 110591.5ms]
-    db 0,0,100,0,65,124,4,1,114,1,65,4  ; n2613 t=110.675s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,65,124,4,10,38,1,65,4  ; n2614 t=110.675s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,12,114,1,63,5  ; n2615 t=110.675s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,13,38,1,63,5  ; n2616 t=110.675s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,124,4,14,233,0,58,4  ; n2617 t=110.685s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
-    db 73,0,100,0,58,125,5,0,233,0,58,5  ; n2618 t=110.685s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @110487.4ms -> 110685.3ms]
-    db 10,0,166,0,56,125,8,2,220,0,56,8  ; n2619 t=110.758s dur=166ms, freq=220Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch2 @110487.4ms -> 110758.2ms]
-    db 16,0,161,0,65,125,8,5,93,1,65,8  ; n2620 t=110.769s dur=161ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch5 @110487.4ms -> 110768.6ms]
-    db 0,0,135,0,53,124,10,7,175,0,53,8  ; n2621 t=110.784s dur=135ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch7 @110492.6ms -> 110784.2ms]
-    db 10,0,145,0,61,124,10,15,21,1,61,8  ; n2622 t=110.784s dur=145ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch15 @110492.6ms -> 110784.2ms]
-    db 0,0,145,0,38,124,10,4,73,0,38,8  ; n2623 t=110.795s dur=145ms, freq=73Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch4 @110581.1ms -> 110794.6ms]
-    db 51,1,145,0,50,124,10,6,139,0,50,8  ; n2624 t=110.795s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch6 @110581.1ms -> 110794.6ms]
-    db 0,0,100,0,70,124,4,0,159,1,70,4  ; n2625 t=111.102s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,63,125,5,16,114,1,63,5  ; n2609 t=110.581s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,17,38,1,63,5  ; n2610 t=110.581s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,7,233,0,58,4  ; n2611 t=110.591s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 83,0,100,0,58,125,5,15,233,0,58,5  ; n2612 t=110.591s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,8,114,1,65,4  ; n2613 t=110.675s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,65,124,4,9,38,1,65,4  ; n2614 t=110.675s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,10,114,1,63,5  ; n2615 t=110.675s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,11,38,1,63,5  ; n2616 t=110.675s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,12,233,0,58,4  ; n2617 t=110.685s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 73,0,100,0,58,125,5,13,233,0,58,5  ; n2618 t=110.685s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 10,0,166,0,56,125,8,18,220,0,56,8  ; n2619 t=110.758s dur=166ms, freq=220Hz, sample=56, buffer_id=08:38
+    db 16,0,161,0,65,125,8,19,93,1,65,8  ; n2620 t=110.769s dur=161ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,135,0,53,124,10,20,175,0,53,8  ; n2621 t=110.784s dur=135ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 10,0,145,0,61,124,10,21,21,1,61,8  ; n2622 t=110.784s dur=145ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 0,0,145,0,38,124,10,0,73,0,38,8  ; n2623 t=110.795s dur=145ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 51,1,145,0,50,124,10,1,139,0,50,8  ; n2624 t=110.795s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,70,124,4,2,159,1,70,4  ; n2625 t=111.102s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,65,124,4,3,74,1,65,4  ; n2626 t=111.102s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,1,159,1,69,5  ; n2627 t=111.102s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 5,0,100,0,63,125,5,8,74,1,63,5  ; n2628 t=111.102s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,124,4,9,6,1,58,4  ; n2629 t=111.107s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
-    db 109,0,100,0,58,125,5,10,6,1,58,5  ; n2630 t=111.107s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,70,124,4,2,159,1,70,4  ; n2631 t=111.216s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,58,124,4,4,6,1,58,4  ; n2632 t=111.216s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,65,124,4,5,74,1,65,4  ; n2633 t=111.216s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,6,159,1,69,5  ; n2634 t=111.216s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,58,125,5,7,6,1,58,5  ; n2635 t=111.216s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 83,0,100,0,63,125,5,14,74,1,63,5  ; n2636 t=111.216s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,69,125,5,4,159,1,69,5  ; n2627 t=111.102s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,63,125,5,5,74,1,63,5  ; n2628 t=111.102s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,6,6,1,58,4  ; n2629 t=111.107s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 109,0,100,0,58,125,5,7,6,1,58,5  ; n2630 t=111.107s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,0,159,1,70,4  ; n2631 t=111.216s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,58,124,4,1,6,1,58,4  ; n2632 t=111.216s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,65,124,4,10,74,1,65,4  ; n2633 t=111.216s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,8,159,1,69,5  ; n2634 t=111.216s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,58,125,5,9,6,1,58,5  ; n2635 t=111.216s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 83,0,100,0,63,125,5,12,74,1,63,5  ; n2636 t=111.216s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,70,124,4,11,159,1,70,4  ; n2637 t=111.300s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,12,74,1,65,4  ; n2638 t=111.300s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,13,159,1,69,5  ; n2639 t=111.300s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,124,4,13,74,1,65,4  ; n2638 t=111.300s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,14,159,1,69,5  ; n2639 t=111.300s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
     db 5,0,100,0,63,125,5,15,74,1,63,5  ; n2640 t=111.300s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,58,124,4,9,6,1,58,4  ; n2641 t=111.305s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch9 @111107.1ms -> 111305.1ms]
-    db 115,0,100,0,58,125,5,10,6,1,58,5  ; n2642 t=111.305s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch10 @111107.1ms -> 111305.1ms]
-    db 0,0,100,0,65,124,4,0,93,1,65,4  ; n2643 t=111.420s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,58,124,4,1,21,1,58,4  ; n2644 t=111.420s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,63,125,5,3,93,1,63,5  ; n2645 t=111.420s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,63,125,5,8,21,1,63,5  ; n2646 t=111.420s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @111101.9ms -> 111419.6ms]
-    db 0,0,100,0,70,124,4,2,184,1,70,4  ; n2647 t=111.425s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46 [TRUNCATE prev:ch2 @111216.5ms -> 111424.9ms]
-    db 94,0,100,0,69,125,5,6,184,1,69,5  ; n2648 t=111.425s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch6 @111216.5ms -> 111424.9ms]
-    db 0,0,100,0,65,124,4,4,93,1,65,4  ; n2649 t=111.519s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,70,124,4,5,184,1,70,4  ; n2650 t=111.519s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,63,125,5,7,93,1,63,5  ; n2651 t=111.519s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,69,125,5,14,184,1,69,5  ; n2652 t=111.519s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,58,124,4,9,21,1,58,4  ; n2653 t=111.529s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch9 @111305.1ms -> 111529.0ms]
-    db 83,0,100,0,63,125,5,15,21,1,63,5  ; n2654 t=111.529s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch15 @111299.9ms -> 111529.0ms]
-    db 0,0,100,0,65,124,4,10,93,1,65,4  ; n2655 t=111.612s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 5,0,100,0,63,125,5,11,93,1,63,5  ; n2656 t=111.612s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,16,6,1,58,4  ; n2641 t=111.305s dur=100ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 115,0,100,0,58,125,5,17,6,1,58,5  ; n2642 t=111.305s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n2643 t=111.420s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,58,124,4,3,21,1,58,4  ; n2644 t=111.420s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,63,125,5,4,93,1,63,5  ; n2645 t=111.420s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,63,125,5,6,21,1,63,5  ; n2646 t=111.420s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,5,184,1,70,4  ; n2647 t=111.425s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 94,0,100,0,69,125,5,7,184,1,69,5  ; n2648 t=111.425s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,124,4,0,93,1,65,4  ; n2649 t=111.519s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,70,124,4,1,184,1,70,4  ; n2650 t=111.519s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,63,125,5,8,93,1,63,5  ; n2651 t=111.519s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,69,125,5,9,184,1,69,5  ; n2652 t=111.519s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,58,124,4,10,21,1,58,4  ; n2653 t=111.529s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 83,0,100,0,63,125,5,18,21,1,63,5  ; n2654 t=111.529s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,11,93,1,65,4  ; n2655 t=111.612s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 5,0,100,0,63,125,5,13,93,1,63,5  ; n2656 t=111.612s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,70,124,4,12,184,1,70,4  ; n2657 t=111.618s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,58,124,4,13,21,1,58,4  ; n2658 t=111.618s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,69,125,5,6,184,1,69,5  ; n2659 t=111.618s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch6 @111424.9ms -> 111617.6ms]
-    db 125,0,100,0,63,125,5,3,21,1,63,5  ; n2660 t=111.618s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch3 @111419.6ms -> 111617.6ms]
-    db 0,0,100,0,65,124,4,1,114,1,65,4  ; n2661 t=111.743s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,65,124,4,2,38,1,65,4  ; n2662 t=111.743s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,0,114,1,63,5  ; n2663 t=111.743s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,8,38,1,63,5  ; n2664 t=111.743s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @111419.6ms -> 111742.6ms]
-    db 0,0,100,0,58,124,4,9,233,0,58,4  ; n2665 t=111.753s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch9 @111529.0ms -> 111753.0ms]
-    db 88,0,100,0,58,125,5,4,233,0,58,5  ; n2666 t=111.753s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch4 @111518.6ms -> 111753.0ms]
-    db 0,0,100,0,65,124,4,5,114,1,65,4  ; n2667 t=111.841s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 5,0,100,0,63,125,5,14,114,1,63,5  ; n2668 t=111.841s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,7,38,1,65,4  ; n2669 t=111.847s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,58,124,4,15,233,0,58,4  ; n2670 t=111.847s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
-    db 0,0,100,0,63,125,5,11,38,1,63,5  ; n2671 t=111.847s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch11 @111612.4ms -> 111846.7ms]
-    db 78,0,100,0,58,125,5,10,233,0,58,5  ; n2672 t=111.847s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch10 @111612.4ms -> 111846.7ms]
-    db 0,0,100,0,65,124,4,3,114,1,65,4  ; n2673 t=111.925s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 10,0,100,0,65,124,4,6,38,1,65,4  ; n2674 t=111.925s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 94,0,100,0,58,124,4,12,233,0,58,4  ; n2675 t=111.935s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
-    db 5,0,161,0,56,125,8,13,220,0,56,8  ; n2676 t=112.029s dur=161ms, freq=220Hz, sample=56, buffer_id=08:38
-    db 0,0,192,0,65,125,8,0,93,1,65,8  ; n2677 t=112.034s dur=192ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch0 @111742.6ms -> 112034.2ms]
-    db 0,0,140,0,53,124,10,1,175,0,53,8  ; n2678 t=112.034s dur=140ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch1 @111742.6ms -> 112034.2ms]
-    db 10,0,145,0,61,124,10,2,21,1,61,8  ; n2679 t=112.034s dur=145ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch2 @111742.6ms -> 112034.2ms]
-    db 10,0,145,0,50,124,10,8,139,0,50,8  ; n2680 t=112.045s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32
-    db 36,1,109,0,38,124,10,4,73,0,38,8  ; n2681 t=112.055s dur=109ms, freq=73Hz, sample=38, buffer_id=08:26
-    db 0,0,100,0,70,124,4,3,159,1,70,4  ; n2682 t=112.347s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,9,74,1,65,4  ; n2683 t=112.347s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,5,74,1,63,5  ; n2684 t=112.347s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,58,125,5,6,6,1,58,5  ; n2685 t=112.347s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,72,124,4,7,11,2,72,4  ; n2686 t=112.352s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 115,0,100,0,69,125,5,10,159,1,69,5  ; n2687 t=112.352s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,72,124,4,0,11,2,72,4  ; n2688 t=112.466s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,70,124,4,1,159,1,70,4  ; n2689 t=112.466s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,2,74,1,65,4  ; n2690 t=112.466s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,4,159,1,69,5  ; n2691 t=112.466s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,5,8,74,1,63,5  ; n2692 t=112.466s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 83,0,100,0,58,125,5,11,6,1,58,5  ; n2693 t=112.466s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,58,124,4,14,21,1,58,4  ; n2658 t=111.618s dur=100ms, freq=277Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,69,125,5,15,184,1,69,5  ; n2659 t=111.618s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 125,0,100,0,63,125,5,16,21,1,63,5  ; n2660 t=111.618s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,3,114,1,65,4  ; n2661 t=111.743s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,65,124,4,4,38,1,65,4  ; n2662 t=111.743s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,2,114,1,63,5  ; n2663 t=111.743s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,5,38,1,63,5  ; n2664 t=111.743s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,58,124,4,6,233,0,58,4  ; n2665 t=111.753s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 88,0,100,0,58,125,5,7,233,0,58,5  ; n2666 t=111.753s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,1,114,1,65,4  ; n2667 t=111.841s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 5,0,100,0,63,125,5,0,114,1,63,5  ; n2668 t=111.841s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,8,38,1,65,4  ; n2669 t=111.847s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,58,124,4,9,233,0,58,4  ; n2670 t=111.847s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 0,0,100,0,63,125,5,10,38,1,63,5  ; n2671 t=111.847s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 78,0,100,0,58,125,5,18,233,0,58,5  ; n2672 t=111.847s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,12,114,1,65,4  ; n2673 t=111.925s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 10,0,100,0,65,124,4,13,38,1,65,4  ; n2674 t=111.925s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 94,0,100,0,58,124,4,11,233,0,58,4  ; n2675 t=111.935s dur=100ms, freq=233Hz, sample=58, buffer_id=04:3A
+    db 5,0,161,0,56,125,8,14,220,0,56,8  ; n2676 t=112.029s dur=161ms, freq=220Hz, sample=56, buffer_id=08:38
+    db 0,0,192,0,65,125,8,15,93,1,65,8  ; n2677 t=112.034s dur=192ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,140,0,53,124,10,16,175,0,53,8  ; n2678 t=112.034s dur=140ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 10,0,145,0,61,124,10,17,21,1,61,8  ; n2679 t=112.034s dur=145ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 10,0,145,0,50,124,10,2,139,0,50,8  ; n2680 t=112.045s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 36,1,109,0,38,124,10,3,73,0,38,8  ; n2681 t=112.055s dur=109ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,70,124,4,0,159,1,70,4  ; n2682 t=112.347s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,5,74,1,65,4  ; n2683 t=112.347s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,1,74,1,63,5  ; n2684 t=112.347s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,125,5,4,6,1,58,5  ; n2685 t=112.347s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,72,124,4,6,11,2,72,4  ; n2686 t=112.352s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 115,0,100,0,69,125,5,7,159,1,69,5  ; n2687 t=112.352s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,72,124,4,2,11,2,72,4  ; n2688 t=112.466s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,70,124,4,3,159,1,70,4  ; n2689 t=112.466s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,9,74,1,65,4  ; n2690 t=112.466s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,8,159,1,69,5  ; n2691 t=112.466s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,5,11,74,1,63,5  ; n2692 t=112.466s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 83,0,100,0,58,125,5,10,6,1,58,5  ; n2693 t=112.466s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
     db 0,0,100,0,72,124,4,12,11,2,72,4  ; n2694 t=112.550s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
     db 0,0,100,0,70,124,4,13,159,1,70,4  ; n2695 t=112.550s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,69,125,5,14,159,1,69,5  ; n2696 t=112.550s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
     db 10,0,100,0,63,125,5,15,74,1,63,5  ; n2697 t=112.550s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,9,74,1,65,4  ; n2698 t=112.560s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch9 @112346.7ms -> 112560.3ms]
-    db 104,0,100,0,58,125,5,6,6,1,58,5  ; n2699 t=112.560s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch6 @112346.7ms -> 112560.3ms]
-    db 0,0,100,0,70,124,4,5,184,1,70,4  ; n2700 t=112.664s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,72,124,4,3,42,2,72,4  ; n2701 t=112.664s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,63,125,5,7,93,1,63,5  ; n2702 t=112.664s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,69,125,5,10,184,1,69,5  ; n2703 t=112.664s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch10 @112351.9ms -> 112664.4ms]
-    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n2704 t=112.670s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch2 @112466.5ms -> 112669.6ms]
-    db 94,0,100,0,63,125,5,8,21,1,63,5  ; n2705 t=112.670s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @112466.5ms -> 112669.6ms]
-    db 0,0,100,0,72,124,4,0,42,2,72,4  ; n2706 t=112.763s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch0 @112466.5ms -> 112763.4ms]
-    db 0,0,100,0,70,124,4,1,184,1,70,4  ; n2707 t=112.763s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46 [TRUNCATE prev:ch1 @112466.5ms -> 112763.4ms]
-    db 0,0,100,0,69,125,5,4,184,1,69,5  ; n2708 t=112.763s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch4 @112466.5ms -> 112763.4ms]
-    db 5,0,100,0,63,125,5,15,93,1,63,5  ; n2709 t=112.763s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch15 @112549.9ms -> 112763.4ms]
-    db 0,0,100,0,65,124,4,11,93,1,65,4  ; n2710 t=112.769s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 94,0,100,0,63,125,5,7,21,1,63,5  ; n2711 t=112.769s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch7 @112664.4ms -> 112768.6ms]
-    db 0,0,100,0,72,124,4,6,42,2,72,4  ; n2712 t=112.862s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,65,124,4,12,93,1,65,4  ; n2713 t=112.862s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,65,124,4,16,74,1,65,4  ; n2698 t=112.560s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 104,0,100,0,58,125,5,17,6,1,58,5  ; n2699 t=112.560s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,1,184,1,70,4  ; n2700 t=112.664s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,72,124,4,0,42,2,72,4  ; n2701 t=112.664s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,63,125,5,4,93,1,63,5  ; n2702 t=112.664s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,69,125,5,5,184,1,69,5  ; n2703 t=112.664s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,124,4,6,93,1,65,4  ; n2704 t=112.670s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 94,0,100,0,63,125,5,7,21,1,63,5  ; n2705 t=112.670s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,72,124,4,18,42,2,72,4  ; n2706 t=112.763s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,70,124,4,19,184,1,70,4  ; n2707 t=112.763s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,69,125,5,20,184,1,69,5  ; n2708 t=112.763s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,63,125,5,21,93,1,63,5  ; n2709 t=112.763s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n2710 t=112.769s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 94,0,100,0,63,125,5,3,21,1,63,5  ; n2711 t=112.769s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,72,124,4,8,42,2,72,4  ; n2712 t=112.862s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,65,124,4,10,93,1,65,4  ; n2713 t=112.862s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,70,124,4,9,184,1,70,4  ; n2714 t=112.862s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,69,125,5,13,184,1,69,5  ; n2715 t=112.862s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,63,125,5,14,21,1,63,5  ; n2716 t=112.862s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 125,0,100,0,63,125,5,8,93,1,63,5  ; n2717 t=112.862s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @112669.6ms -> 112862.4ms]
-    db 0,0,100,0,70,124,4,2,210,1,70,4  ; n2718 t=112.987s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,3,38,1,65,4  ; n2719 t=112.987s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,11,184,1,69,5  ; n2715 t=112.862s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,63,125,5,12,21,1,63,5  ; n2716 t=112.862s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 125,0,100,0,63,125,5,13,93,1,63,5  ; n2717 t=112.862s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,0,210,1,70,4  ; n2718 t=112.987s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,1,38,1,65,4  ; n2719 t=112.987s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,63,125,5,5,114,1,63,5  ; n2720 t=112.987s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,58,125,5,10,233,0,58,5  ; n2721 t=112.987s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,65,124,4,11,114,1,65,4  ; n2722 t=112.993s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch11 @112768.6ms -> 112992.6ms]
-    db 89,0,100,0,63,125,5,15,38,1,63,5  ; n2723 t=112.993s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch15 @112763.4ms -> 112992.6ms]
-    db 0,0,100,0,70,124,4,0,210,1,70,4  ; n2724 t=113.081s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,1,114,1,65,4  ; n2725 t=113.081s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,4,114,1,63,5  ; n2726 t=113.081s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,7,38,1,63,5  ; n2727 t=113.081s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch7 @112768.6ms -> 113081.1ms]
-    db 0,0,100,0,65,124,4,12,38,1,65,4  ; n2728 t=113.091s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch12 @112862.4ms -> 113091.5ms]
-    db 83,0,100,0,58,125,5,10,233,0,58,5  ; n2729 t=113.091s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch10 @112987.4ms -> 113091.5ms]
-    db 0,0,100,0,70,124,4,6,210,1,70,4  ; n2730 t=113.175s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,8,114,1,65,4  ; n2731 t=113.175s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,9,114,1,63,5  ; n2732 t=113.175s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,13,38,1,63,5  ; n2733 t=113.175s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,14,38,1,65,4  ; n2734 t=113.185s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 73,0,100,0,58,125,5,2,233,0,58,5  ; n2735 t=113.185s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch2 @112987.4ms -> 113185.3ms]
-    db 5,0,166,0,56,125,8,3,220,0,56,8  ; n2736 t=113.258s dur=166ms, freq=220Hz, sample=56, buffer_id=08:38 [TRUNCATE prev:ch3 @112987.4ms -> 113258.2ms]
-    db 26,0,177,0,65,125,8,5,93,1,65,8  ; n2737 t=113.263s dur=177ms, freq=349Hz, sample=65, buffer_id=08:41 [TRUNCATE prev:ch5 @112987.4ms -> 113263.4ms]
-    db 0,0,104,0,53,124,10,11,175,0,53,8  ; n2738 t=113.289s dur=104ms, freq=175Hz, sample=53, buffer_id=08:35 [TRUNCATE prev:ch11 @112992.6ms -> 113289.4ms]
-    db 10,0,114,0,61,124,10,15,21,1,61,8  ; n2739 t=113.289s dur=114ms, freq=277Hz, sample=61, buffer_id=08:3D [TRUNCATE prev:ch15 @112992.6ms -> 113289.4ms]
-    db 0,0,130,0,38,124,10,0,73,0,38,8  ; n2740 t=113.300s dur=130ms, freq=73Hz, sample=38, buffer_id=08:26 [TRUNCATE prev:ch0 @113081.1ms -> 113299.9ms]
-    db 26,0,145,0,50,124,10,1,139,0,50,8  ; n2741 t=113.300s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32 [TRUNCATE prev:ch1 @113081.1ms -> 113299.9ms]
-    db 20,1,139,1,25,124,10,4,35,0,25,8  ; n2742 t=113.326s dur=395ms, freq=35Hz, sample=25, buffer_id=08:19 [TRUNCATE prev:ch4 @113081.1ms -> 113325.9ms]
-    db 0,0,100,0,72,124,4,2,11,2,72,4  ; n2743 t=113.602s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,70,124,4,7,159,1,70,4  ; n2744 t=113.602s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,69,125,5,6,159,1,69,5  ; n2745 t=113.602s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 5,0,100,0,63,125,5,8,74,1,63,5  ; n2746 t=113.602s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,9,74,1,65,4  ; n2747 t=113.607s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 109,0,100,0,58,125,5,11,6,1,58,5  ; n2748 t=113.607s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 0,0,100,0,72,124,4,0,11,2,72,4  ; n2749 t=113.716s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,65,124,4,1,74,1,65,4  ; n2750 t=113.716s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,70,124,4,3,159,1,70,4  ; n2751 t=113.716s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,69,125,5,5,159,1,69,5  ; n2752 t=113.716s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,58,125,5,12,6,1,58,5  ; n2753 t=113.716s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
-    db 83,0,100,0,63,125,5,10,74,1,63,5  ; n2754 t=113.716s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,58,125,5,4,233,0,58,5  ; n2721 t=112.987s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,65,124,4,7,114,1,65,4  ; n2722 t=112.993s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 89,0,100,0,63,125,5,6,38,1,63,5  ; n2723 t=112.993s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,2,210,1,70,4  ; n2724 t=113.081s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,3,114,1,65,4  ; n2725 t=113.081s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,14,114,1,63,5  ; n2726 t=113.081s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,16,38,1,63,5  ; n2727 t=113.081s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,15,38,1,65,4  ; n2728 t=113.091s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 83,0,100,0,58,125,5,18,233,0,58,5  ; n2729 t=113.091s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,8,210,1,70,4  ; n2730 t=113.175s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,9,114,1,65,4  ; n2731 t=113.175s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,10,114,1,63,5  ; n2732 t=113.175s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,11,38,1,63,5  ; n2733 t=113.175s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,12,38,1,65,4  ; n2734 t=113.185s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 73,0,100,0,58,125,5,13,233,0,58,5  ; n2735 t=113.185s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 5,0,166,0,56,125,8,17,220,0,56,8  ; n2736 t=113.258s dur=166ms, freq=220Hz, sample=56, buffer_id=08:38
+    db 26,0,177,0,65,125,8,19,93,1,65,8  ; n2737 t=113.263s dur=177ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 0,0,104,0,53,124,10,0,175,0,53,8  ; n2738 t=113.289s dur=104ms, freq=175Hz, sample=53, buffer_id=08:35
+    db 10,0,114,0,61,124,10,1,21,1,61,8  ; n2739 t=113.289s dur=114ms, freq=277Hz, sample=61, buffer_id=08:3D
+    db 0,0,130,0,38,124,10,4,73,0,38,8  ; n2740 t=113.300s dur=130ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 26,0,145,0,50,124,10,5,139,0,50,8  ; n2741 t=113.300s dur=145ms, freq=139Hz, sample=50, buffer_id=08:32
+    db 20,1,139,1,25,124,10,6,35,0,25,8  ; n2742 t=113.326s dur=395ms, freq=35Hz, sample=25, buffer_id=08:19
+    db 0,0,100,0,72,124,4,0,11,2,72,4  ; n2743 t=113.602s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,70,124,4,3,159,1,70,4  ; n2744 t=113.602s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,69,125,5,2,159,1,69,5  ; n2745 t=113.602s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 5,0,100,0,63,125,5,7,74,1,63,5  ; n2746 t=113.602s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,1,74,1,65,4  ; n2747 t=113.607s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 109,0,100,0,58,125,5,8,6,1,58,5  ; n2748 t=113.607s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,72,124,4,4,11,2,72,4  ; n2749 t=113.716s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,65,124,4,5,74,1,65,4  ; n2750 t=113.716s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,70,124,4,9,159,1,70,4  ; n2751 t=113.716s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,69,125,5,10,159,1,69,5  ; n2752 t=113.716s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,58,125,5,11,6,1,58,5  ; n2753 t=113.716s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 83,0,100,0,63,125,5,12,74,1,63,5  ; n2754 t=113.716s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,72,124,4,13,11,2,72,4  ; n2755 t=113.800s dur=100ms, freq=523Hz, sample=72, buffer_id=04:48
     db 0,0,100,0,70,124,4,14,159,1,70,4  ; n2756 t=113.800s dur=100ms, freq=415Hz, sample=70, buffer_id=04:46
     db 0,0,100,0,69,125,5,15,159,1,69,5  ; n2757 t=113.800s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 5,0,100,0,63,125,5,8,74,1,63,5  ; n2758 t=113.800s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @113601.9ms -> 113799.9ms]
-    db 0,0,100,0,65,124,4,9,74,1,65,4  ; n2759 t=113.805s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch9 @113607.1ms -> 113805.1ms]
-    db 115,0,100,0,58,125,5,11,6,1,58,5  ; n2760 t=113.805s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch11 @113607.1ms -> 113805.1ms]
-    db 0,0,100,0,70,124,4,2,184,1,70,4  ; n2761 t=113.920s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,6,93,1,65,4  ; n2762 t=113.920s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,7,93,1,63,5  ; n2763 t=113.920s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 5,0,100,0,63,125,5,10,21,1,63,5  ; n2764 t=113.920s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch10 @113716.5ms -> 113919.6ms]
-    db 0,0,100,0,72,124,4,4,42,2,72,4  ; n2765 t=113.925s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
-    db 94,0,100,0,69,125,5,5,184,1,69,5  ; n2766 t=113.925s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch5 @113716.5ms -> 113924.9ms]
-    db 0,0,100,0,70,124,4,0,184,1,70,4  ; n2767 t=114.019s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,72,124,4,1,42,2,72,4  ; n2768 t=114.019s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
-    db 0,0,100,0,63,125,5,3,93,1,63,5  ; n2769 t=114.019s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,69,125,5,12,184,1,69,5  ; n2770 t=114.019s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 0,0,100,0,65,124,4,9,93,1,65,4  ; n2771 t=114.029s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch9 @113805.1ms -> 114029.0ms]
-    db 83,0,100,0,63,125,5,8,21,1,63,5  ; n2772 t=114.029s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch8 @113799.9ms -> 114029.0ms]
-    db 0,0,100,0,70,124,4,11,184,1,70,4  ; n2773 t=114.112s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 5,0,100,0,63,125,5,17,74,1,63,5  ; n2758 t=113.800s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,16,74,1,65,4  ; n2759 t=113.805s dur=100ms, freq=330Hz, sample=65, buffer_id=04:41
+    db 115,0,100,0,58,125,5,19,6,1,58,5  ; n2760 t=113.805s dur=100ms, freq=262Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,0,184,1,70,4  ; n2761 t=113.920s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,2,93,1,65,4  ; n2762 t=113.920s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,1,93,1,63,5  ; n2763 t=113.920s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 5,0,100,0,63,125,5,3,21,1,63,5  ; n2764 t=113.920s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,72,124,4,6,42,2,72,4  ; n2765 t=113.925s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 94,0,100,0,69,125,5,7,184,1,69,5  ; n2766 t=113.925s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,70,124,4,4,184,1,70,4  ; n2767 t=114.019s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,72,124,4,5,42,2,72,4  ; n2768 t=114.019s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
+    db 0,0,100,0,63,125,5,8,93,1,63,5  ; n2769 t=114.019s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,69,125,5,9,184,1,69,5  ; n2770 t=114.019s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 0,0,100,0,65,124,4,10,93,1,65,4  ; n2771 t=114.029s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
+    db 83,0,100,0,63,125,5,11,21,1,63,5  ; n2772 t=114.029s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,12,184,1,70,4  ; n2773 t=114.112s dur=100ms, freq=440Hz, sample=70, buffer_id=04:46
     db 5,0,100,0,63,125,5,13,93,1,63,5  ; n2774 t=114.112s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 0,0,100,0,72,124,4,14,42,2,72,4  ; n2775 t=114.118s dur=100ms, freq=554Hz, sample=72, buffer_id=04:48
     db 0,0,100,0,65,124,4,15,93,1,65,4  ; n2776 t=114.118s dur=100ms, freq=349Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,69,125,5,5,184,1,69,5  ; n2777 t=114.118s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45 [TRUNCATE prev:ch5 @113924.9ms -> 114117.6ms]
-    db 125,0,100,0,63,125,5,7,21,1,63,5  ; n2778 t=114.118s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch7 @113919.6ms -> 114117.6ms]
-    db 0,0,100,0,70,124,4,4,210,1,70,4  ; n2779 t=114.243s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,2,114,1,65,4  ; n2780 t=114.243s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,6,114,1,63,5  ; n2781 t=114.243s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 10,0,100,0,63,125,5,10,38,1,63,5  ; n2782 t=114.243s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch10 @113919.6ms -> 114242.6ms]
-    db 0,0,100,0,65,124,4,9,38,1,65,4  ; n2783 t=114.253s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch9 @114029.0ms -> 114253.0ms]
-    db 88,0,100,0,58,125,5,0,233,0,58,5  ; n2784 t=114.253s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @114018.6ms -> 114253.0ms]
-    db 0,0,100,0,70,124,4,1,210,1,70,4  ; n2785 t=114.341s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 5,0,100,0,63,125,5,12,114,1,63,5  ; n2786 t=114.341s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,3,114,1,65,4  ; n2787 t=114.347s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,65,124,4,8,38,1,65,4  ; n2788 t=114.347s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
-    db 0,0,100,0,63,125,5,13,38,1,63,5  ; n2789 t=114.347s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F [TRUNCATE prev:ch13 @114112.4ms -> 114346.7ms]
-    db 89,0,100,0,58,125,5,11,233,0,58,5  ; n2790 t=114.347s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch11 @114112.4ms -> 114346.7ms]
-    db 0,0,100,0,70,124,4,5,210,1,70,4  ; n2791 t=114.435s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
-    db 0,0,100,0,65,124,4,7,114,1,65,4  ; n2792 t=114.435s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,69,125,5,16,184,1,69,5  ; n2777 t=114.118s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 125,0,100,0,63,125,5,18,21,1,63,5  ; n2778 t=114.118s dur=100ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,70,124,4,1,210,1,70,4  ; n2779 t=114.243s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,0,114,1,65,4  ; n2780 t=114.243s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,2,114,1,63,5  ; n2781 t=114.243s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 10,0,100,0,63,125,5,6,38,1,63,5  ; n2782 t=114.243s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,3,38,1,65,4  ; n2783 t=114.253s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 88,0,100,0,58,125,5,7,233,0,58,5  ; n2784 t=114.253s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,5,210,1,70,4  ; n2785 t=114.341s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 5,0,100,0,63,125,5,4,114,1,63,5  ; n2786 t=114.341s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,65,124,4,8,114,1,65,4  ; n2787 t=114.347s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,65,124,4,9,38,1,65,4  ; n2788 t=114.347s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 0,0,100,0,63,125,5,10,38,1,63,5  ; n2789 t=114.347s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 89,0,100,0,58,125,5,11,233,0,58,5  ; n2790 t=114.347s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 0,0,100,0,70,124,4,13,210,1,70,4  ; n2791 t=114.435s dur=100ms, freq=466Hz, sample=70, buffer_id=04:46
+    db 0,0,100,0,65,124,4,12,114,1,65,4  ; n2792 t=114.435s dur=100ms, freq=370Hz, sample=65, buffer_id=04:41
     db 0,0,100,0,63,125,5,14,114,1,63,5  ; n2793 t=114.435s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
     db 5,0,100,0,63,125,5,15,38,1,63,5  ; n2794 t=114.435s dur=100ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,65,124,4,2,38,1,65,4  ; n2795 t=114.441s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch2 @114242.6ms -> 114440.5ms]
-    db 115,0,100,0,58,125,5,0,233,0,58,5  ; n2796 t=114.441s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A [TRUNCATE prev:ch0 @114253.0ms -> 114440.5ms]
-    db 10,0,4,1,53,125,5,4,185,0,53,5  ; n2797 t=114.555s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
-    db 10,0,3,9,25,76,9,6,35,0,25,8  ; n2798 t=114.566s dur=2307ms, freq=35Hz, sample=25, buffer_id=08:19
-    db 0,0,4,1,42,125,5,9,92,0,42,5  ; n2799 t=114.576s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
-    db 5,0,4,1,48,125,5,10,139,0,48,5  ; n2800 t=114.576s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
-    db 0,0,4,1,72,124,4,1,11,2,72,4  ; n2801 t=114.581s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48 [TRUNCATE prev:ch1 @114341.5ms -> 114581.1ms]
-    db 5,0,4,1,65,124,4,3,136,1,65,4  ; n2802 t=114.581s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41 [TRUNCATE prev:ch3 @114346.7ms -> 114581.1ms]
-    db 82,2,4,1,58,124,4,12,6,1,58,4  ; n2803 t=114.586s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A [TRUNCATE prev:ch12 @114341.5ms -> 114586.3ms]
+    db 0,0,100,0,65,124,4,16,38,1,65,4  ; n2795 t=114.441s dur=100ms, freq=294Hz, sample=65, buffer_id=04:41
+    db 115,0,100,0,58,125,5,17,233,0,58,5  ; n2796 t=114.441s dur=100ms, freq=233Hz, sample=58, buffer_id=05:3A
+    db 10,0,4,1,53,125,5,0,185,0,53,5  ; n2797 t=114.555s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
+    db 10,0,3,9,25,76,9,1,35,0,25,8  ; n2798 t=114.566s dur=2307ms, freq=35Hz, sample=25, buffer_id=08:19
+    db 0,0,4,1,42,125,5,2,92,0,42,5  ; n2799 t=114.576s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
+    db 5,0,4,1,48,125,5,3,139,0,48,5  ; n2800 t=114.576s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
+    db 0,0,4,1,72,124,4,6,11,2,72,4  ; n2801 t=114.581s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 5,0,4,1,65,124,4,7,136,1,65,4  ; n2802 t=114.581s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 82,2,4,1,58,124,4,18,6,1,58,4  ; n2803 t=114.586s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
     db 0,0,130,0,65,124,4,0,136,1,65,4  ; n2804 t=115.180s dur=130ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 10,0,145,0,58,124,4,1,6,1,58,4  ; n2805 t=115.180s dur=145ms, freq=262Hz, sample=58, buffer_id=04:3A
-    db 10,0,119,0,72,124,4,2,11,2,72,4  ; n2806 t=115.191s dur=119ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,135,0,48,125,5,3,139,0,48,5  ; n2807 t=115.201s dur=135ms, freq=139Hz, sample=48, buffer_id=05:30
+    db 10,0,145,0,58,124,4,2,6,1,58,4  ; n2805 t=115.180s dur=145ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 10,0,119,0,72,124,4,3,11,2,72,4  ; n2806 t=115.191s dur=119ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,135,0,48,125,5,4,139,0,48,5  ; n2807 t=115.201s dur=135ms, freq=139Hz, sample=48, buffer_id=05:30
     db 5,0,145,0,53,125,5,5,185,0,53,5  ; n2808 t=115.201s dur=145ms, freq=185Hz, sample=53, buffer_id=05:35
-    db 30,1,130,0,42,125,5,4,92,0,42,5  ; n2809 t=115.206s dur=130ms, freq=92Hz, sample=42, buffer_id=05:2A
+    db 30,1,130,0,42,125,5,6,92,0,42,5  ; n2809 t=115.206s dur=130ms, freq=92Hz, sample=42, buffer_id=05:2A
     db 0,0,4,1,48,125,5,7,139,0,48,5  ; n2810 t=115.493s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
     db 5,0,4,1,53,125,5,8,185,0,53,5  ; n2811 t=115.493s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
-    db 10,0,4,1,42,125,5,10,92,0,42,5  ; n2812 t=115.498s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
-    db 5,0,4,1,72,124,4,9,11,2,72,4  ; n2813 t=115.508s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 5,0,4,1,65,124,4,2,136,1,65,4  ; n2814 t=115.513s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 10,0,4,1,42,125,5,9,92,0,42,5  ; n2812 t=115.498s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
+    db 5,0,4,1,72,124,4,10,11,2,72,4  ; n2813 t=115.508s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 5,0,4,1,65,124,4,3,136,1,65,4  ; n2814 t=115.513s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
     db 82,2,4,1,58,124,4,0,6,1,58,4  ; n2815 t=115.519s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
     db 5,0,4,1,65,124,4,0,136,1,65,4  ; n2816 t=116.112s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 5,0,4,1,72,124,4,1,11,2,72,4  ; n2817 t=116.118s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,4,1,58,124,4,2,6,1,58,4  ; n2818 t=116.123s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
-    db 10,0,4,1,53,125,5,3,185,0,53,5  ; n2819 t=116.123s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
-    db 5,0,4,1,48,125,5,4,139,0,48,5  ; n2820 t=116.133s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
-    db 76,2,4,1,42,125,5,5,92,0,42,5  ; n2821 t=116.138s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
+    db 5,0,4,1,72,124,4,2,11,2,72,4  ; n2817 t=116.118s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
+    db 0,0,4,1,58,124,4,3,6,1,58,4  ; n2818 t=116.123s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 10,0,4,1,53,125,5,4,185,0,53,5  ; n2819 t=116.123s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
+    db 5,0,4,1,48,125,5,5,139,0,48,5  ; n2820 t=116.133s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
+    db 76,2,4,1,42,125,5,7,92,0,42,5  ; n2821 t=116.138s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
     db 0,0,4,1,72,124,4,0,11,2,72,4  ; n2822 t=116.727s dur=260ms, freq=523Hz, sample=72, buffer_id=04:48
-    db 0,0,4,1,65,124,4,1,136,1,65,4  ; n2823 t=116.727s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
-    db 0,0,4,1,58,124,4,3,6,1,58,4  ; n2824 t=116.727s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
-    db 5,0,4,1,53,125,5,2,185,0,53,5  ; n2825 t=116.727s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
-    db 10,0,4,1,48,125,5,5,139,0,48,5  ; n2826 t=116.732s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
-    db 25,1,4,1,42,125,5,4,92,0,42,5  ; n2827 t=116.743s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
+    db 0,0,4,1,65,124,4,2,136,1,65,4  ; n2823 t=116.727s dur=260ms, freq=392Hz, sample=65, buffer_id=04:41
+    db 0,0,4,1,58,124,4,4,6,1,58,4  ; n2824 t=116.727s dur=260ms, freq=262Hz, sample=58, buffer_id=04:3A
+    db 5,0,4,1,53,125,5,3,185,0,53,5  ; n2825 t=116.727s dur=260ms, freq=185Hz, sample=53, buffer_id=05:35
+    db 10,0,4,1,48,125,5,6,139,0,48,5  ; n2826 t=116.732s dur=260ms, freq=139Hz, sample=48, buffer_id=05:30
+    db 25,1,4,1,42,125,5,5,92,0,42,5  ; n2827 t=116.743s dur=260ms, freq=92Hz, sample=42, buffer_id=05:2A
     db 11,0,100,0,68,125,8,7,159,1,68,8  ; n2828 t=117.024s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 16,0,225,2,38,76,9,8,69,0,38,8  ; n2829 t=117.034s dur=737ms, freq=69Hz, sample=38, buffer_id=08:26
     db 74,0,231,0,85,102,6,9,85,4,85,6  ; n2830 t=117.050s dur=231ms, freq=1109Hz, sample=85, buffer_id=06:55
-    db 105,0,100,0,72,125,8,6,11,2,72,8  ; n2831 t=117.124s dur=100ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 105,0,100,0,72,125,8,1,11,2,72,8  ; n2831 t=117.124s dur=100ms, freq=523Hz, sample=72, buffer_id=08:48
     db 58,0,105,0,72,125,8,0,42,2,72,8  ; n2832 t=117.229s dur=105ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 53,0,210,0,82,102,6,1,112,3,82,6  ; n2833 t=117.287s dur=210ms, freq=880Hz, sample=82, buffer_id=06:52
-    db 105,0,136,0,77,125,8,2,186,2,77,8  ; n2834 t=117.340s dur=136ms, freq=698Hz, sample=77, buffer_id=08:4D
-    db 63,0,100,0,72,125,8,3,42,2,72,8  ; n2835 t=117.445s dur=100ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 37,0,197,0,77,102,6,4,186,2,77,6  ; n2836 t=117.508s dur=197ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 53,0,210,0,82,102,6,2,112,3,82,6  ; n2833 t=117.287s dur=210ms, freq=880Hz, sample=82, buffer_id=06:52
+    db 105,0,136,0,77,125,8,3,186,2,77,8  ; n2834 t=117.340s dur=136ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 63,0,100,0,72,125,8,4,42,2,72,8  ; n2835 t=117.445s dur=100ms, freq=554Hz, sample=72, buffer_id=08:48
+    db 37,0,197,0,77,102,6,1,186,2,77,6  ; n2836 t=117.508s dur=197ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 112,0,112,0,72,125,8,5,11,2,72,8  ; n2837 t=117.545s dur=112ms, freq=523Hz, sample=72, buffer_id=08:48
     db 70,0,100,0,68,125,8,0,159,1,68,8  ; n2838 t=117.657s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 38,0,204,0,85,102,6,1,85,4,85,6  ; n2839 t=117.727s dur=204ms, freq=1109Hz, sample=85, buffer_id=06:55
-    db 91,0,118,0,72,125,8,2,11,2,72,8  ; n2840 t=117.765s dur=118ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 86,0,123,0,72,125,8,7,42,2,72,8  ; n2841 t=117.856s dur=123ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 38,0,216,0,82,102,6,3,112,3,82,6  ; n2842 t=117.942s dur=216ms, freq=880Hz, sample=82, buffer_id=06:52
+    db 38,0,204,0,85,102,6,2,85,4,85,6  ; n2839 t=117.727s dur=204ms, freq=1109Hz, sample=85, buffer_id=06:55
+    db 91,0,118,0,72,125,8,3,11,2,72,8  ; n2840 t=117.765s dur=118ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 86,0,123,0,72,125,8,6,42,2,72,8  ; n2841 t=117.856s dur=123ms, freq=554Hz, sample=72, buffer_id=08:48
+    db 38,0,216,0,82,102,6,1,112,3,82,6  ; n2842 t=117.942s dur=216ms, freq=880Hz, sample=82, buffer_id=06:52
     db 0,0,140,0,69,125,5,0,159,1,69,5  ; n2843 t=117.980s dur=140ms, freq=415Hz, sample=69, buffer_id=05:45
     db 5,0,113,0,77,125,8,4,186,2,77,8  ; n2844 t=117.980s dur=113ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 16,0,140,0,63,125,5,5,93,1,63,5  ; n2845 t=117.985s dur=140ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 75,0,135,0,63,125,5,6,21,1,63,5  ; n2846 t=118.001s dur=135ms, freq=277Hz, sample=63, buffer_id=05:3F
+    db 75,0,135,0,63,125,5,7,21,1,63,5  ; n2846 t=118.001s dur=135ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 82,0,114,0,72,125,8,8,42,2,72,8  ; n2847 t=118.077s dur=114ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 22,0,192,0,77,102,6,1,186,2,77,6  ; n2848 t=118.159s dur=192ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 22,0,192,0,77,102,6,2,186,2,77,6  ; n2848 t=118.159s dur=192ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 115,0,104,0,72,125,8,9,11,2,72,8  ; n2849 t=118.181s dur=104ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 5,0,100,0,68,125,8,2,159,1,68,8  ; n2850 t=118.296s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 5,0,100,0,68,125,8,3,159,1,68,8  ; n2850 t=118.296s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 5,0,125,3,63,125,5,4,93,1,63,5  ; n2851 t=118.302s dur=893ms, freq=349Hz, sample=63, buffer_id=05:3F
-    db 0,0,114,3,69,125,5,7,159,1,69,5  ; n2852 t=118.307s dur=882ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 0,0,114,3,69,125,5,6,159,1,69,5  ; n2852 t=118.307s dur=882ms, freq=415Hz, sample=69, buffer_id=05:45
     db 60,0,114,3,63,125,5,10,21,1,63,5  ; n2853 t=118.307s dur=882ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 11,0,225,0,85,102,6,0,85,4,85,6  ; n2854 t=118.367s dur=225ms, freq=1109Hz, sample=85, buffer_id=06:55
-    db 22,0,117,5,91,125,8,3,125,6,91,8  ; n2855 t=118.378s dur=1397ms, freq=1661Hz, sample=91, buffer_id=08:5B
+    db 22,0,117,5,91,125,8,1,125,6,91,8  ; n2855 t=118.378s dur=1397ms, freq=1661Hz, sample=91, buffer_id=08:5B
     db 110,0,115,0,72,125,8,5,11,2,72,8  ; n2856 t=118.400s dur=115ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 82,0,115,0,72,125,8,6,42,2,72,8  ; n2857 t=118.510s dur=115ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 33,0,201,0,82,102,6,1,112,3,82,6  ; n2858 t=118.593s dur=201ms, freq=880Hz, sample=82, buffer_id=06:52
-    db 107,0,112,0,77,125,8,2,186,2,77,8  ; n2859 t=118.626s dur=112ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 82,0,115,0,72,125,8,7,42,2,72,8  ; n2857 t=118.510s dur=115ms, freq=554Hz, sample=72, buffer_id=08:48
+    db 33,0,201,0,82,102,6,2,112,3,82,6  ; n2858 t=118.593s dur=201ms, freq=880Hz, sample=82, buffer_id=06:52
+    db 107,0,112,0,77,125,8,3,186,2,77,8  ; n2859 t=118.626s dur=112ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 67,0,101,0,72,125,8,11,42,2,72,8  ; n2860 t=118.733s dur=101ms, freq=554Hz, sample=72, buffer_id=08:48
     db 50,0,213,0,77,102,6,0,186,2,77,6  ; n2861 t=118.800s dur=213ms, freq=698Hz, sample=77, buffer_id=06:4D
     db 124,0,134,0,72,125,8,12,11,2,72,8  ; n2862 t=118.851s dur=134ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 45,0,100,0,68,125,8,2,159,1,68,8  ; n2863 t=118.974s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 56,0,250,0,85,102,6,1,85,4,85,6  ; n2864 t=119.019s dur=250ms, freq=1109Hz, sample=85, buffer_id=06:55
+    db 45,0,100,0,68,125,8,3,159,1,68,8  ; n2863 t=118.974s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 56,0,250,0,85,102,6,2,85,4,85,6  ; n2864 t=119.019s dur=250ms, freq=1109Hz, sample=85, buffer_id=06:55
     db 108,0,142,0,72,125,8,13,11,2,72,8  ; n2865 t=119.075s dur=142ms, freq=523Hz, sample=72, buffer_id=08:48
     db 75,0,109,0,72,125,8,14,42,2,72,8  ; n2866 t=119.184s dur=109ms, freq=554Hz, sample=72, buffer_id=08:48
     db 34,0,212,0,82,102,6,0,112,3,82,6  ; n2867 t=119.258s dur=212ms, freq=880Hz, sample=82, buffer_id=06:52
-    db 11,0,132,0,63,125,5,2,93,1,63,5  ; n2868 t=119.293s dur=132ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 11,0,132,0,63,125,5,3,93,1,63,5  ; n2868 t=119.293s dur=132ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 0,0,103,0,69,125,5,5,159,1,69,5  ; n2869 t=119.304s dur=103ms, freq=415Hz, sample=69, buffer_id=05:45
-    db 11,0,149,0,77,125,8,6,186,2,77,8  ; n2870 t=119.304s dur=149ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 11,0,149,0,77,125,8,7,186,2,77,8  ; n2870 t=119.304s dur=149ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 98,0,103,0,63,125,5,8,21,1,63,5  ; n2871 t=119.316s dur=103ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 63,0,137,0,72,125,8,4,42,2,72,8  ; n2872 t=119.414s dur=137ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 52,0,237,0,77,102,6,1,186,2,77,6  ; n2873 t=119.477s dur=237ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 133,0,115,0,72,125,8,7,11,2,72,8  ; n2874 t=119.529s dur=115ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 18,0,100,0,68,125,8,2,159,1,68,8  ; n2875 t=119.662s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
+    db 52,0,237,0,77,102,6,2,186,2,77,6  ; n2873 t=119.477s dur=237ms, freq=698Hz, sample=77, buffer_id=06:4D
+    db 133,0,115,0,72,125,8,6,11,2,72,8  ; n2874 t=119.529s dur=115ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 18,0,100,0,68,125,8,3,159,1,68,8  ; n2875 t=119.662s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 12,0,241,0,63,125,5,0,93,1,63,5  ; n2876 t=119.679s dur=241ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 6,0,91,5,89,125,8,5,117,5,89,8  ; n2877 t=119.691s dur=1371ms, freq=1397Hz, sample=89, buffer_id=08:59
-    db 23,0,200,0,69,125,5,6,184,1,69,5  ; n2878 t=119.697s dur=200ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 23,0,200,0,69,125,5,7,184,1,69,5  ; n2878 t=119.697s dur=200ms, freq=440Hz, sample=69, buffer_id=05:45
     db 6,0,223,0,85,102,6,8,85,4,85,6  ; n2879 t=119.721s dur=223ms, freq=1109Hz, sample=85, buffer_id=06:55
     db 47,0,194,0,63,125,5,9,21,1,63,5  ; n2880 t=119.727s dur=194ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 118,0,100,0,69,125,8,4,184,1,69,8  ; n2881 t=119.773s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 53,0,117,0,72,125,8,10,42,2,72,8  ; n2882 t=119.891s dur=117ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 71,0,212,0,82,102,6,1,112,3,82,6  ; n2883 t=119.944s dur=212ms, freq=880Hz, sample=82, buffer_id=06:52
-    db 118,0,153,0,77,125,8,2,186,2,77,8  ; n2884 t=120.015s dur=153ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 71,0,212,0,82,102,6,2,112,3,82,6  ; n2883 t=119.944s dur=212ms, freq=880Hz, sample=82, buffer_id=06:52
+    db 118,0,153,0,77,125,8,1,186,2,77,8  ; n2884 t=120.015s dur=153ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 30,0,113,0,72,125,8,0,42,2,72,8  ; n2885 t=120.133s dur=113ms, freq=554Hz, sample=72, buffer_id=08:48
     db 0,0,100,0,63,125,5,3,93,1,63,5  ; n2886 t=120.162s dur=100ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 0,0,101,0,63,125,5,4,21,1,63,5  ; n2887 t=120.162s dur=101ms, freq=277Hz, sample=63, buffer_id=05:3F
     db 6,0,226,0,77,102,6,6,186,2,77,6  ; n2888 t=120.162s dur=226ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 77,0,100,0,69,125,5,7,184,1,69,5  ; n2889 t=120.168s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 113,0,100,0,69,125,8,8,184,1,69,8  ; n2890 t=120.246s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
-    db 6,0,173,10,69,125,5,1,159,1,69,5  ; n2891 t=120.359s dur=2733ms, freq=415Hz, sample=69, buffer_id=05:45
+    db 77,0,100,0,69,125,5,8,184,1,69,5  ; n2889 t=120.168s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 113,0,100,0,69,125,8,7,184,1,69,8  ; n2890 t=120.246s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
+    db 6,0,173,10,69,125,5,2,159,1,69,5  ; n2891 t=120.359s dur=2733ms, freq=415Hz, sample=69, buffer_id=05:45
     db 6,0,201,10,63,125,5,10,21,1,63,5  ; n2892 t=120.365s dur=2761ms, freq=277Hz, sample=63, buffer_id=05:3F
-    db 0,0,134,9,63,125,5,2,93,1,63,5  ; n2893 t=120.371s dur=2438ms, freq=349Hz, sample=63, buffer_id=05:3F
+    db 0,0,134,9,63,125,5,1,93,1,63,5  ; n2893 t=120.371s dur=2438ms, freq=349Hz, sample=63, buffer_id=05:3F
     db 36,0,100,0,68,125,8,9,159,1,68,8  ; n2894 t=120.371s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
     db 83,0,240,0,85,102,6,11,85,4,85,6  ; n2895 t=120.406s dur=240ms, freq=1109Hz, sample=85, buffer_id=06:55
     db 102,0,100,0,69,125,8,0,184,1,69,8  ; n2896 t=120.490s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
@@ -2944,31 +2944,31 @@ midi_data:
     db 128,0,141,0,72,125,8,8,42,2,72,8  ; n2925 t=122.762s dur=141ms, freq=554Hz, sample=72, buffer_id=08:48
     db 47,0,100,0,69,125,8,0,184,1,69,8  ; n2926 t=122.890s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 101,0,250,0,77,102,6,3,186,2,77,6  ; n2927 t=122.937s dur=250ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 135,0,189,0,72,125,8,2,42,2,72,8  ; n2928 t=123.038s dur=189ms, freq=554Hz, sample=72, buffer_id=08:48
+    db 135,0,189,0,72,125,8,1,42,2,72,8  ; n2928 t=123.038s dur=189ms, freq=554Hz, sample=72, buffer_id=08:48
     db 0,0,65,1,75,102,6,6,42,2,75,6  ; n2929 t=123.174s dur=321ms, freq=554Hz, sample=75, buffer_id=06:4B
     db 137,0,100,0,69,125,8,4,184,1,69,8  ; n2930 t=123.174s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 144,0,171,0,65,125,8,0,93,1,65,8  ; n2931 t=123.311s dur=171ms, freq=349Hz, sample=65, buffer_id=08:41
     db 0,0,22,1,77,102,6,1,186,2,77,6  ; n2932 t=123.454s dur=278ms, freq=698Hz, sample=77, buffer_id=06:4D
-    db 137,0,193,0,72,125,8,3,42,2,72,8  ; n2933 t=123.454s dur=193ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 134,0,100,0,69,125,8,2,184,1,69,8  ; n2934 t=123.592s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
+    db 137,0,193,0,72,125,8,2,42,2,72,8  ; n2933 t=123.454s dur=193ms, freq=554Hz, sample=72, buffer_id=08:48
+    db 134,0,100,0,69,125,8,3,184,1,69,8  ; n2934 t=123.592s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 7,0,32,1,75,102,6,0,42,2,75,6  ; n2935 t=123.725s dur=288ms, freq=554Hz, sample=75, buffer_id=06:4B
     db 155,0,162,0,65,125,8,4,93,1,65,8  ; n2936 t=123.733s dur=162ms, freq=349Hz, sample=65, buffer_id=08:41
-    db 113,0,100,0,69,125,8,3,184,1,69,8  ; n2937 t=123.888s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
+    db 113,0,100,0,69,125,8,2,184,1,69,8  ; n2937 t=123.888s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
     db 78,0,93,1,70,102,6,1,184,1,70,6  ; n2938 t=124.000s dur=349ms, freq=440Hz, sample=70, buffer_id=06:46
-    db 207,0,200,0,65,125,8,2,93,1,65,8  ; n2939 t=124.079s dur=200ms, freq=349Hz, sample=65, buffer_id=08:41
+    db 207,0,200,0,65,125,8,3,93,1,65,8  ; n2939 t=124.079s dur=200ms, freq=349Hz, sample=65, buffer_id=08:41
     db 52,0,112,0,72,125,8,0,42,2,72,8  ; n2940 t=124.286s dur=112ms, freq=554Hz, sample=72, buffer_id=08:48
-    db 212,0,200,0,64,102,6,3,74,1,64,6  ; n2941 t=124.338s dur=200ms, freq=330Hz, sample=64, buffer_id=06:40
-    db 38,0,208,0,70,102,6,2,184,1,70,6  ; n2942 t=124.550s dur=208ms, freq=440Hz, sample=70, buffer_id=06:46
+    db 212,0,200,0,64,102,6,2,74,1,64,6  ; n2941 t=124.338s dur=200ms, freq=330Hz, sample=64, buffer_id=06:40
+    db 38,0,208,0,70,102,6,3,184,1,70,6  ; n2942 t=124.550s dur=208ms, freq=440Hz, sample=70, buffer_id=06:46
     db 125,0,35,1,70,125,8,1,238,1,70,8  ; n2943 t=124.588s dur=291ms, freq=494Hz, sample=70, buffer_id=08:46
     db 114,0,178,0,70,102,6,0,238,1,70,6  ; n2944 t=124.713s dur=178ms, freq=494Hz, sample=70, buffer_id=06:46
-    db 102,0,117,0,75,102,6,3,147,2,75,6  ; n2945 t=124.827s dur=117ms, freq=659Hz, sample=75, buffer_id=06:4B
+    db 102,0,117,0,75,102,6,2,147,2,75,6  ; n2945 t=124.827s dur=117ms, freq=659Hz, sample=75, buffer_id=06:4B
     db 30,0,73,1,63,125,8,4,74,1,63,8  ; n2946 t=124.929s dur=329ms, freq=330Hz, sample=63, buffer_id=08:3F
-    db 23,0,223,0,82,102,6,2,220,3,82,6  ; n2947 t=124.959s dur=223ms, freq=988Hz, sample=82, buffer_id=06:52
+    db 23,0,223,0,82,102,6,3,220,3,82,6  ; n2947 t=124.959s dur=223ms, freq=988Hz, sample=82, buffer_id=06:52
     db 95,0,200,0,38,76,9,6,73,0,38,8  ; n2948 t=124.982s dur=200ms, freq=73Hz, sample=38, buffer_id=08:26
     db 61,0,189,0,85,102,6,7,23,4,85,6  ; n2949 t=125.077s dur=189ms, freq=1047Hz, sample=85, buffer_id=06:55
     db 68,0,121,0,38,76,9,0,78,0,38,8  ; n2950 t=125.137s dur=121ms, freq=78Hz, sample=38, buffer_id=08:26
     db 11,0,231,0,89,102,6,1,39,5,89,6  ; n2951 t=125.205s dur=231ms, freq=1319Hz, sample=89, buffer_id=06:59
-    db 0,0,31,1,72,125,8,3,11,2,72,8  ; n2952 t=125.217s dur=287ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 0,0,31,1,72,125,8,2,11,2,72,8  ; n2952 t=125.217s dur=287ms, freq=523Hz, sample=72, buffer_id=08:48
     db 43,1,108,2,38,76,9,8,82,0,38,8  ; n2953 t=125.217s dur=620ms, freq=82Hz, sample=38, buffer_id=08:26
     db 96,1,77,1,70,125,8,0,238,1,70,8  ; n2954 t=125.516s dur=333ms, freq=494Hz, sample=70, buffer_id=08:46
     db 246,0,92,1,63,125,8,1,74,1,63,8  ; n2955 t=125.868s dur=348ms, freq=330Hz, sample=63, buffer_id=08:3F
@@ -3926,134 +3926,134 @@ midi_data:
     db 12,0,100,0,72,125,8,7,11,2,72,8  ; n3907 t=187.608s dur=100ms, freq=523Hz, sample=72, buffer_id=08:48
     db 0,0,100,0,69,125,5,5,159,1,69,5  ; n3908 t=187.620s dur=100ms, freq=415Hz, sample=69, buffer_id=05:45
     db 4,0,100,0,63,125,8,15,55,1,63,8  ; n3909 t=187.620s dur=100ms, freq=311Hz, sample=63, buffer_id=08:3F
-    db 4,0,100,0,75,102,6,0,110,2,75,6  ; n3910 t=187.624s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B [TRUNCATE prev:ch0 @185785.3ms -> 187623.8ms]
-    db 69,0,236,1,69,126,3,6,159,1,69,3  ; n3911 t=187.628s dur=492ms, freq=415Hz, sample=69, buffer_id=03:45 [TRUNCATE prev:ch6 @187466.1ms -> 187627.6ms]
+    db 4,0,100,0,75,102,6,16,110,2,75,6  ; n3910 t=187.624s dur=100ms, freq=622Hz, sample=75, buffer_id=06:4B
+    db 69,0,236,1,69,126,3,17,159,1,69,3  ; n3911 t=187.628s dur=492ms, freq=415Hz, sample=69, buffer_id=03:45
     db 4,0,100,0,65,125,8,1,93,1,65,8  ; n3912 t=187.697s dur=100ms, freq=349Hz, sample=65, buffer_id=08:41
     db 73,0,100,0,74,125,8,10,75,2,74,8  ; n3913 t=187.701s dur=100ms, freq=587Hz, sample=74, buffer_id=08:4A
-    db 0,0,100,0,74,125,5,9,11,2,74,5  ; n3914 t=187.774s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
-    db 8,0,100,0,67,125,8,12,136,1,67,8  ; n3915 t=187.774s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 69,0,100,0,75,125,8,13,110,2,75,8  ; n3916 t=187.781s dur=100ms, freq=622Hz, sample=75, buffer_id=08:4B
+    db 0,0,100,0,74,125,5,6,11,2,74,5  ; n3914 t=187.774s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 8,0,100,0,67,125,8,9,136,1,67,8  ; n3915 t=187.774s dur=100ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 69,0,100,0,75,125,8,12,110,2,75,8  ; n3916 t=187.781s dur=100ms, freq=622Hz, sample=75, buffer_id=08:4B
     db 4,0,100,0,68,125,8,3,159,1,68,8  ; n3917 t=187.851s dur=100ms, freq=415Hz, sample=68, buffer_id=08:44
-    db 4,0,100,0,82,102,6,14,63,3,82,6  ; n3918 t=187.855s dur=100ms, freq=831Hz, sample=82, buffer_id=06:52
-    db 69,0,100,0,77,125,8,4,186,2,77,8  ; n3919 t=187.858s dur=100ms, freq=698Hz, sample=77, buffer_id=08:4D [TRUNCATE prev:ch4 @186677.6ms -> 187858.4ms]
-    db 0,0,100,0,63,125,5,0,55,1,63,5  ; n3920 t=187.928s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
-    db 0,0,100,0,77,125,8,2,16,3,77,8  ; n3921 t=187.928s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 73,0,100,0,70,125,8,5,210,1,70,8  ; n3922 t=187.928s dur=100ms, freq=466Hz, sample=70, buffer_id=08:46
+    db 4,0,100,0,82,102,6,13,63,3,82,6  ; n3918 t=187.855s dur=100ms, freq=831Hz, sample=82, buffer_id=06:52
+    db 69,0,100,0,77,125,8,14,186,2,77,8  ; n3919 t=187.858s dur=100ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 0,0,100,0,63,125,5,2,55,1,63,5  ; n3920 t=187.928s dur=100ms, freq=311Hz, sample=63, buffer_id=05:3F
+    db 0,0,100,0,77,125,8,5,16,3,77,8  ; n3921 t=187.928s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
+    db 73,0,100,0,70,125,8,7,210,1,70,8  ; n3922 t=187.928s dur=100ms, freq=466Hz, sample=70, buffer_id=08:46
     db 4,0,100,0,82,125,8,1,112,3,82,8  ; n3923 t=188.001s dur=100ms, freq=880Hz, sample=82, buffer_id=08:52
     db 77,0,100,0,72,125,8,10,11,2,72,8  ; n3924 t=188.005s dur=100ms, freq=523Hz, sample=72, buffer_id=08:48
-    db 0,0,13,1,74,124,4,7,75,2,74,4  ; n3925 t=188.082s dur=269ms, freq=587Hz, sample=74, buffer_id=04:4A
+    db 0,0,13,1,74,124,4,6,75,2,74,4  ; n3925 t=188.082s dur=269ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 4,0,100,0,72,125,8,9,42,2,72,8  ; n3926 t=188.082s dur=100ms, freq=554Hz, sample=72, buffer_id=08:48
     db 0,0,59,8,74,125,5,12,75,2,74,5  ; n3927 t=188.085s dur=2107ms, freq=587Hz, sample=74, buffer_id=05:4A
-    db 0,0,100,0,85,102,6,13,221,4,85,6  ; n3928 t=188.085s dur=100ms, freq=1245Hz, sample=85, buffer_id=06:55
-    db 73,0,100,0,82,125,8,15,164,3,82,8  ; n3929 t=188.085s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
+    db 0,0,100,0,85,102,6,15,221,4,85,6  ; n3928 t=188.085s dur=100ms, freq=1245Hz, sample=85, buffer_id=06:55
+    db 73,0,100,0,82,125,8,16,164,3,82,8  ; n3929 t=188.085s dur=100ms, freq=932Hz, sample=82, buffer_id=08:52
     db 8,0,100,0,75,125,8,3,110,2,75,8  ; n3930 t=188.158s dur=100ms, freq=622Hz, sample=75, buffer_id=08:4B
-    db 69,0,100,0,82,125,8,4,23,4,82,8  ; n3931 t=188.166s dur=100ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 4,0,100,0,77,125,8,0,186,2,77,8  ; n3932 t=188.235s dur=100ms, freq=698Hz, sample=77, buffer_id=08:4D
-    db 73,0,100,0,87,125,8,2,151,4,87,8  ; n3933 t=188.239s dur=100ms, freq=1175Hz, sample=87, buffer_id=08:57
+    db 69,0,100,0,82,125,8,13,23,4,82,8  ; n3931 t=188.166s dur=100ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 4,0,100,0,77,125,8,2,186,2,77,8  ; n3932 t=188.235s dur=100ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 73,0,100,0,87,125,8,5,151,4,87,8  ; n3933 t=188.239s dur=100ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 0,0,100,0,87,125,8,1,221,4,87,8  ; n3934 t=188.312s dur=100ms, freq=1245Hz, sample=87, buffer_id=08:57
-    db 69,0,100,0,77,125,8,5,16,3,77,8  ; n3935 t=188.312s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 12,0,100,0,89,125,8,6,117,5,89,8  ; n3936 t=188.381s dur=100ms, freq=1397Hz, sample=89, buffer_id=08:59
-    db 38,0,100,0,82,125,8,9,63,3,82,8  ; n3937 t=188.393s dur=100ms, freq=831Hz, sample=82, buffer_id=08:52
-    db 27,0,100,0,81,124,4,10,112,3,81,4  ; n3938 t=188.431s dur=100ms, freq=880Hz, sample=81, buffer_id=04:51
+    db 69,0,100,0,77,125,8,7,16,3,77,8  ; n3935 t=188.312s dur=100ms, freq=784Hz, sample=77, buffer_id=08:4D
+    db 12,0,100,0,89,125,8,9,117,5,89,8  ; n3936 t=188.381s dur=100ms, freq=1397Hz, sample=89, buffer_id=08:59
+    db 38,0,100,0,82,125,8,10,63,3,82,8  ; n3937 t=188.393s dur=100ms, freq=831Hz, sample=82, buffer_id=08:52
+    db 27,0,100,0,81,124,4,11,112,3,81,4  ; n3938 t=188.431s dur=100ms, freq=880Hz, sample=81, buffer_id=04:51
     db 8,0,100,0,91,125,8,3,32,6,91,8  ; n3939 t=188.458s dur=100ms, freq=1568Hz, sample=91, buffer_id=08:5B
-    db 77,0,122,0,82,125,8,11,112,3,82,8  ; n3940 t=188.466s dur=122ms, freq=880Hz, sample=82, buffer_id=08:52
-    db 19,0,100,0,50,102,6,0,147,0,50,6  ; n3941 t=188.543s dur=100ms, freq=147Hz, sample=50, buffer_id=06:32
-    db 6,0,87,14,94,125,8,2,224,6,94,8  ; n3942 t=188.562s dur=3671ms, freq=1760Hz, sample=94, buffer_id=08:5E
-    db 27,0,145,6,81,124,4,4,112,3,81,4  ; n3943 t=188.568s dur=1681ms, freq=880Hz, sample=81, buffer_id=04:51
-    db 35,0,100,0,52,102,6,7,165,0,52,6  ; n3944 t=188.595s dur=100ms, freq=165Hz, sample=52, buffer_id=06:34
+    db 77,0,122,0,82,125,8,14,112,3,82,8  ; n3940 t=188.466s dur=122ms, freq=880Hz, sample=82, buffer_id=08:52
+    db 19,0,100,0,50,102,6,2,147,0,50,6  ; n3941 t=188.543s dur=100ms, freq=147Hz, sample=50, buffer_id=06:32
+    db 6,0,87,14,94,125,8,5,224,6,94,8  ; n3942 t=188.562s dur=3671ms, freq=1760Hz, sample=94, buffer_id=08:5E
+    db 27,0,145,6,81,124,4,6,112,3,81,4  ; n3943 t=188.568s dur=1681ms, freq=880Hz, sample=81, buffer_id=04:51
+    db 35,0,100,0,52,102,6,13,165,0,52,6  ; n3944 t=188.595s dur=100ms, freq=165Hz, sample=52, buffer_id=06:34
     db 0,0,100,0,52,102,6,1,185,0,52,6  ; n3945 t=188.630s dur=100ms, freq=185Hz, sample=52, buffer_id=06:34
-    db 21,0,184,2,38,76,9,5,73,0,38,8  ; n3946 t=188.630s dur=696ms, freq=73Hz, sample=38, buffer_id=08:26
-    db 28,0,48,29,25,76,9,13,37,0,25,8  ; n3947 t=188.651s dur=7472ms, freq=37Hz, sample=25, buffer_id=08:19
-    db 42,0,100,0,52,102,6,14,196,0,52,6  ; n3948 t=188.679s dur=100ms, freq=196Hz, sample=52, buffer_id=06:34
-    db 35,0,100,0,52,102,6,6,220,0,52,6  ; n3949 t=188.720s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
-    db 35,0,100,0,62,102,6,8,247,0,62,6  ; n3950 t=188.755s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
+    db 21,0,184,2,38,76,9,7,73,0,38,8  ; n3946 t=188.630s dur=696ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 28,0,48,29,25,76,9,15,37,0,25,8  ; n3947 t=188.651s dur=7472ms, freq=37Hz, sample=25, buffer_id=08:19
+    db 42,0,100,0,52,102,6,16,196,0,52,6  ; n3948 t=188.679s dur=100ms, freq=196Hz, sample=52, buffer_id=06:34
+    db 35,0,100,0,52,102,6,8,220,0,52,6  ; n3949 t=188.720s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
+    db 35,0,100,0,62,102,6,0,247,0,62,6  ; n3950 t=188.755s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
     db 35,0,100,0,62,102,6,3,21,1,62,6  ; n3951 t=188.790s dur=100ms, freq=277Hz, sample=62, buffer_id=06:3E
-    db 35,0,100,0,62,102,6,9,38,1,62,6  ; n3952 t=188.825s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
-    db 35,0,100,0,64,102,6,0,74,1,64,6  ; n3953 t=188.859s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
-    db 35,0,100,0,65,102,6,10,114,1,65,6  ; n3954 t=188.894s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
-    db 35,0,100,0,67,102,6,7,136,1,67,6  ; n3955 t=188.929s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 35,0,100,0,62,102,6,4,38,1,62,6  ; n3952 t=188.825s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
+    db 35,0,100,0,64,102,6,2,74,1,64,6  ; n3953 t=188.859s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
+    db 35,0,100,0,65,102,6,9,114,1,65,6  ; n3954 t=188.894s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
+    db 35,0,100,0,67,102,6,10,136,1,67,6  ; n3955 t=188.929s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
     db 90,0,100,0,70,102,6,1,184,1,70,6  ; n3956 t=188.964s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
-    db 62,0,100,0,67,102,6,6,136,1,67,6  ; n3957 t=189.054s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
-    db 49,0,100,0,65,102,6,3,114,1,65,6  ; n3958 t=189.116s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
-    db 70,0,100,0,64,102,6,8,74,1,64,6  ; n3959 t=189.165s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
-    db 139,0,100,0,62,102,6,0,38,1,62,6  ; n3960 t=189.234s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
+    db 62,0,100,0,67,102,6,8,136,1,67,6  ; n3957 t=189.054s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 49,0,100,0,65,102,6,0,114,1,65,6  ; n3958 t=189.116s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
+    db 70,0,100,0,64,102,6,3,74,1,64,6  ; n3959 t=189.165s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
+    db 139,0,100,0,62,102,6,2,38,1,62,6  ; n3960 t=189.234s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
     db 55,0,100,0,50,102,6,1,147,0,50,6  ; n3961 t=189.373s dur=100ms, freq=147Hz, sample=50, buffer_id=06:32
-    db 35,0,100,0,52,102,6,3,165,0,52,6  ; n3962 t=189.429s dur=100ms, freq=165Hz, sample=52, buffer_id=06:34
-    db 49,0,100,0,52,102,6,6,185,0,52,6  ; n3963 t=189.464s dur=100ms, freq=185Hz, sample=52, buffer_id=06:34
-    db 42,0,100,0,52,102,6,7,196,0,52,6  ; n3964 t=189.512s dur=100ms, freq=196Hz, sample=52, buffer_id=06:34
-    db 35,0,100,0,52,102,6,0,220,0,52,6  ; n3965 t=189.554s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
-    db 35,0,100,0,62,102,6,5,247,0,62,6  ; n3966 t=189.589s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
+    db 35,0,100,0,52,102,6,0,165,0,52,6  ; n3962 t=189.429s dur=100ms, freq=165Hz, sample=52, buffer_id=06:34
+    db 49,0,100,0,52,102,6,4,185,0,52,6  ; n3963 t=189.464s dur=100ms, freq=185Hz, sample=52, buffer_id=06:34
+    db 42,0,100,0,52,102,6,3,196,0,52,6  ; n3964 t=189.512s dur=100ms, freq=196Hz, sample=52, buffer_id=06:34
+    db 35,0,100,0,52,102,6,2,220,0,52,6  ; n3965 t=189.554s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
+    db 35,0,100,0,62,102,6,7,247,0,62,6  ; n3966 t=189.589s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
     db 35,0,100,0,62,102,6,8,21,1,62,6  ; n3967 t=189.623s dur=100ms, freq=277Hz, sample=62, buffer_id=06:3E
-    db 35,0,100,0,62,102,6,10,38,1,62,6  ; n3968 t=189.658s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
+    db 35,0,100,0,62,102,6,9,38,1,62,6  ; n3968 t=189.658s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
     db 35,0,100,0,64,102,6,1,74,1,64,6  ; n3969 t=189.693s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
-    db 35,0,100,0,65,102,6,9,114,1,65,6  ; n3970 t=189.727s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
-    db 35,0,100,0,67,102,6,3,136,1,67,6  ; n3971 t=189.762s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
-    db 90,0,100,0,70,102,6,6,184,1,70,6  ; n3972 t=189.797s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
-    db 62,0,100,0,67,102,6,0,136,1,67,6  ; n3973 t=189.887s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
-    db 49,0,100,0,65,102,6,5,114,1,65,6  ; n3974 t=189.950s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
+    db 35,0,100,0,65,102,6,10,114,1,65,6  ; n3970 t=189.727s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
+    db 35,0,100,0,67,102,6,0,136,1,67,6  ; n3971 t=189.762s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 90,0,100,0,70,102,6,4,184,1,70,6  ; n3972 t=189.797s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
+    db 62,0,100,0,67,102,6,2,136,1,67,6  ; n3973 t=189.887s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
+    db 49,0,100,0,65,102,6,3,114,1,65,6  ; n3974 t=189.950s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
     db 153,0,100,0,64,102,6,7,74,1,64,6  ; n3975 t=189.998s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
-    db 42,0,100,0,52,102,6,1,220,0,52,6  ; n3976 t=190.151s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
-    db 18,0,100,0,62,102,6,0,247,0,62,6  ; n3977 t=190.193s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
-    db 23,0,112,1,63,125,5,3,38,1,63,5  ; n3978 t=190.211s dur=368ms, freq=294Hz, sample=63, buffer_id=05:3F
-    db 37,0,100,0,62,102,6,6,21,1,62,6  ; n3979 t=190.234s dur=100ms, freq=277Hz, sample=62, buffer_id=06:3E
-    db 49,0,100,0,62,102,6,5,38,1,62,6  ; n3980 t=190.270s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
+    db 42,0,100,0,52,102,6,0,220,0,52,6  ; n3976 t=190.151s dur=100ms, freq=220Hz, sample=52, buffer_id=06:34
+    db 18,0,100,0,62,102,6,1,247,0,62,6  ; n3977 t=190.193s dur=100ms, freq=247Hz, sample=62, buffer_id=06:3E
+    db 23,0,112,1,63,125,5,2,38,1,63,5  ; n3978 t=190.211s dur=368ms, freq=294Hz, sample=63, buffer_id=05:3F
+    db 37,0,100,0,62,102,6,4,21,1,62,6  ; n3979 t=190.234s dur=100ms, freq=277Hz, sample=62, buffer_id=06:3E
+    db 49,0,100,0,62,102,6,3,38,1,62,6  ; n3980 t=190.270s dur=100ms, freq=294Hz, sample=62, buffer_id=06:3E
     db 61,0,100,0,64,102,6,8,74,1,64,6  ; n3981 t=190.319s dur=100ms, freq=330Hz, sample=64, buffer_id=06:40
     db 53,0,100,0,65,102,6,7,114,1,65,6  ; n3982 t=190.380s dur=100ms, freq=370Hz, sample=65, buffer_id=06:41
     db 45,0,100,0,67,102,6,9,136,1,67,6  ; n3983 t=190.433s dur=100ms, freq=392Hz, sample=67, buffer_id=06:43
-    db 49,0,100,0,70,102,6,1,184,1,70,6  ; n3984 t=190.478s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
-    db 37,0,100,0,70,102,6,0,238,1,70,6  ; n3985 t=190.526s dur=100ms, freq=494Hz, sample=70, buffer_id=06:46
+    db 49,0,100,0,70,102,6,0,184,1,70,6  ; n3984 t=190.478s dur=100ms, freq=440Hz, sample=70, buffer_id=06:46
+    db 37,0,100,0,70,102,6,1,238,1,70,6  ; n3985 t=190.526s dur=100ms, freq=494Hz, sample=70, buffer_id=06:46
     db 41,0,100,0,75,102,6,4,42,2,75,6  ; n3986 t=190.563s dur=100ms, freq=554Hz, sample=75, buffer_id=06:4B
-    db 33,0,100,0,75,102,6,5,75,2,75,6  ; n3987 t=190.604s dur=100ms, freq=587Hz, sample=75, buffer_id=06:4B
+    db 33,0,100,0,75,102,6,3,75,2,75,6  ; n3987 t=190.604s dur=100ms, freq=587Hz, sample=75, buffer_id=06:4B
     db 32,0,100,0,75,102,6,6,147,2,75,6  ; n3988 t=190.636s dur=100ms, freq=659Hz, sample=75, buffer_id=06:4B
     db 41,0,100,0,82,102,6,8,112,3,82,6  ; n3989 t=190.669s dur=100ms, freq=880Hz, sample=82, buffer_id=06:52
     db 224,1,109,1,69,125,5,7,184,1,69,5  ; n3990 t=190.709s dur=365ms, freq=440Hz, sample=69, buffer_id=05:45
     db 16,0,100,0,69,125,5,0,136,1,69,5  ; n3991 t=191.189s dur=100ms, freq=392Hz, sample=69, buffer_id=05:45
     db 0,0,8,1,74,125,8,1,75,2,74,8  ; n3992 t=191.205s dur=264ms, freq=587Hz, sample=74, buffer_id=08:4A
-    db 20,0,118,7,67,125,8,3,136,1,67,8  ; n3993 t=191.205s dur=1910ms, freq=392Hz, sample=67, buffer_id=08:43
-    db 126,0,100,0,69,125,8,4,184,1,69,8  ; n3994 t=191.226s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
-    db 163,0,100,0,63,125,5,5,114,1,63,5  ; n3995 t=191.352s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
+    db 20,0,118,7,67,125,8,2,136,1,67,8  ; n3993 t=191.205s dur=1910ms, freq=392Hz, sample=67, buffer_id=08:43
+    db 126,0,100,0,69,125,8,3,184,1,69,8  ; n3994 t=191.226s dur=100ms, freq=440Hz, sample=69, buffer_id=08:45
+    db 163,0,100,0,63,125,5,4,114,1,63,5  ; n3995 t=191.352s dur=100ms, freq=370Hz, sample=63, buffer_id=05:3F
     db 159,0,100,0,63,125,5,0,74,1,63,5  ; n3996 t=191.514s dur=100ms, freq=330Hz, sample=63, buffer_id=05:3F
     db 24,0,89,1,65,126,3,1,136,1,65,3  ; n3997 t=191.673s dur=345ms, freq=392Hz, sample=65, buffer_id=03:41
-    db 207,1,82,11,69,125,5,4,136,1,69,5  ; n3998 t=191.697s dur=2898ms, freq=392Hz, sample=69, buffer_id=05:45
+    db 207,1,82,11,69,125,5,3,136,1,69,5  ; n3998 t=191.697s dur=2898ms, freq=392Hz, sample=69, buffer_id=05:45
     db 33,0,109,1,74,126,3,0,75,2,74,3  ; n3999 t=192.161s dur=365ms, freq=587Hz, sample=74, buffer_id=03:4A
-    db 199,1,70,18,95,125,8,5,184,7,95,8  ; n4000 t=192.193s dur=4678ms, freq=1976Hz, sample=95, buffer_id=08:5F
+    db 199,1,70,18,95,125,8,4,184,7,95,8  ; n4000 t=192.193s dur=4678ms, freq=1976Hz, sample=95, buffer_id=08:5F
     db 163,0,100,0,72,126,3,1,11,2,72,3  ; n4001 t=192.649s dur=100ms, freq=523Hz, sample=72, buffer_id=03:48
     db 163,0,100,0,70,126,3,0,238,1,70,3  ; n4002 t=192.811s dur=100ms, freq=494Hz, sample=70, buffer_id=03:46
     db 183,0,100,0,69,126,3,1,184,1,69,3  ; n4003 t=192.974s dur=100ms, freq=440Hz, sample=69, buffer_id=03:45
     db 0,0,180,1,77,125,8,0,16,3,77,8  ; n4004 t=193.157s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 20,0,46,6,72,125,8,2,11,2,72,8  ; n4005 t=193.157s dur=1582ms, freq=523Hz, sample=72, buffer_id=08:48
+    db 20,0,46,6,72,125,8,5,11,2,72,8  ; n4005 t=193.157s dur=1582ms, freq=523Hz, sample=72, buffer_id=08:48
     db 16,0,115,14,100,125,8,6,77,10,100,8  ; n4006 t=193.177s dur=3699ms, freq=2637Hz, sample=100, buffer_id=08:64
     db 4,0,200,14,72,126,3,7,11,2,72,3  ; n4007 t=193.193s dur=3784ms, freq=523Hz, sample=72, buffer_id=03:48
     db 123,5,8,1,74,125,8,8,75,2,74,8  ; n4008 t=193.197s dur=264ms, freq=587Hz, sample=74, buffer_id=08:4A
     db 163,0,101,0,74,125,5,0,147,2,74,5  ; n4009 t=194.600s dur=101ms, freq=659Hz, sample=74, buffer_id=05:4A
     db 163,0,113,0,74,125,5,1,75,2,74,5  ; n4010 t=194.762s dur=113ms, freq=587Hz, sample=74, buffer_id=05:4A
-    db 175,0,142,0,74,125,5,3,11,2,74,5  ; n4011 t=194.925s dur=142ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 175,0,142,0,74,125,5,2,11,2,74,5  ; n4011 t=194.925s dur=142ms, freq=523Hz, sample=74, buffer_id=05:4A
     db 8,0,244,7,105,125,8,0,192,13,105,8  ; n4012 t=195.100s dur=2036ms, freq=3520Hz, sample=105, buffer_id=08:69
     db 0,0,61,5,79,125,5,1,186,2,79,5  ; n4013 t=195.108s dur=1341ms, freq=698Hz, sample=79, buffer_id=05:4F
-    db 0,0,118,7,82,125,8,2,23,4,82,8  ; n4014 t=195.108s dur=1910ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 0,0,234,1,77,125,8,4,186,2,77,8  ; n4015 t=195.108s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
+    db 0,0,118,7,82,125,8,3,23,4,82,8  ; n4014 t=195.108s dur=1910ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 0,0,234,1,77,125,8,5,186,2,77,8  ; n4015 t=195.108s dur=490ms, freq=698Hz, sample=77, buffer_id=08:4D
     db 183,5,180,1,77,125,8,8,16,3,77,8  ; n4016 t=195.108s dur=436ms, freq=784Hz, sample=77, buffer_id=08:4D
-    db 20,0,100,0,74,125,5,4,11,2,74,5  ; n4017 t=196.571s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
-    db 126,0,100,0,82,124,4,3,23,4,82,4  ; n4018 t=196.591s dur=100ms, freq=1047Hz, sample=82, buffer_id=04:52
+    db 20,0,100,0,74,125,5,5,11,2,74,5  ; n4017 t=196.571s dur=100ms, freq=523Hz, sample=74, buffer_id=05:4A
+    db 126,0,100,0,82,124,4,2,23,4,82,4  ; n4018 t=196.591s dur=100ms, freq=1047Hz, sample=82, buffer_id=04:52
     db 28,0,122,0,82,125,8,1,112,3,82,8  ; n4019 t=196.718s dur=122ms, freq=880Hz, sample=82, buffer_id=08:52
     db 20,0,100,0,69,125,5,8,238,1,69,5  ; n4020 t=196.746s dur=100ms, freq=494Hz, sample=69, buffer_id=05:45
     db 29,0,100,0,82,124,4,9,220,3,82,4  ; n4021 t=196.766s dur=100ms, freq=988Hz, sample=82, buffer_id=04:52
     db 81,0,142,0,82,125,8,10,220,3,82,8  ; n4022 t=196.795s dur=142ms, freq=988Hz, sample=82, buffer_id=08:52
-    db 12,0,142,0,82,125,8,4,23,4,82,8  ; n4023 t=196.876s dur=142ms, freq=1047Hz, sample=82, buffer_id=08:52
-    db 20,0,100,0,81,124,4,11,112,3,81,4  ; n4024 t=196.888s dur=100ms, freq=880Hz, sample=81, buffer_id=04:51
-    db 53,0,100,0,69,125,5,3,184,1,69,5  ; n4025 t=196.909s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
-    db 77,0,142,0,87,125,8,12,85,4,87,8  ; n4026 t=196.962s dur=142ms, freq=1109Hz, sample=87, buffer_id=08:57
+    db 12,0,142,0,82,125,8,5,23,4,82,8  ; n4023 t=196.876s dur=142ms, freq=1047Hz, sample=82, buffer_id=08:52
+    db 20,0,100,0,81,124,4,12,112,3,81,4  ; n4024 t=196.888s dur=100ms, freq=880Hz, sample=81, buffer_id=04:51
+    db 53,0,100,0,69,125,5,2,184,1,69,5  ; n4025 t=196.909s dur=100ms, freq=440Hz, sample=69, buffer_id=05:45
+    db 77,0,142,0,87,125,8,11,85,4,87,8  ; n4026 t=196.962s dur=142ms, freq=1109Hz, sample=87, buffer_id=08:57
     db 0,0,57,1,82,125,8,13,112,3,82,8  ; n4027 t=197.039s dur=313ms, freq=880Hz, sample=82, buffer_id=08:52
     db 4,0,57,1,87,125,8,14,151,4,87,8  ; n4028 t=197.039s dur=313ms, freq=1175Hz, sample=87, buffer_id=08:57
     db 8,0,8,1,74,125,8,1,75,2,74,8  ; n4029 t=197.043s dur=264ms, freq=587Hz, sample=74, buffer_id=08:4A
     db 28,0,179,1,86,124,4,8,151,4,86,4  ; n4030 t=197.051s dur=435ms, freq=1175Hz, sample=86, buffer_id=04:56
-    db 33,0,170,1,93,124,4,5,224,6,93,4  ; n4031 t=197.079s dur=426ms, freq=1760Hz, sample=93, buffer_id=04:5D
+    db 33,0,170,1,93,124,4,4,224,6,93,4  ; n4031 t=197.079s dur=426ms, freq=1760Hz, sample=93, buffer_id=04:5D
     db 138,1,158,1,74,125,5,6,75,2,74,5  ; n4032 t=197.112s dur=414ms, freq=587Hz, sample=74, buffer_id=05:4A
     db 20,0,117,0,38,76,9,0,73,0,38,8  ; n4033 t=197.506s dur=117ms, freq=73Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,62,126,3,1,38,1,62,3  ; n4034 t=197.526s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 4,0,100,0,74,124,4,2,75,2,74,4  ; n4035 t=197.526s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 0,0,100,0,50,125,5,3,147,0,50,5  ; n4036 t=197.531s dur=100ms, freq=147Hz, sample=50, buffer_id=05:32
-    db 0,0,100,0,38,125,8,4,73,0,38,8  ; n4037 t=197.531s dur=100ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 0,0,100,0,38,125,8,5,73,0,38,8  ; n4037 t=197.531s dur=100ms, freq=73Hz, sample=38, buffer_id=08:26
     db 138,0,100,0,50,125,8,7,147,0,50,8  ; n4038 t=197.531s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
     db 20,0,109,0,38,76,9,9,73,0,38,8  ; n4039 t=197.669s dur=109ms, freq=73Hz, sample=38, buffer_id=08:26
     db 0,0,100,0,62,126,3,8,38,1,62,3  ; n4040 t=197.689s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
@@ -4065,8 +4065,8 @@ midi_data:
     db 0,0,100,0,62,126,3,0,38,1,62,3  ; n4046 t=197.852s dur=100ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 4,0,100,0,74,124,4,3,75,2,74,4  ; n4047 t=197.852s dur=100ms, freq=587Hz, sample=74, buffer_id=04:4A
     db 0,0,100,0,50,125,5,2,147,0,50,5  ; n4048 t=197.856s dur=100ms, freq=147Hz, sample=50, buffer_id=05:32
-    db 0,0,100,0,38,125,8,5,73,0,38,8  ; n4049 t=197.856s dur=100ms, freq=73Hz, sample=38, buffer_id=08:26
-    db 142,0,100,0,50,125,8,4,147,0,50,8  ; n4050 t=197.856s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
+    db 0,0,100,0,38,125,8,4,73,0,38,8  ; n4049 t=197.856s dur=100ms, freq=73Hz, sample=38, buffer_id=08:26
+    db 142,0,100,0,50,125,8,5,147,0,50,8  ; n4050 t=197.856s dur=100ms, freq=147Hz, sample=50, buffer_id=08:32
     db 16,0,248,0,38,76,9,6,73,0,38,8  ; n4051 t=197.998s dur=248ms, freq=73Hz, sample=38, buffer_id=08:26
     db 0,0,227,0,62,126,3,7,38,1,62,3  ; n4052 t=198.014s dur=227ms, freq=294Hz, sample=62, buffer_id=03:3E
     db 4,0,138,0,74,124,4,8,75,2,74,4  ; n4053 t=198.014s dur=138ms, freq=587Hz, sample=74, buffer_id=04:4A

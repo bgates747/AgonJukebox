@@ -977,6 +977,9 @@ def package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, p
         samples_inc_file,
         csv_file,
         inc_file,
+        os.path.join("midi", "src", "asm", "app.asm"),
+        os.path.join("midi", "src", "asm", "apr.inc"),
+        os.path.join("midi", "src", "asm", "timer.inc"),
         os.path.join("midi", "scripts", "midi_to_csv.py"),
         os.path.join("midi", "scripts", "csv_to_apr.py"),
     ]
@@ -1023,7 +1026,7 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
     min_sample_rate = 16000
     min_trial_duration = 500
 
-    num_channels = 16
+    num_channels = 32
     min_duration_ms = 100
     release_ms = 200
 

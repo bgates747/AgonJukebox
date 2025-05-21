@@ -23,6 +23,7 @@ import bisect
 import wave
 from scipy.signal import resample_poly
 import numpy as np
+import tarfile
 
 #####################
 # General Utilities #
@@ -691,6 +692,58 @@ def csv_to_inc(song_csv_file, output_file, soft_pedal_factor, sust_pedal_thresh,
     print(f" Total pedal events: {len(all_pedal_events)}")
 
 
+def package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, pub_dir, midi_in_dir):
+    """
+    Packages up all the files for a given song into a tar.gz archive for publishing.
+    Output: <pub_dir>/<song>.tar.gz
+    """
+    song_dir = os.path.join(pub_dir, song)
+    samples_dst_dir = os.path.join(song_dir, "Samples")
+    src_dir = os.path.join(song_dir, "src")
+    os.makedirs(src_dir, exist_ok=True)
+
+    # 1. Recursively copy all files/folders from samples_base_dir to Samples/ in song_dir
+    if os.path.exists(samples_dst_dir):
+        shutil.rmtree(samples_dst_dir)
+    shutil.copytree(samples_base_dir, samples_dst_dir)
+
+    # 2. Copy samples_inc_file, csv_file, inc_file, scripts into src/
+    files_to_copy = [
+        samples_inc_file,
+        csv_file,
+        inc_file,
+        os.path.join("midi", "src", "asm", "app.asm"),
+        os.path.join("midi", "src", "asm", "apr.inc"),
+        os.path.join("midi", "src", "asm", "timer.inc"),
+        os.path.join("midi", "scripts", "midi_to_csv.py"),
+        os.path.join("midi", "scripts", "synth_fs2_all_the_things_variable_sample_rate.py"),
+    ]
+    for fpath in files_to_copy:
+        if os.path.isfile(fpath):
+            shutil.copy2(fpath, src_dir)
+
+    # 3. Copy midi/in/<song>.mid to <song_dir>/src/<song>.mid
+    midi_path = os.path.join(midi_in_dir, f"{song}.mid")
+    midi_dst = os.path.join(src_dir, f"{song}.mid")
+    if os.path.isfile(midi_path):
+        shutil.copy2(midi_path, midi_dst)
+
+    # 4. Copy midi/tgt/play.bin to <song_dir>/play.bin
+    midi_bin = os.path.join("midi", "tgt", "play.bin")
+    play_bin = os.path.join(song_dir, "play.bin")
+    if os.path.isfile(midi_bin):
+        shutil.copy2(midi_bin, play_bin)
+
+    # 5. Tar.gz the song_dir to pub_dir
+    archive_path = os.path.join(pub_dir, f"{song}.tar.gz")
+    with tarfile.open(archive_path, "w:gz") as tar:
+        tar.add(song_dir, arcname=song)  # Top-level dir inside archive
+
+    # 6. Clean up: remove the unarchived song_dir
+    shutil.rmtree(song_dir)
+
+    print(f"Packaged: {archive_path}")
+
 
 ################
 # MAIN         #
@@ -724,13 +777,13 @@ instrument_number,midi_instrument_name,bank,preset,sf_instrument_name,duration,v
     midi_numbers = generate_base_sample_pitches(note_names, octaves)
     min_sample_rate = 8000
 
-    # make_tunable_samples(note_names, octaves, instrument_defs, samples_base_dir, max_harmonic, min_sample_rate)
+    make_tunable_samples(note_names, octaves, instrument_defs, samples_base_dir, max_harmonic, min_sample_rate)
 
-    # # compute_required_sample_rates(note_names, octaves, midi_numbers, max_harmonic)
-    # # print("Sample rates:", compute_required_sample_rates(note_names, octaves, midi_numbers, max_harmonic))
+    compute_required_sample_rates(note_names, octaves, midi_numbers, max_harmonic)
+    # print("Sample rates:", compute_required_sample_rates(note_names, octaves, midi_numbers, max_harmonic))
 
-    # defs = InstrumentDefs(instrument_defs)
-    # write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
+    defs = InstrumentDefs(instrument_defs)
+    write_samples_inc(defs, samples_base_dir, samples_inc_file, asm_samples_dir)
 
     # song_base_name = 'Beethoven__Moonlight_Sonata_v1'
     # song_base_name = 'Beethoven__Moonlight_Sonata_v2'
@@ -749,4 +802,12 @@ instrument_number,midi_instrument_name,bank,preset,sf_instrument_name,duration,v
     decay_ms = 200
     global_volume = 1.0
     global_volume_exp_fact = 1.0
-    csv_to_inc(song_csv_file, song_inc_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, instrument_defs, num_channels, min_duration_ms, decay_ms, global_volume, global_volume_exp_fact)
+    # csv_to_inc(song_csv_file, song_inc_file, soft_pedal_factor, sust_pedal_thresh, samples_base_dir, instrument_defs, num_channels, min_duration_ms, decay_ms, global_volume, global_volume_exp_fact)
+
+
+    midi_in_dir = 'midi/in'
+    pub_dir = 'midi/tgt/pub'
+    csv_file = f"{midi_out_dir}/{song_base_name}.csv"
+    inc_file = f"{midi_out_dir}/{song_base_name}.inc"
+
+    package_song(samples_base_dir, samples_inc_file, song_base_name, csv_file, inc_file, pub_dir, midi_in_dir)
