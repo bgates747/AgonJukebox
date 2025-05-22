@@ -191,18 +191,7 @@ if __name__ == '__main__':
     in_dir = 'midi/in'
     out_dir = 'midi/out'
     
-    base_name = 'Beethoven__Moonlight_Sonata_v1'
-    base_name = 'Beethoven__Moonlight_Sonata_v2'
-    base_name = 'Beethoven__Moonlight_Sonata_3rd_mvt'
-    base_name = 'Beethoven__Ode_to_Joy'
-    base_name = 'Brahms__Sonata_F_minor'
-    base_name = 'Williams__Star_Wars_Theme'
-    base_name = 'Breakout'
-    # base_name = 'Over_the_Rainbow'
-    # base_name = 'Williams__Raiders_of_the_Lost_Ark'
-
-    # base_name = 'Bach__Harpsichord_Concerto_1_in_D_minor'
-    # base_name = 'Thoinot__Pavana'
+    base_name = 'Mountain_King'
 
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"

@@ -142,8 +142,8 @@ play_note:
     ld (notes_played),hl ; increment the number of notes played
 
     pop hl ; restore the note counter
-    ; SIGN_UHL ; if zero ...
-    ; jp z,play_note ; play next note immediately
+    SIGN_UHL ; if zero ...
+    jp z,play_note ; play next note immediately
 
     ld a,1
     and a ; reset zero flag

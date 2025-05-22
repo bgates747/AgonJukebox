@@ -1030,30 +1030,21 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
     min_duration_ms = 100
     release_ms = 200
 
-    song = 'Mountain_King'
+    song = 'Williams__Star_Wars_Theme'
 
     instrument_defs = """
 instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,velocity,sample_rate,sf2_path
-1,Piccolo,0,72,FALSE,Piccolo,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-2,Flute,0,73,FALSE,Flute,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-3,Oboe,0,68,FALSE,Oboe,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-4,Clarinet in A,0,71,FALSE,Clarinet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-5,Bassoon I,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-6,Bassoon II,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-7,Horn in E I,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-8,Horn in E II,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-9,Trumpet in E,0,56,FALSE,Trumpet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-10,Timpani,0,47,FALSE,Timpani,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-11,Trombone I,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-12,Trombone II,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-13,Tuba,0,58,FALSE,Tuba,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-# 14,Bass Drum,128,0,TRUE,Standard,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-# 15,Cymbal,128,0,TRUE,Standard,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-16,Violin I,0,40,FALSE,Violin,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-17,Violin II,0,40,FALSE,Violin,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-18,Viola,0,41,FALSE,Viola,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-19,Cello,0,42,FALSE,Cello,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-20,Contrabass,0,43,FALSE,Contrabass,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 1,Bassoon,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 2,Flute,0,73,FALSE,Flute,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,French Horn,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,Trumpet,0,56,FALSE,Trumpet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Trombone,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Orchestral Harp,0,46,FALSE,Harp,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 7,Bright Acoustic Piano,0,1,FALSE,Bright Yamaha Grand,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,String Ensemble 1,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,0,48,FALSE,Strings,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 11,Timpani,0,47,FALSE,Timpani,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
 """
 
     csv_file = f"{midi_out_dir}/{song}.csv"

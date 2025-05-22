@@ -2,40 +2,15 @@
 import os
 import tempfile
 import subprocess
-
 import pretty_midi
 import soundfile as sf
+import numpy as np
+import shutil
+import re
+import csv
+from io import StringIO
 
 # ── Helpers ─────────────────────────────────────────────────────────────────────
-
-import re
-
-def parse_instrument_line(line):
-    """
-    Parse a line like:
-      "Instrument 7: Bank 0, Preset 1: Bright Yamaha Grand"
-      or
-      "Instrument 3: Preset 60: French Horns"
-    Returns:
-      inst_idx (int),
-      bank (int, defaults to 0 if unspecified),
-      preset (int),
-      name (str)
-    """
-    # Regex with optional Bank group
-    m = re.match(
-        r"Instrument\s+(\d+)\s*:\s*(?:Bank\s*(\d+)\s*,\s*)?Preset\s*(\d+)\s*:\s*(.+)",
-        line
-    )
-    if not m:
-        raise ValueError(f"Cannot parse instrument line: {line!r}")
-    inst_idx = int(m.group(1))
-    bank     = int(m.group(2)) if m.group(2) is not None else 0
-    preset   = int(m.group(3))
-    name     = m.group(4).strip()
-    return inst_idx, bank, preset, name
-
-
 
 def extract_instrument_notes(csv_path, inst_idx):
     """
@@ -70,7 +45,6 @@ def extract_instrument_notes(csv_path, inst_idx):
                 continue
 
             parts = [p.strip() for p in line.split(",")]
-            # expect at least 8 fields: Note#, Start, End, Duration, Pitch, NoteName, Velocity, OnVel, OffVel
             if len(parts) < 8:
                 continue
 
@@ -88,16 +62,17 @@ def extract_instrument_notes(csv_path, inst_idx):
 
     return notes
 
-
-def build_midi(notes, program, is_drum=False, tempo=120.0):
+def build_midi(notes, program, is_drum=False, velocity_override=None, tempo=120.0):
     """
     Create a PrettyMIDI object containing a single instrument track.
+    Optionally overrides note velocity.
     """
     pm = pretty_midi.PrettyMIDI(initial_tempo=tempo)
     inst = pretty_midi.Instrument(program=program, is_drum=is_drum)
     for start, end, pitch, vel in notes:
+        v = velocity_override if velocity_override is not None else vel
         inst.notes.append(pretty_midi.Note(
-            velocity=vel, pitch=pitch, start=start, end=end
+            velocity=v, pitch=pitch, start=start, end=end
         ))
     pm.instruments.append(inst)
     return pm
@@ -105,15 +80,9 @@ def build_midi(notes, program, is_drum=False, tempo=120.0):
 def render_with_fluidsynth(sf2_path, midi_path, wav_path, sample_rate, to_pcm_u8=True):
     """
     Render MIDI to WAV via FluidSynth.
-    Ensures output is mono. Optionally converts to 8-bit unsigned PCM (PCM_U8).
+    Ensures output is mono. Optionally converts to 8-bit unsigned PCM (PCM_16).
     Overwrites wav_path in place.
     """
-    import soundfile as sf
-    import numpy as np
-    import tempfile
-    import shutil
-
-    # 1. Render stereo (default fluidsynth output)
     cmd = [
         "fluidsynth", "-ni",
         sf2_path, midi_path,
@@ -122,45 +91,30 @@ def render_with_fluidsynth(sf2_path, midi_path, wav_path, sample_rate, to_pcm_u8
     ]
     subprocess.run(cmd, check=True)
 
-    # 2. Load, downmix to mono if needed
     data, sr = sf.read(wav_path)
     if data.ndim > 1:
         data = data.mean(axis=1)
-    
-    # 3. Write to temp file, converting to 8-bit unsigned PCM if requested
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         temp_wav = tmp.name
     if to_pcm_u8:
-        sf.write(temp_wav, data, sr, subtype='PCM_U8')
+        sf.write(temp_wav, data, sr, subtype='PCM_16')
     else:
         sf.write(temp_wav, data, sr)
-    # 4. Overwrite original file with the converted version
     shutil.move(temp_wav, wav_path)
 
-def combine_instrument_wavs(wav_folder, instrument_lines, base_name, sample_rate):
+def combine_instrument_wavs(wav_folder, instrument_rows, base_name, sample_rate):
     """
     Mix individual instrument WAVs into one mono 8-bit PCM WAV.
-    
-    - wav_folder: directory containing per-instrument files named
-      "{base_name}_{inst_idx}.wav"
-    - instrument_lines: list of instrument header strings ("Instrument N: …")
-    - base_name: common prefix for files
-    - sample_rate: expected sample rate (Hz)
+    - instrument_rows: list of Dicts from CSV.
     """
-    import os
-    import numpy as np
-    import soundfile as sf
-
-    # Load each instrument's wav
     tracks = []
     max_len = 0
-    for line in instrument_lines:
-        inst_idx = line.split(':')[0].split()[1]
+    for row in instrument_rows:
+        inst_idx = row["instrument_number"]
         path = os.path.join(wav_folder, f"{base_name}_{inst_idx}.wav")
         data, sr = sf.read(path)
         if sr != sample_rate:
             raise RuntimeError(f"Sample rate mismatch in {path}: {sr} != {sample_rate}")
-        # ensure mono
         if data.ndim > 1:
             data = data.mean(axis=1)
         tracks.append(data)
@@ -171,21 +125,49 @@ def combine_instrument_wavs(wav_folder, instrument_lines, base_name, sample_rate
     for track in tracks:
         mix[:track.shape[0]] += track
 
-    # Normalize to [-1..1]
     peak = np.max(np.abs(mix))
     if peak > 0:
         mix /= peak
 
-    # Write out as 8-bit unsigned PCM mono
     out_path = os.path.join(wav_folder, f"{base_name}.wav")
-    sf.write(out_path, mix, sample_rate, subtype='PCM_U8')
+    sf.write(out_path, mix, sample_rate, subtype='PCM_16')
     print(f"Wrote combined mix to {out_path}")
 
+def parse_instrument_defs_csv(csv_string):
+    """
+    Parse the multiline CSV string, return a list of dicts (one per row).
+    Skips lines beginning with # and empty lines.
+    """
+    lines = [
+        l for l in csv_string.strip().splitlines()
+        if l.strip() and not l.strip().startswith("#")
+    ]
+    # Use csv.DictReader on cleaned lines
+    reader = csv.DictReader(lines)
+    rows = []
+    for row in reader:
+        # Coerce fields
+        row["instrument_number"] = row["instrument_number"].strip()
+        row["bank"] = int(row["bank"])
+        row["preset"] = int(row["preset"])
+        row["is_drum"] = (row["is_drum"].strip().upper() == "TRUE")
+        row["velocity"] = int(row["velocity"])
+        row["sample_rate"] = int(row["sample_rate"])
+        row["sf2_path"] = row["sf2_path"].strip()
+        rows.append(row)
+    return rows
 
-def main(csv_path, instrument_line, sf2_path, sample_rate, output_wav):
-    # Parse the instrument header
-    inst_idx, bank, preset, name = parse_instrument_line(instrument_line)
-    print(f"Instrument {inst_idx}: bank={bank}, preset={preset}, name='{name}'")
+def main(csv_path, inst_row, base_name, wav_folder):
+    inst_idx    = inst_row["instrument_number"]
+    bank        = inst_row["bank"]
+    preset      = inst_row["preset"]
+    is_drum     = inst_row["is_drum"]
+    name        = inst_row["midi_instrument_name"]
+    velocity    = inst_row["velocity"]
+    sample_rate = inst_row["sample_rate"]
+    sf2_path    = inst_row["sf2_path"]
+
+    print(f"Instrument {inst_idx}: bank={bank}, preset={preset}, name='{name}', velocity={velocity}, is_drum={is_drum}")
 
     # Extract notes from the CSV
     notes = extract_instrument_notes(csv_path, inst_idx)
@@ -193,51 +175,61 @@ def main(csv_path, instrument_line, sf2_path, sample_rate, output_wav):
         raise RuntimeError(f"No notes found for Instrument {inst_idx} in {csv_path}")
 
     # Build a temporary MIDI file
-    pm = build_midi(notes, program=preset, is_drum=False)
+    pm = build_midi(notes, program=preset, is_drum=is_drum, velocity_override=velocity)
     with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tmp:
         midi_path = tmp.name
     pm.write(midi_path)
 
-    # Ensure output directory exists
+    # Output path
+    output_wav = os.path.join(wav_folder, f"{base_name}_{inst_idx}.wav")
     os.makedirs(os.path.dirname(output_wav), exist_ok=True)
 
-    # Render to WAV
     print(f"Rendering to {output_wav} at {sample_rate} Hz…")
     render_with_fluidsynth(sf2_path, midi_path, output_wav, sample_rate)
 
-    # Clean up
     os.remove(midi_path)
     print("Done.")
 
 # ── Configuration & Invocation ─────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    sf2_path = "midi/sf2/FluidR3_GM/FluidR3_GM.sf2"
-    sample_rate = 16384  # Hz
+    instrument_defs = """
+instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,velocity,sample_rate,sf2_path
+1,Piccolo,0,72,FALSE,Piccolo,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+2,Flute,0,73,FALSE,Flute,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,Oboe,0,68,FALSE,Oboe,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,Clarinet in A,0,71,FALSE,Clarinet,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Bassoon I,0,70,FALSE,Bassoon,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Bassoon II,0,70,FALSE,Bassoon,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+7,Horn in E I,0,60,FALSE,French Horns,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,Horn in E II,0,60,FALSE,French Horns,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,Trumpet in E,0,56,FALSE,Trumpet,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+11,Trombone I,0,57,FALSE,Trombone,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+12,Trombone II,0,57,FALSE,Trombone,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+13,Tuba,0,58,FALSE,Tuba,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 14,Bass Drum,128,0,TRUE,Standard,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 15,Cymbal,128,0,TRUE,Standard,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+16,Violin I,0,40,FALSE,Violin,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+17,Violin II,0,40,FALSE,Violin,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+18,Viola,0,41,FALSE,Viola,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+19,Cello,0,42,FALSE,Cello,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+20,Contrabass,0,43,FALSE,Contrabass,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+"""
+
     csv_folder = "midi/out"
     wav_folder = "midi/wav"
-    base_name = "Williams__Star_Wars_Theme"
+    base_name = "Mountain_King"
     csv_path = os.path.join(csv_folder, f"{base_name}.csv")
 
-    instrument_lines = [
-        "Instrument 1: Bank 0, Preset 70: Bassoon",
-        "Instrument 2: Bank 0, Preset 73: Flute",
-        "Instrument 3: Preset 60: French Horns",
-        "Instrument 4: Bank 0, Preset 56: Trumpet",
-        "Instrument 5: Bank 0, Preset 57: Trombone",
-        "Instrument 6: Bank 0, Preset 6: Harpsichord",
-        "Instrument 7: Bank 0, Preset 1: Bright Yamaha Grand",
-        "Instrument 8: Bank 0, Preset 48: Strings",
-        "Instrument 9: Bank 0, Preset 48: Strings",
-        "Instrument 10: Bank 0, Preset 48: Strings",
-        "Instrument 11: Bank 0, Preset 47: Timpani",
-        "Instrument 12: Bank 8, Preset 116: Concert Bass Drum",
-    ]
+    # Parse the instrument defs CSV
+    instrument_rows = parse_instrument_defs_csv(instrument_defs)
 
-    for instrument_line in instrument_lines:
-        output_wav = os.path.join(wav_folder, f"{base_name}_{instrument_line.split(':')[0].split()[1]}.wav")
-        main(csv_path, instrument_line, sf2_path, sample_rate, output_wav)
+    # Render each instrument
+    for row in instrument_rows:
+        main(csv_path, row, base_name, wav_folder)
 
-    # Combine all instrument WAVs into one
-    combine_instrument_wavs(wav_folder, instrument_lines, base_name, sample_rate)
+    # Use sample rate of the first instrument (or override as needed)
+    sample_rate = instrument_rows[0]["sample_rate"] if instrument_rows else 32000
+    combine_instrument_wavs(wav_folder, instrument_rows, base_name, sample_rate)
     print("All instruments rendered and combined.")

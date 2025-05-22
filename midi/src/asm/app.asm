@@ -75,22 +75,22 @@ enable_channels_cmd:
     db 23, 0, $85, 13, 8
     db 23, 0, $85, 14, 8
     db 23, 0, $85, 15, 8
-    ; db 23, 0, $85, 16, 8
-    ; db 23, 0, $85, 17, 8
-    ; db 23, 0, $85, 18, 8
-    ; db 23, 0, $85, 19, 8
-    ; db 23, 0, $85, 20, 8
-    ; db 23, 0, $85, 21, 8
-    ; db 23, 0, $85, 22, 8
-    ; db 23, 0, $85, 23, 8
-    ; db 23, 0, $85, 24, 8
-    ; db 23, 0, $85, 25, 8
-    ; db 23, 0, $85, 26, 8
-    ; db 23, 0, $85, 27, 8
-    ; db 23, 0, $85, 28, 8
-    ; db 23, 0, $85, 29, 8
-    ; db 23, 0, $85, 30, 8
-    ; db 23, 0, $85, 31, 8
+    db 23, 0, $85, 16, 8
+    db 23, 0, $85, 17, 8
+    db 23, 0, $85, 18, 8
+    db 23, 0, $85, 19, 8
+    db 23, 0, $85, 20, 8
+    db 23, 0, $85, 21, 8
+    db 23, 0, $85, 22, 8
+    db 23, 0, $85, 23, 8
+    db 23, 0, $85, 24, 8
+    db 23, 0, $85, 25, 8
+    db 23, 0, $85, 26, 8
+    db 23, 0, $85, 27, 8
+    db 23, 0, $85, 28, 8
+    db 23, 0, $85, 29, 8
+    db 23, 0, $85, 30, 8
+    db 23, 0, $85, 31, 8
 enable_channels_end:
 
     ld hl, set_adsr_envelopes
@@ -117,22 +117,22 @@ set_adsr_envelopes:
     db 23,0,0x85,13,6,1,0,0,0,0,127,DECAY_MS,0
     db 23,0,0x85,14,6,1,0,0,0,0,127,DECAY_MS,0
     db 23,0,0x85,15,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,16,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,17,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,18,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,19,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,20,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,21,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,22,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,23,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,24,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,25,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,26,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,27,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,28,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,29,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,30,6,1,0,0,0,0,127,DECAY_MS,0
-    ; db 23,0,0x85,31,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,16,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,17,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,18,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,19,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,20,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,21,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,22,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,23,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,24,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,25,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,26,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,27,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,28,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,29,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,30,6,1,0,0,0,0,127,DECAY_MS,0
+    db 23,0,0x85,31,6,1,0,0,0,0,127,DECAY_MS,0
 set_adsr_envelopes_end:
 
 
@@ -158,21 +158,7 @@ set_adsr_envelopes_end:
     include "apr.inc"
     include "samples.inc"
 
-    ; include "../../out/Beethoven__Moonlight_Sonata_v1.inc"
-    ; include "../../out/Beethoven__Moonlight_Sonata_v2.inc" 
-    ; include "../../out/Beethoven__Moonlight_Sonata_3rd_mvt.inc"
-    ; include "../../out/Beethoven__Ode_to_Joy.inc"
-    ; include "../../out/Brahms__Sonata_F_minor.inc" 
-    ; include "../../out/STARWARSTHEME.inc"
-    ; include "../../out/Williams__Star_Wars_Theme.inc"
-    include "../../out/Williams__Star_Wars_Theme_mod.inc"
-    ; include "../../out/Over_the_Rainbow.inc"
-    ; include "../../out/Williams__Raiders_of_the_Lost_Ark.inc"
-    ; include "../../out/Bond.inc"
-    ; include "../../out/Breakout.inc"
-
-    ; include "../../out/Bach__Harpsichord_Concerto_1_in_D_minor.inc"
-    ; include "../../out/Thoinot__Pavana.inc"
+    include "../../out/Mountain_King.inc"
 
 ; ###############################################
 ; Main loop
