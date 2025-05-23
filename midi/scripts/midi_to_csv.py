@@ -191,7 +191,7 @@ if __name__ == '__main__':
     in_dir = 'midi/in'
     out_dir = 'midi/out'
     
-    base_name = 'Mountain_King'
+    base_name = 'Valkyries'
 
     # Build file paths
     midi_file = f"{in_dir}/{base_name}.mid"

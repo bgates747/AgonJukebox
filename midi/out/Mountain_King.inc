@@ -1,5 +1,3 @@
-; Piano note data with dynamic channel assignment
-
 ; Format of each note record:
 ;     tnext_lo:     equ 0     ; next-note time low byte
 ;     tnext_hi:     equ 1     ; next-note time high byte

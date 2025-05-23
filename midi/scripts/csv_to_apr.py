@@ -107,7 +107,7 @@ def compute_required_sample_rates_and_durations(note_events_sum, max_harmonic, m
         if is_drum:
             # For drums: one sample per pitch, always at instrument_defs sample_rate
             plan = []
-            drum_sr = int(params.get('sample_rate', 16000))
+            drum_sr = int(params.get('sample_rate', 32000))
             for p, rec in pitch_map.items():
                 note_name = rec['note_name'] if rec['note_name'] else f"Drum{p}"
                 dur_ms = rec['max_dur_ms']
@@ -252,13 +252,13 @@ def print_sf_plan(sf_plan, defs):
         # echo the chosen pool-level parameters
         print(f"  Sample Rate: {data['sample_rate']}Hz\n")
 
-def render_sample(sf2_path, midi_pm, sample_rate):
+def render_sample(sf2_path, midi_pm, sample_rate, output_gain):
     # 1) Write the MIDI to a temp file
     with tempfile.NamedTemporaryFile(suffix=".mid", delete=False) as tmp_mid:
         midi_path = tmp_mid.name
         midi_pm.write(midi_path)
 
-    # 2) Render to a temp WAV via fluidsynth (fixed gain)
+    # 2) Render to a temp WAV via fluidsynth
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
 
@@ -268,7 +268,7 @@ def render_sample(sf2_path, midi_pm, sample_rate):
             sf2_path, midi_path,
             "-F", wav_path,
             "-r", str(sample_rate),
-            "-g", "3.0"
+            "-g", str(output_gain),
         ]
         # Suppress all fluidsynth console output
         subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -352,7 +352,7 @@ def choose_sample_rate(freq, min_sample_rate, max_sample_rate, max_harmonic=8):
     sample_rate = max(min_sample_rate, min(sample_rate, max_sample_rate))
     return sample_rate, h
 
-def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=16000):
+def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr=32000):
     """
     Trims both head and tail using *separate* thresholds for each.
     Finds first/last envelope crossings and trims to nearest zero-crossing.
@@ -426,7 +426,7 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
                 req_sr = native_sr
 
                 pm = make_single_note_pm(pitch, dur_s, velocity, preset, bank, is_drum=is_drum)
-                wav, _ = render_sample(sf2_path, pm, sr)
+                wav, _ = render_sample(sf2_path, pm, sr, output_gain=3.0)
 
                 if not is_drum:
                     freq = midi_to_hz(pitch)
@@ -758,31 +758,20 @@ def write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file):
         f.write("\n".join(filenames) + "\n")
 
 
-def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_channels, min_duration_ms, decay_ms):
-    """
-    Convert processed note events into an .inc assembly track, reusing
-    channels when the same note (pitch + soundfont) is already sounding
-    and has played for at least min_duration_ms.
-    """
-    from collections import defaultdict
-
-    # 1) Build pedal events list
-    all_pedal_events = []
-    for ev in control_events:
-        if ev['control_num'] == 64:
-            ev_type = 'sustain'
-        elif ev['control_num'] == 67:
-            ev_type = 'soft'
-        else:
-            continue
-        all_pedal_events.append({
-            'time':       ev['time'],
-            'value':      ev['value'],
-            'type':       ev_type,
+def extract_pedal_events(control_events):
+    pedal_types = {64: 'sustain', 67: 'soft'}
+    pedal_events = [
+        {
+            'time': ev['time'],
+            'value': ev['value'],
+            'type': pedal_types[ev['control_num']],
             'instrument': ev['instrument']
-        })
+        }
+        for ev in control_events if ev['control_num'] in pedal_types
+    ]
+    return pedal_events
 
-    # 2) Build controller map (for CC7 volume)
+def build_controller_map(control_events):
     ctrl_map = defaultdict(lambda: defaultdict(list))
     for ev in control_events:
         instr, cc = ev['instrument'], ev['control_num']
@@ -790,38 +779,84 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
     for instr_dict in ctrl_map.values():
         for lst in instr_dict.values():
             lst.sort(key=lambda x: x[0])
+    return ctrl_map
 
-    # 3) Sort notes & compute delta_ms
-    processed = sorted(notes, key=lambda n: n['start'])
-    for i in range(len(processed) - 1):
-        dt = processed[i+1]['start'] - processed[i]['start']
-        processed[i]['delta_ms'] = round(dt * 1000)
-    if processed:
-        processed[-1]['delta_ms'] = 0
+def compute_note_deltas(notes):
+    notes = sorted(notes, key=lambda n: n['start'])
+    for i in range(len(notes) - 1):
+        dt = notes[i+1]['start'] - notes[i]['start']
+        notes[i]['delta_ms'] = round(dt * 1000)
+    if notes:
+        notes[-1]['delta_ms'] = 0
+    return notes
 
-    # 4) Build unified timeline
+def build_unified_timeline(notes, pedal_events):
     timeline = (
-        [{'type': 'note',  'time': n['start'],        'data': n} for n in processed] +
-        [{'type': 'pedal', 'time': e['time'],         'data': e} for e in all_pedal_events]
+        [{'type': 'note',  'time': n['start'],  'data': n} for n in notes] +
+        [{'type': 'pedal', 'time': e['time'],   'data': e} for e in pedal_events]
     )
     timeline.sort(key=lambda x: x['time'])
+    return timeline
 
-    # 5) Prepare sample lookup: sfn -> list of (pitch, duration_ms)
-    sf_to_samples = {
+def build_sample_lookup(sf_plan):
+    return {
         sfn: [(s['pitch'], s['required_duration_ms']) for s in pool['samples']]
         for sfn, pool in sf_plan.items()
     }
 
-    # 6) Channel state
-    channel_release_time    = [0.0] * num_channels
-    channel_note_start      = [0.0] * num_channels
-    channel_current_sfn     = [None] * num_channels
-    channel_current_pitch   = [None] * num_channels
+def choose_channel(start_ms, sfn, sample_pitch, min_duration_ms, num_channels, state):
+    """
+    state: dict containing current channel state:
+        - 'release_time', 'note_start', 'current_sfn', 'current_pitch'
+    Returns: (chosen_channel, trunc_comment)
+    """
+    free_chs, stealable_chs = [], []
+    for ch in range(num_channels):
+        if state['current_sfn'][ch] != sfn or state['current_pitch'][ch] != sample_pitch:
+            if state['release_time'][ch] <= start_ms:
+                free_chs.append(ch)
+            continue
+        elapsed_ms = start_ms - state['note_start'][ch]
+        if elapsed_ms >= min_duration_ms:
+            stealable_chs.append(ch)
+        elif state['release_time'][ch] <= start_ms:
+            free_chs.append(ch)
+    if free_chs:
+        return free_chs[0], ""
+    elif stealable_chs:
+        oldest = min(stealable_chs, key=lambda c: state['note_start'][c])
+        trunc = f" [TRUNCATE prev:ch{oldest} @{state['note_start'][oldest]:.1f}ms -> {start_ms:.1f}ms]"
+        return oldest, trunc
+    else:
+        oldest = min(range(num_channels), key=lambda c: state['note_start'][c])
+        trunc = f" [TRUNCATE prev:ch{oldest} @{state['note_start'][oldest]:.1f}ms -> {start_ms:.1f}ms]"
+        return oldest, trunc
 
-    # 7) Write .inc
+def write_note_record(f, idx, note, dt_ms, dur_ms, sample_pitch, vel_final, inst, ch, freq, lo, hi, comment):
+    freq_lo, freq_hi = freq & 0xFF, (freq >> 8) & 0xFF
+    f.write(
+        f"    db {dt_ms & 0xFF},{(dt_ms >> 8) & 0xFF},"
+        f"{dur_ms & 0xFF},{(dur_ms >> 8) & 0xFF},"
+        f"{sample_pitch},{vel_final},{inst},{ch},"
+        f"{freq_lo},{freq_hi},{lo},{hi}  ; n{idx} {comment}\n"
+    )
+
+def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_channels, min_duration_ms, decay_ms):
+    pedal_events = extract_pedal_events(control_events)
+    ctrl_map     = build_controller_map(control_events)
+    notes        = compute_note_deltas(notes)
+    timeline     = build_unified_timeline(notes, pedal_events)
+    sf_to_samples = build_sample_lookup(sf_plan)
+
+    # Channel state
+    state = {
+        'release_time':  [0.0] * num_channels,
+        'note_start':    [0.0] * num_channels,
+        'current_sfn':   [None] * num_channels,
+        'current_pitch': [None] * num_channels,
+    }
+
     with open(output_file, 'w') as f:
-        # header comments
-        f.write("; Piano note data with dynamic channel assignment\n\n")
         f.write("; Format of each note record:\n")
         f.write(";     tnext_lo:     equ 0     ; next-note time low byte\n")
         f.write(";     tnext_hi:     equ 1     ; next-note time high byte\n")
@@ -836,7 +871,8 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
         f.write(";     buffer_id_lo: equ 10    ; buffer ID low byte\n")
         f.write(";     buffer_id_hi: equ 11    ; buffer ID high byte\n")
         f.write(";     bytes_per_note: equ 12  ; total fields per note\n\n")
-        f.write(f"total_notes: equ {len(processed)}\n")
+
+        f.write(f"total_notes: equ {len(notes)}\n")
         f.write("midi_data:\n")
 
         note_idx = 0
@@ -854,12 +890,12 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
             inst      = note['instrument']
             start_ms  = note['start'] * 1000
 
-            # locate sample
+            # Sample lookup
             sfn = defs.instnum_to_sf[inst]
             sample_info = sf_to_samples[sfn]
             sample_pitch, sample_duration = find_closest_sample(sample_info, pitch)
 
-            # compute durations
+            # Durations
             factor = 2 ** ((sample_pitch - pitch) / 12)
             sample_max = max(1, int(sample_duration * factor))
             dur_ms = int(note['duration'] * 1000)
@@ -867,61 +903,25 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
             dur_ms = max(dur_ms, min_duration_ms)
             occupy_ms = dur_ms + decay_ms
 
-            # frequency bytes
             freq = round(440 * 2 ** ((pitch - 69) / 12))
-            freq_lo, freq_hi = freq & 0xFF, (freq >> 8) & 0xFF
 
-            # volume from CC7
             cc7_list = ctrl_map[inst].get(7, [])
             volume = get_controller_value_at_time(cc7_list, note['start'], default=127)
-            # vel_final = int(round((note['velocity'] * volume) / 127))
             vel_final = volume
 
-            # ---------------- Channel selection logic: STACCATO SAFE ----------------
-            chosen_ch = None
-            free_chs = []
-            stealable_chs = []
+            # Channel selection
+            ch, trunc = choose_channel(
+                start_ms, sfn, sample_pitch, min_duration_ms, num_channels, state
+            )
 
-            for ch in range(num_channels):
-                # Not the same note? Consider for regular free/steal.
-                if channel_current_sfn[ch] != sfn or channel_current_pitch[ch] != sample_pitch:
-                    if channel_release_time[ch] <= start_ms:
-                        free_chs.append(ch)
-                    continue
+            # Update channel state
+            state['release_time'][ch]  = start_ms + occupy_ms
+            state['note_start'][ch]    = start_ms
+            state['current_sfn'][ch]   = sfn
+            state['current_pitch'][ch] = sample_pitch
 
-                # Same note, check min_duration_ms requirement
-                elapsed_ms = start_ms - channel_note_start[ch]
-                if elapsed_ms >= min_duration_ms:
-                    stealable_chs.append(ch)
-                elif channel_release_time[ch] <= start_ms:
-                    free_chs.append(ch)
-
-            trunc = ""
-            if free_chs:
-                chosen_ch = free_chs[0]
-            elif stealable_chs:
-                # Choose the oldest of those that can be stolen (i.e., played for >= min_duration_ms)
-                oldest = min(stealable_chs, key=lambda c: channel_note_start[c])
-                trunc = f" [TRUNCATE prev:ch{oldest} @{channel_note_start[oldest]:.1f}ms -> {start_ms:.1f}ms]"
-                chosen_ch = oldest
-            else:
-                # All channels busy or all “same note” are within min_duration_ms: steal oldest channel
-                oldest = min(range(num_channels), key=lambda c: channel_note_start[c])
-                trunc = f" [TRUNCATE prev:ch{oldest} @{channel_note_start[oldest]:.1f}ms -> {start_ms:.1f}ms]"
-                chosen_ch = oldest
-            # ------------------------------------------------------------------------
-
-            ch = chosen_ch
-            # update channel state
-            channel_release_time[ch]    = start_ms + occupy_ms
-            channel_note_start[ch]      = start_ms
-            channel_current_sfn[ch]     = sfn
-            channel_current_pitch[ch]   = sample_pitch
-
-            # buffer id
             lo, hi = defs.buffer_id_bytes(sample_pitch, sfn)
 
-            # assemble comment
             comment = f"t={note['start']:.3f}s dur={dur_ms}ms"
             if note.get('velocity_modified'):
                 ov = note['original_velocity']
@@ -932,15 +932,11 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
                 comment += f", sust {od}->{dur_ms}"
             comment += f", freq={freq}Hz, sample={sample_pitch}, buffer_id={hi:02X}:{lo:02X}{trunc}"
 
-            # write record
-            f.write(
-                f"    db {dt_ms & 0xFF},{(dt_ms >> 8) & 0xFF},"
-                f"{dur_ms & 0xFF},{(dur_ms >> 8) & 0xFF},"
-                f"{sample_pitch},{vel_final},{inst},{ch},"
-                f"{freq_lo},{freq_hi},{lo},{hi}  ; n{note_idx} {comment}\n"
+            write_note_record(
+                f, note_idx, note, dt_ms, dur_ms, sample_pitch, vel_final, inst, ch, freq, lo, hi, comment
             )
 
-        # end marker
+        # End marker
         f.write("    db 255,255,255,255,255,255,255,255,255,255,255,255  ; End marker\n")
 
 def assemble_app():
@@ -1009,8 +1005,103 @@ def package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, p
 
     print(f"Packaged: {archive_path}")
 
+# ------------------ RENDER TO .WAV WITH FLUIDSYNTH ------------------
+def apply_release_to_notes(notes, release_ms):
+    """
+    For each note (start, end, pitch, velocity), extend end by release_ms.
+    """
+    release_s = release_ms / 1000.0
+    return [
+        (start, end + release_s, pitch, velocity)
+        for (start, end, pitch, velocity) in notes
+    ]
+
+def render_instrument_wavs(instruments, note_events, defs, wav_dir, base_name, release_ms, sample_rate):
+    """
+    For each instrument in `instruments`, render its notes (with release)
+    into wav_dir/base_name_<inst_num>.wav
+    """
+    os.makedirs(wav_dir, exist_ok=True)
+    for fname in os.listdir(wav_dir):
+        if fname.startswith(base_name) and fname.endswith('.wav'):
+            os.remove(os.path.join(wav_dir, fname))
+
+    for inst_num in instruments:
+        # lookup soundfont params
+        sfn = defs.instnum_to_sf.get(inst_num)
+        if not sfn:
+            continue
+        params   = defs.params_for_sf(sfn)
+        preset   = int(params["preset"])
+        is_drum  = params["is_drum"]
+        velocity = int(params["velocity"])
+        name     = params.get("midi_instrument_name", f"Instr{inst_num}")
+
+        # collect and extend notes
+        raw_notes = [
+            (n["start"], n["end"], n["pitch"], n["velocity"])
+            for n in note_events if n["instrument"] == inst_num
+        ]
+        if not raw_notes:
+            continue
+        notes = apply_release_to_notes(raw_notes, release_ms)
+
+        # build a single‐track PrettyMIDI
+        pm = pretty_midi.PrettyMIDI(initial_tempo=120.0)
+        inst = pretty_midi.Instrument(program=preset, is_drum=is_drum, name=name)
+        for start, end, pitch, vel in notes:
+            v = velocity if velocity is not None else vel
+            inst.notes.append(pretty_midi.Note(
+                velocity=v, pitch=pitch, start=start, end=end
+            ))
+        pm.instruments.append(inst)
+
+        # render to WAV
+        wav_path = os.path.join(wav_dir, f"{base_name}_{inst_num}.wav")
+        data, sr = render_sample(params["sf2_path"], pm, sample_rate, output_gain=0.5)
+        if data.ndim > 1:
+            data = data.mean(axis=1)
+        sf.write(wav_path, data, sr, subtype="PCM_16")
+        print(f"Wrote instrument WAV: {wav_path}")
+
+def make_wav(instruments, note_events, defs, wav_dir, base_name, release_ms, sample_rate):
+    """
+    1) render each instrument into its own WAV under wav_dir
+    2) mix them all into wav_dir/base_name.wav with peak normalization
+    """
+    # Step 1: per-instrument renders
+    render_instrument_wavs(instruments, note_events, defs, wav_dir, base_name, release_ms, sample_rate)
+
+    # Step 2: collect and mix
+    tracks = []
+    max_len = 0
+    for inst_num in instruments:
+        path = os.path.join(wav_dir, f"{base_name}_{inst_num}.wav")
+        if not os.path.isfile(path):
+            continue
+        data, sr = sf.read(path, dtype="float32")
+        if sr != sample_rate:
+            raise RuntimeError(f"SR mismatch: {path} is {sr}, expected {sample_rate}")
+        if data.ndim > 1:
+            data = data.mean(axis=1)
+        tracks.append(data)
+        max_len = max(max_len, len(data))
+
+    # sum & normalize
+    mix = np.zeros(max_len, dtype=np.float32)
+    for t in tracks:
+        mix[: len(t)] += t
+    peak = np.max(np.abs(mix))
+    if peak > 0:
+        mix /= peak
+    mix = np.clip(mix, -0.98, 0.98)  # headroom
+
+    out_path = os.path.join(wav_dir, f"{base_name}.wav")
+    sf.write(out_path, mix, sample_rate, subtype="PCM_16")
+    print(f"Wrote combined mix to {out_path}")
+
 # ------------------ MAIN ------------------
-def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song):
+def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song, do_make_wav):
     # ---- Configuration and Metadata ----
     samples_base_dir = 'midi/tgt/Samples'
     asm_samples_dir = 'Samples'
@@ -1018,12 +1109,13 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
     midi_in_dir = 'midi/in'
     midi_out_dir = 'midi/out'
     pub_dir = 'midi/tgt/pub'
+    wav_dir = 'midi/wav'
 
     sustain_threshold = 1
     max_harmonic = 8
     min_interval = 1
     max_interval = 12
-    min_sample_rate = 16000
+    min_sample_rate = 32000
     min_trial_duration = 500
 
     num_channels = 32
@@ -1034,26 +1126,26 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
 
     instrument_defs = """
 instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,velocity,sample_rate,sf2_path
-1,Piccolo,0,72,FALSE,Piccolo,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-2,Flute,0,73,FALSE,Flute,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-3,Oboe,0,68,FALSE,Oboe,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-4,Clarinet in A,0,71,FALSE,Clarinet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-5,Bassoon I,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-6,Bassoon II,0,70,FALSE,Bassoon,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-7,Horn in E I,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-8,Horn in E II,0,60,FALSE,French Horns,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-9,Trumpet in E,0,56,FALSE,Trumpet,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-10,Timpani,0,47,FALSE,Timpani,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-11,Trombone I,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-12,Trombone II,0,57,FALSE,Trombone,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-13,Tuba,0,58,FALSE,Tuba,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-# 14,Bass Drum,128,0,TRUE,Standard,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-# 15,Cymbal,128,0,TRUE,Standard,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-16,Violin I,0,40,FALSE,Violin,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-17,Violin II,0,40,FALSE,Violin,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-18,Viola,0,41,FALSE,Viola,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-19,Cello,0,42,FALSE,Cello,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
-20,Contrabass,0,43,FALSE,Contrabass,127,16000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+1,Piccolo,0,72,FALSE,Piccolo,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+2,Flute,0,73,FALSE,Flute,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+3,Oboe,0,68,FALSE,Oboe,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+4,Clarinet in A,0,71,FALSE,Clarinet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+5,Bassoon I,0,70,FALSE,Bassoon,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+6,Bassoon II,0,70,FALSE,Bassoon,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+7,Horn in E I,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+8,Horn in E II,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+9,Trumpet in E,0,56,FALSE,Trumpet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+10,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+11,Trombone I,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+12,Trombone II,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+13,Tuba,0,58,FALSE,Tuba,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+# 14,Bass Drum,128,0,TRUE,Standard,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+# 15,Cymbal,128,0,TRUE,Standard,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+16,Violin I,0,40,FALSE,Violin,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+17,Violin II,0,40,FALSE,Violin,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+18,Viola,0,41,FALSE,Viola,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+19,Cello,0,42,FALSE,Cello,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+20,Contrabass,0,43,FALSE,Contrabass,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 """
 
     csv_file = f"{midi_out_dir}/{song}.csv"
@@ -1093,6 +1185,8 @@ instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,ve
     if do_package_song:
         package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, pub_dir, midi_in_dir)
 
+    if do_make_wav:
+        make_wav(instruments, note_events, defs, wav_dir, song, release_ms, min_sample_rate)
 
 if __name__ == '__main__':
 
@@ -1104,6 +1198,7 @@ if __name__ == '__main__':
     do_convert_to_assembly = True
     do_assemble_song = False
     do_package_song = False
+    do_make_wav = False
 
     # do_print_instrument_summary = True
     # do_print_sample_plan = True
@@ -1113,5 +1208,6 @@ if __name__ == '__main__':
     do_convert_to_assembly = True
     do_assemble_song = True
     do_package_song = True
+    # do_make_wav = True
 
-    main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song)
+    main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song, do_make_wav)

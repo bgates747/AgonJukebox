@@ -158,7 +158,7 @@ set_adsr_envelopes_end:
     include "apr.inc"
     include "samples.inc"
 
-    include "../../out/Mountain_King.inc"
+    include "../../out/Valkyries.inc"
 
 ; ###############################################
 ; Main loop

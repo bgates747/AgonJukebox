@@ -75,6 +75,8 @@ play_note:
 ; reset the note counter
     ld l,(iy+tnext_lo) ; low byte
     ld h,(iy+tnext_hi) ; high byte
+    dec hl
+    inc.s hl ; clear deu
     ld (note_counter),hl ; set the note counter
 
 ; check for eof
@@ -118,15 +120,6 @@ play_note:
                  db 4    ; set waveform command
                  db 8    ; waveform type: sample
     @bufferId:   dw 0x0000
-; ; set volume envelope command
-;                  db 23,0,0x85
-;     @channel3:   db 0x00
-;                  db 6    ; set volume envelope command
-;                  db 1    ; type 1 = plain ADSR
-;     @attack:     dw 0    ; attack (ms)
-;     @decay:      dw 0    ; decay (ms)
-;     @sustain:    db 127   ; sustain (0-255)
-;     @release:    dw 200  ; release (ms)
 ; play note command
                  db 23,0,0x85
     @channel2:   db 0x00
