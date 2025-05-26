@@ -1118,7 +1118,7 @@ def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples,
     min_sample_rate = 32000
     min_trial_duration = 500
 
-    num_channels = 32
+    num_channels = 8
     min_duration_ms = 100
     release_ms = 200
 
@@ -1135,7 +1135,7 @@ instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,ve
 7,Horn in E I,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 8,Horn in E II,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 9,Trumpet in E,0,56,FALSE,Trumpet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-10,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+# 10,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 11,Trombone I,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 12,Trombone II,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
 13,Tuba,0,58,FALSE,Tuba,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2

@@ -1,4 +1,4 @@
-num_samples: equ 112
+num_samples: equ 110
 
 ; Format: filename pointer, frequency, bufferId
 sample_dictionary:
@@ -72,10 +72,6 @@ sample_dictionary:
     dl fn_0941, 349, 0x0941 ; pitch=65 (F4)
     dl fn_0942, 370, 0x0942 ; pitch=66 (F#4)
     dl fn_094e, 740, 0x094e ; pitch=78 (F#5)
-; ---- Instrument 10: Timpani ----
-; SoundFont: Timpani, Bank: 0, Preset: 47
-    dl fn_0a2a, 92, 0x0a2a ; pitch=42 (F#2)
-    dl fn_0a2f, 123, 0x0a2f ; pitch=47 (B2)
 ; ---- Instrument 11: Trombone I ----
 ; SoundFont: Trombone, Bank: 0, Preset: 57
     dl fn_0b2a, 92, 0x0b2a ; pitch=42 (F#2)
@@ -215,10 +211,6 @@ sample_filenames:
     fn_0941: asciz "Samples/Trumpet/065.wav"
     fn_0942: asciz "Samples/Trumpet/066.wav"
     fn_094e: asciz "Samples/Trumpet/078.wav"
-; ---- Instrument 10: Timpani ----
-; SoundFont: Timpani, Bank: 0, Preset: 47
-    fn_0a2a: asciz "Samples/Timpani/042.wav"
-    fn_0a2f: asciz "Samples/Timpani/047.wav"
 ; ---- Instrument 11: Trombone I ----
 ; SoundFont: Trombone, Bank: 0, Preset: 57
     fn_0b2a: asciz "Samples/Trombone/042.wav"
