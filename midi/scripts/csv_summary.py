@@ -1,4 +1,3 @@
-import os
 import re
 from sf2utils.sf2parse import Sf2File
 
@@ -15,12 +14,6 @@ def extract_sf2_preset_map(sf2_path):
         }
 
 def parse_instruments_from_csv(csv_path):
-    """
-    Parses the new minimalist instrument blocks:
-    # Instrument 1: Bassoon
-    Bank,Program,Program Name,Is Drum
-    0,70,Bassoon,False
-    """
     with open(csv_path, "r") as f:
         lines = f.readlines()
 
@@ -89,8 +82,8 @@ def summarize_song_csv(csv_path, sf2_path):
 
 if __name__ == "__main__":
     midi_out_dir   = 'midi/out'
-    song_base_name = 'Valkyries'
+    song_base_name = 'Mountain_King'
     csv_path       = f"{midi_out_dir}/{song_base_name}.csv"
-    # sf2_path       = 'midi/sf2/FluidR3_GM/FluidR3_GM.sf2'
-    sf2_path       = 'midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2'
+    sf2_path       = 'midi/sf2/FluidR3_GM/FluidR3_GM.sf2'
+    # sf2_path       = 'midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2'
     summarize_song_csv(csv_path, sf2_path)

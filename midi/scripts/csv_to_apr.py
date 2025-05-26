@@ -397,6 +397,10 @@ def envelope_trim(wav, head_threshold=0.01, tail_threshold=0.03, window_ms=5, sr
     return wav[head_zc:tail_zc+1]
 
 def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, max_harmonic, min_trial_duration, do_generate_samples):
+    instrument_sample_counts = {}
+    instrument_file_sizes = {}
+    header_printed = False
+    
     if do_generate_samples:
         # Clean up files and folders in samples_base_dir
         if os.path.exists(samples_base_dir):
@@ -410,6 +414,12 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
             preset     = int(params['preset'])
             velocity   = int(params['velocity'])
             native_sr  = int(params['sample_rate'])
+            inst_num   = int(params['instrument_number'])
+
+            # Initialize tracking for this instrument
+            if inst_num not in instrument_sample_counts:
+                instrument_sample_counts[inst_num] = 0
+                instrument_file_sizes[inst_num] = 0
 
             out_folder = defs.folder_for_sf(samples_base_dir, sfn)
             os.makedirs(out_folder, exist_ok=True)
@@ -455,9 +465,42 @@ def generate_and_save_samples(sf_plan, defs, samples_base_dir, min_sample_rate, 
                 # <<< assert for debugging!
                 assert min_sample_rate <= sr <= native_sr, f"Sample rate {sr} not in [{min_sample_rate}, {native_sr}]"
 
-                print(f"Trimmed sample pitch {pitch}: {dur_s:.3f}s → {trimmed_len:.3f}s")
+                # print(f"Trimmed sample pitch {pitch}: {dur_s:.3f}s → {trimmed_len:.3f}s")
                 sf.write(out_path, wav, sr, subtype='PCM_U8')
-                print(f"Wrote {out_path} (sr={sr}Hz, dur≈{len(wav)/sr:.3f}s, is_drum={is_drum})")
+                
+                # Track file size and sample count
+                file_size = os.path.getsize(out_path)
+                instrument_sample_counts[inst_num] += 1
+                instrument_file_sizes[inst_num] += file_size
+                
+                # print(f"Wrote {out_path} (sr={sr}Hz, dur≈{len(wav)/sr:.3f}s, is_drum={is_drum})")
+            
+            # Print header if this is the first instrument
+            if not header_printed:
+                print("\n" + "="*60)
+                print("SAMPLE GENERATION SUMMARY")
+                print("="*60)
+                header_printed = True
+            
+            # Print summary for this instrument
+            sample_count = instrument_sample_counts[inst_num]
+            size_bytes = instrument_file_sizes[inst_num]
+            size_mb = size_bytes / (1024 * 1024)
+            
+            # Get instrument name
+            inst_name = params.get('midi_instrument_name', f"Instr{inst_num}")
+            
+            print(f"Instrument {inst_num:2d} ({inst_name:20s}): {sample_count:3d} samples, {size_mb:7.3f} MB")
+        
+        # Print total at the end
+        if header_printed:
+            total_samples = sum(instrument_sample_counts.values())
+            total_size_bytes = sum(instrument_file_sizes.values())
+            total_size_mb = total_size_bytes / (1024 * 1024)
+            print("-" * 60)
+            print(f"{'TOTAL':25s}: {total_samples:3d} samples, {total_size_mb:7.3f} MB")
+            print("="*60 + "\n")
+    
     return sf_plan
 
 # ------------------ Song CSV Parsing and Metadata Generation ------------------
@@ -716,7 +759,7 @@ def get_controller_value_at_time(cc_list, t, default=127):
 
 # ------------------ Sample INC Writer ------------------
 
-def write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file):
+def write_samples_inc(defs, sf_plan, asm_samples_dir, inc_file):
     entries = []
     filenames = []
     count = 0
@@ -748,14 +791,14 @@ def write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file):
             )
             count += 1
 
-    with open(samples_inc_file, 'w') as f:
+    with open(inc_file, 'w') as f:
         f.write(f"num_samples: equ {count}\n\n")
         f.write("; Format: filename pointer, frequency, bufferId\n")
         f.write("sample_dictionary:\n")
         f.write("\n".join(entries) + "\n\n")
         f.write("; Sample filename strings\n")
         f.write("sample_filenames:\n")
-        f.write("\n".join(filenames) + "\n")
+        f.write("\n".join(filenames) + "\n\n")
 
 
 def extract_pedal_events(control_events):
@@ -841,7 +884,7 @@ def write_note_record(f, idx, note, dt_ms, dur_ms, sample_pitch, vel_final, inst
         f"{freq_lo},{freq_hi},{lo},{hi}  ; n{idx} {comment}\n"
     )
 
-def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_channels, min_duration_ms, decay_ms):
+def write_notes_inc(notes, control_events, sf_plan, defs, output_file, num_channels, min_duration_ms, release_ms):
     pedal_events = extract_pedal_events(control_events)
     ctrl_map     = build_controller_map(control_events)
     notes        = compute_note_deltas(notes)
@@ -856,16 +899,16 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
         'current_pitch': [None] * num_channels,
     }
 
-    with open(output_file, 'w') as f:
+    with open(output_file, 'a') as f:
         f.write("; Format of each note record:\n")
         f.write(";     tnext_lo:     equ 0     ; next-note time low byte\n")
         f.write(";     tnext_hi:     equ 1     ; next-note time high byte\n")
         f.write(";     duration_lo:  equ 2     ; duration low byte\n")
         f.write(";     duration_hi:  equ 3     ; duration high byte\n")
-        f.write(";     pitch:        equ 4     ; MIDI pitch (0–127)\n")
-        f.write(";     velocity:     equ 5     ; MIDI velocity (0–127)\n")
-        f.write(";     instrument:   equ 6     ; instrument number (1–255)\n")
-        f.write(";     channel:      equ 7     ; channel number (0–31)\n")
+        f.write(";     pitch:        equ 4     ; MIDI pitch (0-127)\n")
+        f.write(";     velocity:     equ 5     ; MIDI velocity (0-127)\n")
+        f.write(";     instrument:   equ 6     ; instrument number (1-255)\n")
+        f.write(";     channel:      equ 7     ; channel number (0-31)\n")
         f.write(";     freq_lo:      equ 8     ; frequency low byte\n")
         f.write(";     freq_hi:      equ 9     ; frequency high byte\n")
         f.write(";     buffer_id_lo: equ 10    ; buffer ID low byte\n")
@@ -901,7 +944,7 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
             dur_ms = int(note['duration'] * 1000)
             dur_ms = min(dur_ms, sample_max)
             dur_ms = max(dur_ms, min_duration_ms)
-            occupy_ms = dur_ms + decay_ms
+            occupy_ms = dur_ms + release_ms
 
             freq = round(440 * 2 ** ((pitch - 69) / 12))
 
@@ -939,11 +982,37 @@ def convert_to_assembly(notes, control_events, sf_plan, defs, output_file, num_c
         # End marker
         f.write("    db 255,255,255,255,255,255,255,255,255,255,255,255  ; End marker\n")
 
-def assemble_app():
+def assemble_app(defs, sf_plan, note_events, control_events, asm_samples_dir, inc_file, num_channels, min_duration_ms, release_ms, app_asm_file):
     """
-    Assembles app.asm in midi/src/asm, outputs play.bin to midi/tgt,
+    Writes samples.inc and notes data to inc_file, modifies app_asm_file to include the song,
+    then assembles app.asm in midi/src/asm, outputs play.bin to midi/tgt, 
     and always restores the original working directory.
     """
+    # Write samples data to the head of inc_file
+    write_samples_inc(defs, sf_plan, asm_samples_dir, inc_file)
+    
+    # Append notes data to inc_file
+    write_notes_inc(note_events, control_events, sf_plan, defs, inc_file, num_channels, min_duration_ms, release_ms)
+    
+    # Extract song name from inc_file
+    song = os.path.splitext(os.path.basename(inc_file))[0]
+    
+    # Modify app_asm_file to include the correct song file
+    with open(app_asm_file, 'r') as f:
+        lines = f.readlines()
+    
+    # Find the line beginning with "; Song include file:" and replace the next line
+    for i, line in enumerate(lines):
+        if line.strip().startswith('; Song include file:'):
+            if i + 1 < len(lines):
+                lines[i + 1] = f'    include "../../out/{song}.inc"\n'
+            break
+    
+    # Write the modified file back
+    with open(app_asm_file, 'w') as f:
+        f.writelines(lines)
+    
+    # Now assemble
     original_dir = os.getcwd()
     try:
         asm_dir = os.path.join("midi", "src", "asm")
@@ -953,7 +1022,7 @@ def assemble_app():
     finally:
         os.chdir(original_dir)
 
-def package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, pub_dir, midi_in_dir):
+def package_song(samples_base_dir, song, csv_file, inc_file, pub_dir, midi_in_dir):
     """
     Packages up all the files for a given song into a tar.gz archive for publishing.
     Output: <pub_dir>/<song>.tar.gz
@@ -970,7 +1039,6 @@ def package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, p
 
     # 2. Copy samples_inc_file, csv_file, inc_file, scripts into src/
     files_to_copy = [
-        samples_inc_file,
         csv_file,
         inc_file,
         os.path.join("midi", "src", "asm", "app.asm"),
@@ -1101,51 +1169,44 @@ def make_wav(instruments, note_events, defs, wav_dir, base_name, release_ms, sam
     print(f"Wrote combined mix to {out_path}")
 
 # ------------------ MAIN ------------------
-def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song, do_make_wav):
+def main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_assemble_song, do_package_song, do_make_wav):
+
     # ---- Configuration and Metadata ----
     samples_base_dir = 'midi/tgt/Samples'
     asm_samples_dir = 'Samples'
-    samples_inc_file = 'midi/src/asm/samples.inc'
     midi_in_dir = 'midi/in'
     midi_out_dir = 'midi/out'
     pub_dir = 'midi/tgt/pub'
     wav_dir = 'midi/wav'
+    app_asm_file = 'midi/src/asm/app.asm'
 
     sustain_threshold = 1
     max_harmonic = 8
     min_interval = 1
     max_interval = 12
-    min_sample_rate = 32000
+    min_sample_rate = 16000
     min_trial_duration = 500
 
-    num_channels = 8
+    num_channels = 14
     min_duration_ms = 100
     release_ms = 200
 
-    song = 'Mountain_King'
+    song = 'Williams__Star_Wars_Theme'
 
     instrument_defs = """
 instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,velocity,sample_rate,sf2_path
-1,Piccolo,0,72,FALSE,Piccolo,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-2,Flute,0,73,FALSE,Flute,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-3,Oboe,0,68,FALSE,Oboe,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-4,Clarinet in A,0,71,FALSE,Clarinet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-5,Bassoon I,0,70,FALSE,Bassoon,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-6,Bassoon II,0,70,FALSE,Bassoon,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-7,Horn in E I,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-8,Horn in E II,0,60,FALSE,French Horns,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-9,Trumpet in E,0,56,FALSE,Trumpet,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-# 10,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-11,Trombone I,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-12,Trombone II,0,57,FALSE,Trombone,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-13,Tuba,0,58,FALSE,Tuba,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-# 14,Bass Drum,128,0,TRUE,Standard,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-# 15,Cymbal,128,0,TRUE,Standard,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-16,Violin I,0,40,FALSE,Violin,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-17,Violin II,0,40,FALSE,Violin,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-18,Viola,0,41,FALSE,Viola,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-19,Cello,0,42,FALSE,Cello,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
-20,Contrabass,0,43,FALSE,Contrabass,127,32000,midi/sf2/GeneralUser-GS/GeneralUser-GS.sf2
+1,Bassoon,0,70,FALSE,Bassoon,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+2,Flute,0,73,FALSE,Flute,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+3,French Horn,0,60,FALSE,French Horns,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+4,Trumpet,0,56,FALSE,Trumpet,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+5,Trombone,0,57,FALSE,Trombone,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+6,Orchestral Harp,0,46,FALSE,Harp,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+7,Bright Acoustic Piano,0,1,FALSE,Bright Yamaha Grand,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+8,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+9,String Ensemble 1,0,48,FALSE,Strings,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+10,Tremolo Strings,0,44,FALSE,Tremolo,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 11,Timpani,0,47,FALSE,Timpani,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
+# 12,Drum Kit,128,0,TRUE,Standard,127,32000,midi/sf2/FluidR3_GM/FluidR3_GM.sf2
 """
 
     csv_file = f"{midi_out_dir}/{song}.csv"
@@ -1173,17 +1234,11 @@ instrument_number,midi_instrument_name,bank,preset,is_drum,sf_instrument_name,ve
     if do_print_sf_plan:
         print_sf_plan(sf_plan, defs)
 
-    if do_write_samples_inc:
-        write_samples_inc(defs, sf_plan, asm_samples_dir, samples_inc_file)
-
-    if do_convert_to_assembly:
-        convert_to_assembly(note_events, control_events, sf_plan, defs, inc_file, num_channels, min_duration_ms, release_ms)
-
     if do_assemble_song:
-        assemble_app()
+        assemble_app(defs, sf_plan, note_events, control_events, asm_samples_dir, inc_file, num_channels, min_duration_ms, release_ms, app_asm_file)
 
     if do_package_song:
-        package_song(samples_base_dir, samples_inc_file, song, csv_file, inc_file, pub_dir, midi_in_dir)
+        package_song(samples_base_dir, song, csv_file, inc_file, pub_dir, midi_in_dir)
 
     if do_make_wav:
         make_wav(instruments, note_events, defs, wav_dir, song, release_ms, min_sample_rate)
@@ -1194,8 +1249,6 @@ if __name__ == '__main__':
     do_print_sample_plan = False
     do_generate_samples = False
     do_print_sf_plan = False
-    do_write_samples_inc = False
-    do_convert_to_assembly = True
     do_assemble_song = False
     do_package_song = False
     do_make_wav = False
@@ -1204,10 +1257,8 @@ if __name__ == '__main__':
     # do_print_sample_plan = True
     do_generate_samples = True
     # do_print_sf_plan = True
-    do_write_samples_inc = True
-    do_convert_to_assembly = True
     do_assemble_song = True
     do_package_song = True
     # do_make_wav = True
 
-    main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_write_samples_inc, do_convert_to_assembly, do_assemble_song, do_package_song, do_make_wav)
+    main(do_print_instrument_summary, do_print_sample_plan, do_generate_samples, do_print_sf_plan, do_assemble_song, do_package_song, do_make_wav)
