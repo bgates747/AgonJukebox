@@ -17,6 +17,7 @@ ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
 
 ; play_song state variables
 ; current active channel and bufferId's
+ps_volume: db 11 ; master volume 0-11
 ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_chunkpointer: dl 0 ; pointer to current chunk

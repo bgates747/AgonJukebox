@@ -23,6 +23,11 @@ get_input:
     jp z,bf_up_dir
 
 ; SONG PLAYING COMMANDS
+; set volume commands
+    cp '.' ; increase volume
+    jp z,ps_volume_up
+    cp ',' ; decrease volume
+    jp z,ps_volume_down
 ; set seek speed commands
     cp '-' ; slow down
     jp z,ps_seek_slow
@@ -213,6 +218,44 @@ bf_get_filinfo_from_pg_idx:
     ld iy,(iy) ; iy points to the filinfo record
     ret
 ; end bf_get_filinfo_from_pg_idx
+
+ps_volume_up:
+    ld a,(ps_volume)
+    cp 11 ; max volume
+    jp z,get_input ; already at max volume so return to input
+    inc a ; increase volume
+    jr ps_adjust_volume
+; end ps_volume_up
+
+ps_volume_down:
+    ld a,(ps_volume)
+    or a ; zero check for min volume
+    jp z,get_input ; already at min volume so return to input
+    dec a ; decrease volume
+    ; fall through to ps_adjust_volume
+; end ps_volume_down
+
+ps_adjust_volume:
+; save the new volume and set the volume for all channels
+    ld (ps_volume),a
+    ld b,a ; volume
+    ld c,12
+    mlt bc
+    ld b,c ; b = volume * 12
+    ld c,-1 ; channel -1 = global volume
+    call vdu_channel_volume
+; print the new volume
+    call vp_legend_volume
+    call vdu_cls
+    ld a,(ps_volume)
+    call printDec8 ; print the volume
+; restore the '<' character that got stomped on
+    call vdu_home_cursor
+    ld a,'<'
+    rst.lil 10h ; print the '<' character
+; return to user input
+    jp get_input
+; end ps_adjust_volume
 
 ps_toggle_pause:
     call vp_now_playing
