@@ -56,6 +56,18 @@ play_song:
 
 @@: 
     ld (ps_media_type),a ; save the media type
+
+; silence all potentially playing channels
+    ld a,pv_loaded_segments_max
+@silence_loop:
+    push af ; save loop counter
+    ld b,0 ; volume zero
+    ld c,a ; channel number
+    call vdu_channel_volume ; set channel 1 volume to 0
+    pop af ; restore loop counter
+    dec a
+    jr nz,@silence_loop ; loop for all channels
+
 ; copy the directory filinfo struct to ps_filinfo_struct
     lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
     ld de,ps_filinfo_struct ; destination address
@@ -67,6 +79,19 @@ play_song:
     asciz "(P)laying "
     ld hl,ps_filinfo_fname
     call printString ; print the song filename
+
+; set system sample rate to match the song sample rate
+    call vp_messages
+    call printInline
+    asciz "Audio sample rate:"
+    ld hl,(ps_wav_header+wav_sample_rate)
+    call printDec
+    ld c,-1 ; channel -1 = global sample rate
+    call vdu_set_sample_rate ; set the system sample rate
+
+; restore master volume to user's specified level
+    ld a,(ps_volume)
+    call ps_adjust_volume
 
 ; branch on .wav or .agm
     ld a,(ps_media_type)

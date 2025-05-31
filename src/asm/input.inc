@@ -224,7 +224,9 @@ ps_volume_up:
     cp 11 ; max volume
     jp z,get_input ; already at max volume so return to input
     inc a ; increase volume
-    jr ps_adjust_volume
+    ld (ps_volume),a
+    call ps_adjust_volume
+    jp get_input ; return to user input loop
 ; end ps_volume_up
 
 ps_volume_down:
@@ -232,12 +234,17 @@ ps_volume_down:
     or a ; zero check for min volume
     jp z,get_input ; already at min volume so return to input
     dec a ; decrease volume
-    ; fall through to ps_adjust_volume
+    ld (ps_volume),a
+    call ps_adjust_volume
+    jp get_input ; return to user input loop
 ; end ps_volume_down
 
+; adjust master volume
+; inputs: a = new volume (0-11)
+; outputs: prints the new volume to the screen
+; destroys: af, hl, bc
 ps_adjust_volume:
 ; save the new volume and set the volume for all channels
-    ld (ps_volume),a
     ld b,a ; volume
     ld c,12
     mlt bc
@@ -253,8 +260,7 @@ ps_adjust_volume:
     call vdu_home_cursor
     ld a,'<'
     rst.lil 10h ; print the '<' character
-; return to user input
-    jp get_input
+    ret
 ; end ps_adjust_volume
 
 ps_toggle_pause:

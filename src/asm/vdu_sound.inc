@@ -350,3 +350,42 @@ vdu_play_sample:
 @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
 @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
 @end:        db 0x00 ; padding
+
+; turn off audio output limiting
+; WARNING: using this command makes it the application's responsiblity to ensure 
+; that the audio output does not exceed the -128...+127 range, 
+; otherwise the sound will be clipped.
+; inputs: none
+; outputs: none
+; destroys: hl,bc
+; VDU 23, 0, &85, channel, 15, -1
+vdu_set_audio_limit_none:
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:       db 23, 0, 0x85
+@channel:   db 0x00 ; ignored (applies to all channels)
+            db 15 ; set audio limit command
+            db 0xFF ; -1 (no limiting)
+@end:
+
+; use default audio output limiting
+; inputs: none
+; outputs: none
+; destroys: hl,bc
+; VDU 23, 0, &85, channel, 15, 0
+vdu_set_audio_limit_default:
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:       db 23, 0, 0x85
+@channel:   db 0x00 ; ignored (applies to all channels)
+            db 15 ; set audio limit command
+            db 0x00 ; 0 (default limiting)
+@end:
+
+; use a pseudo-logarithmic compression for audio output limiting
+; inputs: a = mormalization factor --  (0-255)
+vdu_set_audio_limit_log_compress:
