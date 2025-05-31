@@ -32,7 +32,7 @@ def download_youtube_playlist(playlist_url, output_dir):
         raise
 
 if __name__ == "__main__":
-    playlist_url = "https://www.youtube.com/playlist?list=PLpoUYdDxb6P4-KapXl76dLxXVVJYkQK12"
+    playlist_url = "https://www.youtube.com/playlist?list=OLAK5uy_mpXHDLaHc5MmxcnJAcAnxT_OwPMRNz6k8"
     output_directory = "/home/smith/Agon/mystuff/assets/sound/music/staging"
     try:
         download_youtube_playlist(playlist_url, output_directory)

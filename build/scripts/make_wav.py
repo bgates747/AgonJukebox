@@ -3,6 +3,9 @@ import shutil
 import subprocess
 import re
 import json
+import shlex
+import soundfile as sf
+import numpy as np
 
 def compress_dynamic_range(input_path, output_path, codec):
     """
@@ -21,26 +24,29 @@ def compress_dynamic_range(input_path, output_path, codec):
         output_path                            # Output file
     ], check=True)
 
-def normalize_audio(input_path, output_path, codec):
+def normalize_audio(input_path, output_path):
     """
-    Normalizes the audio file to a consistent loudness level while preserving sample rate.
+    Remove DC offset & peak-normalize to 0 dBFS.
+    Reads any format supported by soundfile, writes 16-bit PCM WAV.
     """
-    # Get the input file's sample rate
-    source_sample_rate, _ = get_audio_metadata(input_path)
-
-    print("Normalizing audio...")
-    subprocess.run([
-        'ffmpeg',
-        '-hide_banner',
-        '-loglevel', 'error',
-        '-y',                                   # Overwrite output file
-        '-i', input_path,                       # Input file
-        '-ac', '1',                             # Ensure mono output
-        '-ar', str(source_sample_rate),         # Preserve sample rate
-        '-af', 'loudnorm=I=-20:TP=-2:LRA=11',   # Normalize settings
-        '-acodec', codec,                       # Preserve original codec
-        output_path                             # Output file
-    ], check=True)
+    # 1) Load as float32 (range –1.0…+1.0)
+    data, sr = sf.read(input_path, dtype='float32')
+    
+    # If multi-channel, collapse to mono by averaging
+    if data.ndim > 1:
+        data = data.mean(axis=1)
+    
+    # 2) Remove DC offset (center on 0.0)
+    data = data - np.mean(data)
+    
+    # 3) Peak-normalize
+    peak = np.max(np.abs(data))
+    if peak > 0:
+        data = data / peak
+    
+    # 4) Write out as 16-bit PCM WAV (you can change subtype as needed)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    sf.write(output_path, data, sr, subtype='PCM_16')
 
 def get_audio_metadata(file_path):
     """
@@ -200,86 +206,125 @@ def fix_wav_header_if_extensible(file_path):
 
     print("Converted WAVEFORMATEXTENSIBLE to standard PCM for:", file_path)
 
-
-def make_sfx(src_dir, tgt_dir, sample_rate, do_compression, do_normalization):
+def make_track(input_path, tgt_dir, sample_rate, do_compression, do_normalization):
     """
-    Processes audio files from the source directory and converts them into
-    8-bit unsigned PCM `.wav` files in the target directory with intermediate steps.
+    Processes a single audio file at input_path and writes the result
+    (8-bit PCM .wav) to tgt_dir under the same base filename.
     """
     os.makedirs(tgt_dir, exist_ok=True)
 
-    for filename in sorted(os.listdir(src_dir)):
-        if filename.lower().endswith(('.wav', '.mp3', '.flac')):
-            filename_base = re.sub(r'[^a-zA-Z0-9]', '_', os.path.splitext(filename)[0])
-            src_path = os.path.join(src_dir, filename)
-            tgt_path = os.path.join(tgt_dir, filename_base + '.wav')
-            temp_path = os.path.join(tgt_dir, "temp.wav")
+    # Build target paths
+    filename_only = os.path.basename(input_path)
+    base, ext = os.path.splitext(filename_only)
+    safe_base = re.sub(r'[^a-zA-Z0-9]', '_', base)
+    tgt_path = os.path.join(tgt_dir, safe_base + '.wav')
+    temp_path = os.path.join(tgt_dir, "temp.wav")
 
-            print(f"\nProcessing: {filename}")
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
+    print(f"\nProcessing track: {filename_only}")
 
-            # Get metadata for sample rate and codec
-            source_rate, codec = get_audio_metadata(src_path)
+    # Get metadata
+    source_rate, codec = get_audio_metadata(input_path)
+    target_rate = source_rate if sample_rate == -1 else sample_rate
 
-            # If sample_rate is -1, use the source file's sample rate
-            if sample_rate == -1:
-                target_rate = source_rate
-            else:
-                target_rate = sample_rate
+    # 1) Copy (or convert) to WAV if needed—always start from a WAV at tgt_path
+    if ext.lower() != '.wav':
+        convert_to_wav(input_path, temp_path, codec)
+        shutil.copy(temp_path, tgt_path)
+    else:
+        shutil.copy(input_path, tgt_path)
+    if os.path.exists(temp_path):
+        os.remove(temp_path)
 
-            # Convert to `.wav` if not already in `.wav` format
-            if not filename.lower().endswith('.wav'):
-                convert_to_wav(src_path, temp_path, codec)
-                shutil.copy(temp_path, tgt_path)
-                os.remove(temp_path)
-            else:
-                shutil.copy(src_path, tgt_path)
+    # 2) Dynamic range compression (optional)
+    if do_compression:
+        shutil.copy(tgt_path, temp_path)
+        compress_dynamic_range(temp_path, tgt_path, codec)
+        os.remove(temp_path)
 
-            # Apply dynamic range compression (optional)
-            if do_compression:
-                shutil.copy(tgt_path, temp_path)
-                compress_dynamic_range(temp_path, tgt_path, codec)
-                os.remove(temp_path)
+    # 3) Peak normalization (optional)
+    if do_normalization:
+        shutil.copy(tgt_path, temp_path)
+        normalize_audio(temp_path, tgt_path)
+        os.remove(temp_path)
 
-            # Apply loudness normalization (optional)
-            if do_normalization:
-                shutil.copy(tgt_path, temp_path)
-                normalize_audio(temp_path, tgt_path, codec)
-                os.remove(temp_path)
+    # 4) Resample if needed
+    if source_rate != target_rate:
+        shutil.copy(tgt_path, temp_path)
+        resample_wav(temp_path, tgt_path, target_rate, codec)
+        os.remove(temp_path)
+    else:
+        print("Skipping resampling (rates match)")
 
-            # Resample the audio (if needed)
-            if source_rate != target_rate:
-                shutil.copy(tgt_path, temp_path)
-                resample_wav(temp_path, tgt_path, target_rate, codec)
-                os.remove(temp_path)
-            else:
-                print("Skipping resampling: Source and target sample rates are the same.")
+    # 5) Convert to 8-bit unsigned PCM
+    shutil.copy(tgt_path, temp_path)
+    convert_to_unsigned_pcm_wav(temp_path, tgt_path, target_rate)
+    os.remove(temp_path)
 
-            # Convert to 8-bit unsigned PCM
-            shutil.copy(tgt_path, temp_path)
-            convert_to_unsigned_pcm_wav(temp_path, tgt_path, target_rate)
-            os.remove(temp_path)
+    # 6) Fix header if required
+    fix_wav_header_if_extensible(tgt_path)
 
-            # Fix the WAV header if it's in WAVEFORMATEXTENSIBLE format
-            fix_wav_header_if_extensible(tgt_path)
+    print(f"→ Finished: {tgt_path}")
 
-            print(f"Finished processing: {tgt_path}")
+def make_album(src_dir, tgt_dir, album_name, sample_rate):
+    os.makedirs(tgt_dir, exist_ok=True)
+    output_path = os.path.join(tgt_dir, album_name + '.wav')
+
+    # 1) Gather and sort input files
+    exts = ('.mp3', '.wav', '.flac')
+    files = [
+        os.path.join(src_dir, fn)
+        for fn in sorted(os.listdir(src_dir))
+        if fn.lower().endswith(exts)
+    ]
+    if not files:
+        print(f"No audio files in {src_dir}")
+        return
+
+    # 2) Process each track individually (to 8-bit PCM)
+    for input_path in files:
+        make_track(input_path, tgt_dir, sample_rate,
+                   do_compression=False, do_normalization=True)
+
+    # 3) Build concat list
+    list_file = os.path.join(tgt_dir, '__ffconcat.txt')
+    with open(list_file, 'w') as lf:
+        for input_path in files:
+            base = re.sub(r'[^a-zA-Z0-9]', '_',
+                          os.path.splitext(os.path.basename(input_path))[0])
+            processed_wav = os.path.join(tgt_dir, base + '.wav')
+            lf.write(f"file {shlex.quote(processed_wav)}\n")
+
+    # 4) Concatenate into one 8-bit PCM WAV
+    print(f"Creating album: {output_path}")
+    subprocess.run([
+        'ffmpeg',
+        '-hide_banner', '-loglevel', 'error',
+        '-y', '-f', 'concat', '-safe', '0',
+        '-i', list_file,
+        '-ac', '1',
+        '-ar', str(sample_rate),
+        '-acodec', 'pcm_u8',
+        output_path
+    ], check=True)
+
+    os.remove(list_file)
+    print("Album created successfully.")
+
 
 if __name__ == '__main__':
 ## Note: because the player streams audio data to VDP 60 times per second,
 ## optimal sample rate will be even multiples of 60.
     # sample_rate = 48000 # Typical YouTube audio quality
-    # sample_rate = 44100 # Typical CD quality
+    sample_rate = 44100 # Typical CD quality
     # sample_rate = 16384 # 'native' rate
     # sample_rate = 15360 # (256*60)
-    sample_rate = -1 # Use the source file's sample rate
+    # sample_rate = -1 # Use the source file's sample rate
     # sample_rate = 6000
     src_dir = '/home/smith/Agon/mystuff/assets/sound/music/staging'
-    tgt_dir = 'tgt/music'
+    tgt_dir = '/home/smith/Agon/mystuff/assets/sound/music/processed'
+    album_name = 'Cult__Electric_New'
 
-    do_compression = True
+    do_compression = False
     do_normalization = True
 
-    # Generate sound effects with intermediate steps directly in the target directory
-    make_sfx(src_dir, tgt_dir, sample_rate, do_compression, do_normalization)
+    make_album(src_dir, tgt_dir, album_name, sample_rate)
