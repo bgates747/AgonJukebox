@@ -24,7 +24,7 @@ ps_chunkpointer: dl 0 ; pointer to current chunk
 ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
 ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
 ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
-ps_seek_rate_idx: db 0 ; seek rate index
+ps_seek_rate_idx: db 0 ; seek rate indexs
     db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
 
 ps_chunks_per_second: equ 60 ; number of chunks to load per second

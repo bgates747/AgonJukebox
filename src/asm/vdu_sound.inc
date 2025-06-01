@@ -351,6 +351,13 @@ vdu_play_sample:
 @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
 @end:        db 0x00 ; padding
 
+vdu_audio_limit_method: db 1
+vdu_audio_limit_default: equ 1
+vdu_audio_limit_none: equ 2
+vdu_audio_limit_log_compress: equ 3
+vdu_audio_limit_constant_divisor: equ 4
+vdu_audio_limit_active_channels: equ 5
+
 ; turn off audio output limiting
 ; WARNING: using this command makes it the application's responsiblity to ensure 
 ; that the audio output does not exceed the -128...+127 range, 
@@ -367,8 +374,9 @@ vdu_set_audio_limit_none:
 @cmd:       db 23, 0, 0x85
 @channel:   db 0x00 ; ignored (applies to all channels)
             db 15 ; set audio limit command
-            db 0xFF ; -1 (no limiting)
+            db vdu_audio_limit_none
 @end:
+; end vdu_set_audio_limit_none
 
 ; use default audio output limiting
 ; inputs: none
@@ -383,9 +391,59 @@ vdu_set_audio_limit_default:
 @cmd:       db 23, 0, 0x85
 @channel:   db 0x00 ; ignored (applies to all channels)
             db 15 ; set audio limit command
-            db 0x00 ; 0 (default limiting)
+            db vdu_audio_limit_default
 @end:
+; end vdu_set_audio_limit_default
 
 ; use a pseudo-logarithmic compression for audio output limiting
-; inputs: a = mormalization factor --  (0-255)
+; inputs: see function body for parameters to set
+; outputs: none
+; destroys: hl,bc
+; VDU 23, 0, &85, channel, 15, 0
 vdu_set_audio_limit_log_compress:
+    ld hl,vdu_set_audio_limit_log_compress_cmd
+    ld bc,vdu_set_audio_limit_log_compress_end-vdu_set_audio_limit_log_compress_cmd
+    rst.lil $18
+    ret
+vdu_set_audio_limit_log_compress_cmd:       db 23, 0, 0x85
+            db 0x00 ; channel: ignored (applies to all channels)
+            db 15 ; set audio limit command
+            db vdu_audio_limit_log_compress
+vdu_audio_limit_log_compress_A: db 1 ; normalization factor
+vdu_audio_limit_log_compress_B: db 127 ; makeup gain (as a fraction of 127)
+vdu_audio_limit_log_compress_C: db 127 ; compression curve shaping factor
+vdu_set_audio_limit_log_compress_end:
+; end vdu_set_audio_limit_log_compress
+
+; use a constant divisor for audio output limiting
+; inputs: see function body for parameters to set
+; outputs: none
+; destroys: hl,bc
+vdu_set_audio_limit_constant_divisor:
+    ld hl,vdu_set_audio_limit_constant_divisor_cmd
+    ld bc,vdu_set_audio_limit_constant_divisor_end-vdu_set_audio_limit_constant_divisor_cmd
+    rst.lil $18
+    ret
+vdu_set_audio_limit_constant_divisor_cmd:       db 23, 0, 0x85
+            db 0x00 ; ignored (applies to all channels)
+            db 15 ; set audio limit command
+            db vdu_audio_limit_constant_divisor
+vdu_audio_limit_constant_divisor_A: db 1 ; constant divisor
+vdu_set_audio_limit_constant_divisor_end:
+; end vdu_set_audio_limit_constant_divisor
+
+; use the number of active channels for audio output limiting
+; inputs: see function body for parameters to set
+; outputs: none
+; destroys: hl,bc
+vdu_set_audio_limit_active_channels:
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:       db 23, 0, 0x85
+@channel:   db 0x00 ; ignored (applies to all channels)
+            db 15 ; set audio limit command
+            db vdu_audio_limit_active_channels
+@end:
+; end vdu_set_audio_limit_active_channels

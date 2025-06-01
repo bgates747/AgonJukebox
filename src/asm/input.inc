@@ -10,6 +10,10 @@ get_input:
     cp 'q' ; quit
     ret z
 
+; CHECK FOR FUNCTION KEYS
+    or a ; will be zero if function, alt, ctl, caps lock, or shift keys pressed
+    jp z,@check_fkeys
+
 ; FILE BROWSER COMMANDS
     cp 0x0B ; up arrow
     jp z,bf_prev_file
@@ -53,6 +57,19 @@ get_input:
 ; select song or directory
     cp '\r' ; ENTER key
     jp z,bf_select_file
+; audio limit update commands
+    cp 'd'
+    jp z,ps_set_audio_limit_settings
+    cp 'c'
+    jp z,ps_set_audio_limit_settings
+    cp 'f'
+    jp z,ps_set_audio_limit_settings
+    cp 'v'
+    jp z,ps_set_audio_limit_settings
+    cp 'g'
+    jp z,ps_set_audio_limit_settings
+    cp 'b'
+    jp z,ps_set_audio_limit_settings
 ; number key selections
     cp '0'
     jp c,@no_cmd ; not a song command
@@ -62,8 +79,45 @@ get_input:
     sub '0' ; a = file index
     ld (bf_file_idx),a
     jp bf_select_file
-@no_cmd: ; no valid commands so loop
+@no_cmd: ; no valid commands so go back to user input
     jp get_input
+
+@check_fkeys:
+    MOSCALL mos_getkbmap ; ix points to vdp-gl virtual keys map
+
+; check for audio limit update commands
+; 114 F1
+    bit 1,(ix+14)
+    jr z,@F
+    ld a,vdu_audio_limit_default
+    jp ps_set_audio_limit_method
+@@:
+; 115 F2
+    bit 2,(ix+14)
+    jr z,@F
+    ld a,vdu_audio_limit_none
+    jp ps_set_audio_limit_method
+@@:
+; 116 F3
+    bit 3,(ix+14)
+    jr z,@F
+    ld a,vdu_audio_limit_log_compress
+    jp ps_set_audio_limit_method
+@@:
+; 21 F4
+    bit 4,(ix+2)
+    jr z,@F
+    ld a,vdu_audio_limit_constant_divisor
+    jp ps_set_audio_limit_method
+@@:
+; 117 F5
+    bit 4,(ix+14)
+    jr z,@F
+    ld a,vdu_audio_limit_active_channels
+    jp ps_set_audio_limit_method
+@@:
+    jp get_input ; no valid function key pressed, return to input loop
+
 @play_song:
     call bf_highlight_file ; highlight the selected file
     jp play_song ; play the song
@@ -226,7 +280,7 @@ ps_volume_up:
     inc a ; increase volume
     ld (ps_volume),a
     call ps_adjust_volume
-    jp get_input ; return to user input loop
+    jp get_input
 ; end ps_volume_up
 
 ps_volume_down:
@@ -236,7 +290,7 @@ ps_volume_down:
     dec a ; decrease volume
     ld (ps_volume),a
     call ps_adjust_volume
-    jp get_input ; return to user input loop
+    jp get_input
 ; end ps_volume_down
 
 ; adjust master volume
@@ -424,3 +478,144 @@ ps_seek:
     jp get_input ; will reenable interrupts
 @seek_pos: dw32 0 ; temp buffer for seek position
 ; end ps_seek
+
+; set the audio limit method
+; inputs: a = value to set vdu_audio_limit_method
+; outputs: sets vdu_audio_limit_method
+; destroys: af, hl, bc
+ps_set_audio_limit_method:
+; update the audio limit method
+    ld (vdu_audio_limit_method),a
+; set the audio limit method to default
+    cp vdu_audio_limit_default
+    jr nz,@F
+    call vdu_set_audio_limit_default
+    jp get_input
+@@:
+; set the audio limit method to none
+    cp vdu_audio_limit_none
+    jr nz,@F
+    call vdu_set_audio_limit_none
+    jp get_input
+@@:
+; set the audio limit method to log compress
+    cp vdu_audio_limit_log_compress
+    jr nz,@F
+    call vdu_set_audio_limit_log_compress
+    jp get_input
+@@:
+; set the audio limit method to constant divisor
+    cp vdu_audio_limit_constant_divisor
+    jr nz,@F
+    call vdu_set_audio_limit_constant_divisor
+    jp get_input
+; set the audio limit method to active channels
+@@:
+    cp vdu_audio_limit_active_channels
+    call z,vdu_set_audio_limit_active_channels
+    jp get_input
+; end ps_set_audio_limit_method
+
+
+; set an audio limit parameter
+; inputs: a = ascii value of a valid audio limit control keypress
+; outputs: sets any of the vdu_audio_limit_* variables depending on the key pressed
+;          and the current value of vdu_audio_limit_method
+; destroys: always b, possibly af, hl, c depending on branch taken
+ps_set_audio_limit_settings:
+    ld b,a ; save the key pressed
+    ld a,(vdu_audio_limit_method) ; get the current audio limit method
+; branch on the method
+    cp vdu_audio_limit_log_compress
+    jr z,@log_compress
+    cp vdu_audio_limit_constant_divisor
+    jp nz,get_input ; no settings for any other method
+
+; set the constant divisor
+    ld a,b ; restore the key pressed
+    cp 'd' ; increase constant divisor
+    jr nz,@F
+    ld a,(vdu_audio_limit_constant_divisor_A) ; get the current constant divisor
+    cp 0xFF ; max value
+    jp z,get_input ; already at max value
+    inc a ; increase constant divisor
+    jr @set_divisor
+@@:
+    cp 'c' ; decrease constant divisor
+    jp nz,get_input ; no other settings for this method
+    ld a,(vdu_audio_limit_constant_divisor_A) ; get the current constant divisor
+    or a ; zero check
+    jp z,get_input ; already at min value
+    dec a ; decrease constant divisor
+    ; fall through to @set_divisor
+@set_divisor:
+    ld (vdu_audio_limit_constant_divisor_A),a
+    call vdu_set_audio_limit_constant_divisor
+    jp get_input
+
+@log_compress:
+    ld a,b ; restore the key pressed
+    cp 'd' ; increase normalization factor
+    jr nz,@F
+    ld a,(vdu_audio_limit_log_compress_A) ; get the current normalization factor
+    cp 0xFF ; max value
+    jp z,get_input ; already at max value
+    inc a ; increase normalization factor
+    jr @set_log_compress_A
+@@:
+    cp 'c' ; decrease normalization factor
+    jr nz,@F
+    ld a,(vdu_audio_limit_log_compress_A) ; get the current normalization factor
+    or a ; zero check
+    jp z,get_input ; already at min value
+    dec a ; decrease normalization factor
+    jr @set_log_compress_A
+@@:
+    cp 'f' ; increase makeup gain
+    jr nz,@F
+    ld a,(vdu_audio_limit_log_compress_B) ; get the current makeup gain
+    cp 0xFF ; max value
+    jp z,get_input ; already at max value
+    inc a ; increase makeup gain
+    jr @set_log_compress_B
+@@:
+    cp 'v' ; decrease makeup gain
+    jr nz,@F
+    ld a,(vdu_audio_limit_log_compress_B) ; get the current makeup gain
+    or a ; zero check
+    jp z,get_input ; already at min value
+    dec a ; decrease makeup gain
+    jr @set_log_compress_B
+@@:
+    cp 'b' ; increase compression curve shaping factor (decreases compression -- less loudness)
+    jr nz,@F
+    ld a,(vdu_audio_limit_log_compress_C) ; get the current compression curve shaping factor
+    cp 0xFF ; max value
+    jp z,get_input ; already at max value
+    inc a ; increase compression curve shaping factor
+    jr @set_log_compress_C
+@@:
+    cp 'g' ; decrease compression curve shaping factor (increases compression -- more loudness)
+    jp nz,get_input ; no other settings for this method
+    ld a,(vdu_audio_limit_log_compress_C) ; get the current compression curve shaping factor
+    or a ; zero check
+    jp z,get_input ; already at min value
+    dec a ; decrease compression curve shaping factor
+    ; fall through to @set_log_compress_C
+
+@set_log_compress_C:
+    ld (vdu_audio_limit_log_compress_C),a
+    call vdu_set_audio_limit_log_compress
+    jp get_input
+
+@set_log_compress_A:
+    ld (vdu_audio_limit_log_compress_A),a
+    call vdu_set_audio_limit_log_compress
+    jp get_input
+
+@set_log_compress_B:
+    ld (vdu_audio_limit_log_compress_B),a
+    call vdu_set_audio_limit_log_compress
+    jp get_input
+
+; end ps_set_audio_limit_settings
