@@ -22,6 +22,7 @@ EXPECTED_MODULES = (
     "soundfile",
     "pretty_midi",
     "fluidsynth",
+    "pygame",
     "agonutils",
 )
 EXPECTED_AGONUTILS_API = (
@@ -86,4 +87,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

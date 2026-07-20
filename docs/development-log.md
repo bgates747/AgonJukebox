@@ -16,8 +16,9 @@ Last updated: 2026-07-19
 - Initial project and codec documentation exists under `docs/`.
 - A project-local Python 3.14.6 runtime and `.venv` are available.
 - Most ordinary Python dependencies have been installed and import-tested.
-- `agonutils` is built and installed editable from the pinned submodule. Pygame
-  and `sf2utils` remain uninstalled.
+- `agonutils` is built and installed editable from the pinned submodule.
+  pygame-ce supplies the PC reference players' `pygame` API. `sf2utils` remains
+  uninstalled.
 - No codec implementation has been modified yet.
 - The custom VDP/MOS source and current VDP documentation are not yet available
   in the local working context.
@@ -307,6 +308,24 @@ registered `external/agon-utils`, fetched it from GitHub, and checked out the
 exact pinned commit successfully. The submodule dependency is now reproducible
 from the published repositories rather than relying on a local-only commit.
 
+### Pygame compatibility restored
+
+Upstream Pygame 2.6.1 does not publish CPython 3.14 wheels, and its source build
+requires additional SDL development packages. Installed and pinned pygame-ce
+2.5.7 instead; it publishes a CPython 3.14 manylinux wheel and provides the same
+`import pygame` API used by the repository.
+
+Headless validation passed for the PC reference players' required surfaces:
+
+- display initialization and frame flipping;
+- RGBA byte-buffer surface creation;
+- image scaling;
+- event polling and frame timing; and
+- mixer initialization and sound-buffer creation.
+
+Added `pygame` to the permanent environment verifier. The full verifier and
+`pip check` pass with pygame-ce installed.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
@@ -327,10 +346,9 @@ from the published repositories rather than relying on a local-only commit.
 3. Create a repository map distinguishing production, generated, experimental,
    archival, and MIDI-specific material.
 4. Reconcile the AGM compression-mask mismatch against VDP source and test data.
-5. Make the Python environment reproducible with reviewed dependency metadata.
-6. Restore the PC reference player, including Pygame, and establish a known-good
-   decode/playback baseline.
-7. Profile the current ESP32 SZIP and RLE2 decoders before designing replacements.
+5. Run the PC reference player against representative AGM media and establish a
+   known-good decode/playback baseline.
+6. Profile the current ESP32 SZIP and RLE2 decoders before designing replacements.
 
 ## Log maintenance convention
 
