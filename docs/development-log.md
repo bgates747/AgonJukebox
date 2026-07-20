@@ -16,7 +16,8 @@ Last updated: 2026-07-19
 - Initial project and codec documentation exists under `docs/`.
 - A project-local Python 3.14.6 runtime and `.venv` are available.
 - Most ordinary Python dependencies have been installed and import-tested.
-- Pygame, `sf2utils`, and `agonutils` are not installed.
+- Pygame, `sf2utils`, and `agonutils` are not installed. The `agonutils` source
+  repository has now been located and cloned locally.
 - No codec implementation has been modified yet.
 - The custom VDP/MOS source and current VDP documentation are not yet available
   in the local working context.
@@ -151,6 +152,19 @@ Other missing or external dependencies:
 The installed Python environment is not yet represented by a requirements or
 project metadata file, so it is functional but not fully reproducible.
 
+### External agon-utils repository cloned
+
+Cloned `bgates747/agon-utils` as an independent sibling repository:
+
+- Local path: `/home/smith/Projects/agon-utils`
+- Branch: `main`
+- Commit: `a3a2d2d47d962ce010b70d2adfaa2e3dd7dda220`
+- Commit date: 2025-04-17
+
+The clone was clean after checkout. It contains `src/agonutils.c` and a
+`setup.py`, so the historical `agonutils` Python extension can now be examined
+and built separately. It has not yet been installed into AgonVideo's `.venv`.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
@@ -165,8 +179,8 @@ project metadata file, so it is functional but not fully reproducible.
 
 ## Immediate next steps
 
-1. Locate `agonutils`, `sf2utils`, the historical SZIP source, and the custom VDP
-   decoder.
+1. Inspect and install the recovered `agonutils` extension; locate `sf2utils`,
+   the historical SZIP source, and the custom VDP decoder.
 2. Clone or identify local paths for current Agon VDP documentation, VDP source,
    and MOS source; record their exact commits.
 3. Create a repository map distinguishing production, generated, experimental,
