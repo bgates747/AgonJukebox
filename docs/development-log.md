@@ -240,6 +240,40 @@ Validated the documented fresh-checkout path with a separate recursive clone in
 `/tmp`: Git registered the submodule, cloned it from GitHub, and checked out the
 expected pinned commit successfully.
 
+### Standardized Python and agonutils setup implemented
+
+Created branch `agonvideo/modern-python-build` in the `agon-utils` submodule and
+committed the following changes as `6f076d3`:
+
+- renamed the ignored `project.toml` metadata to the standard
+  `pyproject.toml`;
+- made missing `pkg-config`, FFmpeg, and libpng build dependencies fail with
+  explicit messages;
+- removed hardcoded Linux/macOS include and library paths in favor of portable
+  `pkg-config` flags;
+- updated package metadata and installation documentation;
+- exposed the existing SIMZ file and in-memory entry points through the Python
+  module; and
+- added a SIMZ byte round-trip test.
+
+The legacy installation scripts were retained for downstream compatibility but
+are no longer part of the recommended workflow.
+
+Added the following AgonVideo-owned setup components:
+
+- `requirements.txt` with reviewed, pinned ordinary Python dependencies;
+- `scripts/check_native_deps.py` for read-only native prerequisite checks;
+- `scripts/setup_python.py` for submodule, virtual-environment, dependency, and
+  editable-extension setup; and
+- `scripts/verify_environment.py` for import, API, native dependency, and SIMZ
+  round-trip verification.
+
+Python syntax validation passes, and the dependency checker correctly reports
+the currently missing FFmpeg/libpng prerequisites. Automatic system installation
+was attempted, but `sudo` requires the user's password in an interactive
+terminal. Full extension build and environment verification remain pending that
+one manual system-package installation step.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.

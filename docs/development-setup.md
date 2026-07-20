@@ -57,24 +57,57 @@ first determining whether it contains uncommitted work.
 
 ## Python environment
 
-The local virtual environment is intentionally ignored by Git:
+The preferred setup command is:
+
+```bash
+python3.14 scripts/setup_python.py
+```
+
+It initializes submodules, creates `.venv` when necessary, checks native
+dependencies, installs the pinned packages in `requirements.txt`, installs
+`agonutils` from the repo-relative submodule, and verifies the resulting
+environment. When `.venv` already exists, it is reused.
+
+The local virtual environment is intentionally ignored by Git. It can be
+activated manually with:
 
 ```bash
 source .venv/bin/activate
 python --version
 ```
 
-The current development environment uses Python 3.14.6. The installed package
-set has not yet been captured as reviewed dependency metadata, so environment
-creation is not yet fully reproducible.
+The current development environment uses Python 3.14.6. Ordinary Python
+dependencies are pinned in `requirements.txt`.
 
-`agonutils` is a native CPython extension and is not installed yet. Its eventual
-editable-development command will be run explicitly with AgonVideo's Python:
+### Native prerequisites
+
+The media pipeline and `agonutils` require a C compiler, `pkg-config`, FFmpeg,
+the FFmpeg development libraries, and libpng development headers. Check them
+without changing the system:
+
+```bash
+.venv/bin/python scripts/check_native_deps.py
+```
+
+On Debian or Ubuntu, install them with:
+
+```bash
+sudo apt-get update
+sudo apt-get install -y \
+  pkg-config ffmpeg libavformat-dev libavcodec-dev \
+  libswscale-dev libavutil-dev libpng-dev
+```
+
+The bootstrap installs `agonutils` in editable mode explicitly with AgonVideo's
+Python. The equivalent standalone command is:
 
 ```bash
 .venv/bin/python -m pip install -e external/agon-utils
 ```
 
-Do not run this until the native FFmpeg/libpng development dependencies and the
-known `agon-utils` packaging issues have been addressed.
+Verify all imports, the expected `agonutils` API, native dependencies, and a
+SIMZ in-memory round trip with:
 
+```bash
+.venv/bin/python scripts/verify_environment.py
+```
