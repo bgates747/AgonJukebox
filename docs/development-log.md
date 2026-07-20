@@ -16,8 +16,8 @@ Last updated: 2026-07-19
 - Initial project and codec documentation exists under `docs/`.
 - A project-local Python 3.14.6 runtime and `.venv` are available.
 - Most ordinary Python dependencies have been installed and import-tested.
-- Pygame, `sf2utils`, and `agonutils` are not installed. The `agonutils` source
-  is pinned as an AgonVideo submodule.
+- `agonutils` is built and installed editable from the pinned submodule. Pygame
+  and `sf2utils` remain uninstalled.
 - No codec implementation has been modified yet.
 - The custom VDP/MOS source and current VDP documentation are not yet available
   in the local working context.
@@ -274,6 +274,28 @@ was attempted, but `sudo` requires the user's password in an interactive
 terminal. Full extension build and environment verification remain pending that
 one manual system-package installation step.
 
+### Native build and environment validation completed
+
+After the native packages were installed manually, the standardized bootstrap
+completed successfully:
+
+- the native dependency check found the compiler, `pkg-config`, FFmpeg, libpng,
+  and all required FFmpeg libraries;
+- `agonutils` 1.1.0 built as an editable CPython 3.14 extension;
+- the extension loaded from
+  `external/agon-utils/agonutils.cpython-314-x86_64-linux-gnu.so`;
+- all expected Python packages imported successfully;
+- all expected image and SIMZ entry points were present;
+- a 4,096-byte SIMZ in-memory round trip passed;
+- the `agon-utils` smoke test passed;
+- `pip check` reported no broken requirements; and
+- dynamic linkage resolved the expected FFmpeg and libpng shared libraries.
+
+The bootstrap is now operational on this machine. Pygame and `sf2utils` remain
+separate follow-up dependencies. The updated `agon-utils` commit is still local
+to its feature branch and must be pushed before a remote recursive clone can
+retrieve the new submodule revision.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
@@ -288,8 +310,8 @@ one manual system-package installation step.
 
 ## Immediate next steps
 
-1. Inspect and install the recovered `agonutils` extension; locate `sf2utils`,
-   the historical SZIP source, and the custom VDP decoder.
+1. Publish the tested `agon-utils` feature branch so fresh recursive clones can
+   retrieve the pinned revision; locate `sf2utils` and the custom VDP decoder.
 2. Clone or identify local paths for current Agon VDP documentation, VDP source,
    and MOS source; record their exact commits.
 3. Create a repository map distinguishing production, generated, experimental,
