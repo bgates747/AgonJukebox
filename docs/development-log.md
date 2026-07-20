@@ -17,7 +17,7 @@ Last updated: 2026-07-19
 - A project-local Python 3.14.6 runtime and `.venv` are available.
 - Most ordinary Python dependencies have been installed and import-tested.
 - Pygame, `sf2utils`, and `agonutils` are not installed. The `agonutils` source
-  repository has now been located and cloned locally.
+  is pinned as an AgonVideo submodule.
 - No codec implementation has been modified yet.
 - The custom VDP/MOS source and current VDP documentation are not yet available
   in the local working context.
@@ -219,6 +219,22 @@ Recommended eventual installation sequence:
    representative image/AGM/SIMZ operations.
 
 No source was modified and `agonutils` remains uninstalled pending those fixes.
+
+### agon-utils submodule introduced
+
+Added `bgates747/agon-utils` at `external/agon-utils` as a Git submodule, pinned
+to commit `a3a2d2d47d962ce010b70d2adfaa2e3dd7dda220`. The submodule source is clean
+and matches the previously inspected sibling checkout. No `agon-utils` source
+was modified.
+
+The inherited `.gitignore` contained unanchored `agon-utils` rules, which caused
+Git to reject the first submodule-add attempt before making changes. Those
+obsolete rules were removed and the submodule was then added normally without
+forcing ignored content.
+
+Created `docs/development-setup.md` with fresh-clone, existing-clone, status, and
+safe submodule-development instructions. The sibling checkout at
+`/home/smith/Projects/agon-utils` remains untouched as a temporary fallback.
 
 ## Decisions
 
