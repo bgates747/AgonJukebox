@@ -296,6 +296,17 @@ separate follow-up dependencies. The updated `agon-utils` commit is still local
 to its feature branch and must be pushed before a remote recursive clone can
 retrieve the new submodule revision.
 
+### agon-utils development branch published
+
+Pushed `agonvideo/modern-python-build` to the public `bgates747/agon-utils`
+repository without changing its `main` branch. The remote branch resolves to
+commit `6f076d31bb4f68346bd9a7b89792d8ef2f57d78d`.
+
+Validated publication with a new recursive AgonVideo clone in `/tmp`. The clone
+registered `external/agon-utils`, fetched it from GitHub, and checked out the
+exact pinned commit successfully. The submodule dependency is now reproducible
+from the published repositories rather than relying on a local-only commit.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
@@ -310,8 +321,7 @@ retrieve the new submodule revision.
 
 ## Immediate next steps
 
-1. Publish the tested `agon-utils` feature branch so fresh recursive clones can
-   retrieve the pinned revision; locate `sf2utils` and the custom VDP decoder.
+1. Locate `sf2utils` and the custom VDP decoder.
 2. Clone or identify local paths for current Agon VDP documentation, VDP source,
    and MOS source; record their exact commits.
 3. Create a repository map distinguishing production, generated, experimental,
