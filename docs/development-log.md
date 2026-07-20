@@ -326,6 +326,17 @@ Headless validation passed for the PC reference players' required surfaces:
 Added `pygame` to the permanent environment verifier. The full verifier and
 `pip check` pass with pygame-ce installed.
 
+### Project interpreter standardized for the IDE
+
+Diagnosed missing NumPy and Pygame imports in
+`build/scripts/test_differencing_playback.py`: its environment-resolving shebang
+selected `/usr/bin/python3`, which has neither package, while AgonVideo's
+`.venv/bin/python` imports both successfully.
+
+Added a committed `.vscode/settings.json` selecting the project virtual
+environment and enabling integrated-terminal activation. Updated development
+setup documentation with IDE reload and explicit terminal invocation guidance.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.

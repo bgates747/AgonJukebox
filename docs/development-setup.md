@@ -79,6 +79,24 @@ python --version
 The current development environment uses Python 3.14.6. Ordinary Python
 dependencies are pinned in `requirements.txt`.
 
+VS Code-compatible editors are configured through `.vscode/settings.json` to
+use `${workspaceFolder}/.venv/bin/python` and activate the environment in new
+integrated terminals. After initially creating `.venv`, reload the editor window
+if its Python analyzer still reports missing imports.
+
+For direct terminal execution, either activate the environment first:
+
+```bash
+source .venv/bin/activate
+python build/scripts/test_differencing_playback.py
+```
+
+or invoke its interpreter explicitly:
+
+```bash
+.venv/bin/python build/scripts/test_differencing_playback.py
+```
+
 ### Native prerequisites
 
 The media pipeline and `agonutils` require a C compiler, `pkg-config`, FFmpeg,
