@@ -236,6 +236,10 @@ Created `docs/development-setup.md` with fresh-clone, existing-clone, status, an
 safe submodule-development instructions. The sibling checkout at
 `/home/smith/Projects/agon-utils` remains untouched as a temporary fallback.
 
+Validated the documented fresh-checkout path with a separate recursive clone in
+`/tmp`: Git registered the submodule, cloned it from GitHub, and checked out the
+expected pinned commit successfully.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
