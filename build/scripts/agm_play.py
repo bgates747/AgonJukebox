@@ -10,6 +10,12 @@ import time
 
 import agonutils as au  # for rgba2_to_img, etc.
 
+PROJECT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+AGON_UTILS_DIRECTORY = os.path.join(PROJECT_DIRECTORY, "external", "agon-utils", "utils")
+TVC_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "tvc", "tvc")
+RLE2_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "rle", "rle2")
+SZIP_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "sz112b", "szip")
+
 WAV_HEADER_SIZE = 76
 AGM_HEADER_SIZE = 68
 SEGMENT_HEADER_SIZE = 8  # (lastSegmentSize, thisSegmentSize)
@@ -79,7 +85,7 @@ def decompress_tvc_to_ram(compressed_data):
         tmp_tvc_name = tmp_tvc.name
 
     try:
-        subprocess.run(["tvc", "-d", tmp_in_name, tmp_tvc_name], check=True)
+        subprocess.run([TVC_EXECUTABLE, "-d", tmp_in_name, tmp_tvc_name], check=True)
     except subprocess.CalledProcessError as e:
         os.remove(tmp_in_name)
         os.remove(tmp_tvc_name)
@@ -107,7 +113,7 @@ def decompress_srle2_to_ram(compressed_data):
         tmp_szip_name = tmp_szip.name
 
     try:
-        subprocess.run(["szip", "-d", tmp_in_name, tmp_szip_name], check=True)
+        subprocess.run([SZIP_EXECUTABLE, "-d", tmp_in_name, tmp_szip_name], check=True)
     except subprocess.CalledProcessError as e:
         os.remove(tmp_in_name)
         os.remove(tmp_szip_name)
@@ -127,7 +133,7 @@ def decompress_srle2_to_ram(compressed_data):
         tmp_rle2_out_name = tmp_rle2_out.name
 
     try:
-        subprocess.run(["rle2", "-d", tmp_rle2_in_name, tmp_rle2_out_name], check=True)
+        subprocess.run([RLE2_EXECUTABLE, "-d", tmp_rle2_in_name, tmp_rle2_out_name], check=True)
     except subprocess.CalledProcessError as e:
         os.remove(tmp_rle2_in_name)
         os.remove(tmp_rle2_out_name)
@@ -324,8 +330,10 @@ def play_agm(filepath):
 SCALE_FACTOR = 2
 
 if __name__ == "__main__":
-    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_srle2_bayer.agm"
-    agm_path = "tgt/video/Star_Wars__Battle_of_Yavin_tvc_bayer.agm"
+    agm_path = os.path.join(
+        PROJECT_DIRECTORY,
+        "tgt", "video", "Star_Wars__Battle_of_Yavin_srle2_bayer_10_240.agm",
+    )
     if not os.path.exists(agm_path):
         print(f"Error: AGM file not found at '{agm_path}'")
     else:

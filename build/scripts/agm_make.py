@@ -19,6 +19,12 @@ from make_wav import (
 )
 import agonutils as au
 
+PROJECT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+AGON_UTILS_DIRECTORY = os.path.join(PROJECT_DIRECTORY, "external", "agon-utils", "utils")
+TVC_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "tvc", "tvc")
+RLE2_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "rle", "rle2")
+SZIP_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "sz112b", "szip")
+
 # ------------------- Unit Header Mask Definitions -------------------
 AGM_UNIT_TYPE       = 0b10000000  # Bit 7: 1 = video; 0 = audio
 AGM_UNIT_GCOL       = 0b00000111  # Bits 0-2: GCOL plotting mode (set to 0 here)
@@ -44,7 +50,7 @@ def remove_temp_files(*file_paths):
 def compress_with_tvc(input_path, output_path):
     """Compress a file using tvc."""
     subprocess.run(
-        ["tvc", "-c", input_path, output_path],
+        [TVC_EXECUTABLE, "-c", input_path, output_path],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=True
@@ -53,7 +59,7 @@ def compress_with_tvc(input_path, output_path):
 def compress_with_rle2(input_path, output_path):
     """Compress a file using rle2."""
     subprocess.run(
-        ["rle2", "-c", input_path, output_path],
+        [RLE2_EXECUTABLE, "-c", input_path, output_path],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=True
@@ -62,7 +68,7 @@ def compress_with_rle2(input_path, output_path):
 def compress_with_szip(input_path, output_path):
     """Compress a file using szip."""
     subprocess.run(
-        ["szip", "-b41o3", input_path, output_path],
+        [SZIP_EXECUTABLE, "-b41o3", input_path, output_path],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
         check=True
@@ -314,7 +320,8 @@ def download_video(staged_video_path):
     print(f"download_video: {youtube_url} To: {staged_video_path}")
 
     command = [
-        "yt-dlp",
+        sys.executable,
+        "-m", "yt_dlp",
         "--restrict-filenames",
         "--format", "mp4",
         "--output", staged_video_path,
@@ -343,7 +350,8 @@ def download_audio(staged_audio_path, audio_sample_rate):
     print(f"download_audio to {staged_audio_path}")
 
     command = [
-        "yt-dlp",
+        sys.executable,
+        "-m", "yt_dlp",
         "--restrict-filenames",
         "--extract-audio",
         "--audio-format", "wav",
@@ -577,7 +585,10 @@ if __name__ == "__main__":
     staging_directory   = "/home/smith/Agon/mystuff/assets/video/staging"
     frames_directory    = "/home/smith/Agon/mystuff/assets/video/frames"
     target_directory    = "tgt/video"
-    palette_filepath = '/home/smith/Agon/mystuff/assets/images/palettes/Agon64.gpl'
+    palette_filepath = os.path.join(
+        PROJECT_DIRECTORY,
+        "external", "agon-utils", "examples", "palettes", "Agon64.gpl",
+    )
     transparent_rgb = (0, 0, 0, 0)
     bytes_per_sec = 57600  # 60*960
     target_sample_rate = 15360  # 16*960 
@@ -589,11 +600,11 @@ if __name__ == "__main__":
     do_remove_letterbox = True
     
     duration  = 120
-    frame_rate    = 10
+    frame_rate    = 24
 
     palette_conversion_method = 'bayer'
     compression_type = 'srle2'
-    target_width  = 240
+    target_width  = 320
 
     # palette_conversion_method = 'bayer'
     # compression_type = 'tvc'
@@ -609,8 +620,11 @@ if __name__ == "__main__":
     target_agm_path = os.path.join(target_directory, f"{video_target_name}_{compression_type}_{palette_conversion_method}_{frame_rate:02d}_{target_width}.agm")
     output_frames_path = os.path.join(staging_directory, f"{video_base_name}_{palette_conversion_method}.frames")
 
-    # download_video(staged_video_path)
-    # download_audio(staged_audio_path, target_sample_rate)
+    for directory in (staging_directory, frames_directory, target_directory):
+        os.makedirs(directory, exist_ok=True)
+
+    download_video(staged_video_path)
+    download_audio(staged_audio_path, target_sample_rate)
 
     # preprocess_audio(staged_audio_path)
     convert_audio(staged_audio_path, target_audio_path)
