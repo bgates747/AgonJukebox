@@ -10,6 +10,8 @@ implementation.
 
 ## Documents
 
+- [Development log](development-log.md) — chronological record, current status,
+  decisions, blockers, and immediate next steps.
 - [Project overview](project-overview.md) — existing application, target system,
   and intended video extension.
 - [Codec and throughput](codec-and-throughput.md) — current video pipeline,
@@ -24,4 +26,3 @@ implementation.
   provenance will be documented after the original source is imported.
 - **Delta framing** — the project's informal name for replacing a pixel with
   zero when it matches the pixel at the same position in the previous frame.
-
