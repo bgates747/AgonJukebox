@@ -165,6 +165,61 @@ The clone was clean after checkout. It contains `src/agonutils.c` and a
 `setup.py`, so the historical `agonutils` Python extension can now be examined
 and built separately. It has not yet been installed into AgonVideo's `.venv`.
 
+### agonutils installation process reviewed
+
+Reviewed the top-level scripts and package metadata in the sibling `agon-utils`
+repository. The intended historical workflow was to compile a native CPython
+extension and either install a wheel or install the source tree in editable
+mode. For AgonVideo, the interpreter running pip must be AgonVideo's
+`.venv/bin/python`; otherwise the extension will be built for and installed into
+the wrong Python environment.
+
+The extension currently compiles these sources:
+
+- `src/agonutils.c`
+- `src/images.c`
+- `src/agm.c`
+- `src/rle.c`
+- `src/simz.c`
+
+It links against FFmpeg's `libavformat`, `libavcodec`, `libswscale`, and
+`libavutil`, plus libpng. The machine has a C compiler and the project-local
+Python 3.14 headers, but the FFmpeg/libpng development packages and FFmpeg
+executable are absent. These native prerequisites must be installed before the
+extension can build.
+
+Packaging issues found:
+
+- `project.toml` contains valid build-system content but is misnamed; Python
+  packaging expects `pyproject.toml`, so current tools ignore it.
+- `dev_install_agon-utils.py` hardcodes an obsolete macOS path and must not be
+  used here.
+- The build helper scripts depend on whichever `sys.executable` launches them;
+  running them outside AgonVideo's activated environment installs into the wrong
+  interpreter.
+- The README's `python setup.py install` workflow is obsolete; pip wheel or
+  editable installation is preferable.
+- The destructive cleanup logic in `build_and_install.py` is unnecessary for a
+  first installation and searches site-package locations more broadly than
+  needed.
+- `src/szip.c` and `src/szip.h` are present, recovering a historical SZIP source
+  copy, but `setup.py` does not compile `szip.c` into `agonutils`.
+- `src/simz.c` is compiled, but its `simz_*` Python functions are not registered
+  in the method table in `src/agonutils.c`; tests expecting methods such as
+  `agonutils.simz_decode_bytes` will therefore require reconciliation.
+
+Recommended eventual installation sequence:
+
+1. Correct and modernize the packaging metadata in the `agon-utils` repository.
+2. Install the required native development libraries.
+3. Build/install from AgonVideo with
+   `.venv/bin/python -m pip install -e /home/smith/Projects/agon-utils` for active
+   development, or build a wheel for a fixed reproducible installation.
+4. Verify the imported extension path, exported methods, linked libraries, and
+   representative image/AGM/SIMZ operations.
+
+No source was modified and `agonutils` remains uninstalled pending those fixes.
+
 ## Decisions
 
 - Preserve AgonJukebox history rather than copying only its current files.
