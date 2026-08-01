@@ -1,7 +1,7 @@
 # AgonVideo WAV reader and streaming reference
 
 This document inventories the WAV-specific implementation in
-`/home/smith/Projects/AgonVideo/src/asm/`. It is a reference for file opening,
+`/home/smith/Agon/mystuff/AgonVideo/src/asm/`. It is a reference for file opening,
 RIFF-style validation, streaming reads, VDP buffer management, and audio
 playback. AGM video structures and video-unit processing are intentionally
 excluded except where the shared WAV entry point branches to AGM.

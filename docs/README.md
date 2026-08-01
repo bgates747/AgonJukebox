@@ -18,6 +18,9 @@ implementation.
   and intended video extension.
 - [Codec and throughput](codec-and-throughput.md) — current video pipeline,
   bandwidth budget, optimization goals, and open experiments.
+- [Agon assembly and AGNB loading précis](agon-assembly-and-agnb-precis.md) —
+  official MOS/VDP contracts cross-referenced against the existing assembly,
+  with an implementation map for a streaming AGNB reader.
 
 ## Working vocabulary
 

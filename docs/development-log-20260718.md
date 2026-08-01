@@ -157,7 +157,7 @@ project metadata file, so it is functional but not fully reproducible.
 
 Cloned `bgates747/agon-utils` as an independent sibling repository:
 
-- Local path: `/home/smith/Projects/agon-utils`
+- Local path: `/home/smith/Agon/mystuff/agon-utils`
 - Branch: `main`
 - Commit: `a3a2d2d47d962ce010b70d2adfaa2e3dd7dda220`
 - Commit date: 2025-04-17
@@ -214,7 +214,7 @@ Recommended eventual installation sequence:
 1. Correct and modernize the packaging metadata in the `agon-utils` repository.
 2. Install the required native development libraries.
 3. Build/install from AgonVideo with
-   `.venv/bin/python -m pip install -e /home/smith/Projects/agon-utils` for active
+   `.venv/bin/python -m pip install -e /home/smith/Agon/mystuff/agon-utils` for active
    development, or build a wheel for a fixed reproducible installation.
 4. Verify the imported extension path, exported methods, linked libraries, and
    representative image/AGM/SIMZ operations.
@@ -235,7 +235,7 @@ forcing ignored content.
 
 Created `docs/development-setup.md` with fresh-clone, existing-clone, status, and
 safe submodule-development instructions. The sibling checkout at
-`/home/smith/Projects/agon-utils` remains untouched as a temporary fallback.
+`/home/smith/Agon/mystuff/agon-utils` remains the canonical checkout.
 
 Validated the documented fresh-checkout path with a separate recursive clone in
 `/tmp`: Git registered the submodule, cloned it from GitHub, and checked out the
