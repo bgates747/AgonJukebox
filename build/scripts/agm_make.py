@@ -629,6 +629,7 @@ if __name__ == "__main__":
     # preprocess_audio(staged_audio_path)
     convert_audio(staged_audio_path, target_audio_path)
 
+    delete_frames()
     extract_and_process_frames(staged_video_path, seek_time, duration, frame_rate)
 
     make_agm(output_frames_path, target_audio_path, target_agm_path, target_width, target_height, frame_rate, target_sample_rate, chunksize, compression_type)
