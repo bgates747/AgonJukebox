@@ -1,59 +1,22 @@
 # Development setup
 
-## Clone the complete project
+## Clone the project
 
-AgonVideo uses `agon-utils` as a Git submodule pinned to a tested revision. For
-a new checkout, clone the project and its submodules together:
-
-```bash
-git clone --recurse-submodules <AgonVideo repository URL>
-```
-
-If AgonVideo has already been cloned, populate or restore its submodules with:
+Clone AgonJukebox normally. It has no Git submodules:
 
 ```bash
-git submodule update --init --recursive
+git clone <AgonJukebox repository URL>
 ```
 
-The expected utility source location is:
+The project consumes the canonical user-owned `agon-utils` checkout at:
 
 ```text
-external/agon-utils/
+/home/smith/Agon/mystuff/agon-utils
 ```
 
-Check the recorded and checked-out revisions with:
-
-```bash
-git submodule status
-git diff --submodule
-```
-
-The parent repository records an exact `agon-utils` commit. Updating files in
-the submodule does not automatically update that recorded commit.
-
-## Working safely in the submodule
-
-The normal AgonVideo workflow treats `external/agon-utils` as read-only. Before
-making a deliberate utility change, create a branch inside the submodule:
-
-```bash
-cd external/agon-utils
-git switch -c agonvideo/<change-name>
-```
-
-Commit utility changes inside `external/agon-utils` first. Then return to the
-AgonVideo root and commit the new submodule pointer separately. Never assume
-that an AgonVideo commit includes uncommitted files inside the submodule.
-
-Useful checks are:
-
-```bash
-git status
-git -C external/agon-utils status
-```
-
-Do not use cleanup, reset, or checkout commands on a modified submodule without
-first determining whether it contains uncommitted work.
+Do not create an application-local copy or submodule. Utility development is
+committed in the canonical repository on its own branch; AgonJukebox consumes
+that live checkout through an editable Python installation.
 
 ## Python environment
 
@@ -63,10 +26,10 @@ The preferred setup command is:
 python3.14 scripts/setup_python.py
 ```
 
-It initializes submodules, creates `.venv` when necessary, checks native
-dependencies, installs the pinned packages in `requirements.txt`, installs
-`agonutils` from the repo-relative submodule, and verifies the resulting
-environment. When `.venv` already exists, it is reused.
+It creates `.venv` when necessary, checks native dependencies, installs the
+pinned packages in `requirements.txt`, installs the canonical `agonutils`
+checkout in editable mode, and verifies the resulting environment. When
+`.venv` already exists, it is reused.
 
 The local virtual environment is intentionally ignored by Git. It can be
 activated manually with:
@@ -80,9 +43,10 @@ The current development environment uses Python 3.14.6. Ordinary Python
 dependencies are pinned in `requirements.txt`.
 
 VS Code-compatible editors are configured through `.vscode/settings.json` to
-use `${workspaceFolder}/.venv/bin/python` and activate the environment in new
-integrated terminals. After initially creating `.venv`, reload the editor window
-if its Python analyzer still reports missing imports.
+use `${workspaceFolder}/.venv/bin/python`, activate that environment in new
+integrated terminals, and inspect the canonical `agon-utils` checkout. Reload
+the editor window after initially creating `.venv` if its analyzer still
+reports missing imports.
 
 For direct terminal execution, either activate the environment first:
 
@@ -116,16 +80,24 @@ sudo apt-get install -y \
   libswscale-dev libavutil-dev libpng-dev
 ```
 
-The bootstrap installs `agonutils` in editable mode explicitly with AgonVideo's
-Python. The equivalent standalone command is:
+The bootstrap uses the canonical editable-install command:
 
 ```bash
-.venv/bin/python -m pip install -e external/agon-utils
+.venv/bin/python -m pip install --no-build-isolation --no-deps \
+  -e /home/smith/Agon/mystuff/agon-utils
 ```
 
-Verify all imports, the expected `agonutils` API, native dependencies, and a
-SIMZ in-memory round trip with:
+Verify dependency consistency, the canonical module location, the expected
+`agonutils` API, native dependencies, and a SIMZ in-memory round trip with:
 
 ```bash
+.venv/bin/python -m pip check
 .venv/bin/python scripts/verify_environment.py
+```
+
+Run the utility checkout's own test with the consumer interpreter:
+
+```bash
+cd /home/smith/Agon/mystuff/agon-utils
+/home/smith/Agon/mystuff/AgonJukebox/.venv/bin/python tests/test_agonutils.py
 ```

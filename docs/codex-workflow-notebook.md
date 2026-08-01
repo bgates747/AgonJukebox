@@ -21,10 +21,11 @@ Use `.venv/bin/python` explicitly. The supported bootstrap is:
 python3.14 scripts/setup_python.py
 ```
 
-AgonVideo embeds `external/agon-utils` as a pinned Git submodule. Treat it as
-read-only during ordinary application work. Deliberate utility changes require
-a branch and commit inside the submodule first, followed by a separate parent
-commit updating the submodule pointer. See `docs/development-setup.md`.
+Install the canonical user-owned `agon-utils` checkout from
+`/home/smith/Agon/mystuff/agon-utils` in editable mode. Do not create an
+application-local copy or submodule. Deliberate utility changes belong in the
+canonical repository on their own branch and commit. See
+`docs/development-setup.md`.
 
 Verify the application environment with:
 

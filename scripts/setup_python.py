@@ -10,6 +10,7 @@ import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VENV_DIR = PROJECT_ROOT / ".venv"
+AGON_UTILS_DIR = Path("/home/smith/Agon/mystuff/agon-utils")
 
 
 def run(*args: object) -> None:
@@ -25,8 +26,6 @@ def venv_python() -> Path:
 
 
 def main() -> int:
-    run("git", "submodule", "update", "--init", "--recursive")
-
     if not VENV_DIR.exists():
         if sys.version_info < (3, 14):
             print(
@@ -41,11 +40,19 @@ def main() -> int:
     run(python, PROJECT_ROOT / "scripts" / "check_native_deps.py")
     run(python, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel")
     run(python, "-m", "pip", "install", "-r", PROJECT_ROOT / "requirements.txt")
-    run(python, "-m", "pip", "install", "-e", PROJECT_ROOT / "external" / "agon-utils")
+    run(
+        python,
+        "-m",
+        "pip",
+        "install",
+        "--no-build-isolation",
+        "--no-deps",
+        "-e",
+        AGON_UTILS_DIR,
+    )
     run(python, PROJECT_ROOT / "scripts" / "verify_environment.py")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -12,8 +12,8 @@ implementation.
 
 - [Development log](development-log.md) — chronological record, current status,
   decisions, blockers, and immediate next steps.
-- [Development setup](development-setup.md) — cloning, submodules, Python
-  environment, and dependency setup.
+- [Development setup](development-setup.md) — cloning, the Python environment,
+  and canonical `agon-utils` dependency setup.
 - [Project overview](project-overview.md) — existing application, target system,
   and intended video extension.
 - [Codec and throughput](codec-and-throughput.md) — current video pipeline,

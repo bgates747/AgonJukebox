@@ -20,7 +20,8 @@ from make_wav import (
 import agonutils as au
 
 PROJECT_DIRECTORY = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-AGON_UTILS_DIRECTORY = os.path.join(PROJECT_DIRECTORY, "external", "agon-utils", "utils")
+AGON_UTILS_ROOT = "/home/smith/Agon/mystuff/agon-utils"
+AGON_UTILS_DIRECTORY = os.path.join(AGON_UTILS_ROOT, "utils")
 TVC_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "tvc", "tvc")
 RLE2_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "rle", "rle2")
 SZIP_EXECUTABLE = os.path.join(AGON_UTILS_DIRECTORY, "sz112b", "szip")
@@ -586,8 +587,7 @@ if __name__ == "__main__":
     frames_directory    = "/home/smith/Agon/mystuff/assets/video/frames"
     target_directory    = "tgt/video"
     palette_filepath = os.path.join(
-        PROJECT_DIRECTORY,
-        "external", "agon-utils", "examples", "palettes", "Agon64.gpl",
+        AGON_UTILS_ROOT, "examples", "palettes", "Agon64.gpl",
     )
     transparent_rgb = (0, 0, 0, 0)
     bytes_per_sec = 57600  # 60*960

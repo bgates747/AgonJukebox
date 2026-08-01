@@ -6,13 +6,26 @@ steps. Earlier entries are archived in `docs/development-log-20260718.md`.
 
 ## Current status
 
-Last updated: 2026-07-22
+Last updated: 2026-08-01
 
 - `uv` 0.11.29 and `uvx` are installed persistently in `~/.local/bin`.
 - POSIX login-shell and interactive Bash startup resolve the persistent `uv`
   binary without referencing `/tmp/agonvideo-uv`.
-- VS Code/Pylance can resolve the editable native `agonutils` module through an
-  explicit analysis path.
+- The project consumes the canonical editable `agonutils` checkout at
+  `/home/smith/Agon/mystuff/agon-utils`; the former embedded-submodule workflow
+  is retired.
+
+## 2026-08-01 — Canonical agon-utils workflow adopted
+
+The canonical cross-project instructions superseded AgonJukebox's older pinned
+`external/agon-utils` submodule workflow. Removed the submodule and its Git
+configuration. Updated the Python bootstrap, setup guide, project handoff,
+Pylance path, and remaining utility paths to use the user-owned canonical
+checkout at `/home/smith/Agon/mystuff/agon-utils`.
+
+Environment verification now rejects an `agonutils` import that resolves
+outside the canonical checkout. Historical entries below retain the old
+submodule work as provenance; they are no longer current instructions.
 
 ## 2026-07-20 — Development environment startup
 

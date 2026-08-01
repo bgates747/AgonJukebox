@@ -12,6 +12,7 @@ import tempfile
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
+EXPECTED_AGONUTILS_DIR = Path("/home/smith/Agon/mystuff/agon-utils").resolve()
 EXPECTED_MODULES = (
     "numpy",
     "scipy",
@@ -54,6 +55,12 @@ def main() -> int:
 
     try:
         agonutils = importlib.import_module("agonutils")
+        module_path = Path(agonutils.__file__).resolve()
+        if EXPECTED_AGONUTILS_DIR not in module_path.parents:
+            failures.append(
+                "agonutils resolved outside the canonical checkout: "
+                f"{module_path}"
+            )
         for name in EXPECTED_AGONUTILS_API:
             if not hasattr(agonutils, name):
                 failures.append(f"agonutils is missing {name}")
