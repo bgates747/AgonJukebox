@@ -1,12 +1,13 @@
-# AgonVideo Project Handoff
+# AgonJukebox Project Handoff
 
 Read `/home/smith/Agon/mystuff/agon-dev-env/codex/AGENTS.md` first. This file
-contains only AgonVideo-specific guidance.
+contains only AgonJukebox-specific guidance.
 
 ## Project
 
-AgonVideo contains AgonJukebox, an eZ80 WAV player, and experimental video
-codec/playback work. Start with `docs/project-overview.md`,
+AgonJukebox is an eZ80 WAV player for stock upstream VDP firmware. Historical
+AGM, video-codec, and MIDI work is retained outside the WAV-only candidate
+include graph. Start with `docs/project-overview.md`,
 `docs/development-log.md`, and the task-relevant technical reference.
 
 The current working tree may contain active application experiments. Inspect
@@ -35,15 +36,20 @@ Verify the application environment with:
 
 ## Technical references
 
-- `docs/agonvideo-wav-reader-reference.md` maps the production WAV path.
+- `docs/agonvideo-wav-reader-reference.md` maps the candidate WAV path.
 - `docs/codec-and-throughput.md` records transport limits and codec work.
-- `docs/agon-assembly-and-agnb-precis.md` maps official MOS/VDP contracts to
-  this application's routines.
-- `docs/TODO.md` contains current actionable WAV-reader work.
+- `docs/audio-only-jukebox-archaeology.md` records the recovery rationale and
+  intended product boundary.
+- `docs/agon-assembly-and-agnb-precis.md` is a historical video-container
+  reference, not the current implementation direction.
+- `docs/TODO.md` is the authoritative list of current reader work and candidate
+  acceptance gates.
 
-AgonJukebox may leave the VDP in a state that causes a later application to
-Guru Meditate on exit. Wolf3D exits cleanly after a fresh boot; investigate
-this as an AgonVideo/Jukebox state-restoration issue.
+The WAV-only candidate resets channels 0 and 1 and clears its four audio
+buffers on exit. Its scoped startup clear is an unblessed alternative to the
+historical intentional clear-all. Do not treat the candidate as accepted until
+the physical gates `PLAY-001` through `PLAY-003` and `VDP-001` in
+`docs/TODO.md` are resolved.
 
 Machine environment scripts and emulator profiles belong in
 `/home/smith/Agon/mystuff/agon-dev-env`, not in this repository.

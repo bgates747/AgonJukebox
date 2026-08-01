@@ -5,7 +5,7 @@
 
 The program plays `.wav` files in **8-bit unsigned PCM**, monaural format at sample rates tested up to **48000 Hz**. See the **Utilities** section below for Python scripts which will aid you in preparing compatible files.
 
-The ability to use `.wav` files instead of headerless raw audio, as traditionally done on Agon, eases converting original audio files to a compatible format. As well, because the application can parse `.wav` file header metadata, it can determine whether the file is compatible with the program and set the proper sample rate without any additional configuration information.
+The ability to use `.wav` files instead of headerless raw audio, as traditionally done on Agon, eases converting original audio files to a compatible format. The application checks selected WAV prefix fields and reads the sample rate without separate configuration; its streaming path still assumes the fixed byte-76 payload layout documented in `docs/agonvideo-wav-reader-reference.md`.
 
 # Installation
 
@@ -13,7 +13,7 @@ The ability to use `.wav` files instead of headerless raw audio, as traditionall
 The application binary is located at `tgt/jukebox.bin` in this repository. It has no external file dependences and can be stored in and executed from anywhere. It can also be placed in the `bin` directory of the SD card and invoked from any directory by typing `jukebox`. At present the application does not take any command-line arguments.
 
 ## Assembly from source
-On any system with `ez80asm`, including the Agon itself, navigate to `src/asm` and enter `ez80asm app.asm ../../tgt/jukebox.bin` (or any other target path of your choice).
+On any system with `ez80asm`, including the Agon itself, navigate to `src/asm` and enter `ez80asm app.asm ../../tgt/jukebox.bin -l` (or any other target path of your choice). The `-l` option regenerates the tracked `app.lst` assembly listing.
 
 # User Interface
 The user interface is divided into three main sections:
@@ -208,4 +208,3 @@ Special thanks to these members of the Agon Light community for making this proj
 - **@Triplefox:** for many discussions related to digital audio theory and processing, including help with one particularly challenging file that helped me refine my default processing options to their current state.
 - **@rafd_electrotux:** for user feedback, feature suggestions, and a nice list of Mexican Mariachi and Chilean folk songs for testing as well as diversifying my own collection.
 - **Dean Belfield:** for his [port](https://github.com/breakintoprogram/agon-bbc-basic-adl) of R.T. Russell's Z80 version of BBC BASIC to Agon. This application makes use of its floating point library for the 32-bit maths required to access large audio files, by way of [my own port](https://github.com/bgates747/agon-bbc-basic-adl-ez80asm) from ZDS II to ez80asm-compatible source code.
-

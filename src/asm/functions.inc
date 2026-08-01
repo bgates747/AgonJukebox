@@ -250,28 +250,6 @@ printDec8:
 ; end printDec8
 _printDec8Buffer: blkb 8,0 ; a few bytes extra just to be sure
 
-printDecS8:
-    push af
-    bit 7,a
-    jr z,@F
-    neg
-    push af
-    ld a,'-'
-    rst.lil 10h
-    pop af
-    call printDec8
-    pop af
-    ret
-@@:
-    push af
-    ld a,'+'
-    rst.lil 10h
-    pop af
-    call printDec8
-    pop af
-    ret
-; end printDecS8
-
 ; This routine converts the unsigned 24-bit value in HLU into its ASCII representation, 
 ; starting to memory location pointing by DE, in decimal form and with leading zeroes 
 ; so it will allways be 8 characters length

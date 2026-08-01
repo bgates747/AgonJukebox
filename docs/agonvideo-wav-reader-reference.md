@@ -1,31 +1,32 @@
-# AgonVideo WAV reader and streaming reference
+# AgonJukebox WAV reader and streaming reference
 
 This document inventories the WAV-specific implementation in
-`/home/smith/Agon/mystuff/AgonVideo/src/asm/`. It is a reference for file opening,
-RIFF-style validation, streaming reads, VDP buffer management, and audio
-playback. AGM video structures and video-unit processing are intentionally
-excluded except where the shared WAV entry point branches to AGM.
+`/home/smith/Agon/mystuff/AgonJukebox/src/asm/`. It is a reference for file
+opening, RIFF-style validation, streaming reads, VDP buffer management, and
+audio playback. The WAV-only candidate include graph targets stock VDP
+firmware.
 
 ## Source map
 
-- `wav.inc`: opens files and validates the fixed WAV header.
+- `wav.inc`: opens files and validates selected fields in the WAV prefix.
 - `play.inc`: initializes WAV playback, streams PCM data, alternates VDP
   buffers, and builds the buffered VDP sound command sequences.
 - `files.inc`: assigns RAM addresses for the FatFS structures, copied
   `FILINFO`, WAV header, and streaming data.
 - `timer_jukebox.inc`: drives streaming at 60 interrupts per second.
 - `vdu_buffered_api.inc`: writes, calls, and clears VDP buffers.
-- `vdu_sound.inc`: direct sound commands used during playback setup.
+- `vdu_sound.inc`: stock sound commands used during playback and cleanup.
 - `input.inc`: seeking and playlist selection around the WAV stream.
 - `browse.inc`: discovers directory entries and calls the WAV verifier.
+- `layout.inc` and `logo.inc`: initialize and release the app-owned font/logo
+  buffers around the user interface.
 - `mos_api.inc`: `FFSCALL`/`MOSCALL` definitions and FatFS structure offsets.
-- `agm.inc`: contains the shared `wav_*` header offsets at its beginning; the
-  later AGM definitions are outside this document's scope.
 
-## WAV layout required by the application
+## WAV layout assumed by streaming and seeking
 
-The reader does not walk arbitrary RIFF chunks. It reads and interprets one
-fixed 76-byte header with these offsets:
+The reader does not walk arbitrary RIFF chunks. It reads a 76-byte prefix, and
+the streaming and seek paths assume the following fixed map. Most entries are
+named source constants but are not enforced by `verify_wav`:
 
 | Symbol | Offset | Size | Meaning |
 |---|---:|---:|---|
@@ -40,26 +41,27 @@ fixed 76-byte header with these offsets:
 | `wav_byte_rate` | 28 | 4 | Bytes per second |
 | `wav_block_align` | 32 | 2 | Bytes per sample frame |
 | `wav_bits_per_sample` | 34 | 2 | Sample bit depth |
-| `wav_list_marker` | 36 | 4 | Required `LIST` chunk |
-| `wav_list_size` | 40 | 4 | Required LIST payload size |
-| `wav_info_marker` | 44 | 4 | Required `INFO` list type |
-| `wav_isft_marker` | 48 | 4 | Required `ISFT` metadata chunk |
-| `wav_isft_data` | 52 | 14 | Required software-string position |
-| `wav_isft_padding` | 66 | 2 | Required padding/terminator position |
-| `wav_data_marker` | 68 | 4 | Required `data` chunk identifier |
-| `wav_data_size` | 72 | 4 | PCM payload size |
-| `wav_data_start` | 76 | — | First PCM byte |
+| `wav_list_marker` | 36 | 4 | Assumed `LIST` chunk identifier |
+| `wav_list_size` | 40 | 4 | Assumed LIST payload size |
+| `wav_info_marker` | 44 | 4 | Assumed `INFO` list type |
+| `wav_isft_marker` | 48 | 4 | Assumed `ISFT` metadata identifier |
+| `wav_isft_size` | 52 | 4 | Assumed ISFT payload-size field |
+| `wav_isft_data` | 56 | 12 | Assumed span for ISFT payload and RIFF alignment pad |
+| `wav_data_marker` | 68 | 4 | Assumed `data` chunk identifier |
+| `wav_data_size` | 72 | 4 | Assumed PCM payload size |
+| `wav_data_start` | 76 | — | Assumed first PCM byte |
 
-`wav_header_size` is therefore fixed at 76. This is an intentional application
-format contract, not an attempt to implement a general RIFF/WAVE parser.
-AgonVideo's release guidance requires WAV files prepared for the Agon to use
-this exact chunk order and layout; otherwise-valid WAV variants with different
-optional chunks or `data` offsets are deliberately outside the supported
-format.
+`wav_header_size` is therefore fixed at 76. These are the application's assumed
+offsets, not offsets dynamically discovered from the file. This is an
+intentional streaming assumption, not an attempt to implement a general
+RIFF/WAVE parser. The verifier does not enforce the LIST/ISFT/data portion of
+this map. Input preparation is currently expected to supply the assumed layout;
+whether to enforce that contract or parse `data` dynamically is tracked as
+`WAV-004` in `docs/TODO.md`.
 
 ## Open and validation routines
 
-### `bf_verify_wav` — `wav.inc:1`
+### `bf_verify_wav`
 
 Browser-side wrapper used while classifying directory entries.
 
@@ -70,7 +72,7 @@ Browser-side wrapper used while classifying directory entries.
 - Always closes the browser FIL with `ffs_fclose` after validation.
 - Restores the verifier's `A` value and zero flag.
 
-### `ps_open_wav` — `wav.inc:12`
+### `ps_open_wav`
 
 Playback-side open wrapper.
 
@@ -79,9 +81,9 @@ Playback-side open wrapper.
 - Points `IY` at `ps_wav_header` and calls `verify_wav`.
 - Leaves a valid file open for streaming.
 - Closes `ps_fil_struct` only when validation fails.
-- Returns `A=1` for WAV, `A=2` for AGM, or `A=0` with Z set for failure.
+- Returns `A=1`, NZ for WAV, or `A=0`, Z for failure.
 
-### `verify_wav` — `wav.inc:38`
+### `verify_wav`
 
 Shared open/read/validate routine.
 
@@ -102,32 +104,36 @@ Operation:
    effectively requiring PCM format 1 and mono channel count 1 in the bytes
    inspected.
 7. Checks the low three bytes of the format marker against `fmt`.
-8. Returns `A=1`, NZ for WAV. The alternate `agm` branch calls `verify_agm` and
-   is not relevant to a WAV-only reader.
+8. Returns `A=1`, NZ for WAV or `A=0`, Z for failure.
 
-The routine preserves `BC` and `IX`, but its comments declare `AF` destroyed.
+The routine preserves `BC`, `DE`, `HL`, and `IX`; its comments declare `AF`
+destroyed.
 
 ## Playback and streaming routines
 
-### `play_song` — `play.inc:39`
+### `play_song`
 
 Top-level setup and dispatch routine. Its WAV path:
 
-1. Calls `ps_close_file` to stop the timer and close prior playback state.
+1. Calls `ps_close_file` to stop the timer, reset WAV channels 0 and 1, and
+   close prior playback state.
 2. Resets the 60-tick chunk counter.
 3. Calls `ps_open_wav` and reports invalid input on failure.
 4. Copies the selected directory `FILINFO` into `ps_filinfo_struct` for the
    persistent filename and display metadata.
-5. Sets the VDP's global sample rate from `wav_sample_rate` using
-   `vdu_set_sample_rate` with channel `-1`.
-6. Sets `read_media_routine = ps_read_sample` for the interrupt handler.
+5. Displays the selected WAV sample rate. The same rate is embedded separately
+   in each create-sample command when the command buffers are built; the player
+   does not mutate the VDP's global audio-system rate. In the upstream Console8
+   implementation, global value 65,535 is a sentinel for its 16,384 Hz default,
+   which is another reason not to mirror a file's rate through that command.
+6. Applies the user's stored global volume.
 7. Computes approximate duration as RIFF file size divided by sample rate.
 8. Computes `ps_wav_chunk_size = sample_rate / 60`.
 9. Builds the two audio command buffers with `ps_load_audio_cmd_buffers`.
 10. Selects and clears the first data buffer with `ps_set_audio_buffers`.
 11. Marks playback active and starts the PRT timer at 60 Hz.
 
-### `ps_read_sample` — `play.inc:151`
+### `ps_read_sample`
 
 The interrupt-time WAV reader.
 
@@ -145,14 +151,14 @@ The interrupt-time WAV reader.
 At 8-bit mono, `sample_rate / 60` bytes per read and 60 reads produce one
 second of audio in the VDP buffer.
 
-### `ps_play_sample` — `play.inc:225`
+### `ps_play_sample`
 
 - Updates the elapsed-time UI through `ps_update_playbar`.
 - Calls the current VDP command buffer with `vdu_call_buffer`.
 - Calls `ps_set_audio_buffers` to alternate channels and prepare the next data
   buffer.
 
-### `ps_set_audio_buffers` — `play.inc:236`
+### `ps_set_audio_buffers`
 
 - Toggles `ps_channel` between 0 and 1.
 - Maps the channel to command buffer `0x3000` or `0x3001`.
@@ -162,12 +168,38 @@ second of audio in the VDP buffer.
 This is the double-buffering mechanism: one one-second sample may play while
 the other VDP buffer is filled.
 
-### `ps_close_file` — `play.inc:253`
+### `ps_clear_audio_buffers`
+
+Clears only the four VDP buffers owned by WAV playback (`0x3000` through
+`0x3003`). It is called during application initialization and exit, not during
+each streaming tick.
+
+### UI buffer cleanup
+
+`ui_clear_buffers` deletes/clears the jukebox font at buffer `0xFA10` and clears
+the logo at buffer `0x2000`. Initialization now clears these UI resources and
+the four WAV buffers instead of issuing buffer ID 65,535 (clear all). Exit also
+releases the same app-owned resources.
+
+This scoped startup policy is a hardware-validation candidate, not yet a final
+resource decision (`VDP-001` in `docs/TODO.md`). Clear-all was historically
+intentional to reclaim scarce VDP memory before a demanding stream. The
+hardware pressure test must begin
+with substantial pre-existing VDP allocations and verify that the font, logo,
+command buffers, and one-second audio buffers can still be created and played.
+If not, startup should intentionally clear all buffers while exit remains
+scoped. At the 65,535 Hz boundary, the app-owned buffer payloads alone can
+reach about 142,788 bytes: two 65,535-byte audio buffers, a 9,600-byte logo, a
+2,048-byte font, and two 35-byte command buffers, before VDP object overhead.
+
+### `ps_close_file`
 
 - Stops the PRT timer with `ps_prt_stop`.
+- Resets stock sound channels 0 and 1, which immediately stops in-flight
+  samples without touching channels owned by another application.
 - Calls `ffs_fclose` on `ps_fil_struct`.
 
-### `ps_load_audio_cmd_buffers` — `play.inc:353`
+### `ps_load_audio_cmd_buffers`
 
 Builds two callable VDP command buffers, one per channel/sample-buffer pair.
 For each pair it emits commands to:
@@ -179,7 +211,9 @@ For each pair it emits commands to:
 4. Play the complete sample once at volume 127.
 
 The command templates are `ps_cmd0`/`ps_cmd1`; `ps_sr0`/`ps_sr1` are patched
-with the WAV sample rate before upload.
+with the low 16 bits of the WAV sample rate before upload. The explicit VDP
+field is 16-bit, so the candidate's representable per-buffer range ends at
+65,535 Hz; the 32-bit WAV field is not currently validated against that limit.
 
 ### Playlist/UI helpers in `play.inc`
 
@@ -211,8 +245,7 @@ The WAV path uses these routines from `timer_jukebox.inc`:
 - `ps_prt_stop`: disables timer 1 and its interrupt.
 - `ps_prt_irq_init`: installs `ps_prt_irq_handler` in interrupt vector table 2.
 - `ps_prt_irq_handler`: saves alternate register sets, ignores ticks while
-  paused, and calls the function pointer in `read_media_routine`. For WAV this
-  pointer is `ps_read_sample`.
+  paused, and directly calls `ps_read_sample`.
 
 The handler also clears `sysvar_keyascii` through `mos_sysvars` on every tick.
 
@@ -233,9 +266,9 @@ From `vdu_buffered_api.inc`:
 
 From `vdu_sound.inc`:
 
-- `vdu_channel_volume`: silences/restores channels during song setup.
-- `vdu_set_sample_rate`: sets the global sound sample rate when called with
-  channel `-1`.
+- `vdu_channel_volume`: sets the user's global playback volume.
+- `vdu_reset_channel`: resets owned channels 0 and 1 during transitions and
+  exit, using stock enhanced-audio command 10.
 
 The core create-sample, set-waveform, and play-note messages are encoded
 directly in `ps_cmd0` and `ps_cmd1`, rather than calling
@@ -256,8 +289,8 @@ All VDP command blocks are sent with `RST.LIL $18`.
 | `RST.LIL $18` | Send VDP buffered and sound command sequences |
 
 The playback code uses the direct FatFS API and caller-owned `FIL` structures,
-not the simpler handle-based `mos_fopen`/`mos_fread` interface used by the AGNB
-loose-image test harness.
+not the simpler handle-based `mos_fopen`/`mos_fread` interface used by unrelated
+test harnesses.
 
 ## Data structures and state
 
@@ -312,8 +345,8 @@ display the filename. The actual streaming reads use `ps_fil_struct`, not
 - `ps_wav_chunk_counter`: ticks remaining before playing the accumulated
   one-second sample.
 - `ps_channel`: selects channel/buffer pair 0 or 1.
-- `read_media_routine`: interrupt-time function pointer; WAV sets it to
-  `ps_read_sample`.
+- `ps_wav_cmd_buffer`: current callable command-buffer ID.
+- `ps_wav_data_buffer`: current sample-data buffer ID.
 - `ps_mode`: playing, loop, and shuffle bits.
 - `ps_playhead`, `ps_song_duration`, `ps_seek_rate`: UI and seek state.
 
@@ -325,6 +358,8 @@ display the filename. The actual streaming reads use `ps_fil_struct`, not
 | `ps_wav_cmd_bufferId1` | `0x3001` | Callable command sequence for channel 1 |
 | `ps_wav_data_bufferId0` | `0x3002` | PCM sample blocks for channel 0 |
 | `ps_wav_data_bufferId1` | `0x3003` | PCM sample blocks for channel 1 |
+| `BUF_UI_LOGO` | `0x2000` | Jukebox logo bitmap data |
+| `Lat2_VGA8_8x8` | `0xFA10` | Custom UI font data/font ID |
 
 ## End-to-end WAV flow
 
@@ -353,11 +388,11 @@ EOF -> ps_close_file -> loop/shuffle/next-song policy
 
 ## Deliberate format constraints and remaining cautions
 
-Two behaviors are conscious design decisions in AgonVideo:
+Two behaviors are conscious design decisions in the current candidate:
 
-- The reader accepts only the documented 76-byte Agon WAV layout and does not
-  walk arbitrary RIFF chunks. Input preparation is responsible for producing
-  that exact format.
+- The streaming and seek paths assume PCM begins at byte 76 and do not walk
+  arbitrary RIFF chunks. The verifier itself checks only selected early-prefix
+  fields and does not enforce the rest of the assumed map.
 - `RIFF`, `WAVE`, and `fmt ` comparisons inspect their low three bytes because
   the eZ80's native ADL registers are 24-bit. Under the controlled input-format
   contract, this avoids more cumbersome 32-bit comparison code. The fourth
@@ -368,10 +403,18 @@ mind when reusing the code:
 
 - It does not validate `fmt_size`, `data` marker, `data_size`, block alignment,
   or byte rate.
+- The four WAVs in the 2026-08-01 emulator fixture set all place PCM at byte
+  78. The fixed-layout reader accepts them but starts at byte 76, so the final
+  two bytes of their `data_size` field precede the PCM stream. This observed
+  mismatch is tracked as parser/input-contract work, not hidden by this
+  reference's description of the code.
 - It does not check `FRESULT` or verify that the initial header read returned
   all 76 bytes before inspecting memory.
 - It requires PCM mono through a compact three-byte comparison, but does not
   explicitly validate 8-bit samples.
+- The sample rate is read from a 32-bit WAV field and used in 24-bit chunk/seek
+  arithmetic, but the explicit create-sample command carries only 16 bits. No
+  validation rejects rates above 65,535 Hz.
 - The stream and seek calculations assume 8-bit mono: one sample equals one
   byte, so bytes per second equals sample rate.
 - Duration uses the RIFF size divided by sample rate and deliberately ignores
@@ -381,13 +424,9 @@ mind when reusing the code:
   default sample interpretation is the opposite—8-bit **signed** PCM—so the
   player must explicitly request unsigned format `1`. The command templates do
   this correctly with format byte `1+8` (`1` = unsigned, `8` = explicit sample
-  rate). The `play.inc` introductory comment requiring signed PCM is therefore
-  stale; AgonVideo's release documentation and operative command bytes both
+  rate). The source comment and operative command bytes therefore consistently
   specify 8-bit unsigned PCM mono.
 
-The most reusable ideas for AGNB are the caller-owned `FIL`, explicit header
-buffer, separate streaming staging area, bounded read cadence, double-buffered
-VDP upload, and prebuilt callable VDP command buffers. AGNB validation should
-retain its metadata-first and enclosing-bound checks because AGNB has its own
-container contract; it should not infer that AgonVideo's deliberately fixed WAV
-layout is intended as a generic RIFF parsing strategy.
+AGM, MIDI, and codec tooling remains historical source material outside the
+WAV-only candidate include graph. None of it participates in this WAV reader
+or the assembled candidate binary.

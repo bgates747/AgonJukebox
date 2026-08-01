@@ -1,8 +1,9 @@
-# AgonVideo documentation
+# AgonJukebox documentation
 
-AgonVideo is an eZ80/ESP32 video player for the Agon Light family of
-retrocomputers. It builds on an existing eZ80 assembly application that plays
-8-bit PCM WAV files through the Agon VDP.
+AgonJukebox is an eZ80 WAV player for the Agon Light family of retrocomputers.
+The WAV-only candidate targets stock upstream VDP firmware. Historical video,
+codec, AGM, and MIDI work remains documented but is outside the intended
+product boundary.
 
 This directory records the design as it is recovered and developed. Statements
 marked as assumptions or proposals are not yet part of the file format or
@@ -15,9 +16,15 @@ implementation.
 - [Development setup](development-setup.md) — cloning, the Python environment,
   and canonical `agon-utils` dependency setup.
 - [Project overview](project-overview.md) — existing application, target system,
-  and intended video extension.
-- [Codec and throughput](codec-and-throughput.md) — current video pipeline,
-  bandwidth budget, optimization goals, and open experiments.
+  and current WAV-only product boundary.
+- [Audio-only archaeology](audio-only-jukebox-archaeology.md) — branch and
+  deployed-binary provenance, lost Oryx work, and the reduction rationale.
+- [WAV reader reference](agonvideo-wav-reader-reference.md) — prefix checks,
+  fixed-offset streaming assumptions, buffers, controls, and cleanup behavior.
+- [Branch inventory](branches_inventory.md) — a dated snapshot of branch
+  purposes and recent history.
+- [Codec and throughput](codec-and-throughput.md) — historical video pipeline,
+  bandwidth budget, optimization goals, and open historical experiments.
 - [Agon assembly and AGNB loading précis](agon-assembly-and-agnb-precis.md) —
   official MOS/VDP contracts cross-referenced against the existing assembly,
   with an implementation map for a streaming AGNB reader.

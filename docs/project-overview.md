@@ -3,72 +3,50 @@
 ## Platform
 
 The Agon Light is a standalone computer built around an eZ80 main processor and
-an ESP32-PICO-D4 VDP. The eZ80 communicates with the VDP over a high-speed UART.
-The VDP handles VGA output, audio, and keyboard input.
+an ESP32-PICO-D4 VDP. The eZ80 communicates with the VDP over a high-speed UART;
+the VDP handles video output, audio, and keyboard input.
 
-AgonVideo targets a mostly stock VDP environment, augmented with custom firmware
-for video decompression. The stock VDP can frame-swap, which is essential to the
-proposed player.
+AgonJukebox's intended target is the standard upstream Console8 VDP. The
+WAV-only candidate does not require bespoke firmware.
 
-## Existing audio player
+## Application
 
-The existing application is written in eZ80 assembly and plays compatible
-8-bit PCM WAV files. It already provides:
+AgonJukebox is an eZ80 assembly application for compatible 8-bit unsigned PCM
+mono WAV files. Its established functionality includes:
 
-- browsing of the Agon's normal filesystem;
-- rejection of unsupported WAV encodings and unrelated file types;
-- alphabetization and display of playable files in a selection menu;
-- streaming of audio to the VDP over UART in one-second chunks; and
-- forward and backward seeking in one-second increments, with larger jumps up
-  to 240 seconds.
+- filesystem browsing with filtering, sorting, ten-entry pages, and highlighted
+  selection;
+- two alternating one-second VDP audio buffers filled by 60 SD-card reads per
+  second;
+- play/pause, loop, shuffle, random selection, and automatic progression;
+- forward and backward seeking at selectable 1–240 second increments;
+- filename, duration, elapsed time, rate, mode, seek, and volume display;
+- per-file sample-rate selection; and
+- persistent logical master volume across song changes.
 
-This application is the base onto which synchronized video playback will be
-added. Audio and video will share the eZ80-to-VDP UART.
+The fixed-offset assumptions and unresolved input-contract decision are
+documented in
+`docs/agonvideo-wav-reader-reference.md`.
 
-## Intended video characteristics
+## Intended product boundary
 
-The current target is:
+The candidate binary is intentionally WAV-only. AGM video playback, MIDI
+playback and synthesis, and experimental output-limiter commands are excluded.
+The limiter depended on a private VDP firmware modification that is not part of
+the intended product contract.
 
-- 300 by 200 pixels;
-- approximately 15 frames per second;
-- RGBA2222 source pixels, one byte per pixel and 64 possible RGB colors;
-- binary transparency: alpha zero is transparent and any nonzero alpha value is
-  opaque; and
-- 16 kHz, 8-bit audio.
+Historical AGM, video-codec, MIDI, and media-generation sources remain in the
+repository as archaeological material and possible future research. They are
+not included by `src/asm/app.asm` and are not required to build or run the
+Jukebox.
 
-Because opacity is binary, a logical pixel requires seven bits when transparency
-is retained, or six bits when transparency is irrelevant. RLE2 uses the two
-alpha bits as control information so a literal single pixel can be represented
-without expanding an incompressible frame beyond its original byte-per-pixel
-size.
+## Current direction
 
-The ESP32 has enough usable memory to buffer roughly one second of video and
-audio at the target settings. Approximately 4 MB is believed to be the practical
-upper boundary, although operation becomes unreliable or difficult near that
-amount. This must be measured against the actual firmware build rather than
-treated as a guaranteed capacity.
-
-## Container
-
-A custom media-file format already exists and is described as detailed and
-extensible. Its header borrows RIFF/WAV idioms, and provision was made for future
-header information. Frame-level video metadata is also believed to be
-extensible, but this needs confirmation from the original specification or
-source.
-
-The file deliberately resembles an 8-bit, mono PCM WAV closely enough that a
-standard WAV player can interpret its contents as a PCM stream, although the
-video data naturally sounds like noise. Compatibility details and chunk layout
-remain to be recovered.
-
-Seeking and indexing for combined media are intentionally deferred until the
-throughput and decoder-performance problems are solved.
-
-## Immediate goals
-
-1. Recover and document the existing file format, encoder, RLE2, and SZIP.
-2. Determine whether the video stream can fit through the UART with safe margin.
-3. Improve the first compression stage.
-4. Reduce VDP decompression cost without sacrificing excessive compression.
-5. Only after real-time playback is feasible, design combined-media seeking.
-
+The `wavonly` branch reconstructs the clean audio application from the current
+documentation line: the proven v0.9.5 WAV core plus the stock-compatible
+v0.9.6-beta volume and sample-rate display. The v0.9.5 core already embeds the
+file rate per buffer; the later global-rate mutation is explicitly excluded.
+Basic pitch and interactive controls have passed emulator checks. Cross-rate
+transitions, long-form continuity, final state restoration, and the scoped
+VDP-buffer policy must be confirmed on physical hardware before this candidate
+replaces the deployed binary.

@@ -144,6 +144,21 @@ vdu_channel_volume:
 @volume:    db 0x00
 @end:
 
+; Command 10: Reset channel
+; VDU 23, 0, &85, channel, 10
+; inputs: c = channel
+vdu_reset_channel:
+    ld a,c
+    ld (@channel),a
+    ld hl,@cmd
+    ld bc,@end-@cmd
+    rst.lil $18
+    ret
+@cmd:       db 23, 0, 0x85
+@channel:   db 0x00
+            db 10 ; reset channel command
+@end:
+
 ; VDU 23, 0, &85, channel, 3, frequency;
 
 ; Sets the frequency of the specified channel. The frequency is a 16-bit value specifying in Hz the frequency of the note to be played.
@@ -233,23 +248,6 @@ vdu_buffer_to_sound:
             db 0x02 ; command 2 create sample
 @bufferId:  dw 0x0000
 @format:    db 0x00
-@sampleRate: dw 0x0000
-@end:       db 0x00 ; padding
-
-; Command 13: Set sample rate
-; VDU 23, 0, &85, channel, 13, sampleRate;
-; inputs: c = channel, hl = sampleRate (Hz)
-vdu_set_sample_rate:
-    ld a,c
-    ld (@channel),a
-    ld (@sampleRate),hl
-    ld hl,@cmd         
-    ld bc,@end-@cmd    
-    rst.lil $18         
-    ret
-@cmd:       db 23, 0, 0x85
-@channel:   db 0x00
-            db 13 ; set sample rate command
 @sampleRate: dw 0x0000
 @end:       db 0x00 ; padding
 
@@ -350,100 +348,3 @@ vdu_play_sample:
 @frequency:  dw 0x00 ; no effect unless buffer has been set to tuneable sample
 @duration:   dw 0x0000 ; milliseconds: set to -1 to loop indefinitely, 0 to play full duration once
 @end:        db 0x00 ; padding
-
-vdu_audio_limit_method: db 1
-vdu_audio_limit_default: equ 1
-vdu_audio_limit_none: equ 2
-vdu_audio_limit_log_compress: equ 3
-vdu_audio_limit_constant_divisor: equ 4
-vdu_audio_limit_active_channels: equ 5
-
-; turn off audio output limiting
-; WARNING: using this command makes it the application's responsiblity to ensure 
-; that the audio output does not exceed the -128...+127 range, 
-; otherwise the sound will be clipped.
-; inputs: none
-; outputs: none
-; destroys: hl,bc
-; VDU 23, 0, &85, channel, 15, -1
-vdu_set_audio_limit_none:
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd:       db 23, 0, 0x85
-@channel:   db 0x00 ; ignored (applies to all channels)
-            db 15 ; set audio limit command
-            db vdu_audio_limit_none
-@end:
-; end vdu_set_audio_limit_none
-
-; use default audio output limiting
-; inputs: none
-; outputs: none
-; destroys: hl,bc
-; VDU 23, 0, &85, channel, 15, 0
-vdu_set_audio_limit_default:
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd:       db 23, 0, 0x85
-@channel:   db 0x00 ; ignored (applies to all channels)
-            db 15 ; set audio limit command
-            db vdu_audio_limit_default
-@end:
-; end vdu_set_audio_limit_default
-
-; use a pseudo-logarithmic compression for audio output limiting
-; inputs: see function body for parameters to set
-; outputs: none
-; destroys: hl,bc
-; VDU 23, 0, &85, channel, 15, 0
-vdu_set_audio_limit_log_compress:
-    ld hl,vdu_set_audio_limit_log_compress_cmd
-    ld bc,vdu_set_audio_limit_log_compress_end-vdu_set_audio_limit_log_compress_cmd
-    rst.lil $18
-    ret
-vdu_set_audio_limit_log_compress_cmd:       db 23, 0, 0x85
-            db 0x00 ; channel: ignored (applies to all channels)
-            db 15 ; set audio limit command
-            db vdu_audio_limit_log_compress
-vdu_audio_limit_log_compress_A: db 1 ; normalization factor
-vdu_audio_limit_log_compress_B: db 127 ; makeup gain (as a fraction of 127)
-vdu_audio_limit_log_compress_C: db 127 ; compression curve shaping factor
-vdu_set_audio_limit_log_compress_end:
-; end vdu_set_audio_limit_log_compress
-
-; use a constant divisor for audio output limiting
-; inputs: see function body for parameters to set
-; outputs: none
-; destroys: hl,bc
-vdu_set_audio_limit_constant_divisor:
-    ld hl,vdu_set_audio_limit_constant_divisor_cmd
-    ld bc,vdu_set_audio_limit_constant_divisor_end-vdu_set_audio_limit_constant_divisor_cmd
-    rst.lil $18
-    ret
-vdu_set_audio_limit_constant_divisor_cmd:       db 23, 0, 0x85
-            db 0x00 ; ignored (applies to all channels)
-            db 15 ; set audio limit command
-            db vdu_audio_limit_constant_divisor
-vdu_audio_limit_constant_divisor_A: db 1 ; constant divisor
-vdu_set_audio_limit_constant_divisor_end:
-; end vdu_set_audio_limit_constant_divisor
-
-; use the number of active channels for audio output limiting
-; inputs: see function body for parameters to set
-; outputs: none
-; destroys: hl,bc
-vdu_set_audio_limit_active_channels:
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd:       db 23, 0, 0x85
-@channel:   db 0x00 ; ignored (applies to all channels)
-            db 15 ; set audio limit command
-            db vdu_audio_limit_active_channels
-@end:
-; end vdu_set_audio_limit_active_channels

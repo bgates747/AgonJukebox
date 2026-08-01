@@ -1,55 +1,63 @@
 # Branch inventory
 
-This inventory was prepared on 2026-08-01 from the live branch heads on the
-`agonjukebox` remote and the local `master` branch. Commit summaries are based
-on the commit subjects and changed files. Counts relative to `master` use
+This inventory was refreshed on 2026-08-01 from the live branch heads on the
+`origin` remote and the local branches. Commit summaries are based on the
+commit subjects and changed files. Counts relative to local `master` use
 `git rev-list --left-right --count master...<branch>`.
 
 ## Overview
 
 | Branch | Location | Head | Relative to `master` | Main line of work |
 |---|---|---|---|---|
-| `master` | local and remote | `04ac655` | current branch | Current Jukebox, WAV documentation, and restored AGM tooling |
-| `main` | remote only | `bcb49da` | 17 behind, 0 unique | Jukebox audio controls and 16 kHz MIDI/audio work |
-| `working_32` | remote only | `539f3b8` | 41 behind, 0 unique | Orchestral MIDI playback and memory-efficient sampled instruments |
-| `agz` | remote only | `a8f1075` | 68 behind, 0 unique | Early AGM timing work followed by the first functioning MIDI player |
-| `agm` | remote only | `39e800c` | 123 behind, 0 unique | AGM video pipeline and SZIP experiments |
-| `alpha64` | remote only | `cd39a29` | 124 behind, 1 unique | Non-working 64-symbol SZIP experiment branched from AGM work |
-| `dev` | remote only | `4f76371` | 183 behind, 0 unique | Jukebox v0.9.4/v0.9.5-era WAV conversion, UI, and seeking |
+| `wavonly` | local, active | `a1bed2b` plus working tree | 0 behind, 0 committed unique | Uncommitted stock-VDP WAV-only candidate |
+| `master` | local; remote at `0915ef8` | `a1bed2b` | reference branch; 1 ahead of remote | Current documentation/environment line before WAV-only reduction |
+| `main` | local and remote | `bcb49da` | 20 behind, 0 unique | Jukebox audio controls and 16 kHz MIDI/audio work |
+| `working_32` | remote only | `539f3b8` | 44 behind, 0 unique | Orchestral MIDI playback and memory-efficient sampled instruments |
+| `agz` | remote only | `a8f1075` | 71 behind, 0 unique | Early AGM timing work followed by the first functioning MIDI player |
+| `agm` | remote only | `39e800c` | 126 behind, 0 unique | AGM video pipeline and SZIP experiments |
+| `alpha64` | remote only | `cd39a29` | 127 behind, 1 unique | Non-working 64-symbol SZIP experiment branched from AGM work |
+| `dev` | remote only | `4f76371` | 186 behind, 0 unique | Jukebox v0.9.4/v0.9.5-era WAV conversion, UI, and seeking |
 
-Except for `alpha64`, every historical remote head is an ancestor of `master`.
-They are therefore useful as named milestones, but contain no commits absent
-from the current line. `alpha64` contains one explicitly unsuccessful
-experiment that was not merged.
+Except for `alpha64`, every historical remote head is an ancestor of local
+`master`. They are therefore useful as named milestones, but contain no commits
+absent from the current line. `alpha64` contains one explicitly unsuccessful
+experiment that was not merged. `wavonly` has no committed divergence yet; its
+candidate exists in the working tree.
+
+## `wavonly`
+
+Current active branch. It was created from local `master` at `a1bed2b` and has
+no upstream branch. Its uncommitted working tree contains the WAV-only
+stock-VDP reduction and rebuilt binary. Until that work is committed, the five
+most recent commits are identical to `master` below.
 
 ## `master`
 
-Current active branch. The remote and local heads both point to `04ac655`.
-Its recent history shifts from environment recovery and documentation back to
-media-generation tooling.
+Current reference branch. Local `master` is at `a1bed2b`, one commit ahead of
+`origin/master` at `0915ef8`. Its recent history records the recovered project,
+canonical environment adoption, and media tooling.
 
-1. `04ac655` (2026-08-01), **Update media build scripts** — adds a standalone
+1. `a1bed2b` (2026-08-01), **Use canonical agon-utils checkout** — removes the
+   embedded dependency workflow and points setup, verification, and editor
+   configuration at the canonical user-owned `agon-utils` checkout.
+2. `0915ef8` (2026-08-01), **Record Agon environment and API review** — records
+   the canonical development/emulator setup and the relevant stock MOS/VDP API
+   findings.
+3. `9fdc26b` (2026-08-01), **Document Jukebox branch and build archaeology** —
+   inventories branches and records the deployed v0.9.6-beta binary's likely
+   uncommitted Oryx provenance plus the WAV-only recovery recommendation.
+4. `04ac655` (2026-08-01), **Update media build scripts** — adds a standalone
    YouTube-to-Agon WAV pipeline with optional trimming, compression,
    normalization, filtering, and resampling; clears old extracted frames before
    rebuilding AGM video; and changes the default AGM playback sample.
-2. `e712219` (2026-07-25), **Add project-specific Codex handoff** — adds the
+5. `e712219` (2026-07-25), **Add project-specific Codex handoff** — adds the
    repository entry point and AgonVideo-specific workflow handoff, delegating
    shared environment guidance to `agon-dev-env` and documenting the local
    virtual environment, pinned `agon-utils`, and technical references.
-3. `63e4d19` (2026-07-22), **Document WAV reader implementation** — records the
-   fixed 76-byte WAV contract and maps validation, buffering, playback, timer,
-   browsing, and seeking code; also establishes the WAV-reader TODO questions.
-4. `66ae5d7` (2026-07-19), **Restore AGM media build and playback pipeline** —
-   repairs the AGM Python build/play scripts for the current layout and
-   dependencies, adds the recovered work to a dated log, and rolls the active
-   development log forward.
-5. `e7b50a5` (2026-07-19), **Use project virtualenv for Python tooling** — adds
-   project-local Python/VS Code configuration and setup documentation so tools
-   consistently use `.venv` rather than an ambient interpreter.
 
 ## `main`
 
-Historical Jukebox integration head. It is fully contained in `master`; the 17
+Historical Jukebox integration head. It is fully contained in `master`; the 20
 later commits on `master` continue from this exact head.
 
 1. `bcb49da` (2025-05-31), **implement audio limiter vdu functions and app

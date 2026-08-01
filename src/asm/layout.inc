@@ -167,25 +167,6 @@ vp_messages:
     call vdu_set_txt_viewport
     ret
 
-vp_agm_header_top: equ 0
-vp_agm_header:
-    ld c,text_left
-    ld d,vp_agm_header_top
-    ld e,text_right
-    ld b,vp_agm_header_top
-    call vdu_set_txt_viewport
-    ret
-
-vp_num_buffered_top: equ vp_agm_header_top+1
-vp_num_buffered:
-    ld c,text_left
-    ld d,vp_num_buffered_top
-    ld e,text_right
-    ld b,vp_num_buffered_top
-    call vdu_set_txt_viewport
-    ret
-
-; vp_debug_top: equ vp_agm_header_top+1
 vp_debug_top: equ vp_messages_top
 vp_debug_bottom: equ text_bottom
 ; set text viewport for messages
@@ -217,6 +198,17 @@ set_text_colours_inverse:
     ret
 ; end set_text_colours_inverse
 
+; release only the VDP resources owned by the jukebox UI
+ui_clear_buffers:
+    ld hl,Lat2_VGA8_8x8
+    call vdu_font_clear
+    ld hl,Lat2_VGA8_8x8
+    call vdu_clear_buffer
+    ld hl,BUF_UI_LOGO
+    call vdu_clear_buffer
+    ret
+; end ui_clear_buffers
+
 ui_init:
 ; get current screen mode and save it so we can return to it on exit
     call vdu_get_screen_mode
@@ -226,9 +218,10 @@ ui_init:
     call vdu_set_screen_mode
     xor a
     call vdu_set_scaling
-; load fonts and select one
-    call vdu_clear_all_buffers
-	call font_load
+; clear only buffers owned by the jukebox, then load and select its font
+    call ps_clear_audio_buffers
+    call ui_clear_buffers
+    call font_load
     ld hl,Lat2_VGA8_8x8
     ld a,1
     call vdu_font_select

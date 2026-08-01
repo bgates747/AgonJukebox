@@ -201,9 +201,8 @@ This feature is strictly audio playback and does not require custom firmware.
 Retain:
 
 - displaying the selected WAV's sample rate;
-- setting the stock VDP global sample rate from the WAV header;
-- restoring the user's selected master volume after the global sample-rate
-  command resets it;
+- embedding the WAV rate explicitly in both VDP create-sample commands;
+- applying the user's selected master volume on each song;
 - the reusable `ps_adjust_volume` routine; and
 - the private `printDec8` buffer, which avoids sharing mutable print storage.
 
@@ -216,6 +215,21 @@ necessary.
 The `printDecS8` helper has no current production caller outside the lost
 limiter-display direction and is not part of the required audio-only feature
 set.
+
+Interactive stock-emulator testing on 2026-08-01 corrected the original
+recommendation to retain the global sample-rate command. After playing the
+65,535 Hz test track first, subsequent 44,100 Hz and 48,000 Hz tracks shared
+the same incorrect pitch behavior. Inspection of the upstream Console8
+implementation showed that global value 65,535 is a sentinel for restoring the
+16,384 Hz default, not a literal underlying output rate. The exact intermediate
+rate was not measured, so the global command/reset interaction is the supported
+cause rather than a claim that the system literally remained at 65,535 Hz. The
+WAV command buffers already create every sample with its own explicit header
+rate, making the global mutation redundant and harmful. The WAV-only
+implementation therefore displays and embeds the rate per sample while leaving
+the VDP's global audio-system rate alone. A corrected emulator run starting
+with a non-65,535 Hz track produced the intended pitch, as confirmed by the
+user.
 
 ## Changes to reject
 
@@ -308,6 +322,16 @@ resetting the branch to `dev`. Perform a deliberate audio-only reduction:
 This approach preserves later fixes and current documentation while producing
 a smaller application with an honest stock-firmware contract.
 
+Final implementation review exposed a separate startup policy hidden by the
+historical code: `ui_init` cleared every VDP buffer. The scoped candidate clears
+only its WAV, font, and logo buffers, but the user confirmed that clear-all had
+been intentional to reclaim VDP memory for this demanding application. Treat
+the scoped variant as an explicit hardware experiment. Test it after populating
+VDP memory with unrelated buffers; if allocation or sustained streaming fails,
+retain intentional clear-all at startup and keep exit cleanup scoped. Optional
+player modules merged later must inherit whichever base-player policy wins that
+test.
+
 ## Validation criteria for the future reduction
 
 The eventual implementation should demonstrate all of the following before it
@@ -326,7 +350,11 @@ replaces the current hardware binary:
    selected rate.
 8. Exiting restores the screen, timer, interrupt, file, audio, and VDP state
    sufficiently that a subsequent stock application exits cleanly.
-9. The result is tested on physical hardware before being treated as the new
+9. With VDP memory deliberately pre-populated, startup can allocate the UI and
+   double audio buffers and sustain `Africa_65535.wav`; if it cannot, the
+   documented startup clear-all policy is restored. The full Lynyrd Skynyrd
+   fixture separately satisfies the long-form continuity criterion in item 4.
+10. The result is tested on physical hardware before being treated as the new
    production binary.
 
 The surviving hardware binary should be copied to durable archival storage and

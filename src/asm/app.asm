@@ -46,7 +46,6 @@ exit:
     include "fpp_ext.inc"
 
 ; APPLICATION INCLUDES
-    include "agm.inc"
     include "layout.inc"
     include "browse.inc"
     include "input.inc"
@@ -60,12 +59,10 @@ exit:
 
 ; --- MAIN PROGRAM FILE ---
 init:
-    ld a,pv_loaded_segments_max
-    call vdu_enable_channels
     call bf_get_dir
     call ui_init
     call ps_load_audio_cmd_buffers ; TODO: figure out why it is insufficient to do this here
-                                 ; (though it must be done here b/c ui_init clears all buffers)
+                                 ; even though play_song rebuilds them for each WAV
     call ps_prt_irq_init
     ret
 ; end init
@@ -76,6 +73,7 @@ main:
 ; we come back here when user wants to quit app
 ; shut down everytyhing and gracefully exit to MOS
     call ps_close_file ; close any playing file and stop the PRT timer
+    call ps_clear_audio_buffers ; release only the four buffers owned by the WAV player
     ei ; interrupts were disabled by get_input
 ; restore original screen mode
     ld a,(original_screen_mode)
@@ -92,6 +90,7 @@ main:
     ld h,%00010000 ; bit 4 controls cursor scroll at bottom of screen
     ld l,%00000000 ; bit 4 reset means cursor scrolls screen
     call vdu_cursor_behaviour
+    call ui_clear_buffers ; release only the font and logo resources owned by the UI
     ret ; back to MOS
 ; end main
 

@@ -63,14 +63,7 @@ ps_prt_irq_handler:
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
 	jp z,@done ; playback not active so return without doing anything
-
-; DEBUG
-    ; call agm_print_all_hdrs
-	; call DEBUG_WAITKEYPRESS
-; END DEBUG
-
-	ld hl,(read_media_routine)
-    CALL_HL
+    call ps_read_sample
 @done:
     exx
     ex af,af'

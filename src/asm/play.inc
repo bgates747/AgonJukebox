@@ -1,7 +1,7 @@
 ; stream a song from the SD card
 ; inputs: hl = pointer to filename
-; requirements: the file must be 8-bit signed PCM mono
-; uses: sound channels 0 and 1, buffers 0x3000 and 0x3001
+; requirements: the file must be 8-bit unsigned PCM mono
+; uses: sound channels 0 and 1, buffers 0x3000 through 0x3003
 ; play_song constants
 
 ps_wav_cmd_bufferId0: equ 0x003000
@@ -20,6 +20,8 @@ ps_mode_shuffle: equ 2 ; 0 = shuffle off 1 = on, s key toggles
 ps_volume: db 11 ; master volume 0-11
 ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
+ps_wav_cmd_buffer: dl ps_wav_cmd_bufferId0 ; current command buffer
+ps_wav_data_buffer: dl ps_wav_data_bufferId0 ; current sample-data buffer
 ps_chunkpointer: dl 0 ; pointer to current chunk
 ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
 ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
@@ -30,10 +32,6 @@ ps_seek_rate_idx: db 0 ; seek rate indexs
 ps_chunks_per_second: equ 60 ; number of chunks to load per second
 ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
 ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
-ps_media_type: db 0 ; 1 = .wav, 2 = .agm
-media_type_wav: equ 1
-media_type_agm: equ 2
-read_media_routine: dl 0 ; address of the media read function
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -54,20 +52,7 @@ play_song:
     asciz "Invalid .wav file selected, try again."
     jp get_input ; return to user input loop
 
-@@: 
-    ld (ps_media_type),a ; save the media type
-
-; silence all potentially playing channels
-    ld a,pv_loaded_segments_max
-@silence_loop:
-    push af ; save loop counter
-    ld b,0 ; volume zero
-    ld c,a ; channel number
-    call vdu_channel_volume ; set channel 1 volume to 0
-    pop af ; restore loop counter
-    dec a
-    jr nz,@silence_loop ; loop for all channels
-
+@@:
 ; copy the directory filinfo struct to ps_filinfo_struct
     lea hl,iy ; ps_open_wav set iy to the directory's filinfo struct
     ld de,ps_filinfo_struct ; destination address
@@ -80,27 +65,17 @@ play_song:
     ld hl,ps_filinfo_fname
     call printString ; print the song filename
 
-; set system sample rate to match the song sample rate
+; display the song sample rate; each VDP sample receives this rate explicitly
+; when ps_load_audio_cmd_buffers builds its create-sample command
     call vp_messages
     call printInline
     asciz "Audio sample rate:"
     ld hl,(ps_wav_header+wav_sample_rate)
     call printDec
-    ld c,-1 ; channel -1 = global sample rate
-    call vdu_set_sample_rate ; set the system sample rate
 
-; restore master volume to user's specified level
+; apply the user's stored master volume
     ld a,(ps_volume)
     call ps_adjust_volume
-
-; branch on .wav or .agm
-    ld a,(ps_media_type)
-    cp media_type_wav
-    jp nz,agm_play ; not .wav so try .agm
-
-; set read_media_routine
-    ld hl,ps_read_sample
-    ld (read_media_routine),hl
 
 ; compute the song duration from the file size and sample rate and print it
 ; technically we should account for the .wav header, but at 76 bytes it's negligible
@@ -176,7 +151,7 @@ ps_read_sample:
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
 ; load the chunk to the current sample buffer
-    ld hl,(pv_img_buffer)
+    ld hl,(ps_wav_data_buffer)
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
 ; decrement the chunk counter
@@ -226,7 +201,7 @@ ps_play_sample:
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
 ; call the command buffer to play the sound
-    ld hl,(pv_cmd_buffer)
+    ld hl,(ps_wav_cmd_buffer)
     call vdu_call_buffer
 ; flip the sample and command buffers
     call ps_set_audio_buffers
@@ -241,17 +216,35 @@ ps_set_audio_buffers:
     ld (ps_channel),a
     ld hl,ps_wav_cmd_bufferId0
     ld l,a
-    ld (pv_cmd_buffer),hl
+    ld (ps_wav_cmd_buffer),hl
     inc l
     inc l
-    ld (pv_img_buffer),hl
+    ld (ps_wav_data_buffer),hl
     call vdu_clear_buffer
     ret
 ; end ps_set_audio_buffers
 
+; clear only the VDP buffers owned by WAV playback
+ps_clear_audio_buffers:
+    ld hl,ps_wav_cmd_bufferId0
+    call vdu_clear_buffer
+    ld hl,ps_wav_cmd_bufferId1
+    call vdu_clear_buffer
+    ld hl,ps_wav_data_bufferId0
+    call vdu_clear_buffer
+    ld hl,ps_wav_data_bufferId1
+    call vdu_clear_buffer
+    ret
+; end ps_clear_audio_buffers
+
 ; close the file
 ps_close_file:
     call ps_prt_stop ; stop the PRT timer
+; stop samples on the two stock channels owned by the WAV player
+    ld c,0
+    call vdu_reset_channel
+    ld c,1
+    call vdu_reset_channel
 ; 0x81: ffs_fclose
 ; Close a file (Requires MOS 1.03 or above)
 ; Parameters:
