@@ -1,52 +1,59 @@
 # Project overview
 
-## Platform
+## Platform and product
 
-The Agon Light is a standalone computer built around an eZ80 main processor and
-an ESP32-PICO-D4 VDP. The eZ80 communicates with the VDP over a high-speed UART;
-the VDP handles video output, audio, and keyboard input.
+AgonJukebox is an eZ80 assembly application for the Agon Light family. It
+streams audio from the SD card to the ESP32-based VDP and requires only standard
+upstream Console8 firmware.
 
-AgonJukebox's intended target is the standard upstream Console8 VDP. The
-WAV-only candidate does not require bespoke firmware.
+The product boundary is intentionally narrow: filesystem browsing and WAV
+playback. AGM video, MIDI synthesis/playback, compression experiments, and
+commands tied to private VDP firmware are not part of the application or its
+toolchain.
 
-## Application
+## Established functionality
 
-AgonJukebox is an eZ80 assembly application for compatible 8-bit unsigned PCM
-mono WAV files. Its established functionality includes:
-
-- filesystem browsing with filtering, sorting, ten-entry pages, and highlighted
-  selection;
-- two alternating one-second VDP audio buffers filled by 60 SD-card reads per
-  second;
+- filtered, sorted directory browsing with ten-entry pages;
+- two alternating VDP audio buffers filled over 60 timer ticks per second;
 - play/pause, loop, shuffle, random selection, and automatic progression;
-- forward and backward seeking at selectable 1–240 second increments;
-- filename, duration, elapsed time, rate, mode, seek, and volume display;
-- per-file sample-rate selection; and
+- wrapped forward/backward seeking at selectable 1–240 second increments;
+- filename, duration, elapsed time, sample rate, mode, seek, and volume display;
+- per-file sample rates from 1 through 65,535 Hz; and
 - persistent logical master volume across song changes.
 
-The fixed-offset assumptions and unresolved input-contract decision are
-documented in
-`docs/agonvideo-wav-reader-reference.md`.
+## WAV contract
 
-## Intended product boundary
+The reader accepts standard RIFF/WAVE files whose audio is mono, unsigned
+8-bit integer PCM. Both legacy `WAVE_FORMAT_PCM` and
+`WAVE_FORMAT_EXTENSIBLE` with the PCM subtype are supported. Metadata chunks
+and padding may vary: the reader locates `fmt ` and `data` dynamically and
+streams only the declared `data` payload.
 
-The candidate binary is intentionally WAV-only. AGM video playback, MIDI
-playback and synthesis, and experimental output-limiter commands are excluded.
-The limiter depended on a private VDP firmware modification that is not part of
-the intended product contract.
+See [wav-reader-reference.md](wav-reader-reference.md) for the normative
+contract and known size limits.
 
-Historical AGM, video-codec, MIDI, and media-generation sources remain in the
-repository as archaeological material and possible future research. They are
-not included by `src/asm/app.asm` and are not required to build or run the
-Jukebox.
+## Repository shape
 
-## Current direction
+- `src/asm/` contains the complete production assembly closure.
+- `src/fonts/Lat2-VGA8_8x8.font.inc` and `src/images/logo.rgba2` are direct
+  assembly inputs.
+- `scripts/make_wav.py` is the sole media-preparation tool.
+- `scripts/test_make_wav.py` exercises the host-side WAV contract.
+- `tgt/jukebox.bin` is the distributable binary.
 
-The `wavonly` branch reconstructs the clean audio application from the current
-documentation line: the proven v0.9.5 WAV core plus the stock-compatible
-v0.9.6-beta volume and sample-rate display. The v0.9.5 core already embeds the
-file rate per buffer; the later global-rate mutation is explicitly excluded.
-Basic pitch and interactive controls have passed emulator checks. Cross-rate
-transitions, long-form continuity, final state restoration, and the scoped
-VDP-buffer policy must be confirmed on physical hardware before this candidate
-replaces the deployed binary.
+The historical video, MIDI, and codec trees were removed from `wavonly` after
+their absence from the compile/tool closure was proven. Git history and the
+branch inventory preserve their archaeology.
+
+## Qualification state
+
+The dynamic standard-WAV reader, exact rate scheduler, bounded EOF handling,
+and pruned candidate passed interactive playback, browsing, seeking, volume,
+and pause/resume checks in the stock emulator. Forward/backward seek wrapping,
+EOF progression, and final-to-first progression within the current directory
+slice also passed. The same candidate has baseline physical-hardware approval;
+the user observed better sound and fewer timing-related pops than in the
+emulator. Extended cross-rate, long-form, cleanup, and VDP-memory-pressure
+characterization remains optional follow-up work recorded in the development
+log. This qualified WAV-only transition is released as `v0.10.0-beta` on
+`wavonly`.

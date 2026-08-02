@@ -90,9 +90,11 @@ The nearest committed binary is from `bcb49da`:
 | Size | 31,095 bytes |
 | SHA-256 | `29a87a9be1ab011f5559195d97289efc1ad9f4101d651224693fe8304a2863cd` |
 
-Assembling current `src/asm/app.asm` with `ez80asm` reproduces that committed
-31,095-byte binary exactly. The hardware artifact is therefore not a result of
-assembler-version drift or nondeterministic output.
+At the time of the provenance comparison, assembling `bcb49da`'s source with
+the installed `ez80asm` reproduced that committed 31,095-byte binary exactly.
+The hardware artifact was therefore not a result of assembler-version drift or
+nondeterministic output. The current `wavonly` source is intentionally smaller
+and no longer reproduces this historical binary.
 
 ## Uncommitted Oryx Pro enhancements
 
@@ -293,34 +295,65 @@ These should be simplified back to WAV-only return semantics. A WAV validator
 does not need to return media type 1 or 2, inspect an AGM format marker, or call
 `verify_agm`.
 
-The current WAV reference also records validation questions that remain
-separate from removing AGM: unchecked `FRESULT` values, incomplete header-read
-handling, limited header-field validation, and EOF inferred from a zero-byte
-read rather than `data_size`. Those questions remain owned by `docs/TODO.md`.
+Those shared internals have now been retained without retaining the AGM media
+type. The separate WAV questions found during archaeology were resolved in the
+2026-08-01 standard-reader pass: FatFS results and short reads are checked,
+format fields are validated, `fmt ` and `data` are discovered dynamically, and
+streaming is bounded by the declared `data` size. The resulting contract is in
+`docs/wav-reader-reference.md`; the decision evidence is in
+`docs/development-log.md`.
 
-## Recommended implementation strategy
+## 2026-08-01 implementation closure
 
-Use current `master` as the source and documentation baseline rather than
-resetting the branch to `dev`. Perform a deliberate audio-only reduction:
+The recovery recommendation produced commit `a6fc8bf`, the first stock-VDP
+WAV-only rollback, followed by the pruned standard-WAV `v0.10.0-beta` release.
+The current source keeps the mature browser, double buffering, playlist modes,
+wrapped seeking, per-file rate, and volume. It removes AGM dispatch, MIDI,
+experimental codecs, private-firmware output controls, and their build/test
+trees.
 
-1. Preserve the current WAV reader, browser, player, timer, buffer, volume, and
-   sample-rate behavior.
-2. Remove AGM recognition and playback while simplifying the shared interfaces
-   back to WAV-only contracts.
-3. Remove every limiter control, state variable, command emitter, and UI
-   reference.
-4. Remove the generic media function pointer and directly invoke the WAV reader
-   from the timer interrupt.
-5. Remove production dependence on video channel counts; constrain cleanup to
-   the two audio channels and four VDP buffers owned by the WAV player.
-6. Keep MIDI outside the production application and build path.
-7. Assemble and compare behavior against the known v0.9.5 and v0.9.6 artifacts,
-   using physical hardware as the functional and timing authority.
-8. Update the normative WAV reference and development log after the reduced
-   build is tested and accepted.
+The standard-input decision was deliberately broader than the historical
+player. Existing test media produced by compliant tools begins at byte 78, and
+current FFmpeg extensible PCM can begin at byte 102; neither should be rewritten
+to the old byte-76 layout. The player now scans bounded RIFF chunks and accepts
+both ordinary PCM and extensible PCM in its supported mono unsigned 8-bit
+subset. Exact 60 Hz rate scheduling, declared-payload EOF handling, partial-tail
+drain, dynamic-offset seeking, and safe return through the timer interrupt were
+corrected at the same time.
 
-This approach preserves later fixes and current documentation while producing
-a smaller application with an honest stock-firmware contract.
+The repository was then reduced from the proved compile and WAV-tool closures.
+It removed 287 tracked paths and 93,755,362 bytes, including the complete MIDI,
+AGM/video, and compression experiment trees. Git history and the branch names
+in `docs/branches_inventory.md` remain the recovery mechanism for those files.
+The missing Oryx source remains forensically interesting, but its known
+uncommitted enhancements are not prerequisites for the desired audio-only,
+stock-firmware product.
+
+The static recovery objective is therefore complete. The standard-WAV candidate
+also passed its complete stock-emulator gate: playback, browsing, volume,
+pause/resume, multiple seek steps with forward and backward wraparound, EOF
+progression, and final-to-first progression within the current directory slice.
+The exact candidate also received baseline physical-hardware approval, with
+better sound and fewer timer-related pops than the emulator. Extended long-form,
+cross-rate, cleanup, and VDP-memory policy tests remain useful non-blocking
+characterization recorded in `docs/development-log.md`.
+
+## Original recommended implementation strategy
+
+The following was the archaeology-driven recommendation. It is retained as the
+rationale for the implemented `wavonly` direction rather than as a second
+active work list.
+
+| Recommendation | Disposition |
+|---|---|
+| Start from the current line rather than resetting literally to `dev`, preserving the mature browser, WAV player, timer, volume, rate, and arithmetic fixes. | Implemented in `wavonly`. |
+| Remove AGM recognition, generic media dispatch, video state, limiter controls, and private-firmware commands. | Implemented in `a6fc8bf`; the remaining source/assets were pruned in the current candidate. |
+| Keep MIDI outside the production application and build path. | Implemented; the tracked MIDI tree was removed. |
+| Constrain normal cleanup to the two audio channels and four WAV buffers owned by the application. | Implemented provisionally; startup memory pressure remains a hardware policy decision. |
+| Assemble reproducibly, compare behavior with known artifacts, and update the normative reference and log. | Build, documentation, stock-emulator qualification, and baseline physical-hardware approval are complete. |
+
+This preserved later fixes while producing a smaller application with an
+honest stock-firmware contract.
 
 Final implementation review exposed a separate startup policy hidden by the
 historical code: `ui_init` cleared every VDP buffer. The scoped candidate clears
@@ -332,30 +365,17 @@ retain intentional clear-all at startup and keep exit cleanup scoped. Optional
 player modules merged later must inherit whichever base-player policy wins that
 test.
 
-## Validation criteria for the future reduction
+## Acceptance criteria derived from the archaeology
 
-The eventual implementation should demonstrate all of the following before it
-replaces the current hardware binary:
+The archaeology established that a replacement needs a reproducible build, no
+production AGM/MIDI/limiter/private-command dependency, correct standard-WAV
+browsing and playback, stable controls and volume, accurate cross-rate
+transitions, continuous long-form playback, clean exit state, and a deliberate
+VDP-memory policy. Static criteria are recorded as evidence in the development
+log. Baseline emulator and physical-hardware acceptance are complete; extended
+characterization remains recorded there rather than tracked in this historical
+document.
 
-1. It assembles reproducibly with the repository's documented `ez80asm` setup.
-2. No production symbol or include refers to AGM, MIDI, limiter methods, or
-   custom VDP commands.
-3. Directory browsing accepts the supported WAV contract and rejects unrelated
-   files.
-4. Long-form WAV playback remains continuous on physical hardware.
-5. Play/pause, loop, shuffle, random selection, automatic progression, and
-   seeking behave as documented.
-6. Volume persists across song changes.
-7. Files with different supported sample rates play correctly and report the
-   selected rate.
-8. Exiting restores the screen, timer, interrupt, file, audio, and VDP state
-   sufficiently that a subsequent stock application exits cleanly.
-9. With VDP memory deliberately pre-populated, startup can allocate the UI and
-   double audio buffers and sustain `Africa_65535.wav`; if it cannot, the
-   documented startup clear-all policy is restored. The full Lynyrd Skynyrd
-   fixture separately satisfies the long-form continuity criterion in item 4.
-10. The result is tested on physical hardware before being treated as the new
-   production binary.
-
-The surviving hardware binary should be copied to durable archival storage and
-identified by its SHA-256 before any SD-card deployment replaces it.
+The original recovery recommendation was to preserve the surviving hardware
+binary in durable archival storage, identified by its SHA-256, before any
+SD-card deployment replaced it.

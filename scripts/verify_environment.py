@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
-"""Verify AgonVideo's Python and native media-development environment."""
+"""Verify the WAV-only Python, native-tool, test, and assembly environment."""
 
 from __future__ import annotations
 
 import importlib
-import os
 from pathlib import Path
 import subprocess
 import sys
@@ -12,75 +11,48 @@ import tempfile
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-EXPECTED_AGONUTILS_DIR = Path("/home/smith/Agon/mystuff/agon-utils").resolve()
-EXPECTED_MODULES = (
-    "numpy",
-    "scipy",
-    "PIL",
-    "pandas",
-    "matplotlib",
-    "pydub",
-    "soundfile",
-    "pretty_midi",
-    "fluidsynth",
-    "pygame",
-    "agonutils",
-)
-EXPECTED_AGONUTILS_API = (
-    "convert_to_palette",
-    "img_to_rgba2",
-    "rgba8_to_img",
-    "rgba2_to_img",
-    "csv_to_palette",
-    "simz_encode",
-    "simz_decode",
-    "simz_encode_bytes",
-    "simz_decode_bytes",
-)
+VENV_DIR = PROJECT_ROOT / ".venv"
+
+
+def run(command: list[str], *, cwd: Path = PROJECT_ROOT) -> bool:
+    print("+", " ".join(command), flush=True)
+    return subprocess.run(command, cwd=cwd, check=False).returncode == 0
 
 
 def main() -> int:
-    os.environ.setdefault("MPLCONFIGDIR", tempfile.mkdtemp(prefix="agonvideo-matplotlib-"))
-
     failures: list[str] = []
     print(f"Python: {sys.version.split()[0]}")
     print(f"Interpreter: {sys.executable}")
 
-    for name in EXPECTED_MODULES:
-        try:
-            module = importlib.import_module(name)
-            print(f"PASS import {name}: {getattr(module, '__file__', '<built-in>')}")
-        except Exception as exc:  # Report all failures in one run.
-            failures.append(f"import {name}: {type(exc).__name__}: {exc}")
+    if Path(sys.prefix).resolve() != VENV_DIR.resolve():
+        failures.append(f"interpreter is not from {VENV_DIR}")
 
     try:
-        agonutils = importlib.import_module("agonutils")
-        module_path = Path(agonutils.__file__).resolve()
-        if EXPECTED_AGONUTILS_DIR not in module_path.parents:
-            failures.append(
-                "agonutils resolved outside the canonical checkout: "
-                f"{module_path}"
-            )
-        for name in EXPECTED_AGONUTILS_API:
-            if not hasattr(agonutils, name):
-                failures.append(f"agonutils is missing {name}")
-
-        source = bytes(range(256)) * 16
-        encoded = agonutils.simz_encode_bytes(source)
-        decoded = agonutils.simz_decode_bytes(encoded)
-        if decoded != source:
-            failures.append("agonutils SIMZ byte round trip changed the input")
-        else:
-            print(f"PASS SIMZ round trip: {len(source)} -> {len(encoded)} -> {len(decoded)} bytes")
+        module = importlib.import_module("yt_dlp")
+        print(f"PASS import yt_dlp: {module.__file__}")
     except Exception as exc:
-        failures.append(f"agonutils API verification: {type(exc).__name__}: {exc}")
+        failures.append(f"import yt_dlp: {type(exc).__name__}: {exc}")
 
-    native_check = subprocess.run(
-        [sys.executable, str(PROJECT_ROOT / "scripts" / "check_native_deps.py")],
-        check=False,
-    )
-    if native_check.returncode:
+    if not run([sys.executable, str(PROJECT_ROOT / "scripts" / "check_native_deps.py")]):
         failures.append("native dependency check failed")
+    if not run([sys.executable, "-m", "pip", "check"]):
+        failures.append("pip dependency check failed")
+    if not run(
+        [sys.executable, "-B", "-m", "unittest", "-v", "scripts.test_make_wav"]
+    ):
+        failures.append("WAV tool tests failed")
+
+    with tempfile.TemporaryDirectory(prefix="agonjukebox-build-") as temp_dir:
+        binary = Path(temp_dir) / "jukebox.bin"
+        if not run(
+            ["ez80asm", "app.asm", str(binary)],
+            cwd=PROJECT_ROOT / "src" / "asm",
+        ):
+            failures.append("application assembly failed")
+        elif not binary.is_file() or binary.stat().st_size == 0:
+            failures.append("assembler did not produce a nonempty binary")
+        else:
+            print(f"PASS assembly: {binary.stat().st_size} bytes")
 
     if failures:
         print("\nEnvironment verification failed:")

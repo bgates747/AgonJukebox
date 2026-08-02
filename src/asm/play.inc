@@ -22,7 +22,6 @@ ps_mode: db 0 ; playback mode bitmask
 ps_channel: db 0 ; channel number
 ps_wav_cmd_buffer: dl ps_wav_cmd_bufferId0 ; current command buffer
 ps_wav_data_buffer: dl ps_wav_data_bufferId0 ; current sample-data buffer
-ps_chunkpointer: dl 0 ; pointer to current chunk
 ps_playhead: dw32 0 ; current playhead position in seconds from the start (32-bit integer)
 ps_song_duration: blkb 5,0 ; duration of the current song in seconds (32-bit integer plus a padding byte)
 ps_seek_rate: dw32 1 ; seek rate in seconds per keypress (32-bit integer)
@@ -30,8 +29,15 @@ ps_seek_rate_idx: db 0 ; seek rate indexs
     db 1,5,10,15,30,60,120,240 ; seek rates in seconds per keypress
 
 ps_chunks_per_second: equ 60 ; number of chunks to load per second
-ps_wav_chunk_size: dl 0 ; size of audio chunks to load (sample rate / 60)
+ps_wav_chunk_size: dl 0 ; base chunk size (sample rate / 60)
+ps_wav_chunk_remainder: db 0 ; remainder from sample rate / 60
+ps_wav_chunk_error: db 0 ; distributes remainder bytes across the 60 ticks
 ps_wav_chunk_counter: db 0 ; init to audio chunks/sec, when hits zero play the loaded audio buffer
+ps_wav_bytes_remaining: dw32 0 ; unread bytes remaining in the declared data chunk
+ps_wav_buffer_bytes: dl 0 ; PCM bytes accumulated in the current VDP buffer
+ps_wav_eof_pending: db 0 ; data exhausted; finish and play the current buffer
+ps_wav_drain_ticks: db 0 ; timer ticks until the final VDP sample has finished
+ps_irq_transition: db 0 ; get_input returns once so the timer ISR can unwind
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -77,24 +83,53 @@ play_song:
     ld a,(ps_volume)
     call ps_adjust_volume
 
-; compute the song duration from the file size and sample rate and print it
-; technically we should account for the .wav header, but at 76 bytes it's negligible
+; compute the song duration from the PCM payload size and sample rate and print it
     call vp_duration ; set viewport to duration window
-    ld a,(ps_wav_header+wav_file_size+3) ; upper byte
-    ld ix,(ps_wav_header+wav_file_size+0) ; lower word
+    ld a,(ps_wav_header+wav_data_size+3) ; upper byte
+    ld ix,(ps_wav_header+wav_data_size+0) ; lower 24 bits
     ld de,(ps_wav_header+wav_sample_rate)
     call udiv3223 ; auix = duration in seconds
     ld (ps_song_duration),ix ; duration low word
     ld (ps_song_duration+3),a ; duration high byte
+; round up when a final partial second remains
+    ld de,0
+    or a
+    sbc hl,de ; udiv3223 leaves the remainder in hl
+    jr z,@duration_ready
+    ld hl,(ps_song_duration)
+    inc hl
+    ld (ps_song_duration),hl
+    ld de,0
+    or a
+    sbc hl,de
+    jr nz,@duration_ready
+    ld a,(ps_song_duration+3)
+    inc a
+    ld (ps_song_duration+3),a
+@duration_ready:
     ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
     call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
     call printString ; print the duration
 
-; compute the chunksize
+; Compute exact 60 Hz chunk scheduling. The quotient is the base size and the
+; remainder is distributed one byte at a time, so every 60 ticks total exactly
+; one sample-rate's worth of PCM even when the rate is not divisible by 60.
     ld hl,(ps_wav_header+wav_sample_rate)
     ld de,ps_chunks_per_second
-    call udiv24 ; de = sample_rate / ps_chunks_per_second
-    ld (ps_wav_chunk_size),de ; save the chunk size
+    call udiv24 ; de = quotient, hl = remainder
+    ld (ps_wav_chunk_size),de
+    ld a,l
+    ld (ps_wav_chunk_remainder),a
+
+; initialize the data-chunk boundary used by the streaming reader
+    ld hl,(ps_wav_header+wav_data_size)
+    ld (ps_wav_bytes_remaining),hl
+    ld a,(ps_wav_header+wav_data_size+3)
+    ld (ps_wav_bytes_remaining+3),a
+    xor a
+    ld (ps_wav_chunk_error),a
+    ld (ps_wav_eof_pending),a
+    ld (ps_wav_drain_ticks),a
 
 ; flip the command and sample buffers and read the first block of data
     call ps_load_audio_cmd_buffers ; TODO: we should only have to do this on app init, 
@@ -106,6 +141,8 @@ play_song:
 ; reset the playbar counter to zero
     ld hl,0
     ld (ps_playhead),hl
+    xor a
+    ld (ps_playhead+3),a
  ; this is crucial so that the next sound played is at new position
     call ps_set_audio_buffers        
 ; set ps_mode_playing
@@ -134,19 +171,108 @@ ps_read_sample:
 ; Returns:
 ; BC(U): Number of bytes read
 ; A: FRESULT
+; If the final VDP sample is playing, wait its actual duration before advancing.
+    ld a,(ps_wav_drain_ticks)
+    or a
+    jr z,@not_draining
+    dec a
+    ld (ps_wav_drain_ticks),a
+    ret nz
+    jp @song_over
+
+@not_draining:
+; Once data is exhausted, use the remaining ticks to finish the current buffer.
+    ld a,(ps_wav_eof_pending)
+    or a
+    jp nz,@tick
+
+; stop at the declared data boundary, even if another RIFF chunk follows it
+    ld a,(ps_wav_bytes_remaining+3)
+    or a
+    jr nz,@schedule_chunk
+    ld hl,(ps_wav_bytes_remaining)
+    ld de,0
+    or a
+    sbc hl,de
+    jp z,@song_over
+
+@schedule_chunk:
+; request base + a distributed remainder byte for this timer tick
+    ld bc,(ps_wav_chunk_size)
+    ld a,(ps_wav_chunk_error)
+    ld d,a
+    ld a,(ps_wav_chunk_remainder)
+    add a,d
+    cp ps_chunks_per_second
+    jr c,@save_chunk_error
+    sub ps_chunks_per_second
+    inc bc
+@save_chunk_error:
+    ld (ps_wav_chunk_error),a
+
+; Rates below 60 Hz legitimately have zero-byte ticks.
+    ld hl,0
+    or a
+    sbc hl,bc
+    jp z,@tick
+
+; request min(scheduled size, bytes_remaining)
+    ld a,(ps_wav_bytes_remaining+3)
+    or a
+    jr nz,@read
+    ld hl,(ps_wav_bytes_remaining)
+    or a
+    sbc hl,bc
+    jr nc,@read
+    ld bc,(ps_wav_bytes_remaining)
+@read:
     ld hl,ps_fil_struct
     ld de,ps_wav_data
-    ; ld bc,(ps_wav_header+wav_sample_rate)
-    ld bc,(ps_wav_chunk_size)
     FFSCALL ffs_fread
+    or a
+    jp nz,@song_over
+
+; subtract the number of bytes actually read from the data-chunk remainder
+    ld hl,(ps_wav_bytes_remaining)
+    or a
+    sbc hl,bc
+    ld (ps_wav_bytes_remaining),hl
+    ld a,(ps_wav_bytes_remaining+3)
+    sbc a,0
+    ld (ps_wav_bytes_remaining+3),a
+
+; account for blocks accumulated into this second's VDP sample
+    ld hl,(ps_wav_buffer_bytes)
+    add hl,bc
+    ld (ps_wav_buffer_bytes),hl
+
+; remember when this read consumed the last declared PCM byte
+    ld a,(ps_wav_bytes_remaining+3)
+    or a
+    jr nz,@have_data
+    ld hl,(ps_wav_bytes_remaining)
+    ld de,0
+    or a
+    sbc hl,de
+    jr nz,@have_data
+    ld a,1
+    ld (ps_wav_eof_pending),a
+@have_data:
 ; test bc for zero bytes read
     ld hl,0
     xor a ; clear carry
     sbc hl,bc ; hl = 0-chunksize
     jp nz,@load ; we read some data
-; no data read so close file and play next song
+; a short/truncated data chunk ended before its declared size
+@song_over:
     call ps_close_file
-    jp ps_song_over
+; Playlist routines historically tail-jump through play_song into get_input.
+; Mark that terminal get_input as an ISR continuation so it returns through
+; this call site and lets ps_prt_irq_handler restore registers and RETI.
+    ld a,1
+    ld (ps_irq_transition),a
+    call ps_song_over
+    ret
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 @load:
@@ -154,6 +280,7 @@ ps_read_sample:
     ld hl,(ps_wav_data_buffer)
     ld de,ps_wav_data ; pointer to data
     call vdu_load_buffer
+@tick:
 ; decrement the chunk counter
     ld a,(ps_wav_chunk_counter)
     dec a
@@ -162,8 +289,34 @@ ps_read_sample:
 ; reset the chunk counter and play the buffer
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
-    jp ps_play_sample
+; if this is the final buffer, calculate how many timer ticks it will play
+    ld a,(ps_wav_eof_pending)
+    or a
+    call nz,ps_prepare_eof_drain
+    call ps_play_sample
+    ret
 ; end ps_read_sample
+
+; Convert the final buffer's sample count to ceil(60 * samples / sample_rate)
+; timer ticks, so the next track cannot reset its channel before playback ends.
+ps_prepare_eof_drain:
+    ld hl,(ps_wav_buffer_bytes)
+    ld de,ps_chunks_per_second
+    call umul24
+    ld de,(ps_wav_header+wav_sample_rate)
+    call udiv24 ; de = whole ticks, hl = remainder
+    push de
+    ld de,0
+    or a
+    sbc hl,de
+    pop de
+    ld a,e
+    jr z,@store
+    inc a
+@store:
+    ld (ps_wav_drain_ticks),a
+    ret
+; end ps_prepare_eof_drain
 
 ps_update_playbar:
 ; set viewport to playbar
@@ -221,6 +374,8 @@ ps_set_audio_buffers:
     inc l
     ld (ps_wav_data_buffer),hl
     call vdu_clear_buffer
+    ld hl,0
+    ld (ps_wav_buffer_bytes),hl
     ret
 ; end ps_set_audio_buffers
 
@@ -294,25 +449,6 @@ ps_play_next_song:
     jp play_song
 ; end ps_play_next_song
 
-ps_play_prev_song:
-    ld a,(bf_files_cur_pg)
-    or a ; check for zero files
-    jp z,get_input ; no files to play so return to user input loop
-    ld b,a ; loop counter
-@next_file:
-    push bc ; save loop counter
-    call get_next_file_idx ; (bf_file_idx)++ with wraparound
-    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-    call bf_check_dir_or_file ; if zero then it's a song
-    pop bc ; restore loop counter
-    jp z,@play_song ; is a file so play song
-    djnz @next_file ; try the next file
-    jp get_input ; no files in this directory so return to user input loop
-@play_song:
-    call bf_highlight_file ; highlight the selected file
-    jp play_song
-; end ps_play_prev_song
-
 ; queue a random song on the current page to play next
 ps_play_random:
     ld a,(bf_files_cur_pg)
@@ -346,11 +482,10 @@ ps_play_random:
 ps_load_audio_cmd_buffers:
     ld hl,ps_wav_cmd_bufferId0
     call vdu_clear_buffer
-    ld hl,(ps_wav_header+wav_sample_rate)
-    ; ld hl,(ps_wav_chunk_size)
-    ld (ps_sr0),hl
-    ld a,23
-    ld (ps_sr0+2),a
+    ld a,(ps_wav_header+wav_sample_rate)
+    ld (ps_sr0),a
+    ld a,(ps_wav_header+wav_sample_rate+1)
+    ld (ps_sr0+1),a
     ld hl,ps_wav_cmd_bufferId0
     ld bc,ps_cmd0_end-ps_cmd0
     ld de,ps_cmd0
@@ -358,11 +493,10 @@ ps_load_audio_cmd_buffers:
 
     ld hl,ps_wav_cmd_bufferId1
     call vdu_clear_buffer
-    ld hl,(ps_wav_header+wav_sample_rate)
-    ; ld hl,(ps_wav_chunk_size)
-    ld (ps_sr1),hl
-    ld a,23
-    ld (ps_sr1+2),a
+    ld a,(ps_wav_header+wav_sample_rate)
+    ld (ps_sr1),a
+    ld a,(ps_wav_header+wav_sample_rate+1)
+    ld (ps_sr1+1),a
     ld hl,ps_wav_cmd_bufferId1
     ld bc,ps_cmd1_end-ps_cmd1
     ld de,ps_cmd1

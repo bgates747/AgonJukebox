@@ -1,212 +1,218 @@
 # Development log
 
-This is the active running record for AgonJukebox. It captures work performed,
-important discoveries, decisions, unresolved issues, and the most useful next
-steps. Earlier entries are archived in `docs/development-log-20260718.md`.
+This is the current decision and evidence record for AgonJukebox. It includes
+qualification evidence and any non-blocking follow-up characterization; the
+project does not maintain a separate documentation TODO.
 
-## Current status
+## 2026-08-01 — Standard-WAV reader and WAV-only repository closure
 
-Last updated: 2026-08-01
+Status: implemented, fully validated in the stock emulator, approved on
+physical hardware, and prepared as `v0.10.0-beta` on `wavonly`.
 
-- `uv` 0.11.29 and `uvx` are installed persistently in `~/.local/bin`.
-- POSIX login-shell and interactive Bash startup resolve the persistent `uv`
-  binary without referencing `/tmp/agonvideo-uv`.
-- The project consumes the canonical editable `agonutils` checkout at
-  `/home/smith/Agon/mystuff/agon-utils`; the former embedded-submodule workflow
-  is retired.
-- Branch `wavonly` contains an assembled WAV-only candidate for stock VDP
-  firmware. A non-65,535 Hz cold-start pitch check and the interactive control
-  matrix passed in the emulator. In-session cross-rate transitions and the
-  physical-hardware gates remain pending.
+The product boundary is now explicit: a stock-VDP filesystem browser and WAV
+player, plus one WAV preparation tool. AGM video, MIDI, private-firmware audio
+controls, and compression experiments are recoverable from Git history but are
+not part of this branch's build or toolchain.
 
-## 2026-08-01 — WAV-only stock-VDP candidate synthesized
+### Standard WAV decision
 
-Implemented the deliberate reduction specified in
-`docs/audio-only-jukebox-archaeology.md` without resetting to the historical
-`dev` branch. The candidate retains the mature browser, prefix WAV validation,
-fixed-offset streaming, 60 Hz double buffering, playlist modes, seeking,
-sample-rate display/selection, and persistent user volume.
+The earlier rollback inherited a private fixed-offset assumption: it read 76
+bytes and treated byte 76 as PCM. Real, standards-compliant output already in
+the emulator used byte 78, while current FFmpeg can use byte 102 for
+`WAVE_FORMAT_EXTENSIBLE`. Requiring Audacity, FFmpeg, or another compliant tool
+to reproduce one metadata layout would have made the application needlessly
+fragile.
 
-The candidate include graph no longer includes or dispatches to AGM. WAV header
-offsets and current buffer pointers are WAV-owned, and the timer calls
-`ps_read_sample` directly. Removed all custom-firmware limiter keys, state,
-command emitters, and the unused signed 8-bit print helper. Song transitions
-and exit now reset only stock channels 0 and 1; exit clears only WAV buffers
-`0x3000` through `0x3003`.
+The target reader now walks RIFF chunks, honors odd-byte padding, skips unknown
+metadata, locates `fmt ` and `data` dynamically, and streams from the actual
+payload offset. It accepts mono unsigned 8-bit integer PCM in either legacy
+`WAVE_FORMAT_PCM` or extensible PCM form, with a rate from 1 through 65,535 Hz.
+It checks container/chunk arithmetic against both the RIFF boundary and the
+FatFS object size.
 
-The first interactive emulator pass exposed a rate-transition regression in
-the retained global sample-rate command: after Africa was selected first, the
-44,100 Hz and 48,000 Hz files shared the same incorrect pitch behavior. Source
-inspection then showed that Console8 treats global value 65,535 as a sentinel
-that restores its 16,384 Hz default, not as a literal output rate. The exact
-intermediate rate was not measured; the global command/reset interaction is
-the supported cause of the observed transition failure. The mutation was
-removed. Each command buffer already creates its VDP sample with the WAV
-header's explicit rate, so playback now relies exclusively on that per-buffer
-contract while continuing to display the rate and apply stored volume.
-The corrected candidate was relaunched with a non-65,535 Hz track first, and
-the user confirmed the intended pitch. In a subsequent emulator session, the
-user exercised the playback controls and reported that everything behaved
-correctly. This closes the general emulator control gate. Because the corrected
-run did not explicitly record an in-session transition among the 65,535,
-44,100, and 48,000 Hz fixtures, that transition matrix remains an explicit
-hardware check rather than being inferred from the cold-start pitch result.
+This resolves the former WAV investigations:
 
-Final review found that `ui_init` still issued the historical clear-all VDP
-buffer command. It has been replaced in this candidate with explicit cleanup
-of the four WAV buffers, the jukebox font buffer, and the logo buffer; exit is
-likewise scoped to resources the application owns. The user clarified that the
-old clear-all was intentional resource reclamation because the player puts
-substantial pressure on VDP memory. The scoped policy is therefore not blessed
-by emulator success alone. Hardware must launch the player from a deliberately
-nonempty VDP-buffer state and sustain Africa at 65,535 Hz for the
-allocation-pressure check. The Lynyrd Skynyrd album is a separate long-form
-continuity test. If allocation, UI, or streaming fails under pressure, restore
-clear-all at startup while retaining scoped cleanup on exit. This base-player
-decision must also be inherited by any optional modules later merged back into
-the player. The authoritative gates are `PLAY-001` through `PLAY-003` and
-`VDP-001` in `docs/TODO.md`.
+| Decision | Resolution |
+|---|---|
+| `WAV-001` — FatFS results | Every parser read/seek/open path checks `FRESULT`; failure closes the owned file. |
+| `WAV-002` — short reads | Preamble, chunk-header, and format reads must return their exact requested lengths. |
+| `WAV-003` — format validation | Format tag/subtype, mono channel count, rate range, byte rate, block alignment, valid bits, and sample depth are enforced. |
+| `WAV-004` — payload layout | The first valid `data` chunk after `fmt ` supplies dynamic 32-bit offset and size; fixed byte 76 is gone. |
 
-`ez80asm` 2.1 produced a 28,889-byte `tgt/jukebox.bin` with SHA-256
-`efa3e80837ae37e6a10e79a3a1e595477c1d00f72a12018de88106ad6ba35949`.
-An isolated second assembly was byte-identical. The generated candidate
-symbol table and binary strings contain no AGM, MIDI, limiter, media-dispatch,
-or signed-print symbols. `src/asm/app.lst` was regenerated from the reduced
-source.
+The normalized parser state reuses the previous 76-byte RAM allocations, so no
+memory-map expansion was needed. The normative behavior is recorded in
+[wav-reader-reference.md](wav-reader-reference.md).
 
-The ignored stock-emulator test set currently contains:
+### Streaming, EOF, and seek corrections
 
-| File | Rate | Duration | PCM payload offset |
+The timer still fills alternating one-second VDP sample buffers over 60 ticks,
+but read sizes are now exact for every supported rate. The player computes
+`rate / 60` and distributes `rate mod 60` bytes across the ticks. This removes
+pitch/duration drift for rates not divisible by 60 and correctly handles the
+65,535 Hz boundary and even rates below 60 Hz.
+
+Streaming is bounded by the declared `data` size, so a RIFF pad or later chunk
+cannot become audio. Duration is rounded up from the PCM byte count. The last
+partial sample buffer receives a calculated drain interval before automatic
+progression resets its channel, avoiding a clipped tail.
+
+Seeking now uses the dynamic payload offset and a Euclidean modulo target, so
+large backward steps wrap correctly on short tracks. The zero-based target is
+preserved before the display increments its one-based playhead. Initial
+prebuffering, where the display still reads zero, is handled separately so an
+immediate seek is not one second early. Remaining bytes, fractional scheduling,
+and EOF/drain state are all reset at the new position.
+
+Automatic progression runs from the timer interrupt. A continuation flag now
+causes the tail-jumped `get_input` to return through the interrupt call site,
+allowing the handler to restore registers and execute `RETI` instead of
+escaping its epilogue.
+
+### Host WAV tool
+
+All retained media preparation is consolidated in
+`scripts/make_wav.py`. The script accepts local files, shallow directory
+expansion, album concatenation, or one URL through `yt-dlp`; it supports trim,
+normalization, compression, an explicit sample rate, and additional FFmpeg
+filters. FFmpeg emits an ordinary mono `pcm_u8` WAV. The validator scans headers
+and seeks over payloads rather than loading album-sized audio into memory.
+
+The Python environment is intentionally small: Python 3.10 or newer, pinned
+`yt-dlp`, and system `ffmpeg`/`ffprobe`. The assembly build additionally needs
+`ez80asm`. There is no `agonutils`, native-extension, image, video, or codec
+library dependency.
+
+### Repository reduction
+
+The production include closure and host-tool closure were proved before
+removal. The pruning pass removed 287 tracked paths totaling 93,755,362
+bytes—99.529% of the previous tracked byte count. The removed material comprised
+the entire `midi/` and `frames/` trees; AGM/AGZ/video/compression scripts and
+tests; unused AGM/debug/test assembly and listings; editable/generated image
+and font sources not consumed by the assembler; target image experiments; and
+obsolete video-oriented documentation.
+
+One live `printHexA` routine was moved from the otherwise unused `debug.inc`
+into `functions.inc` before deletion. The retained closure consists of the
+production assembly includes, compiled font and logo inputs, the distributable
+binary, one WAV converter, its tests, current documentation, and
+setup/verification scripts. Historical branch names and deleted paths
+remain documented in [branches_inventory.md](branches_inventory.md), and all
+deleted sources remain reachable through Git history.
+
+The required assembly includes were also trimmed conservatively: unused
+buffer compression/decompression commands, generic image and SFX loaders,
+MIDI-style sound helpers, font/plot helpers, debug directory output, a broken
+unused previous-song routine, and unused viewport/sort state were removed only
+after reference checks. Shared arithmetic, timer, and FPP libraries remain
+intact where minimizing them would become a separate core-library rewrite.
+
+### Verification evidence
+
+Nine host tests pass. They cover minimal byte-44 PCM, variable metadata and
+padding, trailing chunks, extensible PCM, invalid extensible subtype, ordering,
+duplicates, empty/missing chunks, malformed fields, truncation, and real FFmpeg
+output at 65,535 Hz. A synthetic source converted successfully to extensible
+PCM with its payload at byte 102.
+
+The four ignored emulator fixtures validate without rewriting:
+
+| File | Sample rate | PCM bytes | Payload offset |
 |---|---:|---:|---:|
-| `Africa_65535.wav` | 65,535 Hz | 4:55.94 | 78 bytes |
-| `Lynyrd_Skynyrd__Gold_and_Platinum.wav` | 44,100 Hz | 1:37:42.76 | 78 bytes |
-| `Rhiannon.wav` | 48,000 Hz | 4:12.77 | 78 bytes |
-| `Wild_Flower.wav` | 48,000 Hz | 3:39.25 | 78 bytes |
+| `Africa_65535.wav` | 65,535 Hz | 19,394,319 | 78 |
+| `Lynyrd_Skynyrd__Gold_and_Platinum.wav` | 44,100 Hz | 258,547,712 | 78 |
+| `Rhiannon.wav` | 48,000 Hz | 12,133,120 | 78 |
+| `Wild_Flower.wav` | 48,000 Hz | 10,524,213 | 78 |
 
-All are 8-bit unsigned PCM mono, and packet/header inspection places every PCM
-payload at byte 78. They expose the known fixed-header limitation: the current
-reader assumes byte 76 and therefore begins playback with the final two bytes
-of the `data` size field. Parser hardening remains a separate TODO rather than
-part of this archaeology-driven reduction. The candidate is intentionally
-uncommitted pending the cross-rate, long-form, state-restoration, and VDP-memory
-pressure checks on physical hardware.
+The first emulator launch exposed a target-only flag-contract error: successful
+parser helpers loaded `A = 1`, but `LD` did not clear a zero flag left by the
+preceding exact-length comparison. The browser therefore rejected every valid
+WAV. Explicit `OR A` instructions now establish the documented nonzero return
+condition on all parser success paths. A follow-up audit found no additional
+fixture-specific or MOS/FatFS calling-convention error.
 
-## 2026-08-01 — Canonical agon-utils workflow adopted
+The corrected pre-version build is 27,716 bytes with SHA-256
+`8793be268dc9507ce4960323e66351caf8e9a7559487d8b70a9d45f5e03e515d`.
+The complete environment verifier passes: native dependencies, Python package
+integrity, all nine host WAV tests, and assembly.
 
-The canonical cross-project instructions superseded AgonJukebox's older pinned
-`external/agon-utils` submodule workflow. Removed the submodule and its Git
-configuration. Updated the Python bootstrap, setup guide, project handoff,
-Pylance path, and remaining utility paths to use the user-owned canonical
-checkout at `/home/smith/Agon/mystuff/agon-utils`.
+The user then completed the core interactive pass in the stock Fab Agon profile.
+The supplied legacy WAVs and generated extensible fixture appeared and played;
+directory browsing, volume control, ordinary seeking, and pause/resume behaved
+as expected. Static review separately confirmed parser bounds, exact scheduling,
+the data-size boundary, partial-buffer drain, signed seek wrapping, interrupt
+continuation, and the target's MOS/FatFS register and `FIL` layout assumptions.
 
-Environment verification now rejects an `agonutils` import that resolves
-outside the canonical checkout. Historical entries below retain the old
-submodule work as provenance; they are no longer current instructions.
+The user then completed the remaining `EMUL-001` edge cases. Multiple seek
+steps worked correctly, including forward wrap from the end to the beginning
+and backward wrap from the beginning to the end. Reaching EOF advanced to the
+next song, and reaching the final song wrapped correctly to the first song in
+the current directory slice. This completes the stock-emulator gate.
 
-## 2026-07-20 — Development environment startup
+### Physical-hardware approval
 
-### Non-persistent `uv` installation discovered
+The exact 27,716-byte candidate above was copied to the Agon SD card and
+verified byte-for-byte after the write. The user approved it on physical
+hardware. Playback sounded better than in Fab Agon, and the user observed that
+the real interrupt timing queues the next one-second chunk more accurately,
+producing fewer pops. This is the baseline hardware acceptance for the WAV-only
+application. Longer cross-rate, full-album, cleanup, and VDP-memory-pressure
+experiments remain useful non-blocking characterization work.
 
-Shell startup failed with:
+### Release consolidation and version
 
-```text
-/bin/sh: 29: cannot open /tmp/agonvideo-uv/env: No such file
-```
+Final repository housekeeping moved the converter and its nine-case regression
+suite together under `scripts/`, removed the obsolete `build/` and `tests/`
+directories, and folded the sole Python dependency pin
+(`yt-dlp==2026.7.4`) into `scripts/setup_python.py` before deleting
+`requirements.txt`. The redundant documentation index and completed TODO were
+removed; the hand-written root `README.md` remains the canonical user-facing
+document, with the surviving `docs/` files providing focused references and
+history.
 
-The `uv` installation had been placed under `/tmp/agonvideo-uv`, and startup
-configuration attempted to source environment files from that location. Since
-`/tmp` is ephemeral, the referenced file did not survive, leaving persistent
-shell configuration pointing at a missing temporary file.
+The release is named `v0.10.0-beta`. Reusing `v0.9.6-beta` would conflate this
+reproducible stock-VDP build with the unreproducible Oryx-era artifact, while a
+new minor version records both the deliberate WAV-only scope reset and the
+standard-WAV, scheduler, EOF, and seek improvements. The only source change
+after physical approval was the UI label and its one-column spacing adjustment.
+The user confirmed the new label in the stock emulator.
 
-Affected configuration was found in:
+The final 27,716-byte binary has SHA-256
+`b5d63d76abd5ac442851db1036c7895710c6545ad99d3b2d50f336a769aec550`.
+The full verifier still passes: native dependency checks, Python package
+integrity, all nine WAV tests, and isolated assembly. The transition is committed
+and tagged on `wavonly`; GitHub's live default branch remains `main`, so any
+promotion to the default branch is a separate decision.
 
-- `~/.profile`, which sourced `/tmp/agonvideo-uv/env`;
-- `~/.bashrc`, which sourced `/tmp/agonvideo-uv/env`;
-- `~/.config/fish/conf.d/uv.env.fish`, which sourced
-  `/tmp/agonvideo-uv/env.fish`; and
-- `~/.config/uv/uv-receipt.json`, which still records
-  `/tmp/agonvideo-uv` as the installation prefix.
+## 2026-08-01 — Stock-VDP rollback milestone
 
-The user initially restored shell startup by commenting out the three
-shell-source lines. The durable remediation then installed the same `uv`
-version, 0.11.29, into `~/.local/bin`. Its receipt now records
-`/home/smith/.local/bin` as the installation prefix rather than the temporary
-directory.
+Commit `a6fc8bf` established the first deliberate WAV-only rollback from the
+larger recovered codebase. It removed AGM dispatch and private-firmware limiter
+controls while retaining browsing, double-buffered audio, seeking, playlists,
+sample-rate display, and stored volume. It also stopped mutating the VDP global
+audio-system rate: each created sample already carries its own explicit rate,
+and the upstream global value 65,535 is a sentinel rather than a literal rate.
 
-Startup configuration now uses the persistent location directly:
+The user confirmed correct pitch when a non-65,535 Hz fixture was played first
+and subsequently exercised the controls successfully in the stock emulator.
+That evidence belongs to the fixed-header rollback; it does not pre-approve the
+new standard-WAV implementation above.
 
-- `~/.profile` retains its existing conditional addition of `~/.local/bin`;
-- `~/.bashrc` exports `~/.local/bin` onto `PATH`; and
-- `~/.config/fish/conf.d/uv.env.fish` calls `fish_add_path` for
-  `~/.local/bin`.
+Startup cleanup was narrowed from the historical clear-all operation to the
+buffers owned by the application. The user clarified that clear-all had been
+intentional VDP-memory reclamation for a demanding player. The scoped behavior
+therefore remains a hardware experiment, not a settled policy.
 
-No startup configuration references `/tmp/agonvideo-uv` anymore. Clean POSIX
-login-shell and interactive Bash checks both resolved `uv` to
-`/home/smith/.local/bin/uv` and reported version 0.11.29. Fish is not installed
-on this system, so its startup file could not be exercised with the Fish
-interpreter; the configuration uses Fish's standard `fish_add_path` builtin.
+## Recovery and provenance context
 
-### Immediate next actions
+The v0.9.6-beta binary formerly used on hardware could be identified but not
+reproduced from a clean commit. The best evidence indicates that it was built
+from uncommitted work on a 2018 System76 Oryx Pro. That machine may contain AGM
+and experimental output-control enhancements, but those features are outside
+the desired stock-VDP audio product and are not required for this rollback.
 
-1. Restart the user's normal session and confirm startup is clean.
-2. If Fish will be used, validate its startup configuration after Fish is
-   installed or on the target system where it is available.
-
-### Pylance `agonutils` import resolution
-
-VS Code continued to report that `agonutils` could not be resolved in
-`build/scripts/agm_make.py` and other importers even though those scripts ran
-successfully under the project virtual environment.
-
-The discrepancy was traced to the editable installation mechanism. The
-project's `.venv` contains a generated `__editable__` import finder that maps
-`agonutils` to the native extension built at
-`external/agon-utils/agonutils.cpython-314-x86_64-linux-gnu.so`. Python executes
-that finder at runtime, while Pylance's static module discovery does not rely on
-the runtime import hook.
-
-Added `${workspaceFolder}/external/agon-utils` to
-`python.analysis.extraPaths` in `.vscode/settings.json`. This exposes the
-extension module's real directory to Pylance without changing Python's working
-editable installation.
-
-### Reusable Agon platform overview
-
-Created a root-level `project-overview.md` containing only the general Agon
-platform facts from `docs/project-overview.md` that are relevant across assembly
-projects. It records the eZ80/ESP32-PICO-D4 architecture, the high-speed UART
-link, the VDP's display, audio, and keyboard responsibilities, and stock frame
-swapping. AgonVideo-specific application, media, codec, Python, and `agonutils`
-details were deliberately excluded.
-
-## 2026-07-22 — Official documentation and AGNB loading review
-
-Reviewed the official documentation checkout at
-`/home/smith/Agon/agon-docs` commit `f9806bd` and cross-referenced its MOS,
-FatFS, VDU, buffered-command, bitmap, audio, memory, and timing contracts
-against the production and test assembly in `src/asm`.
-
-Created `docs/agon-assembly-and-agnb-precis.md`. It documents the working
-eZ80-to-VDP data path, identifies existing routines suitable for reuse, and
-maps the draft RIFF-based AGNB structures to a bounded single-pass assembly
-reader.
-
-Important implementation findings include:
-
-- AGNB can reuse the existing MOS/FatFS read and buffered VDP upload patterns,
-  but needs strict 32-bit RIFF/list/chunk boundary accounting and short-read
-  checks.
-- Repeated buffered writes append blocks; image records must be consolidated
-  before bitmap creation, while audio samples may remain multi-block.
-- Asset preload block size and the measured 1/60-second real-time UART budget
-  are separate constraints.
-- Initial AGNB parsing and loading should run outside the peripheral-timer
-  interrupt; future real-time work should keep interrupt operations bounded.
-- The 2023 local `mos_api.inc` is not a complete current MOS 3 definition and
-  should be extended deliberately if newer APIs are adopted.
-- Official documentation specifies `RST.LIS` for MOS handlers while the working
-  project consistently uses `RST.LIL`; this requires a targeted assembler and
-  firmware compatibility check before any suffix changes.
-
-Added the précis to the documentation index. No assembly behavior was changed
-as part of this review.
+The SD card retained a build tree and binary, but not the missing
+`/mystuff/AgonJukebox` source checkout. The complete forensic record, artifact
+hashes, branch comparison, Oryx details, rejected feature sets, and recovery
+recommendations are preserved in
+[audio-only-jukebox-archaeology.md](audio-only-jukebox-archaeology.md).

@@ -1,9 +1,5 @@
 ; THIS MUST BE LAST INCLUDE SO FILE DATA DOES NOT OVERWRITE OTHER CODE OR DATA
 
-; buffer for loading files unrelated to audio
-; e.g.: fonts, sprites, etc. (limited to 8k)
-filedata: equ 0xB7E000 ; address of onboard 8k sram
-
 bf_fil_struct: equ 0x06FF00 ; 
 bf_fil_obj: equ 0x06FF00 ; 15 bytes: Object identifier
 bf_fil_flag: equ 0x06FF0F ; 1 bytes: File status flags
@@ -40,7 +36,7 @@ bf_filinfo_ptrs_size: equ 768
 bf_dir_fil_list: equ 0x070600 ; 71168 bytes: browsing song directory file list
 bf_dir_fil_list_size: equ 71168
 
-bf_wav_header: equ 0x081C00 ; 76 bytes: browsing song .wav file header
+bf_wav_header: equ 0x081C00 ; 76 bytes: normalized browsing WAV state
 
 ps_fil_struct: equ 0x090000 ; 
 ps_fil_obj: equ 0x090000 ; 15 bytes: Object identifier
@@ -60,5 +56,5 @@ ps_filinfo_fattrib: equ 0x090108 ; 1 bytes: File attribute
 ps_filinfo_altname: equ 0x090109 ; 13 bytes: Alternative file name
 ps_filinfo_fname: equ 0x090116 ; 256 bytes: Primary file name
 
-ps_wav_header: equ 0x090300 ; 76 bytes: playing song .wav file header
+ps_wav_header: equ 0x090300 ; 76 bytes: normalized playback WAV state
 ps_wav_data: equ 0x09034C ; virtually unlimited bytes: 

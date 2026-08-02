@@ -1,34 +1,32 @@
-# Large media files
-midi/sf2/
-midi/tgt/Samples/
-midi/wav/
-
-# Build and target directories
-assets/
-build/utils/
-tgt/music/
-tgt/music_bak/
-tgt/video/
-tgt/images/
-
 # Python
+.venv/
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Environment and editor
-.venv
-.python/
+# Editor
 .vscode/*
 !.vscode/settings.json
 
-# macOS system files
+# Generated assembly output
+src/asm/*.lst
+
+# Locally generated or supplied media
+tgt/audio/
+tgt/music/
+*.aac
+*.aiff
+*.flac
+*.m4a
+*.mp3
+*.ogg
+*.opus
+*.wav
+*.wma
+
+# Operating-system litter
 .DS_Store
-.DS_Store?
-._.DS_Store
 ._*
 .Spotlight-V100
 .Trashes
-.AppleDouble
-.LSOverride
-Icon?
+Thumbs.db

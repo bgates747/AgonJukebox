@@ -99,6 +99,18 @@ printHex8:
     RST.LIL 10h
     RET
 
+; Print A as two hexadecimal digits followed by a space.
+; Preserves AF and BC for the directory-listing loops.
+printHexA:
+    push af
+    push bc
+    call printHex8
+    ld a,' '
+    rst.lil 10h
+    pop bc
+    pop af
+    ret
+
 ; Print a 0x HEX prefix
 DisplayHexPrefix:
     LD A, '0'

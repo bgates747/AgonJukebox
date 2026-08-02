@@ -2,8 +2,6 @@ text_top: equ 0
 text_left: equ 0
 text_bottom: equ 47      ; 48 rows, zero-based
 text_right: equ 63       ; 64 columns, zero-based
-screen_width: dl 0
-screen_height: dl 0
 
 original_screen_mode: db 0 ; screen mode when app started so we can return to it on exit
 
@@ -59,13 +57,6 @@ vp_playbar:
 ; end vp_playbar
 
 vp_dir_hdr_top: equ 20
-vp_dir_hdr:
-    ld c,text_left
-    ld d,vp_dir_hdr_top
-    ld e,text_right
-    ld b,vp_dir_hdr_top
-    call vdu_set_txt_viewport
-    ret
 
 vp_dir_name_top: equ vp_dir_hdr_top+1
 vp_dir_name:
@@ -88,13 +79,6 @@ vp_dir:
     ret
 
 vp_legend_top: equ vp_playbar_top+2
-vp_legend:
-    ld c,text_left
-    ld d,vp_legend_top
-    ld e,text_right
-    ld b,vp_legend_top+2
-    call vdu_set_txt_viewport
-    ret
 
 vp_legend_page_num_top: equ vp_legend_top
 vp_legend_page_num_left: equ text_left+29
@@ -164,17 +148,6 @@ vp_messages:
     ld d,vp_messages_top
     ld e,text_right
     ld b,vp_messages_bottom
-    call vdu_set_txt_viewport
-    ret
-
-vp_debug_top: equ vp_messages_top
-vp_debug_bottom: equ text_bottom
-; set text viewport for messages
-vp_debug:
-    ld c,text_left
-    ld d,vp_debug_top
-    ld e,text_right
-    ld b,vp_debug_bottom
     call vdu_set_txt_viewport
     ret
 
@@ -348,5 +321,5 @@ agon_jukebox_ascii:
     db "     |    |  _/ /   |   \\ \\     /          \r\n"
     db "     |    |   \\/    |    \\/     \\          \r\n"
     db "     |______  /\\_______  /___/\\  \\         \r\n"
-    db "            \\/         \\/      \\_/              v0.9.6-beta\r\n"
+    db "            \\/         \\/      \\_/             v0.10.0-beta\r\n"
     db 0 ; list terminator

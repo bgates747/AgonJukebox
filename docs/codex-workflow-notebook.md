@@ -1,55 +1,48 @@
-# AgonJukebox Project Handoff
+# AgonJukebox project handoff
 
 Read `/home/smith/Agon/mystuff/agon-dev-env/codex/AGENTS.md` first. This file
 contains only AgonJukebox-specific guidance.
 
-## Project
+## Product boundary
 
-AgonJukebox is an eZ80 WAV player for stock upstream VDP firmware. Historical
-AGM, video-codec, and MIDI work is retained outside the WAV-only candidate
-include graph. Start with `docs/project-overview.md`,
-`docs/development-log.md`, and the task-relevant technical reference.
+AgonJukebox is an eZ80 WAV player for standard upstream Console8 VDP firmware.
+The production tree is deliberately limited to WAV playback; AGM video, MIDI,
+experimental codecs, and private-firmware output controls are not part of this
+branch.
 
-The current working tree may contain active application experiments. Inspect
-status before every edit or commit and never stage unrelated assembly, Python,
-media, editor, or generated changes.
+Start with `docs/project-overview.md`, `docs/development-log.md`, and the
+task-relevant section of `docs/wav-reader-reference.md`. Historical recovery
+context lives in `docs/audio-only-jukebox-archaeology.md` and
+`docs/branches_inventory.md`.
 
-## Python and agon-utils
+## Build and Python checks
 
-Use `.venv/bin/python` explicitly. The supported bootstrap is:
-
-```bash
-python3.14 scripts/setup_python.py
-```
-
-Install the canonical user-owned `agon-utils` checkout from
-`/home/smith/Agon/mystuff/agon-utils` in editable mode. Do not create an
-application-local copy or submodule. Deliberate utility changes belong in the
-canonical repository on their own branch and commit. See
-`docs/development-setup.md`.
-
-Verify the application environment with:
+Use `.venv/bin/python` explicitly. The project has no `agonutils` dependency.
+The supported bootstrap and verification commands are:
 
 ```bash
+python3 scripts/setup_python.py
 .venv/bin/python scripts/verify_environment.py
 ```
 
-## Technical references
+The native requirements are `ez80asm`, `ffmpeg`, and `ffprobe`. Assemble from
+`src/asm` without `-l` for routine checks; listing files are generated output
+and are ignored:
 
-- `docs/agonvideo-wav-reader-reference.md` maps the candidate WAV path.
-- `docs/codec-and-throughput.md` records transport limits and codec work.
-- `docs/audio-only-jukebox-archaeology.md` records the recovery rationale and
-  intended product boundary.
-- `docs/agon-assembly-and-agnb-precis.md` is a historical video-container
-  reference, not the current implementation direction.
-- `docs/TODO.md` is the authoritative list of current reader work and candidate
-  acceptance gates.
+```bash
+cd src/asm
+ez80asm app.asm ../../tgt/jukebox.bin
+```
 
-The WAV-only candidate resets channels 0 and 1 and clears its four audio
-buffers on exit. Its scoped startup clear is an unblessed alternative to the
-historical intentional clear-all. Do not treat the candidate as accepted until
-the physical gates `PLAY-001` through `PLAY-003` and `VDP-001` in
-`docs/TODO.md` are resolved.
+Qualification evidence and non-blocking follow-up characterization belong in
+`docs/development-log.md`.
 
-Machine environment scripts and emulator profiles belong in
-`/home/smith/Agon/mystuff/agon-dev-env`, not in this repository.
+## Emulator and hardware gates
+
+The isolated Fab Agon profile is owned by the canonical environment repository
+at `/home/smith/Agon/mystuff/agon-dev-env/emulators/jukebox`. Do not add the
+emulator, its SD tree, or test media to this repository.
+
+Any candidate binary or emulator-profile change remains uncommitted and
+unpushed until the user explicitly validates it. Record emulator and hardware
+results in `docs/development-log.md` before promotion.

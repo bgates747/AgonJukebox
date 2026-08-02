@@ -55,8 +55,6 @@ exit:
     include "timer_jukebox.inc"
     include "wav.inc"
     
-    include "debug.inc"
-
 ; --- MAIN PROGRAM FILE ---
 init:
     call bf_get_dir

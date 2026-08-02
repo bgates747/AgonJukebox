@@ -1,103 +1,81 @@
 # Development setup
 
-## Clone the project
+## Prerequisites
 
-Clone AgonJukebox normally. It has no Git submodules:
+The production build and WAV toolchain require:
 
-```bash
-git clone <AgonJukebox repository URL>
-```
+- Python 3.10 or newer;
+- `ez80asm`;
+- `ffmpeg`; and
+- `ffprobe`.
 
-The project consumes the canonical user-owned `agon-utils` checkout at:
+URL downloads additionally use the pinned `yt-dlp` Python package. The project
+does not use `agonutils`, native Python extensions, FFmpeg development headers,
+or image/video libraries.
 
-```text
-/home/smith/Agon/mystuff/agon-utils
-```
-
-Do not create an application-local copy or submodule. Utility development is
-committed in the canonical repository on its own branch; AgonJukebox consumes
-that live checkout through an editable Python installation.
-
-## Python environment
-
-The preferred setup command is:
+Check native programs without changing the system:
 
 ```bash
-python3.14 scripts/setup_python.py
+python3 scripts/check_native_deps.py
 ```
 
-It creates `.venv` when necessary, checks native dependencies, installs the
-pinned packages in `requirements.txt`, installs the canonical `agonutils`
-checkout in editable mode, and verifies the resulting environment. When
-`.venv` already exists, it is reused.
+## Project environment
 
-The local virtual environment is intentionally ignored by Git. It can be
-activated manually with:
+Create or refresh the ignored project-local environment with:
 
 ```bash
-source .venv/bin/activate
-python --version
+python3 scripts/setup_python.py
 ```
 
-The current development environment uses Python 3.14.6. Ordinary Python
-dependencies are pinned in `requirements.txt`.
-
-VS Code-compatible editors are configured through `.vscode/settings.json` to
-use `${workspaceFolder}/.venv/bin/python`, activate that environment in new
-integrated terminals, and inspect the canonical `agon-utils` checkout. Reload
-the editor window after initially creating `.venv` if its analyzer still
-reports missing imports.
-
-For direct terminal execution, either activate the environment first:
+The script creates `.venv`, installs its pinned `yt-dlp` dependency, runs the
+WAV tests, and assembles a temporary binary. Thereafter use the selected
+interpreter explicitly:
 
 ```bash
-source .venv/bin/activate
-python build/scripts/test_differencing_playback.py
-```
-
-or invoke its interpreter explicitly:
-
-```bash
-.venv/bin/python build/scripts/test_differencing_playback.py
-```
-
-### Native prerequisites
-
-The media pipeline and `agonutils` require a C compiler, `pkg-config`, FFmpeg,
-the FFmpeg development libraries, and libpng development headers. Check them
-without changing the system:
-
-```bash
-.venv/bin/python scripts/check_native_deps.py
-```
-
-On Debian or Ubuntu, install them with:
-
-```bash
-sudo apt-get update
-sudo apt-get install -y \
-  pkg-config ffmpeg libavformat-dev libavcodec-dev \
-  libswscale-dev libavutil-dev libpng-dev
-```
-
-The bootstrap uses the canonical editable-install command:
-
-```bash
-.venv/bin/python -m pip install --no-build-isolation --no-deps \
-  -e /home/smith/Agon/mystuff/agon-utils
-```
-
-Verify dependency consistency, the canonical module location, the expected
-`agonutils` API, native dependencies, and a SIMZ in-memory round trip with:
-
-```bash
-.venv/bin/python -m pip check
 .venv/bin/python scripts/verify_environment.py
 ```
 
-Run the utility checkout's own test with the consumer interpreter:
+VS Code-compatible editors select the same interpreter through the tracked
+`.vscode/settings.json`.
+
+## Assemble
+
+From the repository root:
 
 ```bash
-cd /home/smith/Agon/mystuff/agon-utils
-/home/smith/Agon/mystuff/AgonJukebox/.venv/bin/python tests/test_agonutils.py
+cd src/asm
+ez80asm app.asm ../../tgt/jukebox.bin
 ```
+
+Do not use `-l` for routine builds. Assembly listings are generated artifacts
+and `src/asm/*.lst` is ignored.
+
+## Prepare WAV files
+
+Show the complete converter interface with:
+
+```bash
+.venv/bin/python scripts/make_wav.py --help
+```
+
+Examples:
+
+```bash
+.venv/bin/python scripts/make_wav.py song.flac -o tgt/audio/song.wav
+.venv/bin/python scripts/make_wav.py album/ -o tgt/audio/
+.venv/bin/python scripts/make_wav.py album/ --album tgt/audio/album.wav
+.venv/bin/python scripts/make_wav.py URL -o tgt/audio/track.wav
+```
+
+The converter emits ordinary FFmpeg RIFF/WAVE output. It controls the audio
+encoding—mono unsigned 8-bit PCM and a rate no greater than 65,535 Hz—but does
+not manufacture a fixed metadata layout or payload offset.
+
+## Emulator
+
+The isolated Fab Agon instance and copyrighted test media live outside this
+repository at
+`/home/smith/Agon/mystuff/agon-dev-env/emulators/jukebox`. Follow the canonical
+environment documentation for launching and updating that profile. Emulator
+changes and candidate binaries require explicit human validation before any
+related repository work is committed or pushed.

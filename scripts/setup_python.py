@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create and populate AgonVideo's project-local Python environment."""
+"""Create and verify AgonJukebox's project-local Python environment."""
 
 from __future__ import annotations
 
@@ -10,7 +10,7 @@ import sys
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VENV_DIR = PROJECT_ROOT / ".venv"
-AGON_UTILS_DIR = Path("/home/smith/Agon/mystuff/agon-utils")
+PYTHON_REQUIREMENTS = ("yt-dlp==2026.7.4",)
 
 
 def run(*args: object) -> None:
@@ -27,29 +27,15 @@ def venv_python() -> Path:
 
 def main() -> int:
     if not VENV_DIR.exists():
-        if sys.version_info < (3, 14):
-            print(
-                "Python 3.14 or newer is required to create the preferred "
-                "development environment. Run this script with Python 3.14.",
-                file=sys.stderr,
-            )
+        if sys.version_info < (3, 10):
+            print("Python 3.10 or newer is required.", file=sys.stderr)
             return 1
         run(sys.executable, "-m", "venv", VENV_DIR)
 
     python = venv_python()
     run(python, PROJECT_ROOT / "scripts" / "check_native_deps.py")
-    run(python, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel")
-    run(python, "-m", "pip", "install", "-r", PROJECT_ROOT / "requirements.txt")
-    run(
-        python,
-        "-m",
-        "pip",
-        "install",
-        "--no-build-isolation",
-        "--no-deps",
-        "-e",
-        AGON_UTILS_DIR,
-    )
+    run(python, "-m", "pip", "install", "--upgrade", "pip")
+    run(python, "-m", "pip", "install", *PYTHON_REQUIREMENTS)
     run(python, PROJECT_ROOT / "scripts" / "verify_environment.py")
     return 0
 

@@ -9,7 +9,7 @@ commit subjects and changed files. Counts relative to local `master` use
 
 | Branch | Location | Head | Relative to `master` | Main line of work |
 |---|---|---|---|---|
-| `wavonly` | local, active | `a1bed2b` plus working tree | 0 behind, 0 committed unique | Uncommitted stock-VDP WAV-only candidate |
+| `wavonly` | local and remote, active | `v0.10.0-beta` release commit | 0 behind, 2 committed unique | Qualified stock-VDP, standard-WAV release |
 | `master` | local; remote at `0915ef8` | `a1bed2b` | reference branch; 1 ahead of remote | Current documentation/environment line before WAV-only reduction |
 | `main` | local and remote | `bcb49da` | 20 behind, 0 unique | Jukebox audio controls and 16 kHz MIDI/audio work |
 | `working_32` | remote only | `539f3b8` | 44 behind, 0 unique | Orchestral MIDI playback and memory-efficient sampled instruments |
@@ -21,15 +21,26 @@ commit subjects and changed files. Counts relative to local `master` use
 Except for `alpha64`, every historical remote head is an ancestor of local
 `master`. They are therefore useful as named milestones, but contain no commits
 absent from the current line. `alpha64` contains one explicitly unsuccessful
-experiment that was not merged. `wavonly` has no committed divergence yet; its
-candidate exists in the working tree.
+experiment that was not merged. `wavonly` adds the deliberate rollback commit
+and currently carries the standard-WAV parser and repository reduction in its
+working tree.
+
+This inventory describes historical branches as they existed on the recorded
+date. The current `wavonly` working tree has pruned the AGM, MIDI, video,
+compression, and generated-media paths named below. Their commits and files
+remain recoverable from these branch heads and Git history.
 
 ## `wavonly`
 
-Current active branch. It was created from local `master` at `a1bed2b` and has
-no upstream branch. Its uncommitted working tree contains the WAV-only
-stock-VDP reduction and rebuilt binary. Until that work is committed, the five
-most recent commits are identical to `master` below.
+Current active branch, tracking `origin/wavonly`. It was created from local
+`master` at `a1bed2b`; commit `a6fc8bf`, **Restore stock-VDP WAV-only player**,
+contains the first deliberate audio-only rollback. The following release commit,
+tagged `v0.10.0-beta`, adds the standard RIFF/WAVE reader, exact
+streaming/EOF/seek fixes, one consolidated WAV converter and regression suite,
+and the proved removal of unrelated source and assets.
+
+The next four commits are `master` commits 1 through 4 below, so the five most
+recent committed milestones remain fully represented in this inventory.
 
 ## `master`
 

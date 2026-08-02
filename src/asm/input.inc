@@ -1,4 +1,13 @@
 get_input:
+; Automatic song transitions run from the timer ISR and tail-jump here. Return
+; once to the ISR call site instead of entering another blocking keyboard wait.
+    ld a,(ps_irq_transition)
+    or a
+    jr z,@wait_for_key
+    xor a
+    ld (ps_irq_transition),a
+    ret
+@wait_for_key:
 ; wait for the user to push a button
     ei ; enable interrupts
     MOSCALL mos_getkey ; a = ascii code of key pressed
@@ -68,10 +77,6 @@ get_input:
     jp bf_select_file
 @no_cmd: ; no valid commands so go back to user input
     jp get_input
-
-@play_song:
-    call bf_highlight_file ; highlight the selected file
-    jp play_song ; play the song
 ; end get_input
 
 get_rand_file_idx:
@@ -376,49 +381,103 @@ ps_seek_fwd:
 ; end ps_seek_fwd
 
 ps_seek:
-; compute new playhead position and update the playbar
+; Compute a zero-based target buffer with Euclidean modulo:
+; ((displayed playhead + delta - 1) mod duration).
     ld de,(ps_playhead)
     add hl,de ; hl = playhead + seek_rate
-    dec hl ; to offset an inc we get further down somewhere
-; handle wraparound 
+; Before the first sample starts the displayed playhead is still zero, so it
+; already represents a zero-based position.  Once playback begins it is
+; one-based and must be converted before applying the modulo.
+    ld a,(ps_playhead)
+    or a
+    jr nz,@one_based_playhead
+    ld a,(ps_playhead+1)
+    or a
+    jr nz,@one_based_playhead
+    ld a,(ps_playhead+2)
+    or a
+    jr z,@playhead_normalized
+@one_based_playhead:
+    dec hl ; displayed playhead is one-based once a buffer starts playing
+@playhead_normalized:
     ld de,(ps_song_duration)
     SIGN_UHL
-    jp z,@print
-    jp p,@mod
-    or a ; clear carry for adc because
-    adc hl,de ; add doesn't set sign flag
-    jp p,@print
+    jp p,@positive_mod
+
+; For a negative value, modulo abs(value), then reflect a nonzero remainder
+; around duration. This handles seek steps larger than short tracks correctly.
     call neg_hlu
-    jp @print
-@mod:
+    ld de,(ps_song_duration)
     call udiv24
-@print:
-; save new playhead position and update the playbar
+    ld de,0
+    or a
+    sbc hl,de
+    jr z,@target_ready
+    push hl ; negative remainder
+    ld hl,(ps_song_duration)
+    pop de
+    or a
+    sbc hl,de ; duration - remainder
+    jr @target_ready
+
+@positive_mod:
+    ld de,(ps_song_duration)
+    call udiv24
+
+@target_ready:
+; Preserve the zero-based data second before the display routine increments it.
+    ld (@seek_second),hl
+    xor a
+    ld (@seek_second+3),a
     ld (ps_playhead),hl 
     call ps_update_playbar
 ; reset the chunk counter
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
+; reset fractional chunk scheduling and any prior EOF/drain state
+    xor a
+    ld (ps_wav_chunk_error),a
+    ld (ps_wav_eof_pending),a
+    ld (ps_wav_drain_ticks),a
 ; multiply new playhead position by sample rate
     ld ix,ps_wav_header+wav_sample_rate
     call fetch_int_nor
-    ld ix,ps_playhead
+    ld ix,@seek_second
     call fetch_int_alt
     ld a,fmul
-    call FPP ; HLH'L' = seek position from start of file in bytes less .wav header
+    call FPP ; HLH'L' = byte position within the data chunk
+    ld ix,@data_pos
+    call store_int_nor
     call SWAP
-    ld hl,76 ; wav header size
-    call hlu2float
+    ld ix,ps_wav_header+wav_data_offset
+    call fetch_int_nor
     ld a,fadd
-    call FPP ; HLH'L' = seek position from start of file in bytes
+    call FPP ; HLH'L' = absolute file position
     ld ix,@seek_pos
     call store_int_nor
+
+; keep streaming bounded to the data chunk after the seek
+    ld hl,(ps_wav_header+wav_data_size)
+    ld de,(@data_pos)
+    or a
+    sbc hl,de
+    ld (ps_wav_bytes_remaining),hl
+    ld a,(@data_pos+3)
+    ld b,a
+    ld a,(ps_wav_header+wav_data_size+3)
+    sbc a,b
+    ld (ps_wav_bytes_remaining+3),a
 ; seek to new position and load the next block of data
     ld hl,ps_fil_struct
     ld de,(@seek_pos) ; low 3 bytes of seek position
     ld a,(@seek_pos+3) ; high byte of seek position
     ld c,a
     FFSCALL ffs_flseek
+    or a
+    jr z,@seek_ok
+    call ps_close_file
+    jp ps_song_over
+@seek_ok:
 ; flip the command and sample buffers and read the first block of data at the new position
     call ps_load_audio_cmd_buffers ; TODO: we should only have to do this on app init, 
                                  ; but if we don't do it here, only one audio buffer 
@@ -427,5 +486,7 @@ ps_seek:
 ; restart the PRT timer
     call ps_prt_start ; start the PRT timer
     jp get_input ; will reenable interrupts
+@seek_second: dw32 0 ; zero-based PCM second corresponding to the display target
+@data_pos: dw32 0 ; byte position relative to the start of PCM data
 @seek_pos: dw32 0 ; temp buffer for seek position
 ; end ps_seek

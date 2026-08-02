@@ -43,23 +43,6 @@ vdu_font_create:
 @flags: db 0x00
 @end:
 
-; set or adjust font property
-; inputs: hl = bufferId, a = field, de = value
-; VDU 23, 0, &95, 2, bufferId; field, value;: Set or adjust font property
-vdu_font_property:
-    ld (@bufferId),hl
-    ld (@field),a
-    ld (@value),de
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd: db 23, 0, 0x95, 2
-@bufferId: dw 0x0000
-@field: db 0x00
-@value: dw 0x0000
-@end: db 0x00 ; padding
-
 ; VDU 23, 0, &95, 3, bufferId; [<args>]: Reserved
 
 ; Clear/Delete font
@@ -72,18 +55,5 @@ vdu_font_clear:
     rst.lil $18
     ret
 @cmd: db 23, 0, 0x95, 4
-@bufferId: dw 0x0000
-@end: db 0x00 ; padding
-
-; Copy system font to buffer
-; inputs: hl = bufferId
-; VDU 23, 0, &95, 5, bufferId;: Copy system font to buffer
-vdu_font_copy_system:
-    ld (@bufferId),hl
-    ld hl,@cmd
-    ld bc,@end-@cmd
-    rst.lil $18
-    ret
-@cmd: db 23, 0, 0x95, 5
 @bufferId: dw 0x0000
 @end: db 0x00 ; padding
