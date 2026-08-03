@@ -8,6 +8,11 @@ expected_sd_label = "AGON"
 collection = "apps"
 source = "tgt"
 files = ["jukebox.bin"]
+# Pending shared-engine direct-file ownership support, install this bundle as:
+# destination_file = "bin/jukebox.bin"
+# autoexec = ["cd /mystuff/music", "jukebox"]
+# Do not change the active destination to "bin": /bin is a shared directory
+# and must never become this bundle's owned replacement leaf.
 destination = "mystuff/agonjukebox/apps/jukebox"
 require = ["jukebox.bin"]
 entry = "jukebox.bin"
