@@ -1,0 +1,13 @@
+schema = 1
+project = "agonjukebox"
+default_profile = "/home/smith/Agon/mystuff/agon-dev-env/emulators/jukebox"
+default_sd_mount = "/media/smith/AGON"
+expected_sd_label = "AGON"
+
+[bundles.jukebox]
+collection = "apps"
+source = "tgt"
+files = ["jukebox.bin"]
+destination = "mystuff/agonjukebox/apps/jukebox"
+require = ["jukebox.bin"]
+entry = "jukebox.bin"
