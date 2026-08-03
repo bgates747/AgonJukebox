@@ -39,7 +39,9 @@ contract and known size limits.
   assembly inputs.
 - `scripts/make_wav.py` is the sole media-preparation tool.
 - `scripts/test_make_wav.py` exercises the host-side WAV contract.
-- `tgt/jukebox.bin` is the distributable binary.
+- `tgt/jukebox.bin` is the complete distributable binary. The compiled font
+  and logo are embedded in it; build and packaging workflows must not copy
+  either source asset into `tgt` as a runtime dependency.
 
 The historical video, MIDI, and codec trees were removed from `wavonly` after
 their absence from the compile/tool closure was proven. Git history and the

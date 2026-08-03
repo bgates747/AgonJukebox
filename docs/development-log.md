@@ -184,6 +184,28 @@ integrity, all nine WAV tests, and isolated assembly. The transition is committe
 and tagged on `wavonly`; GitHub's live default branch remains `main`, so any
 promotion to the default branch is a separate decision.
 
+## 2026-08-03 — Legacy `dev` preservation warning
+
+**IMPORTANT: FAST-FORWARDING `dev` TO THE CLEAN WAV-ONLY `main` TREE MUST NOT
+BE INTERPRETED AS A FINDING THAT EVERY FILE REMOVED SINCE THE OLD `dev` TIP WAS
+VALUELESS.** The cleanup was correct for the supported application, but some
+historical development assets may remain useful as references or source
+material for future work.
+
+The former `dev` tip is commit `4f76371` (`update gitignore for agon-utils`).
+Its potentially useful material includes the Gnumeric design spreadsheets in
+`build/data/`, GIMP `.xcf` image sources in `src/images/`, font and logo source
+assets, older media/build utilities in `build/scripts/`, and experimental
+keyboard, debug, and test assembly. These files remain recoverable individually
+with commands such as `git show 4f76371:<path>` or by inspecting that commit in
+a temporary worktree. Recover or evaluate specific artifacts deliberately;
+do not merge the old tree wholesale into the qualified WAV-only application.
+
+At this point `dev` contained no commits absent from `main`: it was an ancestor
+of `main`, which was 189 commits ahead. Advancing `dev` therefore preserves the
+clean production tree and its deletion history while making `dev` a usable
+development branch again.
+
 ## 2026-08-01 — Stock-VDP rollback milestone
 
 Commit `a6fc8bf` established the first deliberate WAV-only rollback from the
