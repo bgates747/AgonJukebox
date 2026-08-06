@@ -184,6 +184,40 @@ integrity, all nine WAV tests, and isolated assembly. The transition is committe
 and tagged on `wavonly`; GitHub's live default branch remains `main`, so any
 promotion to the default branch is a separate decision.
 
+## 2026-08-03 — Standardized deployment scheme
+
+The `skins` branch now contains the standardized project deployment interface
+merged from `dev`. Root `deploy.py` delegates to the canonical
+`agon-dev-env/scripts/agon_deploy.py` engine, while `deploy.toml` declares one
+Jukebox application bundle containing only the already-built
+`tgt/jukebox.bin`. Deployment and building remain separate operations.
+
+The currently active manifest destination is the safe owned directory
+`/mystuff/agonjukebox/apps/jukebox`. The intended public installation is
+instead the single file `/bin/jukebox.bin`, placing this non-MOSlet application
+on MOS's command path so it can be invoked as `jukebox` from any working
+directory. Its requested managed startup block is:
+
+```text
+cd /mystuff/music
+jukebox
+```
+
+That direct-file destination remains a documented pending configuration, not
+an active field. The shared engine currently owns and atomically exchanges
+bundle directories; treating `/bin` as the owned destination would endanger a
+shared system directory. Canonical direct-file ownership must stage, verify,
+adopt, recover, and replace only `/bin/jukebox.bin`, with uniquely named sibling
+metadata, before this compatibility layout is enabled.
+
+The executable is already self-contained. The 2,048-byte compiled font and
+9,600-byte RGBA2222 logo are assembled into `jukebox.bin`; neither is opened by
+pathname at runtime. The environment verifier now rejects those UI assets if
+they appear in `tgt` and proves both byte payloads occur in a fresh temporary
+assembly. The full verifier passed with all nine WAV tests and the unchanged
+27,716-byte binary. No standardized emulator or physical-card deployment has
+yet been qualified from this branch.
+
 ## 2026-08-03 — Legacy `dev` preservation warning
 
 **IMPORTANT: FAST-FORWARDING `dev` TO THE CLEAN WAV-ONLY `main` TREE MUST NOT
