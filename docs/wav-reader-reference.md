@@ -129,8 +129,8 @@ interrupt epilogue is not bypassed.
 
 Song changes and exit reset stock sound channels 0 and 1. The candidate clears
 only its four WAV buffers plus its font and logo resources. Whether startup
-must instead reclaim all VDP buffers under real hardware memory pressure is an
-explicit hardware decision whose context is recorded in `development-log.md`.
+must instead reclaim all VDP buffers under real hardware memory pressure is
+an open hardware qualification question.
 
 ## Host-side converter
 
@@ -153,8 +153,6 @@ does not rewrite the file into a private header layout.
 - The floating-point seek multiplication should be treated cautiously near or
   above the signed 2 GiB range until exercised on hardware.
 - The player is mono and deliberately owns only channels 0 and 1.
-
-Hardware qualification evidence is maintained in `development-log.md`.
 
 ## Current verification evidence
 

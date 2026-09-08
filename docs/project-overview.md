@@ -44,8 +44,8 @@ contract and known size limits.
   either source asset into `tgt` as a runtime dependency.
 
 The historical video, MIDI, and codec trees were removed from `wavonly` after
-their absence from the compile/tool closure was proven. Git history and the
-branch inventory preserve their archaeology.
+their absence from the compile/tool closure was proven. Git history preserves
+the removed source.
 
 ## Qualification state
 
@@ -56,6 +56,5 @@ EOF progression, and final-to-first progression within the current directory
 slice also passed. The same candidate has baseline physical-hardware approval;
 the user observed better sound and fewer timing-related pops than in the
 emulator. Extended cross-rate, long-form, cleanup, and VDP-memory-pressure
-characterization remains optional follow-up work recorded in the development
-log. This qualified WAV-only transition is released as `v0.10.0-beta` on
-`wavonly`.
+characterization remains optional follow-up work. This qualified WAV-only
+transition is released as `v0.10.0-beta` on `wavonly`.

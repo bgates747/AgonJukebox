@@ -112,9 +112,6 @@ contract used by the application before it is installed at the destination.
 - [Project overview](docs/project-overview.md)
 - [WAV reader and streaming reference](docs/wav-reader-reference.md)
 - [Development setup](docs/development-setup.md)
-- [Development log](docs/development-log.md)
-- [Audio-only recovery archaeology](docs/audio-only-jukebox-archaeology.md)
-- [Branch inventory](docs/branches_inventory.md)
 
 ## License
 

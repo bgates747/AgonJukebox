@@ -73,9 +73,17 @@ not manufacture a fixed metadata layout or payload offset.
 
 ## Emulator
 
-The isolated Fab Agon instance and copyrighted test media live outside this
-repository at
-`/home/smith/Agon/mystuff/agon-dev-env/emulators/jukebox`. Follow the canonical
-environment documentation for launching and updating that profile. Emulator
-changes and candidate binaries require explicit human validation before any
-related repository work is committed or pushed.
+For emulator testing, copy `tgt/jukebox.bin` to the virtual SD card's `bin`
+directory. Put compatible WAV files in a `music` directory on that card.
+To start the player there automatically, use these lines in `autoexec.txt`
+with CRLF line endings:
+
+```text
+SET KEYBOARD 1
+cd /music
+jukebox
+```
+
+Keep local emulator runtimes, virtual SD cards and media in the ignored
+`.emulator/` directory. Build and media conversion do not require a local
+emulator or any sibling repository.

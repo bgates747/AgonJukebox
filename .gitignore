@@ -11,6 +11,9 @@ __pycache__/
 # Generated assembly output
 src/asm/*.lst
 
+# Dedicated local emulator, virtual SD, runtime and diagnostic artifacts
+/.emulator/
+
 # Locally generated or supplied media
 tgt/audio/
 tgt/music/
@@ -30,3 +33,13 @@ tgt/music/
 .Spotlight-V100
 .Trashes
 Thumbs.db
+
+# Private agent guidance, task evidence and design working files
+/docs/agents/
+/docs/tasks/
+/docs/decisions/
+/AGENTS.md
+
+# Personal deployment integration (requires the local agon-dev-env checkout)
+/deploy.py
+/deploy.toml
