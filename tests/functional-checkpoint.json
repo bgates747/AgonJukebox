@@ -1,0 +1,30 @@
+{
+  "milestone": "First live skin functional test",
+  "accepted": "2026-09-08",
+  "human_review": "Project owner confirmed tested functionality and authorized promotion and commit.",
+  "platform": {
+    "emulator": "Fab 1.2.4",
+    "mos": "3.0.2 Arthur",
+    "vdp": "2.16.0 Bistromathics"
+  },
+  "application": {
+    "bytes": 47644,
+    "sha256": "287acc19b28548adddd889ff5f146f700499aac3fe25741a09e86c0a3a893c7f"
+  },
+  "target_test": {
+    "bytes": 58498,
+    "sha256": "0574ba240e17843121ad315fc6af2224445a97c1bee320461c8c54a326e39c68"
+  },
+  "automated": {
+    "result": "PASS",
+    "scenarios": 26,
+    "widget_pixels": 1327,
+    "rate_hz": 65535,
+    "read_ticks": 89,
+    "bytes_remaining": 115778,
+    "expected_bytes_remaining": 115778,
+    "audio_output": "SDL dummy; listening review required"
+  },
+  "promotion": "Both application and target test reassemble byte-identically from public source locations.",
+  "hardware": "Skin build not yet qualified on hardware."
+}

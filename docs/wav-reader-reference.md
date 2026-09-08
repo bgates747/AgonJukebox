@@ -116,19 +116,25 @@ correct forward and backward wraparound even before the first sample begins.
 The target byte is `target_second * sample_rate`, and the FatFS seek position
 is `wav_data_offset + target_byte`. The remaining-byte count is recomputed from
 `wav_data_size - target_byte`; scheduler, EOF, and drain state are reset before
-streaming resumes. The display routine receives the same target and performs
-its normal one-based increment independently.
+streaming resumes. `ps_update_playbar` performs the normal one-based state
+increment and posts a pending display event; the foreground renderer formats it.
 
 ## Interrupt and cleanup behavior
 
-The timer handler saves its register sets, calls `ps_read_sample`, restores the
-registers, and exits with `RETI`. Automatic playlist transitions historically
-tail-jump through `play_song` and `get_input`; `ps_irq_transition` makes the
-terminal input routine return once through the original call site so the
-interrupt epilogue is not bypassed.
+The timer handler saves both register banks and IX/IY, calls `ps_read_sample`,
+restores them and exits with `RETI`. After the final sample drains, the handler
+stops its timer and sets `ps_irq_transition`. The foreground consumes that
+event, closes the file and dispatches playlist progression. Track setup and
+UI formatting therefore execute outside the interrupt stack.
+
+The ISR posts elapsed-time events without drawing. The foreground snapshots
+pending events atomically and sends complete bounded UI packets with interrupts
+disabled for each packet, enabling them between packets. Keyboard polling
+lets elapsed/progress updates run without waiting for a key.
 
 Song changes and exit reset stock sound channels 0 and 1. The candidate clears
-only its four WAV buffers plus its font and logo resources. Whether startup
+only its four WAV buffers plus the separately owned skin contexts, font,
+image and drawing resources. Whether startup
 must instead reclaim all VDP buffers under real hardware memory pressure is
 an open hardware qualification question.
 
@@ -161,6 +167,9 @@ chunks, byte-102 extensible PCM, invalid subtype and field combinations,
 ordering and duplicate-format failures, truncation, empty data, and actual
 FFmpeg output at the 65,535 Hz boundary. Existing emulator fixtures at 44,100,
 48,000, and 65,535 Hz validate successfully at their natural byte-78 offsets.
-The corrected assembly closes at 27,716 bytes in an isolated build. The user
+The released WAV-only assembly closes at 27,716 bytes. The skin-enabled
+functional milestone closes at 47,644 bytes, reproducing its accepted candidate
+exactly; its target scenarios and human validation are recorded in
+[the functional test notes](../tests/README.md). The user
 also confirmed playback of the legacy and extensible fixtures plus directory
 browsing, seeking, volume, and pause/resume behavior in the stock emulator.

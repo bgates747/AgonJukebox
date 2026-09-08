@@ -14,27 +14,23 @@ ready for distribution.
 
 ## Skinning
 
-Immediate milestone: run the accepted Winamp-derived skin in the emulator.
-The startup configuration reader is validated. The native skin
-preview is visually accepted; target pixel and asset-loading checks pass. Next,
-connect live player updates (SKIN-002/006) and validate playback (SKIN-007).
-Classic, the chooser and complete authoring tools do not block this milestone.
+The first live skin milestone passed functional emulator testing and is
+promoted into the application tree. Configuration, AGNB loading, live widgets
+and playback are integrated. Remaining work covers the complete skin contracts,
+chooser/switching, authoring tools, resource limits and release qualification.
 
 
 1. [ ] **SKIN-001 — Resolve and document the v1 skin contracts**
    - Started: 2026-09-07 20:49 EDT
    - Finished: --
    - Status: In progress; printed bitmap characters and Winamp artwork import accepted. Import proof complete; layout, package and resource contracts remain to be finalized.
-2. [ ] **SKIN-002 — Separate player state from rendering**
-   - Started: --
-   - Finished: --
 3. [ ] **SKIN-003 — Implement configuration, discovery, and recovery chooser**
    - Started: --
    - Finished: --
 4. [ ] **SKIN-004 — Load external assets and render the new skin**
    - Started: 2026-09-08 16:32 EDT
    - Finished: --
-   - Status: First native render accepted; 4,424 sampled pixels match approved previews. Live integration is next.
+   - Status: First native render and live integration accepted; complete loader/switching work remains.
 5. [ ] **SKIN-005 — Build reproducible skin authoring and validation tools**
    - Started: --
    - Finished: --
@@ -44,6 +40,7 @@ Classic, the chooser and complete authoring tools do not block this milestone.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: --
    - Finished: --
+   - Status: First functional emulator milestone accepted; extended timing/resource and hardware qualification remain.
 8. [ ] **SKIN-008 — Package and document the skin-enabled release**
    - Started: --
    - Finished: --

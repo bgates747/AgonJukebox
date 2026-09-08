@@ -118,96 +118,11 @@ bf_get_page_num_files:
 ; end bf_get_page_num_files
 ; end bf_get_dir
 
-; print the directory listing for the current directory page
-; inputs: none
-; prerequisites: bf_get_dir must have been called to populate bf_dir_fil_list
-; destroys: everything
+; Presentation events. Callers run with interrupts disabled.
 bf_print_dir_page:
-; set text viewport for directory listing
-    call vp_dir
-    call vdu_cls
-; check for zero files in directory
-    ld hl,(bf_dir_num_files)
-    SIGN_UHL
-    jp z,@no_files ; no files to display so update ui with page stats and return
-; set pointer to the correct index in the fileinfo pointer table
-    ld hl,(bf_page_cur) ; get the current page
-    ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
-    call umul24 ; hl = page * num_files_per_page
-    ex de,hl ; can't add ix,hl ...
-    ld ix,bf_filinfo_ptrs ; get the pointer to the fileinfo pointer table
-    add ix,de ; ix points to the correct index in the fileinfo pointer table
-; loop through the fileinfo pointer table and print out the filenames
-    ld a,(bf_files_cur_pg)
-    ld b,a ; loop counter
-    xor a ; song index
-@loop:
-    push bc ; save loop counter
-    push af ; save song index
-    call printHexA ; print the song index
-    ld iy,(ix) ; iy points to filinfo struct
-    call bf_print_dir_or_file
-@bump_counters:
-    lea ix,ix+3 ; bump the filename pointer
-    pop af ; restore song index
-    inc a ; increment the song index
-    pop bc ; restore loop counter
-    dec b
-    jp z,@done ; if zero, we're done
-    call printNewLine
-    jp @loop
-@no_files:
-    xor a ; reset the page number to zero
-    ld (bf_page_cur),a 
-    ld hl,1 ; an empty page is still a page
-    ld (bf_dir_num_pages),hl
-    call bf_update_pages_ui
-    xor a ; set zero flag indicating there were no files to display
-    ret
-@done:
-; update ui and return to caller
-    call bf_update_pages_ui
-    or a,1 ; reset zero flag indicating there were files to display
-    ret
-; end bf_print_dir_page
-
 bf_update_pages_ui:
-; update the directory page ui widgets
-    call vp_legend_page_num
-    ld a,(bf_page_cur)
-    inc a ; pages are zero-based, users are not
-    call printHex8
-    call vp_legend_num_pages
-    ld a,(bf_dir_num_pages)
-    call printHex8
-    ret
-; end bf_update_pages_ui
-
 bf_highlight_file:
-; refresh the directory listing
-    call bf_print_dir_page
-    ret z ; no files to display so we're done
-; highlight the song being played in the directory listing
-    ld a,(bf_file_idx)
-    ld d,vp_dir_top
-    add a,d
-    ld c,text_left
-    ld d,a
-    ld e,text_right
-    ld b,a
-    call vdu_set_txt_viewport
-    call vdu_cls
-; set text colours to inverse
-    call set_text_colours_inverse
-; print the index and song filename
-    ld a,(bf_file_idx)
-    call printHexA
-    call bf_get_filinfo_from_pg_idx ; iy = pointer to the filinfo struct
-    call bf_print_dir_or_file
-; set text colours to normal
-    call set_text_colours_normal
-    ret
-; end bf_highlight_file
+    jp ui_event_browser
 
 bf_check_dir_or_file:
     ld a,(iy+filinfo_fattrib)
@@ -215,21 +130,5 @@ bf_check_dir_or_file:
     ret
 ; end bf_check_dir_or_file
 
-bf_print_dir_or_file:
-    call bf_check_dir_or_file
-    jp z,@print_file ; not directory so just write filename
-    call printInline
-    asciz "<DIR> "
-@print_file:
-    lea hl,iy+filinfo_fname
-    call printString ; print the filename
-    ret
-; end bf_print_dir_or_file
-
 bf_print_dir_name:
-    call vp_dir_name
-    call vdu_cls
-    ld hl,bf_dir_path
-    call printString
-    ret
-; end bf_print_dir_name
+    jp ui_event_directory

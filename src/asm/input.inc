@@ -1,18 +1,29 @@
 get_input:
-; Automatic song transitions run from the timer ISR and tail-jump here. Return
-; once to the ISR call site instead of entering another blocking keyboard wait.
+; Foreground owns drawing, keyboard dispatch, and automatic track transitions.
+; Timer ISR only streams PCM, updates time, and posts pending flags.
+    ei
+    call ui_flush
+    call live_test_step
+    di
     ld a,(ps_irq_transition)
     or a
-    jr z,@wait_for_key
+    jr z,@poll
     xor a
     ld (ps_irq_transition),a
-    ret
-@wait_for_key:
-; wait for the user to push a button
-    ei ; enable interrupts
-    MOSCALL mos_getkey ; a = ascii code of key pressed
-    di ; disable interrupts
-
+    call ps_close_file
+    jp ps_song_over
+@poll:
+    MOSCALL mos_sysvars
+    ld a,(ix+sysvar_vkeycount)
+    ld hl,ui_key_count
+    cp (hl)
+    jp z,get_input
+    ld (hl),a
+    ld a,(ix+sysvar_vkeydown)
+    or a
+    jp z,get_input
+    ld a,(ix+sysvar_keyascii)
+input_dispatch:
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
     ret z 
@@ -73,6 +84,9 @@ get_input:
     jp nc,@no_cmd ; not a song command
 ; select song or directory
     sub '0' ; a = file index
+    ld hl,bf_files_cur_pg
+    cp (hl)
+    jp nc,get_input
     ld (bf_file_idx),a
     jp bf_select_file
 @no_cmd: ; no valid commands so go back to user input
@@ -91,6 +105,9 @@ get_rand_file_idx:
     ret
 
 get_prev_file_idx:
+    ld a,(bf_files_cur_pg)
+    or a
+    ret z
 ; get number of files on current page
     ld a,(bf_files_cur_pg)
     ld b,a
@@ -113,6 +130,9 @@ bf_prev_file:
 ; end bf_prev_file
 
 get_next_file_idx:
+    ld a,(bf_files_cur_pg)
+    or a
+    ret z
 ; get number of files on current page
     ld a,(bf_files_cur_pg)
     ld b,a
@@ -197,6 +217,13 @@ bf_change_dir:
 ; end bf_up_dir
 
 bf_select_file:
+    ld a,(bf_files_cur_pg)
+    or a
+    jp z,get_input
+    ld hl,bf_file_idx
+    cp (hl)
+    jp z,get_input
+    jp c,get_input
 ; set up pointers to the fileinfo struct and filename
     call bf_get_filinfo_from_pg_idx ; iy = pointer to filinfo struct
     ld hl,bf_fil_struct ; hl = pointer to fil struct
@@ -218,6 +245,7 @@ bf_get_filinfo_from_pg_idx:
     ld de,bf_files_per_pg*3 ; number of files per page * 3 bytes per pointer
     call umul24 ; hl = page * num_files_per_page
     ld a,(bf_file_idx) ; get the file index
+    ld de,0
     ld e,a ; file index
     ld d,3 ; 3 bytes per pointer
     mlt de ; de = file index * 3
@@ -261,77 +289,32 @@ ps_adjust_volume:
     ld b,c ; b = volume * 12
     ld c,-1 ; channel -1 = global volume
     call vdu_channel_volume
-; print the new volume
-    call vp_legend_volume
-    call vdu_cls
-    ld a,(ps_volume)
-    call printDec8 ; print the volume
-; restore the '<' character that got stomped on
-    call vdu_home_cursor
-    ld a,'<'
-    rst.lil 10h ; print the '<' character
-    ret
+    jp ui_event_volume
 ; end ps_adjust_volume
 
 ps_toggle_pause:
-    call vp_now_playing
-    call vdu_cls
-    ld hl,ps_mode
-    bit ps_mode_playing,(hl)
-    jp nz,@playing
-    set ps_mode_playing,(hl)
-    call printInline
-    asciz "(P)laying "
-    jp @print
-@playing:
-    res ps_mode_playing,(hl)
-    call printInline
-    asciz "(P)aused  "
-@print:
-    ld hl,ps_filinfo_fname
-    call printString ; print the song filename
+    ld a,(ps_active)
+    or a
+    jp z,get_input
+    ld a,(ps_mode)
+    xor 1
+    ld (ps_mode),a
+    call ui_event_track
     jp get_input
-; end ps_toggle_pause
 
 ps_toggle_shuffle:
-    call vp_legend_shuffle
-    call vdu_cls
-    ld hl,ps_mode
-    bit ps_mode_shuffle,(hl)
-    jp nz,@shuffling
-    call set_text_colours_inverse
-    ld hl,ps_mode
-    set ps_mode_shuffle,(hl)
-    call printInline
-    asciz "ON"
-    call set_text_colours_normal
+    ld a,(ps_mode)
+    xor 4
+    ld (ps_mode),a
+    call ui_event_modes
     jp get_input
-@shuffling:
-    res ps_mode_shuffle,(hl)
-    call printInline
-    asciz "OFF"
-    jp get_input
-; end ps_toggle_shuffle
 
 ps_toggle_loop:
-    call vp_legend_loop
-    call vdu_cls
-    ld hl,ps_mode
-    bit ps_mode_loop,(hl)
-    jp nz,@looping
-    call set_text_colours_inverse
-    ld hl,ps_mode
-    set ps_mode_loop,(hl)
-    call printInline
-    asciz "ON"
-    call set_text_colours_normal
+    ld a,(ps_mode)
+    xor 2
+    ld (ps_mode),a
+    call ui_event_modes
     jp get_input
-@looping:
-    res ps_mode_loop,(hl)
-    call printInline
-    asciz "OFF"
-    jp get_input
-; end ps_toggle_loop
 
 ps_seek_slow:
     ld a,(ps_seek_rate_idx)
@@ -354,14 +337,14 @@ ps_set_seek_rate:
     add hl,de
     ld a,(hl)
     ld (ps_seek_rate),a
-    call vp_seek_rate
-    call vdu_cls
-    ld a,(ps_seek_rate)
-    call printDec8
+    call ui_event_detail
     jp get_input
 ; end ps_set_seek_rate
 
 ps_seek_back:
+    ld a,(ps_active)
+    or a
+    jp z,get_input
 ; stop the PRT timer and disable interrupts
     call ps_prt_stop ; stop the PRT timer
 ; negate seek rate
@@ -373,6 +356,9 @@ ps_seek_back:
 ; end ps_seek_back
 
 ps_seek_fwd:
+    ld a,(ps_active)
+    or a
+    jp z,get_input
 ; stop the PRT timer and disable interrupts
     call ps_prt_stop ; stop the PRT timer
 ; seek forward

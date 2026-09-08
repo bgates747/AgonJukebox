@@ -52,21 +52,35 @@ ps_prt_irq_init:
 ; interrupt routine for playing the next sample
 ps_prt_irq_handler:
     di
+; Preserve both register banks and index registers. Foreground formatting may
+; be interrupted; audio arithmetic must not borrow its alternate bank or IX/IY.
+    push af
+    push bc
+    push de
+    push hl
+    push ix
+    push iy
     ex af,af'
     exx
-; clear sysvar_keyascii
-	MOSCALL mos_sysvars
-	xor a
-	ld (IX+sysvar_keyascii),a
-; read the timer interrupt and call the handler
+    push af
+    push bc
+    push de
+    push hl
     in0 a,(TMR1_CTL+TMR_REG_CTL)
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
-	jp z,@done ; playback not active so return without doing anything
-    call ps_read_sample
-@done:
+    call nz,ps_read_sample
+    pop hl
+    pop de
+    pop bc
+    pop af
     exx
     ex af,af'
+    pop iy
+    pop ix
+    pop hl
+    pop de
+    pop bc
+    pop af
     ei
     reti.l
-; end ps_prt_irq_handler

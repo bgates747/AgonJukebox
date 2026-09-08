@@ -24,10 +24,24 @@ the PCM payload dynamically and streams only its declared length.
 
 ## Install or build
 
-The ready-to-run binary is [tgt/jukebox.bin](tgt/jukebox.bin). Copy it anywhere
-on an Agon SD card and launch it from MOS. Placing it in the card's `bin`
-directory makes `jukebox` available from any working directory. The binary has
-no external runtime assets and accepts no command-line arguments.
+The current skin-enabled build is [tgt/jukebox.bin](tgt/jukebox.bin). Install
+these files on the SD card:
+
+| Repository file/directory | SD card location |
+| --- | --- |
+| `tgt/jukebox.bin` | `/bin/jukebox.bin` |
+| `config/jukebox.cfg` | `/bin/jukebox.cfg` |
+| Contents of `skins/base/` | `/jukebox/skins/base/` |
+
+Edit `/bin/jukebox.cfg` to select the skin and initial music directories, then
+run `jukebox` from MOS. The example uses `/music`; create that directory or
+change the setting to an existing directory. Graphics load from an AGNB
+container; fonts are separate `.font` files. No command-line arguments are
+required. See [configuration and skin loading](docs/configuration.md).
+
+This functional milestone was tested with MOS **3.0.2 Arthur**, VDP **2.16.0
+Bistromathics**, and Fab **1.2.4**. The package schema remains provisional;
+skin discovery, switching, and Classic styling are still under development.
 
 To assemble it, install `ez80asm`, then run:
 
@@ -112,11 +126,15 @@ contract used by the application before it is installed at the destination.
 - [Project overview](docs/project-overview.md)
 - [WAV reader and streaming reference](docs/wav-reader-reference.md)
 - [Development setup](docs/development-setup.md)
+- [Configuration and skin loading](docs/configuration.md)
+- [Functional test milestone](tests/README.md)
 
 ## License
 
 AgonJukebox is released into the public domain under the
-[UNLICENSE](LICENSE).
+[UNLICENSE](LICENSE). Imported artwork retains its original provenance;
+see [the reference skin notes](skins/base/README.md). The vendored AGNB API
+retains its [upstream license](vendor/agnb/LICENSE).
 
 ## Acknowledgements
 

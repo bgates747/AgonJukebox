@@ -37,7 +37,9 @@ ps_wav_bytes_remaining: dw32 0 ; unread bytes remaining in the declared data chu
 ps_wav_buffer_bytes: dl 0 ; PCM bytes accumulated in the current VDP buffer
 ps_wav_eof_pending: db 0 ; data exhausted; finish and play the current buffer
 ps_wav_drain_ticks: db 0 ; timer ticks until the final VDP sample has finished
-ps_irq_transition: db 0 ; get_input returns once so the timer ISR can unwind
+ps_irq_transition: db 0 ; pending automatic transition, consumed in foreground
+ps_active: db 0 ; verified open playing/paused track
+ps_error: db 0 ; invalid selected WAV
 
 play_song:
 ; stop the PRT timer and close any currently playing file
@@ -47,15 +49,12 @@ play_song:
     ld a,ps_chunks_per_second
     ld (ps_wav_chunk_counter),a
 
-; clear now playing viewport
-    call vp_now_playing
-    call vdu_cls
-
 ; open the file and verify it's a playable .wav file
     call ps_open_wav
     jp nz,@F ; valid .wav file so continue 
-    call printInline
-    asciz "Invalid .wav file selected, try again."
+    ld a,1
+    ld (ps_error),a
+    call ui_event_track
     jp get_input ; return to user input loop
 
 @@:
@@ -65,26 +64,17 @@ play_song:
     ld bc,filinfo_struct_size
     ldir
 
-; tell the user what they've won
-    call printInline
-    asciz "(P)laying "
-    ld hl,ps_filinfo_fname
-    call printString ; print the song filename
-
-; display the song sample rate; each VDP sample receives this rate explicitly
-; when ps_load_audio_cmd_buffers builds its create-sample command
-    call vp_messages
-    call printInline
-    asciz "Audio sample rate:"
-    ld hl,(ps_wav_header+wav_sample_rate)
-    call printDec
+    ld a,1
+    ld (ps_active),a
+    xor a
+    ld (ps_error),a
+    call ui_event_track
 
 ; apply the user's stored master volume
     ld a,(ps_volume)
     call ps_adjust_volume
 
 ; compute the song duration from the PCM payload size and sample rate and print it
-    call vp_duration ; set viewport to duration window
     ld a,(ps_wav_header+wav_data_size+3) ; upper byte
     ld ix,(ps_wav_header+wav_data_size+0) ; lower 24 bits
     ld de,(ps_wav_header+wav_sample_rate)
@@ -107,10 +97,6 @@ play_song:
     inc a
     ld (ps_song_duration+3),a
 @duration_ready:
-    ld hl,(ps_song_duration) ; ls 24 bits of duration is sufficient and all we're prepared for
-    call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
-    call printString ; print the duration
-
 ; Compute exact 60 Hz chunk scheduling. The quotient is the base size and the
 ; remainder is distributed one byte at a time, so every 60 ticks total exactly
 ; one sample-rate's worth of PCM even when the rate is not divisible by 60.
@@ -149,8 +135,7 @@ play_song:
     ld hl,ps_mode
     set ps_mode_playing,(hl)
 ; enable interrupts and start the PRT timer
-    ld hl,72000/ps_chunks_per_second
-    ld (ps_prt_reload),hl
+; ps_prt_start loads the constant reload; do not write to the equate address.
     call ps_prt_start
 ; jump to user input loop (enables interrupts)
 ; the play sample interrupt will return to there
@@ -265,13 +250,11 @@ ps_read_sample:
     jp nz,@load ; we read some data
 ; a short/truncated data chunk ended before its declared size
 @song_over:
-    call ps_close_file
-; Playlist routines historically tail-jump through play_song into get_input.
-; Mark that terminal get_input as an ISR continuation so it returns through
-; this call site and lets ps_prt_irq_handler restore registers and RETI.
+; No filenames, rendering, FPP, or playlist traversal on the interrupt stack.
+; Stop the timer after the existing final-sample drain, then post one event.
+    call ps_prt_stop
     ld a,1
     ld (ps_irq_transition),a
-    call ps_song_over
     ret
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
@@ -319,35 +302,11 @@ ps_prepare_eof_drain:
 ; end ps_prepare_eof_drain
 
 ps_update_playbar:
-; set viewport to playbar
-    call vp_elapsed
-; increment the playbar counter
+; Retain the player's one-based time mutation; presentation is deferred.
     ld hl,(ps_playhead)
     inc hl
     ld (ps_playhead),hl
-; convert the playbar counter to HH:MM:SS and print it
-    call seconds_to_hhmmss ; hl pointer to string representation of HH:MM:SS
-    call printString ; print the playhead position
-; print breadcrumbs and playhead marker
-    call vp_playbar
-    call vdu_cls
-    ld hl,[vp_playbar_right-vp_playbar_left]*256 ; leave room for cursor
-    ld de,(ps_song_duration) ; ls 24-bits is sufficient and all we're prepared for
-    call udiv168 ; de = breadcrumbs / second in 8.16 fixed point
-    ld hl,(ps_playhead)
-    call umul24 ; uhl is the breadcrumb position
-    HLU_TO_A ; a = breadcrumb position
-    and a
-    jp z,@done ; if zero, we're done
-    ld b,a
-@loop:
-    ld a,'.'
-    rst.lil 10h
-    djnz @loop
-@done:
-    ld a,219 ; cursor
-    rst.lil 10h
-    ret
+    jp ui_event_time
 ; end ps_update_playbar
 
 ps_play_sample:
@@ -394,6 +353,12 @@ ps_clear_audio_buffers:
 
 ; close the file
 ps_close_file:
+    xor a
+    ld (ps_active),a
+    ld (ps_irq_transition),a
+    ld hl,ps_mode
+    res ps_mode_playing,(hl)
+    call ui_event_track
     call ps_prt_stop ; stop the PRT timer
 ; stop samples on the two stock channels owned by the WAV player
     ld c,0

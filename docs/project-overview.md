@@ -35,13 +35,19 @@ contract and known size limits.
 ## Repository shape
 
 - `src/asm/` contains the complete production assembly closure.
-- `src/fonts/Lat2-VGA8_8x8.font.inc` and `src/images/logo.rgba2` are direct
-  assembly inputs.
+- `src/asm/jukebox_cfg.inc`, `skin_assets.inc`, `layout.inc` and `ui_widgets.inc`
+  own configuration, external loading and presentation. Player/browser logic
+  posts pending events; the foreground renders between complete audio packets.
+- `src/ui/` contains compiled application drawing commands and image metadata.
+- `vendor/agnb/` contains an unchanged snapshot of the canonical AGNB loader.
+- `skins/base/` contains the external AGNB container, fonts and skin manifest;
+  `config/jukebox.cfg` supplies example startup settings.
+- `src/fonts/` and `src/images/` retain legacy source assets for future styling.
 - `scripts/make_wav.py` is the sole media-preparation tool.
 - `scripts/test_make_wav.py` exercises the host-side WAV contract.
-- `tgt/jukebox.bin` is the complete distributable binary. The compiled font
-  and logo are embedded in it; build and packaging workflows must not copy
-  either source asset into `tgt` as a runtime dependency.
+- `tgt/jukebox.bin` is the executable. Install it together with the configuration
+  and external skin files as described in the README.
+- `tests/asm/` contains the functional test variant of the same application.
 
 The historical video, MIDI, and codec trees were removed from `wavonly` after
 their absence from the compile/tool closure was proven. Git history preserves
@@ -58,3 +64,10 @@ the user observed better sound and fewer timing-related pops than in the
 emulator. Extended cross-rate, long-form, cleanup, and VDP-memory-pressure
 characterization remains optional follow-up work. This qualified WAV-only
 transition is released as `v0.10.0-beta` on `wavonly`.
+
+The skin-enabled milestone received interactive emulator approval on
+2026-09-08: playback, browsing and controls were reported functional. Automated
+qualification passed 26 scenarios, 1,327 sampled widget pixels and exact
+65,535 Hz read accounting. Its promoted executable is byte-identical to the
+accepted candidate. This skin build has not yet received hardware qualification;
+the complete package ABI, chooser/switching and resource limits remain open.
