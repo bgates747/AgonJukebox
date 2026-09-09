@@ -48,3 +48,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: --
    - Finished: --
    - Status: Deferred until the new skin runs with live player state; retain familiar styling within the shared layout.
+12. [ ] **SKIN-012 — Extract and refine reusable Art Deco skin elements programmatically**
+   - Started: --
+   - Finished: --
+   - Status: Specification accepted; freeze task/art snapshot, then implement scripted extraction and gradient preservation without image generation.
