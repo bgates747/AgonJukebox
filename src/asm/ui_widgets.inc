@@ -1,4 +1,9 @@
 ; Qualified widget packets and patch offsets; see ../ui/README.md.
+ui_normal_fg: equ 10
+ui_selected_bg: equ 4
+ui_selected_fg: equ 15
+ui_progress_origin: equ 16
+ui_idle_play_code: equ 32
 w_track:
     db 23,0,200,0,1,23,0,149,0,240,33,0,18,0,0,25,4,40,0,40,0,25,101,135
     db 1,47,0,18,0,10,25,4,40,0,40,0,32,32,32,32,32,32,32,32,32,32,32,32

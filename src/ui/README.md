@@ -1,7 +1,15 @@
 # Application UI inputs
 
-These are the frozen drawing inputs of the functional milestone accepted on
-2026-09-08. They assemble into application commands, not bitmap/font payloads.
+The files in this directory's root are the frozen Base drawing inputs of the
+functional milestone accepted on 2026-09-08. They assemble into application
+commands, not bitmap/font payloads. `app_base.asm` retains that profile.
+
+The ordinary `app.asm` now selects the Art Deco test inputs in `artdeco/`.
+Those use the same player/event boundary with generated 5×8 text geometry,
+163 expected AGNB records and no control legends. See
+[the Art Deco authoring notes](../skins/artdeco/README.md) for generation,
+provisional field placement and test evidence. Both profiles retain complete
+foreground packets of at most 96 bytes and isolated text/art contexts.
 
 | File | Contents |
 | --- | --- |

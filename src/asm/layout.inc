@@ -257,7 +257,7 @@ ui_row:
     call ui_copy
     xor a
     ld (ix+w_row0_bg-w_row0),a
-    ld a,10
+    ld a,ui_normal_fg
     ld (ix+w_row0_fg-w_row0),a
     ld a,(ui_row_index)
     ld hl,bf_files_cur_pg
@@ -274,8 +274,8 @@ ui_row:
     ld hl,bf_file_idx
     cp (hl)
     jr nz,@normal
-    ld (ix+w_row0_bg-w_row0),4
-    ld (ix+w_row0_fg-w_row0),15
+    ld (ix+w_row0_bg-w_row0),ui_selected_bg
+    ld (ix+w_row0_fg-w_row0),ui_selected_fg
 @normal:
     ld hl,(ui_row_text)
     ld (hl),'0'
@@ -327,7 +327,7 @@ ui_track:
     ld a,(ps_active)
     or a
     ld hl,ui_idle
-    ld a,' '
+    ld a,ui_idle_play_code
     ld (w_mode_code),a
     ld (w_play_code),a
     jr z,@name
@@ -389,7 +389,7 @@ ui_track:
     call ui_message
     ret
 
-; Convert the time string to a printed bitmap run: 8 characters, 8 VDU9 gaps.
+; Art Deco uses eight ordinary 5x8 characters; Base uses mapped digits + gaps.
 ui_digits:
     push de
     call seconds_to_hhmmss
@@ -398,6 +398,7 @@ ui_digits:
 @digit:
     ld a,(hl)
     inc hl
+    if 1-skin_artdeco
     cp ':'
     jr z,@colon
     sub '0'
@@ -406,9 +407,12 @@ ui_digits:
 @colon:
     ld a,art_colon
 @store:
+    endif
     ld (de),a
     inc de
+    if 1-skin_artdeco
     inc de
+    endif
     djnz @digit
     ret
 
@@ -465,7 +469,7 @@ ui_time:
     ld a,(ui_progress_pixel)
     ld e,a
 @position:
-    ld hl,16
+    ld hl,ui_progress_origin
     add hl,de
     ld a,l
     ld (w_marker_x),a
@@ -551,7 +555,11 @@ ui_volume:
 ui_detail:
     ld hl,ui_rate
     ld de,w_detail_text
+    if skin_artdeco
+    ld b,23
+    else
     ld b,48
+    endif
     call ui_copy
     ld hl,0
     ld a,(ps_active)
@@ -562,10 +570,12 @@ ui_detail:
     ld de,w_detail_text+5
     ld b,5
     call ui_decimal
+    if 1-skin_artdeco
     ld hl,(ps_seek_rate)
     ld de,w_detail_text+26
     ld b,3
     call ui_decimal
+    endif
     jp w_detail_send
 
 ui_pending: db 0
@@ -596,4 +606,8 @@ ui_invalid: asciz "Invalid .wav file selected, try again."
 ui_empty_dir: asciz "No playable files or directories"
 ui_loop_msg: asciz "Loop current song; Shuffle setting retained"
 ui_vol: asciz "VOL 00"
+    if skin_artdeco
+ui_rate: asciz "RATE 00000 Hz"
+    else
 ui_rate: asciz "RATE 00000 Hz   SEEK STEP 000s"
+    endif

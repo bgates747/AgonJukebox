@@ -31,7 +31,11 @@
     include "agnb_vdu.inc"
     include "skin_assets.inc"
     include "layout.inc"
+    if skin_artdeco
+    include "../ui/artdeco/widgets.inc"
+    else
     include "ui_widgets.inc"
+    endif
     if live_test_mode
     include "../../tests/asm/livecheck.inc"
     else

@@ -35,8 +35,9 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: --
    - Finished: --
 6. [ ] **SKIN-006 — Design and build the rich reference skin**
-   - Started: --
+   - Started: 2026-09-10
    - Finished: --
+   - Status: Basic live Art Deco candidate built with Neutrino 5x8 and no control legends; 26 emulator scenarios and 5,307 pixel checks pass. Accepted by the Author as a good working concept on 2026-09-10; further refinement and hardware qualification remain open.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: --
    - Finished: --

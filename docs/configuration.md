@@ -6,7 +6,7 @@ launch directory. MOS command lookup selects `jukebox.bin`; the adjacent
 
 ```ini
 format=1
-skin_dir=/jukebox/skins/base
+skin_dir=/jukebox/skins/artdeco
 music_dir=/music
 ```
 
@@ -38,9 +38,36 @@ is applied explicitly after skin loading.
    or trailing component spaces, trailing component dots and FAT-forbidden
    punctuation (`\ : * ? " < > |`) are rejected.
 
-## Reference skin manifest
+## Art Deco test manifest
 
-The configured directory contains:
+The ordinary `app.asm` build now uses the bounded Art Deco profile:
+
+```ini
+format=artdeco-test1
+graphics.file=graphics.agnb
+font.file=fonts/neutrino_5x8.font
+```
+
+All three keys are required and unique; unknown keys are rejected. File and
+path grammar/limits are the same as the Base manifest below. The compiled
+profile fixes the font at 5×8 with five-pixel advance and 256 byte-indexed slots
+(2,048 bytes). Width cannot be inferred from that length: 8×8 also uses 2,048
+bytes. The manifest version prevents loading the Base package with this layout.
+
+The AGNB consumer requires exactly 163 RGBA2222 records at IDs 0x2100–0x21A2,
+matching `src/ui/artdeco/image-meta.bin`. Metadata and payload boundaries are
+validated before upload. The font uses buffer 0x21F0. Text and art contexts are
+1/2; static application commands use 0x2200. The first 128 images map to printed
+characters in the art context; the remaining decorative tiles use direct plots.
+
+This is a basic test profile with provisional information placement and no
+on-screen control legends. F1/modal help is a possible later addition. General
+runtime layout selection remains open: using the Base skin requires assembling
+`app_base.asm` and selecting its matching package/configuration.
+
+## Retained Base manifest
+
+The accepted Base profile's directory contains:
 
 ```ini
 format=skin004-proof1
@@ -56,7 +83,7 @@ line limit. Filenames are relative to `skin_dir`, at most 127 bytes, without
 traversal. Each joined path must fit the global 239-byte bound.
 
 Graphics load exclusively through an AGNB 0.1 image container. The present
-consumer requires exactly 67 RGBA2222 records at IDs 0x2100–0x2142, with the
+Base consumer requires exactly 67 RGBA2222 records at IDs 0x2100–0x2142, with the
 dimensions and lengths recorded in `src/ui/image-meta.bin`. It checks metadata
 before uploading each payload and rejects extra, missing or substituted
 records. Fonts are currently permitted as loose files: exactly 2,048 bytes

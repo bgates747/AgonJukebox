@@ -1,5 +1,30 @@
 # Passing functional milestone — 2026-09-08
 
+## Art Deco candidate — 2026-09-10
+
+The basic Art Deco profile runs the same 26 scenarios through
+`tests/asm/artdeco_check.asm`, with 5,307 expected pixels for its native 5×8
+font, field geometry, decorative frame and widget states. The automated test
+passes; the project owner accepted the candidate as a good working concept
+on 2026-09-10 and authorized a checkpoint commit. Base's
+accepted checkpoint below remains separate.
+
+Prepare a new SD tree and check its log with:
+
+```bash
+.venv/bin/python tests/functional.py prepare /tmp/artdeco-sd --skin artdeco
+# Launch using the profile-local wrapper described below, with /tmp/artdeco-sd.
+.venv/bin/python tests/functional.py check /path/to/artdeco.log --skin artdeco
+```
+
+The Art Deco fixture comes from the selected artwork and the font editor's
+native glyphs via `src/skins/artdeco/build.py`. It samples actual glyph strokes,
+spacing, row backgrounds and control states. Fixed comparisons exclude moving
+elapsed/progress pixels; pause, scheduling, seeking and EOF are exercised by
+the functional scenarios. See `src/skins/artdeco/README.md` for regeneration.
+
+## Accepted Base checkpoint
+
 The project owner tested the live skin in Fab 1.2.4 with MOS 3.0.2 Arthur and
 VDP 2.16.0 Bistromathics, reported all tested functionality working, and approved
 promotion and commit. `functional-checkpoint.json` records the accepted binary

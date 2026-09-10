@@ -9,9 +9,11 @@ The production build and WAV toolchain require:
 - `ffmpeg`; and
 - `ffprobe`.
 
-URL downloads additionally use the pinned `yt-dlp` Python package. The project
-does not use `agonutils`, native Python extensions, FFmpeg development headers,
-or image/video libraries.
+URL downloads additionally use the pinned `yt-dlp` Python package. Building the
+checked-in application and preparing WAVs do not require image libraries.
+Optional Art Deco asset regeneration uses Pillow and the canonical `agonutils`
+extension, font editor and AGNB host tools; see
+[the authoring instructions](../src/skins/artdeco/README.md).
 
 Check native programs without changing the system:
 
@@ -81,7 +83,7 @@ not manufacture a fixed metadata layout or payload offset.
 
 For emulator testing, copy `tgt/jukebox.bin` to the virtual SD card's `bin`
 directory, `config/jukebox.cfg` to `bin/jukebox.cfg`, and the contents of
-`skins/base` to `jukebox/skins/base`. Put compatible WAV files in a `music`
+`skins/artdeco` to `jukebox/skins/artdeco`. Put compatible WAV files in a `music`
 directory on that card, or edit `music_dir` in the configuration.
 To start the player there automatically, use these lines in `autoexec.txt`
 with CRLF line endings:
@@ -96,7 +98,7 @@ Keep local emulator runtimes, virtual SD cards and media in the ignored
 `.emulator/` directory. Build and media conversion do not require a local
 emulator or any sibling repository.
 
-Use MOS 3.0.2 Arthur and VDP 2.16.0 Bistromathics for the qualified skin build.
+Use MOS 3.0.2 Arthur and VDP 2.16.0 Bistromathics for skin testing.
 Override the MOS shipped with an emulator when necessary. The public
 [functional test suite](../tests/README.md) uses the same application with
 scripted target-side checks and a separate generated SD tree.

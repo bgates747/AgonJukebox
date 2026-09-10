@@ -1,0 +1,31 @@
+{
+  "artdeco": {
+    "result": "PASS",
+    "skin": "artdeco",
+    "scenarios": 26,
+    "widget_pixels": 5307,
+    "rate_hz": 65535,
+    "read_ticks": 89,
+    "bytes_remaining": 115778,
+    "audio_output": "listening review is separate"
+  },
+  "base": {
+    "result": "PASS",
+    "skin": "base",
+    "scenarios": 26,
+    "widget_pixels": 1327,
+    "rate_hz": 65535,
+    "read_ticks": 89,
+    "bytes_remaining": 115778,
+    "audio_output": "listening review is separate"
+  },
+  "human_review": "Accepted by the project owner as a good working concept on 2026-09-10; checkpoint commit authorized.",
+  "hardware_qualification": "pending",
+  "environment_check": "PASS: 9 WAV tests, dependencies, four assembly variants and external assets",
+  "repeat_build": "14 generated files byte-identical",
+  "base_first_attempt": "VDP pixel-reply timeout (0x53) at initial frame check; separate retry passed all scenarios/pixels",
+  "binary_bytes": 46802,
+  "binary_sha256": "103fd109d5aebea1b9dc7a1e5f30f42ead17715275223d6bfd107d004c139d64",
+  "agnb_sha256": "4b347cfa0fddc9f78b3c18bfcb54ba3a7d1a85716cbba57f0089c0c7b80b15a7",
+  "font_sha256": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b"
+}

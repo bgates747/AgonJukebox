@@ -13,6 +13,8 @@ import tempfile
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 VENV_DIR = PROJECT_ROOT / ".venv"
 RUNTIME_SKIN_ASSETS = (
+    PROJECT_ROOT / "skins/artdeco/graphics.agnb",
+    PROJECT_ROOT / "skins/artdeco/fonts/neutrino_5x8.font",
     PROJECT_ROOT / "skins/base/graphics.agnb",
     PROJECT_ROOT / "skins/base/fonts/body8x8.font",
     PROJECT_ROOT / "skins/base/fonts/body8x14.font",
@@ -50,7 +52,7 @@ def main() -> int:
     for asset in RUNTIME_SKIN_ASSETS:
         if not asset.is_file():
             failures.append(f"missing runtime skin asset: {asset.relative_to(PROJECT_ROOT)}")
-    for filename in ["config/jukebox.cfg", "skins/base/skin.cfg"]:
+    for filename in ["config/jukebox.cfg", "skins/base/skin.cfg", "skins/artdeco/skin.cfg"]:
         if not (PROJECT_ROOT / filename).is_file():
             failures.append(f"missing configuration: {filename}")
 
@@ -84,6 +86,11 @@ def main() -> int:
             cwd=PROJECT_ROOT / "src/asm",
         ):
             failures.append("functional test assembly failed")
+        for source, target in [("app_base.asm", "base.bin"),
+                               ("../../tests/asm/artdeco_check.asm", "artcheck.bin")]:
+            if not run(["ez80asm", source, str(Path(temp_dir) / target)],
+                       cwd=PROJECT_ROOT / "src/asm"):
+                failures.append(f"assembly failed: {source}")
 
     if failures:
         print("\nEnvironment verification failed:")

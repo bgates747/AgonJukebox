@@ -63,12 +63,33 @@ lt_key:
     ret
 
 lt_blue_pixel:
+    if skin_artdeco
+    ld a,255
+    ld (lt_rgb),a
+    ld a,170
+    ld (lt_rgb+1),a
+    ld a,85
+    ld (lt_rgb+2),a
+    jr lt_pixel
+    else
     xor a
     ld (lt_rgb),a
     ld (lt_rgb+1),a
     ld a,170
     ld (lt_rgb+2),a
     jr lt_pixel
+    endif
+lt_frame_pixel:
+    if skin_artdeco
+    ld bc,74
+    ld de,110
+    jp lt_blue_pixel
+    else
+    ld bc,502
+    ld de,158
+    ld a,85
+    jp lt_grey_pixel
+    endif
 lt_grey_pixel:
     ld (lt_rgb),a
     ld (lt_rgb+1),a
@@ -104,6 +125,14 @@ lt_pixel:
     jp nz,lt_pixel_fail
     ret
 lt_pixel_fail:
+    if skin_artdeco
+    ld hl,sa_pixel_command+3
+    ld b,4
+    call lt_dump
+    ld hl,lt_rgb
+    ld b,3
+    call lt_dump
+    endif
     ld a,(ix+0x0a)
     call sa_debug_hex
     ld a,(ix+0x0b)
@@ -203,7 +232,11 @@ lt_rgb: db 0,0,0
 lt_pixels_pass: asciz "LIVE_WIDGET_PIXELS_PASS\r\n"
 lt_sample_ptr: dl 0
 lt_samples_left: dl 0
+    if skin_artdeco
+lt_samples: incbin "../../tests/fixtures/artdeco/widget-samples.bin"
+    else
 lt_samples: incbin "../../tests/fixtures/skin/widget-samples.bin"
+    endif
 lt_table:
 
     dl 30,lt_case0
@@ -242,10 +275,7 @@ lt_case0:
     cp 0
     jp nz,lt_fail
 
-    ld bc,502
-    ld de,158
-    ld a,85
-    call lt_grey_pixel
+    call lt_frame_pixel
 
     ld a,13
     call lt_key
@@ -317,12 +347,22 @@ lt_case5:
     or a
     sbc hl,de
     jp nz,lt_fail
+    if skin_artdeco
+    ld bc,81
+    ld de,89
+    else
     ld bc,10
     ld de,151
+    endif
     xor a
     call lt_grey_pixel
+    if skin_artdeco
+    ld bc,81
+    ld de,101
+    else
     ld bc,10
     ld de,165
+    endif
     call lt_blue_pixel
 
     ld a,13
@@ -402,10 +442,7 @@ lt_case10:
     ld a,(ps_mode)
     and 1
     jp z,lt_fail
-    ld bc,502
-    ld de,241
-    ld a,85
-    call lt_grey_pixel
+    call lt_frame_pixel
 
     ld a,'p'
     call lt_key
@@ -585,10 +622,7 @@ lt_case22:
     ld a,(ps_filinfo_fname+1)
     cp '0'
     jp z,lt_fail
-    ld bc,502
-    ld de,241
-    ld a,85
-    call lt_grey_pixel
+    call lt_frame_pixel
     ld a,(sa_mode_changed)
     cp 1
     jp nz,lt_fail
@@ -644,4 +678,8 @@ lt_case25:
 
     ret
 
+    if skin_artdeco
+    include "../ui/artdeco/test-meta.inc"
+    else
 lt_sample_count: equ 1327
+    endif

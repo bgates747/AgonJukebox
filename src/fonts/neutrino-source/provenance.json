@@ -1,0 +1,31 @@
+{
+  "font_file": "../neutrino_5x8.font",
+  "source_file": "neutrino.ttf",
+  "source_sha256": "b4f336749ffbabcd6f38c954f6b59802fa60b9f2a6014bc94b1e11225ec3b15c",
+  "original_source_path": "/home/smith/Agon/mystuff/agon-utils/examples/font_editor/src/fonts/net/ttf/neutrino/neutrino.ttf",
+  "original_export_xml": "<?xml version=\"1.0\" ?>\n<settings>\n  <setting name=\"original_font_path\" value=\"/home/smith/Agon/mystuff/agon-utils/examples/font_editor/src/fonts/net/ttf/neutrino/neutrino.ttf\"/>\n  <setting name=\"font_name\" value=\"neutrino\"/>\n  <setting name=\"font_variant\" value=\"\"/>\n  <setting name=\"font_width\" value=\"5\"/>\n  <setting name=\"font_height\" value=\"11\"/>\n  <setting name=\"font_width_mod\" value=\"5\"/>\n  <setting name=\"font_height_mod\" value=\"8\"/>\n  <setting name=\"point_size\" value=\"8\"/>\n  <setting name=\"offset_left\" value=\"0\"/>\n  <setting name=\"offset_top\" value=\"-3\"/>\n  <setting name=\"offset_width\" value=\"0\"/>\n  <setting name=\"offset_height\" value=\"-3\"/>\n  <setting name=\"scale_width\" value=\"0\"/>\n  <setting name=\"scale_height\" value=\"0\"/>\n  <setting name=\"raster_type\" value=\"threshold\"/>\n  <setting name=\"threshold\" value=\"128\"/>\n  <setting name=\"palette\" value=\"Agon64\"/>\n  <setting name=\"fg_color\" value=\"255, 255, 255, 255\"/>\n  <setting name=\"bg_color\" value=\"0, 0, 0, 255\"/>\n  <setting name=\"ascii_start\" value=\"0\"/>\n  <setting name=\"ascii_end\" value=\"255\"/>\n  <setting name=\"chars_per_row\" value=\"16\"/>\n</settings>\n",
+  "source_export_settings": "neutrino_5x8.export.xml",
+  "font_sha256": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
+  "cell_width": 5,
+  "cell_height": 8,
+  "advance_pixels": 5,
+  "slots": 256,
+  "bytes_per_row": 1,
+  "bytes_per_glyph": 8,
+  "font_bytes": 2048,
+  "row_encoding": "MSB first; five cell bits in bits 7..3; low three bits zero",
+  "printable_ascii": "32..126: blank space, all other printable characters populated",
+  "nonblank_slots": 252,
+  "notes": "User-exported bitmap unchanged. Extended slots preserve the original export, including any source-font fallback glyphs.",
+  "importer": "agon-utils/examples/font_editor/src/python/agon_font.py",
+  "importer_sha256": "e313e170b3a051ca20b035df92cbe68ce5ac2c508f2ef87a6a24042aa08047f1",
+  "metadata_io": "agon-utils/examples/font_editor/src/python/config_manager.py",
+  "pillow_version": "12.3.0",
+  "validation": {
+    "bitmap": "2048-byte export identical; all 10240 glyph pixels match",
+    "bitmap_xml": "2048-byte export identical; all 10240 glyph pixels match",
+    "vendored_ttf": "2048-byte export identical; all 10240 glyph pixels match",
+    "source_xml_editor_resolution": "2048-byte export identical; all 10240 glyph pixels match"
+  },
+  "xml_import_note": "Resolve the source XML original_font_path before read_font, as file_manager.open_file does; recursive read_font(XML) reapplies nonzero TTF offsets."
+}

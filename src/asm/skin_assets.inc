@@ -65,6 +65,7 @@ sa_skin_assets_init:
     ld hl,sa_font8_create
     ld bc,10
     rst.lil 0x18
+    if 1-skin_artdeco
     ld hl,sa_font14_file
     call sa_join_asset
     ret nz
@@ -86,6 +87,7 @@ sa_skin_assets_init:
     ld hl,sa_font14_create
     ld bc,10
     rst.lil 0x18
+    endif
     ld hl,sa_contexts
     ld bc,sa_contexts_end-sa_contexts
     rst.lil 0x18
@@ -170,7 +172,8 @@ sa_small_error:
     or a
     ret
 
-; Minimal private manifest: strict ASCII key=value, LF/CRLF, four required keys.
+; Bounded build profiles: Base has four keys; Art Deco has three and one 5x8 font.
+; A distinct version prevents accepting Base assets under Art Deco geometry.
 ; Reuses the validated config lexical string helpers. Full schema stays SKIN-003.
 sa_parse_manifest:
     ld hl,sa_small_data
@@ -277,7 +280,11 @@ sa_manifest_value:
     call jcfg_trim
     ld (sa_key_ptr),hl
     ld ix,sa_manifest_keys
+    if skin_artdeco
+    ld b,3
+    else
     ld b,4
+    endif
     ld c,1
 sa_manifest_match:
     push bc
@@ -341,7 +348,11 @@ sa_manifest_bad:
     ret
 sa_manifest_done:
     ld a,(sa_manifest_seen)
+    if skin_artdeco
+    cp 7
+    else
     cp 15
+    endif
     jp nz,sa_manifest_bad
     xor a
     ret
@@ -512,7 +523,11 @@ sa_initial_end:
 sa_restore_mode: db 22,0
     db 4,23,1,1,12
 sa_restore_end:
+    if skin_artdeco
+sa_font8_create: db 23,0,0x95,1,0xf0,0x21,5,8,8,0
+    else
 sa_font8_create: db 23,0,0x95,1,0xf0,0x21,8,8,8,0
+    endif
 sa_font14_create: db 23,0,0x95,1,0xf1,0x21,8,14,14,0
 sa_pixel_command: db 23,0,0x84,0,0,0,0
 sa_wait_flag: db 0
@@ -542,12 +557,20 @@ sa_asset_path: blkb 368,0
 sa_graphics_file: blkb 128,0
 sa_font8_file: blkb 128,0
 sa_font14_file: blkb 128,0
-sa_manifest_keys: dl sa_key_version,0,sa_key_graphics,sa_graphics_file,sa_key_font8,sa_font8_file,sa_key_font14,sa_font14_file
+sa_manifest_keys: dl sa_key_version,0,sa_key_graphics,sa_graphics_file,sa_key_font8,sa_font8_file
+    if 1-skin_artdeco
+    dl sa_key_font14,sa_font14_file
+    endif
 sa_key_version: asciz "format"
 sa_key_graphics: asciz "graphics.file"
+    if skin_artdeco
+sa_key_font8: asciz "font.file"
+sa_manifest_version: asciz "artdeco-test1"
+    else
 sa_key_font8: asciz "font8.file"
-sa_key_font14: asciz "font14.file"
 sa_manifest_version: asciz "skin004-proof1"
+    endif
+sa_key_font14: asciz "font14.file"
 sa_ready: asciz "SKIN_ASSETS_READY\r\n"
 sa_error_text: asciz "Jukebox skin/config error 0x"
 sa_error_end: asciz ". Check /bin/jukebox.cfg and assets.\r\n"

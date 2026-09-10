@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from pathlib import Path
 import re
 import shutil
@@ -13,17 +14,18 @@ import wave
 PROJECT = Path(__file__).resolve().parents[1]
 
 
-def prepare(destination: Path) -> None:
+def prepare(destination: Path, skin: str = "base") -> None:
     # Require a new destination so existing SD contents cannot be overwritten.
     destination.mkdir(parents=True, exist_ok=False)
     (destination / "bin").mkdir()
     subprocess.run(
-        ["ez80asm", "../../tests/asm/livecheck.asm", str(destination / "bin/livecheck.bin")],
+        ["ez80asm", "../../tests/asm/" + ("artdeco_check.asm" if skin == "artdeco" else "livecheck.asm"),
+         os.path.relpath(destination / "bin/livecheck.bin", PROJECT / "src/asm")],
         cwd=PROJECT / "src/asm", check=True,
     )
-    shutil.copytree(PROJECT / "skins/base", destination / "jukebox/skins/base")
+    shutil.copytree(PROJECT / "skins" / skin, destination / "jukebox/skins" / skin)
     (destination / "bin/jukebox.cfg").write_text(
-        "format=1\nskin_dir=/jukebox/skins/base\n", encoding="ascii"
+        f"format=1\nskin_dir=/jukebox/skins/{skin}\n", encoding="ascii"
     )
     media = destination / "qualification"
     (media / "Empty").mkdir(parents=True)
@@ -42,7 +44,7 @@ def prepare(destination: Path) -> None:
     print(f"Functional-test SD tree: {destination}")
 
 
-def check(log: Path) -> None:
+def check(log: Path, skin: str = "base") -> None:
     output = log.read_text(errors="replace")
     if "LIVE_TEST_PASS" not in output or "LIVE_TEST_FAIL" in output:
         raise ValueError("target functional scenarios did not pass")
@@ -59,8 +61,11 @@ def check(log: Path) -> None:
     expected = (65535 * 3 + 65535 // 4) - ticks * 65535 // 60
     if remaining != expected:
         raise ValueError(f"read accounting: expected {expected}, got {remaining}")
+    pixels = 1327
+    if skin == "artdeco":
+        pixels = (PROJECT / "tests/fixtures/artdeco/widget-samples.bin").stat().st_size // 7
     print(json.dumps({
-        "result": "PASS", "scenarios": 26, "widget_pixels": 1327,
+        "result": "PASS", "skin": skin, "scenarios": 26, "widget_pixels": pixels,
         "rate_hz": 65535, "read_ticks": ticks, "bytes_remaining": remaining,
         "audio_output": "listening review is separate",
     }, indent=2))
@@ -69,13 +74,17 @@ def check(log: Path) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("prepare", help="create a new SD tree").add_argument("destination", type=Path)
-    commands.add_parser("check", help="validate a completed emulator log").add_argument("log", type=Path)
+    prepare_cmd = commands.add_parser("prepare", help="create a new SD tree")
+    prepare_cmd.add_argument("destination", type=Path)
+    prepare_cmd.add_argument("--skin", choices=["base", "artdeco"], default="base")
+    check_cmd = commands.add_parser("check", help="validate a completed emulator log")
+    check_cmd.add_argument("log", type=Path)
+    check_cmd.add_argument("--skin", choices=["base", "artdeco"], default="base")
     args = parser.parse_args()
     if args.command == "prepare":
-        prepare(args.destination.resolve())
+        prepare(args.destination.resolve(), args.skin)
     else:
-        check(args.log)
+        check(args.log, args.skin)
 
 
 if __name__ == "__main__":

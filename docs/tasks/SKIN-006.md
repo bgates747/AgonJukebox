@@ -2,8 +2,8 @@
 
 ## State
 
-- Status: Not started — proposal phase 4
-- Started: --
+- Status: Basic Art Deco working concept accepted and checkpoint authorized; refinement remains open
+- Started: 2026-09-10
 - Finished: --
 
 ## Intent and scope
@@ -31,6 +31,37 @@ point, with additional artwork only where the jukebox needs it.
    contour-following bevel gradients in RGB222. Its specification was accepted
    on 2026-09-09; final art/layout adoption remains open. Its proof
    feeds this task's asset construction and visual review.
+6. [SKIN-013](SKIN-013.md) supplies the accepted flat-color Art Deco test draft.
+   The Author selected Neutrino 5×8 for body text on 2026-09-10. Its bitmap,
+   normalized editor metadata, original TTF, export settings and glyph sheet
+   are retained in [src/fonts](../../src/fonts/README.md). Existing font-editor
+   import/export functions reproduce the Author's bitmap byte-for-byte.
+
+For the Art Deco integration, retain five-pixel advance and eight-pixel height;
+the 60-character browser row then occupies 300 pixels. Do not treat this
+2,048-byte file as an 8×8 font merely because its length is the same. SKIN-004
+must create the font with the selected geometry, and this task must adapt the
+text placement and restoration rectangles. The existing Base renderer still
+uses 8×8/8×14. Preparing this source does not complete runtime integration.
+
+On 2026-09-10 the Author authorized a basic working Art Deco skin, delegated
+information placement to the agent and deferred visual feedback until it runs.
+Omit all control legends for this test; this supersedes the earlier requirement
+to display keyboard hints. Keep live playback/mode/volume feedback. A small
+F1 help hint opening a stylized modal control guide is a future possibility,
+not part of this milestone; do not display a nonfunctional F1 hint.
+Use AGNB graphics and the prepared loose 5×8 font. Retain the Base package and
+test profile while preparing the Art Deco candidate for human emulator review.
+
+The basic candidate is now implemented under `src/skins/artdeco`,
+`src/ui/artdeco` and `skins/artdeco`; `app.asm` selects it while `app_base.asm`
+retains Base. It uses 163 canonical AGNB images, the unchanged Neutrino payload
+at true 5×8 geometry, ten 60-character rows, live path/page/name/time/status
+fields and bottom playback/mode/volume feedback. The same 26 functional
+scenarios and 5,307 expected target pixels pass. This is automated evidence;
+the Author accepted this as a good working concept on 2026-09-10 and
+authorized committing it. Hardware qualification and further refinement
+remain open; pause after this checkpoint.
 
 The [Work 2 corpus](SKIN-000/corpus.md) distinguishes inspected historic
 references from artwork available for release. Resolve W2-F005 with SKIN-008

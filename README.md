@@ -31,7 +31,7 @@ these files on the SD card:
 | --- | --- |
 | `tgt/jukebox.bin` | `/bin/jukebox.bin` |
 | `config/jukebox.cfg` | `/bin/jukebox.cfg` |
-| Contents of `skins/base/` | `/jukebox/skins/base/` |
+| Contents of `skins/artdeco/` | `/jukebox/skins/artdeco/` |
 
 Edit `/bin/jukebox.cfg` to select the skin and initial music directories, then
 run `jukebox` from MOS. The example uses `/music`; create that directory or
@@ -39,9 +39,18 @@ change the setting to an existing directory. Graphics load from an AGNB
 container; fonts are separate `.font` files. No command-line arguments are
 required. See [configuration and skin loading](docs/configuration.md).
 
-This functional milestone was tested with MOS **3.0.2 Arthur**, VDP **2.16.0
-Bistromathics**, and Fab **1.2.4**. The package schema remains provisional;
+The current build is the basic Art Deco test candidate with a 5×8 Neutrino
+font. It omits on-screen control legends; the controls below still apply.
+Its automated functional and pixel checks pass with MOS **3.0.2 Arthur**, VDP
+**2.16.0 Bistromathics**, and Fab **1.2.4**. The project owner accepted this
+as a good working concept on 2026-09-10.
+The package schema remains provisional;
 skin discovery, switching, and Classic styling are still under development.
+
+The previously accepted Base skin remains in `skins/base`. Assemble
+`src/asm/app_base.asm` to use it, and install `config/jukebox-base.cfg` as
+`/bin/jukebox.cfg`. These are two bounded build profiles; changing the skin
+directory alone does not switch their layouts.
 
 To assemble it, install `ez80asm`, then run:
 
@@ -63,7 +72,7 @@ ez80asm app.asm ../../tgt/jukebox.bin
 | `P` | Pause or resume playback |
 | `L` | Toggle loop mode |
 | `S` | Toggle shuffle mode |
-| `[` / `]` | Seek backward / forward by the displayed seek interval |
+| `[` / `]` | Seek backward / forward by the current seek interval |
 | `-` / `=` | Decrease / increase the seek interval |
 | `,` / `.` | Decrease / increase master volume |
 | Esc or `Q` | Quit to MOS |
