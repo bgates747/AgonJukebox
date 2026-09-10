@@ -1,0 +1,78 @@
+{
+  "kind": "Host payload measurements and protocol model; no target execution",
+  "baseline_full_static_rgba2222_bytes": 196608,
+  "unique_rgba2222_payload_bytes": 130829,
+  "pixel_payload_reduction_percent": 33.46,
+  "agnb_bytes": 135316,
+  "agnb_overhead_bytes": 4487,
+  "bitmap_records": 91,
+  "resident_bitmap_buffers": 91,
+  "derived_mirrored_buffers": 0,
+  "mirror_creation_tx_bytes": 0,
+  "asset_upload_tx_bytes": 133832,
+  "asset_upload_protocol_overhead_bytes": 3003,
+  "raw_full_frame_upload_tx_bytes": 196825,
+  "vdp_pixel_storage_bytes": 130829,
+  "stored_static_draw_sequence_bytes": 1792,
+  "vdp_pixels_plus_stored_commands_bytes": 132621,
+  "static_draw_bitmap_placements": 117,
+  "static_draw_fills": 42,
+  "static_draw_bitmap_selections": 92,
+  "unbuffered_static_draw_tx_bytes": 1792,
+  "stored_static_draw_upload_tx_bytes": 1806,
+  "stored_static_redraw_call_tx_bytes": 6,
+  "selected_static_strategy": "One stored direct-bitmap/fill sequence; mirrored buffers built once by copy/reverse at loading (modeled, not deployed)",
+  "mapped_character_codes_assigned": 0,
+  "horizontal_print_candidates": [
+    "part-012",
+    "part-014",
+    "part-030"
+  ],
+  "demo_overlay_bytes_not_in_runtime_package": 55029,
+  "excluded": "VDP object/allocator metadata, MOS\u2194VDP mode packets, common setup/context commands, application fonts and changing-text traffic. These costs require the integration task; the demo overlay is host-only.",
+  "normal_playback": "Static chrome is drawn on entry or restoration, not on each playback tick. Current application dynamic-widget traffic is not changed or measured here.",
+  "changes": [],
+  "changed_pixels": 0,
+  "changed_percent": 0.0,
+  "validation": {
+    "uncovered_pixels": 0,
+    "overdraw_pixels": 182881,
+    "agnb_records_checked": 91,
+    "source_sha256_unchanged": true,
+    "size": [
+      512,
+      384
+    ],
+    "unique_colors": 27,
+    "off_palette_pixels": 0,
+    "reconstruction_matches_candidate": true
+  },
+  "provenance": {
+    "freeze_commit": "f2f252d",
+    "source_sha256": "178e443dfcc3a47a4ebfbf3df6385a57b75b8c54533d9595d96101756197ef55",
+    "toolchain": {
+      "agon_utils_commit": "434bf734a9f5a4cf84b4428f6a6be24d2bfc7b33",
+      "files": {
+        "examples/agnb/images/container/scripts/do_assembly.py": "39371ca2813e14594143bf9ebb4a792434145fd5547c0f3c9630b427912645c9",
+        "examples/agnb/images/container/scripts/view_agnb.py": "2bdf9d5e3acd8b5e4cbec8d8f79c16454fc76d7fbd18c7d604e81abed6408fc7",
+        "examples/agnb/images/shared/scripts/image_manifest.py": "94e6013c5fb895dd4c6f063272b6cd71c0f437d543598cfa0059eb803e46e4f8",
+        "examples/slideshow/palettes/Agon64.gpl": "c61dd1476415352e74add70f1ed0c81b1d141361a12b26587a6829ee66ec7f94",
+        "src/images.c": "61c983b018694cb18c3c23e511f1c0ebfc728887701e7fd79359b3ccaa10865b"
+      },
+      "extension_sha256": "0a1166e08a92e90342ce50a9b5435b065c2fd08e850ec9021434540b73ddad4e",
+      "versions": {
+        "numpy": "2.5.1",
+        "scipy": "1.18.0",
+        "Pillow": "12.3.0"
+      }
+    },
+    "scripts": {
+      "render.py": "3398172526b1e9e66bb3e29c537fd2e4800fd8d83c73a94064e396b4113bdeea",
+      "extract.py": "bb9d90908a30f7f2114d3ee5cb68df3034672630d3c5fd41c71a25a6033a66ed",
+      "refine.py": "44096e7382a6c9c634ad158c5e4113557e788d880fda3d9024830e140d9f0009",
+      "toolkit.py": "0cd332fc55eba357073343e5c6ef7af4b14149be266cd9a3a252abf129949257",
+      "build.py": "76eb9405aad82b374fe8a1a16023690878164d65c55cdda007cd63d89f99e679"
+    },
+    "parameters_sha256": "ce9f225de3bec98987f4f94900b2a0fbbf8cbdda8243ecf9929f6797d1abb077"
+  }
+}

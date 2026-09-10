@@ -1,0 +1,27 @@
+{
+  "name": "v1-column-profiles",
+  "source": "../SKIN-006/art-deco-2026-09-09/art-deco-scaled-palettized.png",
+  "source_sha256": "178e443dfcc3a47a4ebfbf3df6385a57b75b8c54533d9595d96101756197ef55",
+  "axis_regions": [
+    {"name": "left-shaft-upper", "box": [6, 135, 62, 168], "axis": "x"},
+    {"name": "left-shaft-middle", "box": [6, 168, 62, 204], "axis": "x"},
+    {"name": "left-shaft-lower", "box": [6, 204, 62, 236], "axis": "x"},
+    {"name": "right-shaft-upper", "box": [450, 135, 506, 168], "axis": "x"},
+    {"name": "right-shaft-middle", "box": [450, 168, 506, 204], "axis": "x"},
+    {"name": "right-shaft-lower", "box": [450, 204, 506, 236], "axis": "x"}
+  ],
+  "bevels": [],
+  "mirrors": [],
+  "demo_regions": [
+    {"name": "browser-rows", "box": [77, 89, 434, 223], "background": [0,0,0]},
+    {"name": "selection-arrow", "box": [68, 126, 78, 141], "background": "left-border"},
+    {"name": "playing-title-time", "box": [180, 251, 330, 280], "background": [0,0,0]},
+    {"name": "progress-fill", "box": [144, 283, 370, 286], "background": [0,0,0]},
+    {"name": "volume-levels", "box": [392, 316, 428, 332], "background": [0,0,0]},
+    {"name": "music-path", "box": [63, 357, 124, 369], "background": [0,0,0]},
+    {"name": "file-count", "box": [397, 357, 457, 369], "background": [0,0,0]}
+  ],
+  "patch_max": 64,
+  "repeat_height": 8,
+  "notes": "Preserve turquoise bands and both shaft end transitions; three axial bands retain slow changes in highlight width. Do not mirror lighting in this first pass."
+}

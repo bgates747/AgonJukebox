@@ -48,7 +48,11 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: --
    - Finished: --
    - Status: Deferred until the new skin runs with live player state; retain familiar styling within the shared layout.
-12. [ ] **SKIN-012 — Extract and refine reusable Art Deco skin elements programmatically**
+11. [ ] **SKIN-011 — Investigate PB2000 as a possible skin**
    - Started: --
    - Finished: --
-   - Status: Specification accepted; freeze task/art snapshot, then implement scripted extraction and gradient preservation without image generation.
+   - Status: Candidate steampunk-like skin vendored in [vendor/skins/pb2000.wsz](vendor/skins/pb2000.wsz); investigate suitability for AgonJukebox.
+12. [ ] **SKIN-012 — Extract and refine reusable Art Deco skin elements programmatically**
+   - Started: 2026-09-09 14:13 EDT
+   - Finished: --
+   - Status: Scripted extraction and AGNB host proof pass checks; Author found remaining dirt and ragged edges. Current workflow retained for comparison, with isolated editable elements; visual acceptance remains open.

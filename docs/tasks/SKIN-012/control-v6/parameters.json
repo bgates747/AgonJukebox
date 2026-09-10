@@ -1,0 +1,396 @@
+{
+  "name": "final-control-v6",
+  "source": "../SKIN-006/art-deco-2026-09-09/art-deco-scaled-palettized.png",
+  "source_sha256": "178e443dfcc3a47a4ebfbf3df6385a57b75b8c54533d9595d96101756197ef55",
+  "axis_regions": [],
+  "bevels": [],
+  "mirrors": [],
+  "demo_regions": [
+    {
+      "name": "browser-rows",
+      "box": [
+        77,
+        89,
+        434,
+        223
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "selection-arrow",
+      "box": [
+        68,
+        126,
+        78,
+        141
+      ],
+      "background": "left-border"
+    },
+    {
+      "name": "playing-title-time",
+      "box": [
+        180,
+        251,
+        330,
+        280
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "progress-fill",
+      "box": [
+        144,
+        283,
+        370,
+        286
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "volume-levels",
+      "box": [
+        392,
+        316,
+        428,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "music-path",
+      "box": [
+        63,
+        357,
+        124,
+        369
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "file-count",
+      "box": [
+        397,
+        357,
+        457,
+        369
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "patch_max": 64,
+  "repeat_height": 8,
+  "notes": "Same final detector, component extraction and whole-frame strategy, without intentional art changes.",
+  "parts": [
+    {
+      "name": "left-top-fan",
+      "box": [
+        3,
+        5,
+        67,
+        71
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "right-top-fan",
+      "box": [
+        445,
+        5,
+        509,
+        71
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "central-crown-and-title",
+      "box": [
+        133,
+        0,
+        380,
+        73
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "icons": [],
+  "frames": [
+    {
+      "name": "previous-frame",
+      "box": [
+        77,
+        308,
+        118,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pause-frame",
+      "box": [
+        172,
+        308,
+        213,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "next-frame",
+      "box": [
+        219,
+        308,
+        260,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "shuffle-frame",
+      "box": [
+        266,
+        308,
+        307,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "repeat-frame",
+      "box": [
+        310,
+        308,
+        350,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "play-frame",
+      "box": [
+        123,
+        308,
+        166,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        85,
+        85
+      ]
+    },
+    {
+      "name": "volume-frame",
+      "box": [
+        368,
+        308,
+        435,
+        336
+      ],
+      "insets": [
+        4,
+        4,
+        4,
+        4
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "frame_strategy": "whole",
+  "protect_art": [],
+  "icon_rois": [
+    {
+      "name": "previous",
+      "box": [
+        81,
+        312,
+        114,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "pause",
+      "box": [
+        176,
+        312,
+        209,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "next",
+      "box": [
+        223,
+        312,
+        256,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "shuffle",
+      "box": [
+        270,
+        312,
+        303,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "repeat",
+      "box": [
+        314,
+        312,
+        346,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "play",
+      "box": [
+        128,
+        312,
+        162,
+        332
+      ],
+      "background": [
+        0,
+        85,
+        85
+      ]
+    },
+    {
+      "name": "speaker",
+      "box": [
+        372,
+        312,
+        391,
+        332
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ]
+    }
+  ]
+}

@@ -2,14 +2,16 @@
 
 ## State
 
-- Status: Specification accepted and frozen for implementation; implementation not started
-- Started: --
+- Status: Author requests further edge cleanup; isolated elements ready for review/editing
+- Started: 2026-09-09 14:13 EDT
 - Finished: --
 - Registration: Requested by the Author after reviewing the smooth Art Deco
   master and supplying an undithered, scaled, palettized version.
 - Approval: 2026-09-09; the Author requested a specification/art commit followed
   by implementation. The scoped frozen snapshot is an explicit exception to
   the usual private-task tracking policy.
+- Freeze commit: `f2f252d`. Accepted requirements below remain unchanged;
+  [implementation and review evidence](SKIN-012/README.md) records progress.
 
 ## Intent and scope
 
