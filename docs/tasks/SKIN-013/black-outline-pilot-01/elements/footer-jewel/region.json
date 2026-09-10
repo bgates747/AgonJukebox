@@ -1,0 +1,111 @@
+{
+  "name": "footer-jewel",
+  "source_box": [
+    665,
+    966,
+    784,
+    1081
+  ],
+  "source_size": [
+    119,
+    115
+  ],
+  "thresholds": {
+    "strict": {
+      "ink_pixels": 2844,
+      "components": 3,
+      "holes": 37
+    },
+    "balanced": {
+      "ink_pixels": 3255,
+      "components": 2,
+      "holes": 3
+    },
+    "inclusive": {
+      "ink_pixels": 3403,
+      "components": 2,
+      "holes": 2
+    }
+  },
+  "cleaned": {
+    "ink_pixels": 3256,
+    "components": 2,
+    "holes": 2
+  },
+  "cleanup_candidates": [
+    {
+      "kind": "hole",
+      "box": [
+        102,
+        57,
+        103,
+        58
+      ],
+      "source_pixels": 1
+    }
+  ],
+  "cleanup_removed_pixels": 0,
+  "cleanup_added_pixels": 1,
+  "variants": [
+    {
+      "name": "raw-faithful",
+      "curves": 5,
+      "ink_shapes": 2,
+      "holes": 3,
+      "segments": 110,
+      "svg_bytes": 5603,
+      "xor_pixels": 126,
+      "ink_iou": 0.9621507960348453,
+      "rendered_topology": {
+        "ink_pixels": 3277,
+        "components": 2,
+        "holes": 3
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "faithful",
+      "curves": 4,
+      "ink_shapes": 2,
+      "holes": 2,
+      "segments": 106,
+      "svg_bytes": 5349,
+      "xor_pixels": 126,
+      "ink_iou": 0.9621621621621622,
+      "rendered_topology": {
+        "ink_pixels": 3278,
+        "components": 2,
+        "holes": 2
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "smooth",
+      "curves": 4,
+      "ink_shapes": 2,
+      "holes": 2,
+      "segments": 106,
+      "svg_bytes": 5906,
+      "xor_pixels": 186,
+      "ink_iou": 0.9443447037701975,
+      "rendered_topology": {
+        "ink_pixels": 3242,
+        "components": 2,
+        "holes": 2
+      },
+      "settings": {
+        "name": "smooth",
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      }
+    }
+  ]
+}

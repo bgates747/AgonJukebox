@@ -1,0 +1,161 @@
+{
+  "name": "left-fan",
+  "source_box": [
+    5,
+    5,
+    197,
+    187
+  ],
+  "source_size": [
+    192,
+    182
+  ],
+  "thresholds": {
+    "strict": {
+      "ink_pixels": 5225,
+      "components": 2,
+      "holes": 51
+    },
+    "balanced": {
+      "ink_pixels": 5648,
+      "components": 2,
+      "holes": 23
+    },
+    "inclusive": {
+      "ink_pixels": 5926,
+      "components": 1,
+      "holes": 20
+    }
+  },
+  "cleaned": {
+    "ink_pixels": 5650,
+    "components": 1,
+    "holes": 18
+  },
+  "cleanup_candidates": [
+    {
+      "kind": "island",
+      "box": [
+        65,
+        33,
+        66,
+        36
+      ],
+      "source_pixels": 3
+    },
+    {
+      "kind": "hole",
+      "box": [
+        54,
+        100,
+        55,
+        101
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "hole",
+      "box": [
+        55,
+        101,
+        56,
+        102
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "hole",
+      "box": [
+        61,
+        108,
+        62,
+        109
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "hole",
+      "box": [
+        67,
+        115,
+        68,
+        116
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "hole",
+      "box": [
+        68,
+        116,
+        69,
+        117
+      ],
+      "source_pixels": 1
+    }
+  ],
+  "cleanup_removed_pixels": 3,
+  "cleanup_added_pixels": 5,
+  "variants": [
+    {
+      "name": "raw-faithful",
+      "curves": 25,
+      "ink_shapes": 2,
+      "holes": 23,
+      "segments": 262,
+      "svg_bytes": 13671,
+      "xor_pixels": 394,
+      "ink_iou": 0.9328447247315493,
+      "rendered_topology": {
+        "ink_pixels": 5692,
+        "components": 2,
+        "holes": 23
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "faithful",
+      "curves": 19,
+      "ink_shapes": 1,
+      "holes": 18,
+      "segments": 239,
+      "svg_bytes": 12168,
+      "xor_pixels": 392,
+      "ink_iou": 0.933208383029477,
+      "rendered_topology": {
+        "ink_pixels": 5696,
+        "components": 1,
+        "holes": 18
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "smooth",
+      "curves": 19,
+      "ink_shapes": 1,
+      "holes": 18,
+      "segments": 216,
+      "svg_bytes": 12113,
+      "xor_pixels": 506,
+      "ink_iou": 0.915086423896627,
+      "rendered_topology": {
+        "ink_pixels": 5762,
+        "components": 1,
+        "holes": 18
+      },
+      "settings": {
+        "name": "smooth",
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      }
+    }
+  ]
+}

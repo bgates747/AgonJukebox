@@ -1,0 +1,121 @@
+{
+  "name": "left-column",
+  "source_box": [
+    15,
+    187,
+    190,
+    779
+  ],
+  "source_size": [
+    175,
+    592
+  ],
+  "thresholds": {
+    "strict": {
+      "ink_pixels": 14183,
+      "components": 17,
+      "holes": 54
+    },
+    "balanced": {
+      "ink_pixels": 15788,
+      "components": 5,
+      "holes": 42
+    },
+    "inclusive": {
+      "ink_pixels": 16816,
+      "components": 2,
+      "holes": 40
+    }
+  },
+  "cleaned": {
+    "ink_pixels": 15793,
+    "components": 5,
+    "holes": 40
+  },
+  "cleanup_candidates": [
+    {
+      "kind": "hole",
+      "box": [
+        50,
+        59,
+        51,
+        61
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "hole",
+      "box": [
+        68,
+        585,
+        71,
+        586
+      ],
+      "source_pixels": 3
+    }
+  ],
+  "cleanup_removed_pixels": 0,
+  "cleanup_added_pixels": 5,
+  "variants": [
+    {
+      "name": "raw-faithful",
+      "curves": 47,
+      "ink_shapes": 5,
+      "holes": 42,
+      "segments": 369,
+      "svg_bytes": 18466,
+      "xor_pixels": 1466,
+      "ink_iou": 0.9111999515415834,
+      "rendered_topology": {
+        "ink_pixels": 15764,
+        "components": 2,
+        "holes": 42
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "faithful",
+      "curves": 45,
+      "ink_shapes": 5,
+      "holes": 40,
+      "segments": 363,
+      "svg_bytes": 18103,
+      "xor_pixels": 1464,
+      "ink_iou": 0.9113372093023255,
+      "rendered_topology": {
+        "ink_pixels": 15767,
+        "components": 2,
+        "holes": 40
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "smooth",
+      "curves": 45,
+      "ink_shapes": 5,
+      "holes": 40,
+      "segments": 346,
+      "svg_bytes": 19279,
+      "xor_pixels": 1717,
+      "ink_iou": 0.8967776842611519,
+      "rendered_topology": {
+        "ink_pixels": 15758,
+        "components": 2,
+        "holes": 40
+      },
+      "settings": {
+        "name": "smooth",
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      }
+    }
+  ]
+}

@@ -56,3 +56,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: 2026-09-09 14:13 EDT
    - Finished: --
    - Status: Scripted extraction and AGNB host proof pass checks; Author found remaining dirt and ragged edges. Current workflow retained for comparison, with isolated editable elements; visual acceptance remains open.
+13. [ ] **SKIN-013 — Explore vector tracing before downscaling Art Deco artwork**
+   - Started: 2026-09-10 14:49 EDT
+   - Finished: --
+   - Status: Four-element white-region vector pilot checkpointed, including headless Inkscape simplification and editable shapes. Shading/lighting possibilities recorded; paused to discuss the next bounded experiment.

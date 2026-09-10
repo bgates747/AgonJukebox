@@ -1,0 +1,61 @@
+{
+  "source": "source-test-01/flat-outline-master_bw_threshold.png",
+  "source_sha256": "524125a99a8a9cf9033b9dd79303e090db317d18ad30e61bf8d991d1fdddec6b",
+  "canvas": [
+    1448,
+    1086
+  ],
+  "target_canvas": [
+    512,
+    384
+  ],
+  "foreground_rgb": [
+    255,
+    255,
+    255
+  ],
+  "alphamax": 0.55,
+  "opttolerance": 0.2,
+  "simplify_threshold": 0.0003,
+  "simplify_passes": 1,
+  "regions": [
+    {
+      "name": "left-fan",
+      "box": [
+        5,
+        5,
+        197,
+        187
+      ]
+    },
+    {
+      "name": "left-column",
+      "box": [
+        15,
+        188,
+        188,
+        779
+      ],
+      "note": "Start below the last one-pixel row of the neighboring fan rail; avoid two truncated rail fragments at the crop boundary."
+    },
+    {
+      "name": "previous-button",
+      "box": [
+        212,
+        863,
+        338,
+        955
+      ]
+    },
+    {
+      "name": "footer-jewel",
+      "box": [
+        665,
+        966,
+        784,
+        1081
+      ]
+    }
+  ],
+  "notice": "Trace exact white regions as separately editable filled shapes with holes. Compare original paths with one headless Inkscape simplification pass. No source filtering, component deletion, shading, stroke expansion or full-skin processing."
+}

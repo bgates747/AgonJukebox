@@ -1,0 +1,91 @@
+{
+  "name": "previous-button",
+  "source_box": [
+    212,
+    863,
+    338,
+    955
+  ],
+  "size": [
+    126,
+    92
+  ],
+  "original_topology": {
+    "ink_pixels": 2415,
+    "components": 3,
+    "holes": 1
+  },
+  "shapes": [
+    {
+      "contour": 0,
+      "source_area": 8134
+    },
+    {
+      "contour": 2,
+      "source_area": 466
+    },
+    {
+      "contour": 3,
+      "source_area": 432
+    }
+  ],
+  "individual_shapes": [
+    {
+      "file": "shape-001.svg",
+      "path_id": "previous-button-000"
+    },
+    {
+      "file": "shape-002.svg",
+      "path_id": "previous-button-002"
+    },
+    {
+      "file": "shape-003.svg",
+      "path_id": "previous-button-003"
+    }
+  ],
+  "inkcape_command": {
+    "argv": [
+      "inkscape",
+      "/home/smith/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/white-shape-pilot-01/elements/previous-button/traced.svg",
+      "--actions=select-all:all;path-simplify",
+      "--export-type=svg",
+      "--export-plain-svg",
+      "--export-filename=/home/smith/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/white-shape-pilot-01/elements/previous-button/simplified.svg"
+    ],
+    "preference": "/options/simplifythreshold",
+    "value": 0.0003,
+    "passes": 1,
+    "profile": "/home/smith/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/white-shape-pilot-01/profiles/previous-button",
+    "stderr": ""
+  },
+  "variants": [
+    {
+      "name": "traced",
+      "objects": 3,
+      "segments": 47,
+      "subpaths": 4,
+      "svg_bytes": 1502,
+      "foreground_iou": 0.9905232797692625,
+      "xor_pixels": 23,
+      "rendered_topology": {
+        "ink_pixels": 2416,
+        "components": 3,
+        "holes": 1
+      }
+    },
+    {
+      "name": "simplified",
+      "objects": 3,
+      "segments": 32,
+      "subpaths": 4,
+      "svg_bytes": 2382,
+      "foreground_iou": 0.9897034596375618,
+      "xor_pixels": 25,
+      "rendered_topology": {
+        "ink_pixels": 2416,
+        "components": 3,
+        "holes": 1
+      }
+    }
+  ]
+}

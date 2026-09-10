@@ -1,0 +1,647 @@
+{
+  "source": "/home/smith/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/source-test-01/flat-outline-master.png",
+  "source_sha256": "8d7f5b473092e27b82058f68f8dbbb2dd338a8b1975dd988b9019b03768eb713",
+  "stage": "black-region pilot",
+  "scope": "Pilot of filled black regions only. Navy panels, colored fills, centerlines, enforced widths, gradients and bevels are outside this step. Cleanup candidates are kept alongside untouched masks.",
+  "source_size": [
+    1448,
+    1086
+  ],
+  "target_size": [
+    512,
+    384
+  ],
+  "toolchain": {
+    "potrace": "potracelib 1.16",
+    "inkscape": "Inkscape 1.2.2 (b0a8486541, 2022-12-01)",
+    "python": "3.14.6",
+    "numpy": "2.5.1",
+    "scipy": "1.18.0",
+    "pillow": "12.3.0",
+    "libpotrace_file": "/usr/lib/x86_64-linux-gnu/libpotrace.so.0.0.6",
+    "libpotrace_sha256": "c0cfd6c6d8fa9c0d0c71213fb631a1f782909e3c627a38f2f0e9204c788325cf"
+  },
+  "adapter_checks": [
+    "word-63",
+    "word-64",
+    "word-65",
+    "empty"
+  ],
+  "regions": [
+    {
+      "name": "left-fan",
+      "source_box": [
+        5,
+        5,
+        197,
+        187
+      ],
+      "source_size": [
+        192,
+        182
+      ],
+      "thresholds": {
+        "strict": {
+          "ink_pixels": 5225,
+          "components": 2,
+          "holes": 51
+        },
+        "balanced": {
+          "ink_pixels": 5648,
+          "components": 2,
+          "holes": 23
+        },
+        "inclusive": {
+          "ink_pixels": 5926,
+          "components": 1,
+          "holes": 20
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 5650,
+        "components": 1,
+        "holes": 18
+      },
+      "cleanup_candidates": [
+        {
+          "kind": "island",
+          "box": [
+            65,
+            33,
+            66,
+            36
+          ],
+          "source_pixels": 3
+        },
+        {
+          "kind": "hole",
+          "box": [
+            54,
+            100,
+            55,
+            101
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "hole",
+          "box": [
+            55,
+            101,
+            56,
+            102
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "hole",
+          "box": [
+            61,
+            108,
+            62,
+            109
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "hole",
+          "box": [
+            67,
+            115,
+            68,
+            116
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "hole",
+          "box": [
+            68,
+            116,
+            69,
+            117
+          ],
+          "source_pixels": 1
+        }
+      ],
+      "cleanup_removed_pixels": 3,
+      "cleanup_added_pixels": 5,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 25,
+          "ink_shapes": 2,
+          "holes": 23,
+          "segments": 262,
+          "svg_bytes": 13671,
+          "xor_pixels": 394,
+          "ink_iou": 0.9328447247315493,
+          "rendered_topology": {
+            "ink_pixels": 5692,
+            "components": 2,
+            "holes": 23
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 19,
+          "ink_shapes": 1,
+          "holes": 18,
+          "segments": 239,
+          "svg_bytes": 12168,
+          "xor_pixels": 392,
+          "ink_iou": 0.933208383029477,
+          "rendered_topology": {
+            "ink_pixels": 5696,
+            "components": 1,
+            "holes": 18
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 19,
+          "ink_shapes": 1,
+          "holes": 18,
+          "segments": 216,
+          "svg_bytes": 12113,
+          "xor_pixels": 506,
+          "ink_iou": 0.915086423896627,
+          "rendered_topology": {
+            "ink_pixels": 5762,
+            "components": 1,
+            "holes": 18
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "left-column",
+      "source_box": [
+        15,
+        187,
+        190,
+        779
+      ],
+      "source_size": [
+        175,
+        592
+      ],
+      "thresholds": {
+        "strict": {
+          "ink_pixels": 14183,
+          "components": 17,
+          "holes": 54
+        },
+        "balanced": {
+          "ink_pixels": 15788,
+          "components": 5,
+          "holes": 42
+        },
+        "inclusive": {
+          "ink_pixels": 16816,
+          "components": 2,
+          "holes": 40
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 15793,
+        "components": 5,
+        "holes": 40
+      },
+      "cleanup_candidates": [
+        {
+          "kind": "hole",
+          "box": [
+            50,
+            59,
+            51,
+            61
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "hole",
+          "box": [
+            68,
+            585,
+            71,
+            586
+          ],
+          "source_pixels": 3
+        }
+      ],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 5,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 47,
+          "ink_shapes": 5,
+          "holes": 42,
+          "segments": 369,
+          "svg_bytes": 18466,
+          "xor_pixels": 1466,
+          "ink_iou": 0.9111999515415834,
+          "rendered_topology": {
+            "ink_pixels": 15764,
+            "components": 2,
+            "holes": 42
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 45,
+          "ink_shapes": 5,
+          "holes": 40,
+          "segments": 363,
+          "svg_bytes": 18103,
+          "xor_pixels": 1464,
+          "ink_iou": 0.9113372093023255,
+          "rendered_topology": {
+            "ink_pixels": 15767,
+            "components": 2,
+            "holes": 40
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 45,
+          "ink_shapes": 5,
+          "holes": 40,
+          "segments": 346,
+          "svg_bytes": 19279,
+          "xor_pixels": 1717,
+          "ink_iou": 0.8967776842611519,
+          "rendered_topology": {
+            "ink_pixels": 15758,
+            "components": 2,
+            "holes": 40
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "previous-button",
+      "source_box": [
+        212,
+        863,
+        338,
+        955
+      ],
+      "source_size": [
+        126,
+        92
+      ],
+      "thresholds": {
+        "strict": {
+          "ink_pixels": 828,
+          "components": 7,
+          "holes": 0
+        },
+        "balanced": {
+          "ink_pixels": 1314,
+          "components": 19,
+          "holes": 4
+        },
+        "inclusive": {
+          "ink_pixels": 2132,
+          "components": 35,
+          "holes": 6
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 1303,
+        "components": 9,
+        "holes": 2
+      },
+      "cleanup_candidates": [
+        {
+          "kind": "island",
+          "box": [
+            11,
+            19,
+            12,
+            20
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "island",
+          "box": [
+            111,
+            19,
+            112,
+            20
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "island",
+          "box": [
+            11,
+            26,
+            12,
+            28
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "island",
+          "box": [
+            69,
+            56,
+            71,
+            58
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "island",
+          "box": [
+            73,
+            58,
+            75,
+            60
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "island",
+          "box": [
+            61,
+            60,
+            62,
+            61
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "island",
+          "box": [
+            11,
+            62,
+            12,
+            63
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "island",
+          "box": [
+            55,
+            66,
+            56,
+            67
+          ],
+          "source_pixels": 1
+        },
+        {
+          "kind": "island",
+          "box": [
+            23,
+            76,
+            25,
+            77
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "island",
+          "box": [
+            107,
+            76,
+            109,
+            78
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "hole",
+          "box": [
+            76,
+            85,
+            78,
+            86
+          ],
+          "source_pixels": 2
+        },
+        {
+          "kind": "hole",
+          "box": [
+            103,
+            85,
+            105,
+            86
+          ],
+          "source_pixels": 2
+        }
+      ],
+      "cleanup_removed_pixels": 15,
+      "cleanup_added_pixels": 4,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 23,
+          "ink_shapes": 19,
+          "holes": 4,
+          "segments": 108,
+          "svg_bytes": 7373,
+          "xor_pixels": 209,
+          "ink_iou": 0.8477785870356883,
+          "rendered_topology": {
+            "ink_pixels": 1223,
+            "components": 18,
+            "holes": 4
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 11,
+          "ink_shapes": 9,
+          "holes": 2,
+          "segments": 65,
+          "svg_bytes": 4018,
+          "xor_pixels": 209,
+          "ink_iou": 0.8465491923641704,
+          "rendered_topology": {
+            "ink_pixels": 1212,
+            "components": 8,
+            "holes": 2
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 11,
+          "ink_shapes": 9,
+          "holes": 2,
+          "segments": 64,
+          "svg_bytes": 4288,
+          "xor_pixels": 234,
+          "ink_iou": 0.828696925329429,
+          "rendered_topology": {
+            "ink_pixels": 1195,
+            "components": 8,
+            "holes": 2
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "footer-jewel",
+      "source_box": [
+        665,
+        966,
+        784,
+        1081
+      ],
+      "source_size": [
+        119,
+        115
+      ],
+      "thresholds": {
+        "strict": {
+          "ink_pixels": 2844,
+          "components": 3,
+          "holes": 37
+        },
+        "balanced": {
+          "ink_pixels": 3255,
+          "components": 2,
+          "holes": 3
+        },
+        "inclusive": {
+          "ink_pixels": 3403,
+          "components": 2,
+          "holes": 2
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 3256,
+        "components": 2,
+        "holes": 2
+      },
+      "cleanup_candidates": [
+        {
+          "kind": "hole",
+          "box": [
+            102,
+            57,
+            103,
+            58
+          ],
+          "source_pixels": 1
+        }
+      ],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 1,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 5,
+          "ink_shapes": 2,
+          "holes": 3,
+          "segments": 110,
+          "svg_bytes": 5603,
+          "xor_pixels": 126,
+          "ink_iou": 0.9621507960348453,
+          "rendered_topology": {
+            "ink_pixels": 3277,
+            "components": 2,
+            "holes": 3
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 4,
+          "ink_shapes": 2,
+          "holes": 2,
+          "segments": 106,
+          "svg_bytes": 5349,
+          "xor_pixels": 126,
+          "ink_iou": 0.9621621621621622,
+          "rendered_topology": {
+            "ink_pixels": 3278,
+            "components": 2,
+            "holes": 2
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 4,
+          "ink_shapes": 2,
+          "holes": 2,
+          "segments": 106,
+          "svg_bytes": 5906,
+          "xor_pixels": 186,
+          "ink_iou": 0.9443447037701975,
+          "rendered_topology": {
+            "ink_pixels": 3242,
+            "components": 2,
+            "holes": 2
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    }
+  ],
+  "source_unchanged": true
+}

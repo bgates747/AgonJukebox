@@ -1,0 +1,90 @@
+{
+  "name": "left-fan",
+  "source_box": [
+    5,
+    5,
+    197,
+    187
+  ],
+  "source_size": [
+    192,
+    182
+  ],
+  "thresholds": {
+    "exact-black": {
+      "ink_pixels": 15382,
+      "components": 1,
+      "holes": 18
+    }
+  },
+  "cleaned": {
+    "ink_pixels": 15382,
+    "components": 1,
+    "holes": 18
+  },
+  "cleanup_candidates": [],
+  "cleanup_removed_pixels": 0,
+  "cleanup_added_pixels": 0,
+  "variants": [
+    {
+      "name": "raw-faithful",
+      "curves": 19,
+      "ink_shapes": 1,
+      "holes": 18,
+      "segments": 181,
+      "svg_bytes": 9225,
+      "xor_pixels": 346,
+      "ink_iou": 0.9777720673262238,
+      "rendered_topology": {
+        "ink_pixels": 15404,
+        "components": 1,
+        "holes": 18
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "faithful",
+      "curves": 19,
+      "ink_shapes": 1,
+      "holes": 18,
+      "segments": 181,
+      "svg_bytes": 9225,
+      "xor_pixels": 346,
+      "ink_iou": 0.9777720673262238,
+      "rendered_topology": {
+        "ink_pixels": 15404,
+        "components": 1,
+        "holes": 18
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "smooth",
+      "curves": 19,
+      "ink_shapes": 1,
+      "holes": 18,
+      "segments": 161,
+      "svg_bytes": 8956,
+      "xor_pixels": 421,
+      "ink_iou": 0.9730439236778077,
+      "rendered_topology": {
+        "ink_pixels": 15433,
+        "components": 1,
+        "holes": 18
+      },
+      "settings": {
+        "name": "smooth",
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      }
+    }
+  ]
+}

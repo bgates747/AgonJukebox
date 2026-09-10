@@ -1,0 +1,221 @@
+{
+  "name": "previous-button",
+  "source_box": [
+    212,
+    863,
+    338,
+    955
+  ],
+  "source_size": [
+    126,
+    92
+  ],
+  "thresholds": {
+    "strict": {
+      "ink_pixels": 828,
+      "components": 7,
+      "holes": 0
+    },
+    "balanced": {
+      "ink_pixels": 1314,
+      "components": 19,
+      "holes": 4
+    },
+    "inclusive": {
+      "ink_pixels": 2132,
+      "components": 35,
+      "holes": 6
+    }
+  },
+  "cleaned": {
+    "ink_pixels": 1303,
+    "components": 9,
+    "holes": 2
+  },
+  "cleanup_candidates": [
+    {
+      "kind": "island",
+      "box": [
+        11,
+        19,
+        12,
+        20
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "island",
+      "box": [
+        111,
+        19,
+        112,
+        20
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "island",
+      "box": [
+        11,
+        26,
+        12,
+        28
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "island",
+      "box": [
+        69,
+        56,
+        71,
+        58
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "island",
+      "box": [
+        73,
+        58,
+        75,
+        60
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "island",
+      "box": [
+        61,
+        60,
+        62,
+        61
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "island",
+      "box": [
+        11,
+        62,
+        12,
+        63
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "island",
+      "box": [
+        55,
+        66,
+        56,
+        67
+      ],
+      "source_pixels": 1
+    },
+    {
+      "kind": "island",
+      "box": [
+        23,
+        76,
+        25,
+        77
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "island",
+      "box": [
+        107,
+        76,
+        109,
+        78
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "hole",
+      "box": [
+        76,
+        85,
+        78,
+        86
+      ],
+      "source_pixels": 2
+    },
+    {
+      "kind": "hole",
+      "box": [
+        103,
+        85,
+        105,
+        86
+      ],
+      "source_pixels": 2
+    }
+  ],
+  "cleanup_removed_pixels": 15,
+  "cleanup_added_pixels": 4,
+  "variants": [
+    {
+      "name": "raw-faithful",
+      "curves": 23,
+      "ink_shapes": 19,
+      "holes": 4,
+      "segments": 108,
+      "svg_bytes": 7373,
+      "xor_pixels": 209,
+      "ink_iou": 0.8477785870356883,
+      "rendered_topology": {
+        "ink_pixels": 1223,
+        "components": 18,
+        "holes": 4
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "faithful",
+      "curves": 11,
+      "ink_shapes": 9,
+      "holes": 2,
+      "segments": 65,
+      "svg_bytes": 4018,
+      "xor_pixels": 209,
+      "ink_iou": 0.8465491923641704,
+      "rendered_topology": {
+        "ink_pixels": 1212,
+        "components": 8,
+        "holes": 2
+      },
+      "settings": {
+        "name": "faithful",
+        "alphamax": 0.55,
+        "opttolerance": 0.2
+      }
+    },
+    {
+      "name": "smooth",
+      "curves": 11,
+      "ink_shapes": 9,
+      "holes": 2,
+      "segments": 64,
+      "svg_bytes": 4288,
+      "xor_pixels": 234,
+      "ink_iou": 0.828696925329429,
+      "rendered_topology": {
+        "ink_pixels": 1195,
+        "components": 8,
+        "holes": 2
+      },
+      "settings": {
+        "name": "smooth",
+        "alphamax": 1.0,
+        "opttolerance": 0.2
+      }
+    }
+  ]
+}

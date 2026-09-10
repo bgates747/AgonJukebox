@@ -1,0 +1,395 @@
+{
+  "source": "/home/smith/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/source-test-01/flat-outline-master_agon64.png",
+  "source_sha256": "e26f95ddfed55de1fa59a779c26421f7c64db7b9c25d0c63854ebfe70b90933f",
+  "stage": "black-region pilot",
+  "scope": "Author-supplied full-resolution six-color image. Exact RGB(0,0,0) regions include panel backgrounds as well as outlines. Preserve holes; trace filled areas, not centerline strokes. No new palette conversion, gradients or bevels.",
+  "source_size": [
+    1448,
+    1086
+  ],
+  "target_size": [
+    512,
+    384
+  ],
+  "toolchain": {
+    "potrace": "potracelib 1.16",
+    "inkscape": "Inkscape 1.2.2 (b0a8486541, 2022-12-01)",
+    "python": "3.14.6",
+    "numpy": "2.5.1",
+    "scipy": "1.18.0",
+    "pillow": "12.3.0",
+    "libpotrace_file": "/usr/lib/x86_64-linux-gnu/libpotrace.so.0.0.6",
+    "libpotrace_sha256": "c0cfd6c6d8fa9c0d0c71213fb631a1f782909e3c627a38f2f0e9204c788325cf"
+  },
+  "adapter_checks": [
+    "word-63",
+    "word-64",
+    "word-65",
+    "empty"
+  ],
+  "regions": [
+    {
+      "name": "left-fan",
+      "source_box": [
+        5,
+        5,
+        197,
+        187
+      ],
+      "source_size": [
+        192,
+        182
+      ],
+      "thresholds": {
+        "exact-black": {
+          "ink_pixels": 15382,
+          "components": 1,
+          "holes": 18
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 15382,
+        "components": 1,
+        "holes": 18
+      },
+      "cleanup_candidates": [],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 0,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 19,
+          "ink_shapes": 1,
+          "holes": 18,
+          "segments": 181,
+          "svg_bytes": 9225,
+          "xor_pixels": 346,
+          "ink_iou": 0.9777720673262238,
+          "rendered_topology": {
+            "ink_pixels": 15404,
+            "components": 1,
+            "holes": 18
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 19,
+          "ink_shapes": 1,
+          "holes": 18,
+          "segments": 181,
+          "svg_bytes": 9225,
+          "xor_pixels": 346,
+          "ink_iou": 0.9777720673262238,
+          "rendered_topology": {
+            "ink_pixels": 15404,
+            "components": 1,
+            "holes": 18
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 19,
+          "ink_shapes": 1,
+          "holes": 18,
+          "segments": 161,
+          "svg_bytes": 8956,
+          "xor_pixels": 421,
+          "ink_iou": 0.9730439236778077,
+          "rendered_topology": {
+            "ink_pixels": 15433,
+            "components": 1,
+            "holes": 18
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "left-column",
+      "source_box": [
+        15,
+        187,
+        190,
+        779
+      ],
+      "source_size": [
+        175,
+        592
+      ],
+      "thresholds": {
+        "exact-black": {
+          "ink_pixels": 19636,
+          "components": 2,
+          "holes": 38
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 19636,
+        "components": 2,
+        "holes": 38
+      },
+      "cleanup_candidates": [],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 0,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 40,
+          "ink_shapes": 2,
+          "holes": 38,
+          "segments": 317,
+          "svg_bytes": 15270,
+          "xor_pixels": 1342,
+          "ink_iou": 0.9337185755914457,
+          "rendered_topology": {
+            "ink_pixels": 19516,
+            "components": 1,
+            "holes": 38
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 40,
+          "ink_shapes": 2,
+          "holes": 38,
+          "segments": 317,
+          "svg_bytes": 15270,
+          "xor_pixels": 1342,
+          "ink_iou": 0.9337185755914457,
+          "rendered_topology": {
+            "ink_pixels": 19516,
+            "components": 1,
+            "holes": 38
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 40,
+          "ink_shapes": 2,
+          "holes": 38,
+          "segments": 303,
+          "svg_bytes": 16298,
+          "xor_pixels": 1590,
+          "ink_iou": 0.9222303741746148,
+          "rendered_topology": {
+            "ink_pixels": 19664,
+            "components": 1,
+            "holes": 38
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "previous-button",
+      "source_box": [
+        212,
+        863,
+        338,
+        955
+      ],
+      "source_size": [
+        126,
+        92
+      ],
+      "thresholds": {
+        "exact-black": {
+          "ink_pixels": 8531,
+          "components": 2,
+          "holes": 3
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 8531,
+        "components": 2,
+        "holes": 3
+      },
+      "cleanup_candidates": [],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 0,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 5,
+          "ink_shapes": 2,
+          "holes": 3,
+          "segments": 28,
+          "svg_bytes": 1539,
+          "xor_pixels": 33,
+          "ink_iou": 0.9961435082388688,
+          "rendered_topology": {
+            "ink_pixels": 8550,
+            "components": 2,
+            "holes": 3
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 5,
+          "ink_shapes": 2,
+          "holes": 3,
+          "segments": 28,
+          "svg_bytes": 1539,
+          "xor_pixels": 33,
+          "ink_iou": 0.9961435082388688,
+          "rendered_topology": {
+            "ink_pixels": 8550,
+            "components": 2,
+            "holes": 3
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 5,
+          "ink_shapes": 2,
+          "holes": 3,
+          "segments": 28,
+          "svg_bytes": 1631,
+          "xor_pixels": 45,
+          "ink_iou": 0.9947436047190749,
+          "rendered_topology": {
+            "ink_pixels": 8546,
+            "components": 2,
+            "holes": 3
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    },
+    {
+      "name": "footer-jewel",
+      "source_box": [
+        665,
+        966,
+        784,
+        1081
+      ],
+      "source_size": [
+        119,
+        115
+      ],
+      "thresholds": {
+        "exact-black": {
+          "ink_pixels": 4394,
+          "components": 2,
+          "holes": 2
+        }
+      },
+      "cleaned": {
+        "ink_pixels": 4394,
+        "components": 2,
+        "holes": 2
+      },
+      "cleanup_candidates": [],
+      "cleanup_removed_pixels": 0,
+      "cleanup_added_pixels": 0,
+      "variants": [
+        {
+          "name": "raw-faithful",
+          "curves": 4,
+          "ink_shapes": 2,
+          "holes": 2,
+          "segments": 100,
+          "svg_bytes": 4806,
+          "xor_pixels": 94,
+          "ink_iou": 0.9788764044943821,
+          "rendered_topology": {
+            "ink_pixels": 4412,
+            "components": 2,
+            "holes": 2
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "faithful",
+          "curves": 4,
+          "ink_shapes": 2,
+          "holes": 2,
+          "segments": 100,
+          "svg_bytes": 4806,
+          "xor_pixels": 94,
+          "ink_iou": 0.9788764044943821,
+          "rendered_topology": {
+            "ink_pixels": 4412,
+            "components": 2,
+            "holes": 2
+          },
+          "settings": {
+            "name": "faithful",
+            "alphamax": 0.55,
+            "opttolerance": 0.2
+          }
+        },
+        {
+          "name": "smooth",
+          "curves": 4,
+          "ink_shapes": 2,
+          "holes": 2,
+          "segments": 100,
+          "svg_bytes": 5353,
+          "xor_pixels": 158,
+          "ink_iou": 0.9646374216651745,
+          "rendered_topology": {
+            "ink_pixels": 4384,
+            "components": 2,
+            "holes": 2
+          },
+          "settings": {
+            "name": "smooth",
+            "alphamax": 1.0,
+            "opttolerance": 0.2
+          }
+        }
+      ]
+    }
+  ],
+  "source_color_count": 6,
+  "source_is_agon_palette": true,
+  "source_unchanged": true
+}

@@ -1,0 +1,79 @@
+{
+  "source": "source-test-01/flat-outline-master_agon64.png",
+  "source_sha256": "e26f95ddfed55de1fa59a779c26421f7c64db7b9c25d0c63854ebfe70b90933f",
+  "canvas": [
+    1448,
+    1086
+  ],
+  "target_canvas": [
+    512,
+    384
+  ],
+  "thresholds": [
+    {
+      "name": "exact-black",
+      "max_channel": 0,
+      "max_spread": 0
+    }
+  ],
+  "selected_threshold": "exact-black",
+  "cleanup": {
+    "max_island_area": 3,
+    "max_hole_area": 3,
+    "max_extent": 3,
+    "hole_max_channel": 64,
+    "hole_max_spread": 24
+  },
+  "trace_variants": [
+    {
+      "name": "faithful",
+      "alphamax": 0.55,
+      "opttolerance": 0.2
+    },
+    {
+      "name": "smooth",
+      "alphamax": 1.0,
+      "opttolerance": 0.2
+    }
+  ],
+  "regions": [
+    {
+      "name": "left-fan",
+      "box": [
+        5,
+        5,
+        197,
+        187
+      ]
+    },
+    {
+      "name": "left-column",
+      "box": [
+        15,
+        187,
+        188,
+        779
+      ],
+      "note": "Exclude the neighboring panel border at x=189, which was clipped into a separate 1px-wide strip in the first crop."
+    },
+    {
+      "name": "previous-button",
+      "box": [
+        212,
+        863,
+        338,
+        955
+      ]
+    },
+    {
+      "name": "footer-jewel",
+      "box": [
+        665,
+        966,
+        784,
+        1081
+      ]
+    }
+  ],
+  "notice": "Author-supplied full-resolution six-color image. Exact RGB(0,0,0) regions include panel backgrounds as well as outlines. Preserve holes; trace filled areas, not centerline strokes. No new palette conversion, gradients or bevels."
+}

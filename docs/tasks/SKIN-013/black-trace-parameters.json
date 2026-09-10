@@ -1,0 +1,24 @@
+{
+  "source": "source-test-01/flat-outline-master.png",
+  "source_sha256": "8d7f5b473092e27b82058f68f8dbbb2dd338a8b1975dd988b9019b03768eb713",
+  "canvas": [1448, 1086],
+  "target_canvas": [512, 384],
+  "thresholds": [
+    {"name": "strict", "max_channel": 20, "max_spread": 12},
+    {"name": "balanced", "max_channel": 32, "max_spread": 18},
+    {"name": "inclusive", "max_channel": 48, "max_spread": 24}
+  ],
+  "selected_threshold": "balanced",
+  "cleanup": {"max_island_area": 3, "max_hole_area": 3, "max_extent": 3, "hole_max_channel": 64, "hole_max_spread": 24},
+  "trace_variants": [
+    {"name": "faithful", "alphamax": 0.55, "opttolerance": 0.2},
+    {"name": "smooth", "alphamax": 1.0, "opttolerance": 0.2}
+  ],
+  "regions": [
+    {"name": "left-fan", "box": [5, 5, 197, 187]},
+    {"name": "left-column", "box": [15, 187, 190, 779]},
+    {"name": "previous-button", "box": [212, 863, 338, 955]},
+    {"name": "footer-jewel", "box": [665, 966, 784, 1081]}
+  ],
+  "notice": "Pilot of filled black regions only. Navy panels, colored fills, centerlines, enforced widths, gradients and bevels are outside this step. Cleanup candidates are kept alongside untouched masks."
+}
