@@ -2,7 +2,7 @@
 
 ## State
 
-- Status: White-shape pilot checkpoint; paused for next-step discussion
+- Status: Full-image flat-color draft 02 accepted for testing; progress committed
 - Started: 2026-09-10 14:49 EDT
 - Finished: --
 - Registered: 2026-09-10, at the Author's request after discussing edge/noise
@@ -13,8 +13,10 @@
   supplied thresholded image and white filled regions, with headless Inkscape
   smoothing. This bounded four-element pilot stops before shading or extension
   to the full composition.
-- Current instruction: Record the discussed shading possibilities, commit
-  progress and stop to discuss next steps. No shading experiment starts here.
+- Current instruction: The Author accepted full-color candidate 02 as a
+  "good-enough draft to test with" and requested committing it. Freeze the
+  scripts, parameters, draft image, editable vectors and supporting evidence.
+  This acceptance does not select further processing or deployment.
 - Baseline checkpoint: `439a75b` on `skins`, following the source/specification
   freeze `f2f252d`.
 
@@ -126,6 +128,46 @@ using smooth shading followed by controlled palette mapping versus explicit
 Agon-colored bands. Native-scale flat controls would reveal geometry and gap
 issues before attributing them to shading. These are discussion options;
 material colors, geometry adjustments and lighting treatment remain undecided.
+
+## Full-image flat-color experiment — 2026-09-10
+
+The Author requested a more ambitious scripted pass: sample predominant colors
+per shape from the original artwork, quantize to Agon64 and produce 512x384
+without antialiasing. They confirmed the matching unquantized flat-outline
+master as the color reference. This authorization extends tracing to the full
+image while keeping fills flat; gradient/lighting options remain unselected.
+
+Current result: [flat-color-full-02/preview.png](SKIN-013/flat-color-full-02/preview.png),
+[gallery](SKIN-013/flat-color-full-02/index.html),
+[reproduction and limits](SKIN-013/flat-color-full-02/README.md), and
+[script](SKIN-013/colorize_shapes.py). All 554 white components were traced,
+including 111 enclosed holes. Sample each component's interior, choose its
+most populated coarse RGB histogram bin, take the original-color median within
+that bin and select the nearest Agon color. Areas, samples and chosen colors
+are recorded by stable shape ID. The final indexed PNG uses 14 visible colors.
+
+Inkscape 1.2.2's tested command-line exports retain antialiasing despite
+crispEdges, extension preferences and the document flag. Keep those probe
+results. The final script uses Inkscape for path simplification and the installed
+libcairo for direct 512x384 rasterization with CAIRO_ANTIALIAS_NONE; exact indexed
+conversion rejects off-palette colors instead of repairing them afterward.
+
+Candidate 01 is retained as a failed simplification experiment: rapidly
+repeated Simplify commands activate Inkscape's time-based strength increase.
+Candidate 02 uses one invocation for all selected paths, with the verified
+simplifyindividualpaths preference so tolerance uses each path's own bounds.
+Its maximum bounding-edge movement is 0.203 target pixels. Independent renderer
+checks agree on 78,782 uniform interior pixels; relative curve/transform/hole
+fixtures, source hashes, palette/alpha/dimensions, output overwrite rejection
+and byte-identical PNG reproduction all pass. See
+[verification](SKIN-013/flat-color-full-02/verification.json).
+
+This is a flat-color concept preview, including traced sample text. White-region
+tracing cannot recover dark decorations merged into black by thresholding;
+those regions remain black. No runtime packaging or deployment was changed.
+Author review: accepted on 2026-09-10 as a good-enough draft for testing, with
+the scripts and evidence frozen in a progress commit. The broader authoring
+exploration remains open; this is not final-art or runtime qualification.
 
 ## Proposed workflow
 
@@ -265,6 +307,5 @@ material colors, geometry adjustments and lighting treatment remain undecided.
    audio qualification. Existing contracts constrain eventual integration,
    while this host exploration can proceed without freezing a new layout.
 
-The immediate next step is discussion of a bounded geometry/shading experiment
-using the preserved white-shape pilot. Stop after the progress commit; do not
-automatically start rendering or advance through the remaining workflow.
+The full-image flat-color draft is accepted for testing. Preserve this baseline
+and await the next instruction before integration, gradients or refinement.

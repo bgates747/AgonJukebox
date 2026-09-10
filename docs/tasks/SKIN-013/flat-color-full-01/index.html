@@ -1,0 +1,12 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<title>Sampled flat-color skin</title><style>
+body{background:#222;color:#eee;font:16px system-ui;margin:24px}a{color:#ffd580}
+nav{position:sticky;top:0;background:#222;padding:12px}img{image-rendering:pixelated;display:block;width:calc(512px * var(--z,1));height:calc(384px * var(--z,1))}
+.row{display:flex;gap:20px;overflow:auto}figure{margin:0}figcaption{padding:10px}button{padding:8px}
+</style><h1>Predominant color per shape</h1><p>512×384. One sampled Agon color per white shape. Black regions remain black.</p>
+<p><a href="preview.png">Final indexed PNG</a> · <a href="colored-shapes.svg">Editable SVG</a> · <a href="README.md">Method and limits</a> · <a href="shape-colors.csv">Color table</a></p>
+<nav>Zoom <button data-z="1">1×</button> <button data-z="2">2×</button> <button data-z="4">4×</button></nav>
+<div class="row"><figure><figcaption>Source reference, nearest-neighbor preview (unrestricted colors)</figcaption><img src="reference-nearest.png" alt="Source reference"></figure>
+<figure><figcaption>Sampled flat fills, simplified vectors, antialiasing off</figcaption><img src="preview.png" alt="Final 512 by 384 Agon palette image"></figure></div>
+<p><a href="cairo-traced.png">Initial vectors before Inkscape simplification</a> · <a href="sampled-source-regions.png">Sampled colors on original region masks</a> · <a href="inkscape-export.png">Inkscape export with unwanted antialiasing</a></p>
+<script>document.querySelectorAll('[data-z]').forEach(b=>b.onclick=()=>document.documentElement.style.setProperty('--z',b.dataset.z));</script></html>

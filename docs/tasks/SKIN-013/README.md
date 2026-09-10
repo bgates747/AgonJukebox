@@ -1,6 +1,17 @@
 # SKIN-013 vector workflow checkpoint
 
-Start with the [white-shape pilot 02 gallery](white-shape-pilot-02/index.html)
+The current accepted test draft is [full-image flat-color candidate 02](flat-color-full-02/README.md):
+[512x384 PNG](flat-color-full-02/preview.png), [gallery](flat-color-full-02/index.html)
+and [script](colorize_shapes.py). It samples original-art colors for all 554
+white regions and renders with antialiasing disabled. It supersedes the current
+review location below; the earlier vector checkpoint remains preserved. On
+2026-09-10 the Author accepted it as a good-enough draft for testing and requested
+a commit. Its scripts, parameters, SVGs, PNGs and verification are frozen with
+the failed first color candidate retained as diagnostic history. This scoped
+task/art checkpoint continues the earlier tracking exception; general agent
+records, caches and incidental extension logs remain ignored.
+
+The committed checkpoint starts with the [white-shape pilot 02 gallery](white-shape-pilot-02/index.html)
 and its [methods, results and reproduction](white-shape-pilot-02/README.md).
 The [task specification](../SKIN-013.md) owns scope and the incremental review
 sequence. [Shading possibilities](shading-possibilities.md) records options

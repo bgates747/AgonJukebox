@@ -1,0 +1,24 @@
+{
+  "target_size": [
+    512,
+    384
+  ],
+  "foreground_rgb": [
+    255,
+    255,
+    255
+  ],
+  "background_rgb": [
+    0,
+    0,
+    0
+  ],
+  "sample_inset_source_pixels": 2,
+  "histogram_bin_width": 16,
+  "alphamax": 0.55,
+  "opttolerance": 0.2,
+  "simplify_threshold": 0.0003,
+  "simplify_passes": 1,
+  "sampling": "Median original RGB within the most populated 16x16x16 RGB histogram bin of each shape's interior; nearest Agon RGB color afterward. Stable lowest-bin/index tie breaking.",
+  "scope": "Full-image white-region tracing with flat sampled fills. Black mask regions remain black. No new color segmentation, gradients, manual recoloring, noise removal, dithering or application changes."
+}

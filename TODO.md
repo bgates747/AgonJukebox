@@ -59,4 +59,4 @@ chooser/switching, authoring tools, resource limits and release qualification.
 13. [ ] **SKIN-013 — Explore vector tracing before downscaling Art Deco artwork**
    - Started: 2026-09-10 14:49 EDT
    - Finished: --
-   - Status: Four-element white-region vector pilot checkpointed, including headless Inkscape simplification and editable shapes. Shading/lighting possibilities recorded; paused to discuss the next bounded experiment.
+   - Status: Full-image 512x384 flat-color draft accepted for testing and committed: 554 sampled shapes, 14 Agon colors, antialiasing off, reproducible scripts and checks. Further authoring exploration remains open.
