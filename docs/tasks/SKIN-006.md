@@ -140,3 +140,15 @@ production layout work. Work 7 review of the corrected preview is complete.
 3. SKIN-007 records measured limits and human emulator/hardware results before
    the package becomes a qualified release asset. Default selection is recorded
    separately from visual approval.
+
+## Lat7 playlist revision — 2026-09-10
+
+The Author requested Lat7 Terminus 6×12 for the playlist and an emulator
+review. The font and original PSF are vendored under src/fonts/terminus;
+the editor application was not used or modified. Ten 12-pixel rows retain
+58 character cells (55 filename cells, 49 after a directory prefix).
+Small fields retain Neutrino 5×8. The artdeco-test2 manifest adds required
+playlist.font.file; font buffer 0x21F1 holds the separate 3,072-byte font.
+All 26 scenarios and 6,975 target pixels pass. The Author subsequently confirmed
+that this version runs and looks good on hardware using a Compaq CRT, then
+authorized a rollback checkpoint before the Art Deco font replacement.

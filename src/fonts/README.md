@@ -1,5 +1,8 @@
 # Editable skin fonts
 
+The Art Deco playlist now uses [Lat7 Terminus 6×12](terminus/README.md).
+Neutrino remains the small-field font.
+
 ## Neutrino 5×8
 
 The selected Art Deco body font is [neutrino_5x8.font](neutrino_5x8.font),
@@ -68,3 +71,14 @@ export settings, all reproduce the exact 2,048 bytes and all 10,240 cell pixels.
 
 The separate [Winamp Base 5×6 heading](winamp-heading/README.md) contains A–Z
 only and retains its existing metadata and provenance.
+
+## Art Deco font concept
+
+[Art Deco concept 01](art-deco-concept-01/README.md) preserves the generated
+letterforms and the Author's thresholded source. Its aligned draft provides
+a 1024×2048 black/white PNG, 64×128 ASCII cells, editable SVG and font-maker XML.
+This is source art for review and editing, separate from the active fonts.
+
+[Recoloring antialiased sheets](../../docs/font-coloring.md) documents
+`recolor_font.py`: configurable foreground/background PNG variants in the
+exact Agon64 palette, with metadata and no dithering or font-editor dependency.

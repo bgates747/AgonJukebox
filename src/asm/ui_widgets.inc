@@ -1,4 +1,5 @@
 ; Qualified widget packets and patch offsets; see ../ui/README.md.
+ui_row_columns: equ 60
 ui_normal_fg: equ 10
 ui_selected_bg: equ 4
 ui_selected_fg: equ 15

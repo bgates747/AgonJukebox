@@ -1,0 +1,22 @@
+Use case: stylized-concept.
+Asset: a machine-readable Art Deco font atlas, not a poster.
+Use the attached jukebox ONLY as a style reference: study the tall, angular, geometric letterforms of the "AGON JUKEBOX" title. Design a coherent new font family extending that title's character to uppercase, lowercase, digits, and punctuation. Crisp Art Deco shapes, generous open counters, sturdy strokes, legible at small sizes. Keep the letterforms clean rather than mimicking the reference image's low-resolution pixel stair steps. Flat filled silhouettes.
+
+Output ONLY a pure black-and-white glyph mask: white (#FFFFFF) letter shapes on opaque black (#000000). No gray, antialiasing, colored pixels, gradients, shading, bevels, texture, outlines around letters, shadows, decorative borders, labels, captions, or visible grid lines. The title is inspiration, NOT text to print separately.
+
+Atlas geometry: ideally exactly 1024 pixels wide by 2048 pixels high. Invisible grid of 16 equal columns and 16 equal rows (256 slots). Each cell 64 wide by 128 high. Uniform monospaced advance; align glyph baselines within each row. Leave a consistent small margin inside each cell; no shape may cross a cell boundary. Font glyphs should have the narrow proportions suitable for eventual 6x12 cells, but draw high-quality clean shapes here without exaggerated pixellation.
+
+Slot index = zero-based row * 16 + zero-based column. Use standard ASCII code positions. Slots 0–31 and 127–255 MUST stay completely black. Space (32) is also a completely black cell. Only slots 33–126 contain glyphs. Thus the first two complete rows are empty; the six following rows carry printable ASCII; the bottom eight complete rows are empty. Do not fill the empty rows with decorations or repeated alphabets.
+
+EXACT row contents, 16 slots each, with [blank] meaning an empty black cell and not printed text:
+row 0: all blank
+row 1: all blank
+row 2: [blank] ! " # $ % & ' ( ) * + , - . /
+row 3: 0 1 2 3 4 5 6 7 8 9 : ; < = > ?
+row 4: @ A B C D E F G H I J K L M N O
+row 5: P Q R S T U V W X Y Z [ \ ] ^ _
+row 6: ` a b c d e f g h i j k l m n o
+row 7: p q r s t u v w x y z { | } ~ [blank]
+rows 8 through 15: all blank.
+
+Spacing in this specification separates cells; it does not add extra blank columns. Do not center each row independently or rearrange characters. Uppercase A starts at row 4, column 1; lowercase a starts at row 6, column 1; zero starts row 3, column 0. The atlas extends edge-to-edge with no page margin. Prefer exact grid placement and recognizability over ornamental flourishes.

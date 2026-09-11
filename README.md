@@ -39,11 +39,13 @@ change the setting to an existing directory. Graphics load from an AGNB
 container; fonts are separate `.font` files. No command-line arguments are
 required. See [configuration and skin loading](docs/configuration.md).
 
-The current build is the basic Art Deco test candidate with a 5×8 Neutrino
-font. It omits on-screen control legends; the controls below still apply.
+The current build is the Art Deco test candidate with a 6×12 Lat7 Terminus
+playlist font and 5×8 Neutrino status text. It omits on-screen control legends;
+the controls below still apply.
 Its automated functional and pixel checks pass with MOS **3.0.2 Arthur**, VDP
 **2.16.0 Bistromathics**, and Fab **1.2.4**. The project owner accepted this
-as a good working concept on 2026-09-10.
+as a good working concept on 2026-09-10. The subsequent playlist-font update
+is pending visual review.
 The package schema remains provisional;
 skin discovery, switching, and Classic styling are still under development.
 

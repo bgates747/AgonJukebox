@@ -15,6 +15,7 @@ VENV_DIR = PROJECT_ROOT / ".venv"
 RUNTIME_SKIN_ASSETS = (
     PROJECT_ROOT / "skins/artdeco/graphics.agnb",
     PROJECT_ROOT / "skins/artdeco/fonts/neutrino_5x8.font",
+    PROJECT_ROOT / "skins/artdeco/fonts/Lat7-Terminus12x6_6x12.font",
     PROJECT_ROOT / "skins/base/graphics.agnb",
     PROJECT_ROOT / "skins/base/fonts/body8x8.font",
     PROJECT_ROOT / "skins/base/fonts/body8x14.font",

@@ -5,7 +5,7 @@ functional milestone accepted on 2026-09-08. They assemble into application
 commands, not bitmap/font payloads. `app_base.asm` retains that profile.
 
 The ordinary `app.asm` now selects the Art Deco test inputs in `artdeco/`.
-Those use the same player/event boundary with generated 5×8 text geometry,
+Those use the same player/event boundary with generated 6×12 playlist and 5×8 status-text geometry,
 163 expected AGNB records and no control legends. See
 [the Art Deco authoring notes](../skins/artdeco/README.md) for generation,
 provisional field placement and test evidence. Both profiles retain complete

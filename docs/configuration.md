@@ -43,20 +43,24 @@ is applied explicitly after skin loading.
 The ordinary `app.asm` build now uses the bounded Art Deco profile:
 
 ```ini
-format=artdeco-test1
+format=artdeco-test2
 graphics.file=graphics.agnb
 font.file=fonts/neutrino_5x8.font
+playlist.font.file=fonts/Lat7-Terminus12x6_6x12.font
 ```
 
-All three keys are required and unique; unknown keys are rejected. File and
+All four keys are required and unique; unknown keys are rejected. File and
 path grammar/limits are the same as the Base manifest below. The compiled
-profile fixes the font at 5×8 with five-pixel advance and 256 byte-indexed slots
-(2,048 bytes). Width cannot be inferred from that length: 8×8 also uses 2,048
-bytes. The manifest version prevents loading the Base package with this layout.
+profile uses Neutrino 5×8 for small fields (2,048 bytes) and Lat7 Terminus
+6×12 for playlist rows (3,072 bytes), each with 256 byte-indexed slots.
+The playlist has ten rows of 58 characters. Width cannot be inferred from
+payload length; the compiled geometry is explicit. The manifest version
+prevents loading older one-font Art Deco or Base packages with this layout.
 
 The AGNB consumer requires exactly 163 RGBA2222 records at IDs 0x2100–0x21A2,
 matching `src/ui/artdeco/image-meta.bin`. Metadata and payload boundaries are
-validated before upload. The font uses buffer 0x21F0. Text and art contexts are
+validated before upload. Small text uses font buffer 0x21F0 and the playlist
+uses 0x21F1. Text and art contexts are
 1/2; static application commands use 0x2200. The first 128 images map to printed
 characters in the art context; the remaining decorative tiles use direct plots.
 

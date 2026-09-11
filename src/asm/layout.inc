@@ -253,7 +253,7 @@ ui_row:
     ld (ui_row_text),hl
     ex de,hl
     ld hl,ui_empty
-    ld b,60
+    ld b,ui_row_columns
     call ui_copy
     xor a
     ld (ix+w_row0_bg-w_row0),a
@@ -267,7 +267,7 @@ ui_row:
     jr nz,@send
     ld hl,ui_no_entries
     ld de,(ui_row_text)
-    ld b,60
+    ld b,ui_row_columns
     call ui_copy
     jr @send
 @entry:
@@ -298,7 +298,7 @@ ui_row:
     ld de,3
     add hl,de
     ex de,hl
-    ld b,57
+    ld b,ui_row_columns-3
     bit AM_DIR,(iy+filinfo_fattrib)
     jr z,@filename
     push de
@@ -309,7 +309,7 @@ ui_row:
     ld hl,6
     add hl,de
     ex de,hl
-    ld b,51
+    ld b,ui_row_columns-9
 @filename:
     lea hl,iy+filinfo_fname
     call ui_copy

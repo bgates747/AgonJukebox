@@ -1,12 +1,27 @@
 # Passing functional milestone — 2026-09-08
 
+## Optional font-color authoring checks
+
+The [font recoloring tool](../docs/font-coloring.md) has four host checks for
+antialiasing coverage, normal/selected color pairs, glyph placement, alpha,
+metadata, input/output protection and reproducibility. With the optional
+authoring dependencies installed in the project environment:
+
+```bash
+.venv/bin/python -B -m unittest discover -s tests -p test_font_recolor.py -v
+```
+
+These checks use synthetic PNG masks in temporary directories and do not
+change the application or emulator.
+
 ## Art Deco candidate — 2026-09-10
 
 The basic Art Deco profile runs the same 26 scenarios through
-`tests/asm/artdeco_check.asm`, with 5,307 expected pixels for its native 5×8
-font, field geometry, decorative frame and widget states. The automated test
-passes; the project owner accepted the candidate as a good working concept
-on 2026-09-10 and authorized a checkpoint commit. Base's
+`tests/asm/artdeco_check.asm`, with 6,975 expected pixels for its Lat7 6×12 playlist, Neutrino 5×8
+status text, field geometry, decorative frame and widget states. The automated test
+passes. The project owner accepted the preceding all-Neutrino concept in
+49511a6; the owner subsequently confirmed that the Lat7 version runs and looks
+good on hardware, and authorized its rollback checkpoint. Base's
 accepted checkpoint below remains separate.
 
 Prepare a new SD tree and check its log with:

@@ -37,7 +37,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
 6. [ ] **SKIN-006 — Design and build the rich reference skin**
    - Started: 2026-09-10
    - Finished: --
-   - Status: Basic live Art Deco candidate built with Neutrino 5x8 and no control legends; 26 emulator scenarios and 5,307 pixel checks pass. Accepted by the Author as a good working concept on 2026-09-10; further refinement and hardware qualification remain open.
+   - Status: Basic Art Deco concept accepted in 49511a6. Lat7 Terminus 6x12 playlist font passes 26 scenarios and 6,975 target pixels; the owner confirmed appearance and operation on hardware and authorized a rollback checkpoint. Extended qualification remains open.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: --
    - Finished: --
@@ -61,3 +61,11 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: 2026-09-10 14:49 EDT
    - Finished: --
    - Status: Full-image 512x384 flat-color draft accepted for testing and committed: 554 sampled shapes, 14 Agon colors, antialiasing off, reproducible scripts and checks. Further authoring exploration remains open.
+14. [ ] **SKIN-014 — Trace and align the Art Deco font concept for font-maker import**
+   - Started: 2026-09-10
+   - Finished: --
+   - Status: Aligned Art Deco font draft ready for review: 1024×2048 PNG, 64×128 ASCII cells, editable SVG and font-maker metadata. All 94 visible glyphs preserved; import and repeat-build checks pass. Assets: src/fonts/art-deco-concept-01/aligned-01.
+15. [ ] **SKIN-015 — Recolor antialiased font PNGs for the Agon palette**
+   - Started: 2026-09-10
+   - Finished: --
+   - Status: Real 6×12 PNG processed; normal/selected variants each retain four Agon colors and all 94 glyphs. Pixel mapping and repeat-build checks pass. Review: src/fonts/art-deco-concept-01/color-01.
