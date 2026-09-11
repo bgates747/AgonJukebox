@@ -44,6 +44,13 @@ sa_skin_assets_init:
     ret nz
     call sa_load_images
     ret nz
+    if skin_artdeco
+    ld hl,sa_playlist_graphics_file
+    call sa_join_asset
+    ret nz
+    call sa_load_playlist_images
+    ret nz
+    endif
     ld hl,sa_font8_file
     call sa_join_asset
     ret nz
@@ -170,7 +177,7 @@ sa_small_error:
     or a
     ret
 
-; Both bounded profiles require four keys and separate small/playlist fonts.
+; Art Deco requires five keys including its AGNB glyph container; Base has four.
 ; A distinct version prevents accepting Base assets under Art Deco geometry.
 ; Reuses the validated config lexical string helpers. Full schema stays SKIN-003.
 sa_parse_manifest:
@@ -278,7 +285,11 @@ sa_manifest_value:
     call jcfg_trim
     ld (sa_key_ptr),hl
     ld ix,sa_manifest_keys
+    if skin_artdeco
+    ld b,5
+    else
     ld b,4
+    endif
     ld c,1
 sa_manifest_match:
     push bc
@@ -342,7 +353,11 @@ sa_manifest_bad:
     ret
 sa_manifest_done:
     ld a,(sa_manifest_seen)
+    if skin_artdeco
+    cp 31
+    else
     cp 15
+    endif
     jp nz,sa_manifest_bad
     xor a
     ret
@@ -377,16 +392,30 @@ sa_join_copy:
 ; Use canonical AGNB parser/stream/finalize primitives once per record. This
 ; application layer checks the complete 11-byte expected metadata before DATA.
 sa_load_images:
+    if skin_artdeco
+    ld hl,sa_image_meta
+    ld a,sa_image_count
+    jr sa_load_agnb_images
+sa_load_playlist_images:
+    ld hl,sa_playlist_image_meta
+    ld a,sa_playlist_image_count
+sa_load_agnb_images:
+    ld (sa_meta_ptr),hl
+    ld (sa_images_left),a
+    endif
     call agnb_open
     ret nz
     call agnb_read_riff_header
     jp nz,sa_images_failed
     call agnb_read_vers
     jp nz,sa_images_failed
+    if skin_artdeco
+    else
     ld hl,sa_image_meta
     ld (sa_meta_ptr),hl
     ld a,sa_image_count
     ld (sa_images_left),a
+    endif
 sa_image_next:
     call agnb_read_buffer_list
     jp nz,sa_images_failed
@@ -553,14 +582,21 @@ sa_asset_path: blkb 368,0
 sa_graphics_file: blkb 128,0
 sa_font8_file: blkb 128,0
 sa_font14_file: blkb 128,0
+    if skin_artdeco
+sa_playlist_graphics_file: blkb 128,0
+    endif
 sa_manifest_keys: dl sa_key_version,0,sa_key_graphics,sa_graphics_file,sa_key_font8,sa_font8_file
     dl sa_key_font14,sa_font14_file
+    if skin_artdeco
+    dl sa_key_playlist_graphics,sa_playlist_graphics_file
+    endif
 sa_key_version: asciz "format"
 sa_key_graphics: asciz "graphics.file"
     if skin_artdeco
 sa_key_font8: asciz "font.file"
 sa_key_font14: asciz "playlist.font.file"
-sa_manifest_version: asciz "artdeco-test2"
+sa_key_playlist_graphics: asciz "playlist.graphics.file"
+sa_manifest_version: asciz "artdeco-test3"
     else
 sa_key_font8: asciz "font8.file"
 sa_manifest_version: asciz "skin004-proof1"

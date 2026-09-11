@@ -35,17 +35,18 @@ these files on the SD card:
 
 Edit `/bin/jukebox.cfg` to select the skin and initial music directories, then
 run `jukebox` from MOS. The example uses `/music`; create that directory or
-change the setting to an existing directory. Graphics load from an AGNB
-container; fonts are separate `.font` files. No command-line arguments are
+change the setting to an existing directory. Artwork and color glyphs load
+from AGNB containers; monochrome font data uses separate `.font` files. No command-line arguments are
 required. See [configuration and skin loading](docs/configuration.md).
 
-The current build is the Art Deco test candidate with a 6×12 Lat7 Terminus
+The current build is the Art Deco test candidate with an antialiased 6×12 ArtDeco Concept 02
 playlist font and 5×8 Neutrino status text. It omits on-screen control legends;
 the controls below still apply.
 Its automated functional and pixel checks pass with MOS **3.0.2 Arthur**, VDP
 **2.16.0 Bistromathics**, and Fab **1.2.4**. The project owner accepted this
-as a good working concept on 2026-09-10. The subsequent playlist-font update
-is pending visual review.
+as a good working concept on 2026-09-10 and confirmed the subsequent Lat7 font
+version on hardware. Concept 02 was also reviewed on hardware with a CRT, and
+its checkpoint was authorized.
 The package schema remains provisional;
 skin discovery, switching, and Classic styling are still under development.
 

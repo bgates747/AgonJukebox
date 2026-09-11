@@ -6,6 +6,7 @@ w_path:
     db 32,32,32,32,32,32,32,32,32,32,32,32
 w_path_end:
 w_path_len: equ 84
+w_path_context: equ w_path+4
 w_path_bg: equ w_path+14
 w_path_fg: equ w_path+29
 w_path_text: equ w_path+36
@@ -19,6 +20,7 @@ w_page:
     db 32
 w_page_end:
 w_page_len: equ 49
+w_page_context: equ w_page+4
 w_page_bg: equ w_page+14
 w_page_fg: equ w_page+29
 w_page_text: equ w_page+36
@@ -27,12 +29,13 @@ w_page_send:
     ld bc,w_page_len
     jp ui_send
 w_row0:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,88,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,88,0,25,101,174
     db 1,99,0,18,0,63,25,4,82,0,88,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row0_end:
 w_row0_len: equ 94
+w_row0_context: equ w_row0+4
 w_row0_bg: equ w_row0+14
 w_row0_fg: equ w_row0+29
 w_row0_text: equ w_row0+36
@@ -41,12 +44,13 @@ w_row0_send:
     ld bc,w_row0_len
     jp ui_send
 w_row1:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,100,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,100,0,25,101,174
     db 1,111,0,18,0,63,25,4,82,0,100,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row1_end:
 w_row1_len: equ 94
+w_row1_context: equ w_row1+4
 w_row1_bg: equ w_row1+14
 w_row1_fg: equ w_row1+29
 w_row1_text: equ w_row1+36
@@ -55,12 +59,13 @@ w_row1_send:
     ld bc,w_row1_len
     jp ui_send
 w_row2:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,112,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,112,0,25,101,174
     db 1,123,0,18,0,63,25,4,82,0,112,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row2_end:
 w_row2_len: equ 94
+w_row2_context: equ w_row2+4
 w_row2_bg: equ w_row2+14
 w_row2_fg: equ w_row2+29
 w_row2_text: equ w_row2+36
@@ -69,12 +74,13 @@ w_row2_send:
     ld bc,w_row2_len
     jp ui_send
 w_row3:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,124,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,124,0,25,101,174
     db 1,135,0,18,0,63,25,4,82,0,124,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row3_end:
 w_row3_len: equ 94
+w_row3_context: equ w_row3+4
 w_row3_bg: equ w_row3+14
 w_row3_fg: equ w_row3+29
 w_row3_text: equ w_row3+36
@@ -83,12 +89,13 @@ w_row3_send:
     ld bc,w_row3_len
     jp ui_send
 w_row4:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,136,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,136,0,25,101,174
     db 1,147,0,18,0,63,25,4,82,0,136,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row4_end:
 w_row4_len: equ 94
+w_row4_context: equ w_row4+4
 w_row4_bg: equ w_row4+14
 w_row4_fg: equ w_row4+29
 w_row4_text: equ w_row4+36
@@ -97,12 +104,13 @@ w_row4_send:
     ld bc,w_row4_len
     jp ui_send
 w_row5:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,148,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,148,0,25,101,174
     db 1,159,0,18,0,63,25,4,82,0,148,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row5_end:
 w_row5_len: equ 94
+w_row5_context: equ w_row5+4
 w_row5_bg: equ w_row5+14
 w_row5_fg: equ w_row5+29
 w_row5_text: equ w_row5+36
@@ -111,12 +119,13 @@ w_row5_send:
     ld bc,w_row5_len
     jp ui_send
 w_row6:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,160,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,160,0,25,101,174
     db 1,171,0,18,0,63,25,4,82,0,160,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row6_end:
 w_row6_len: equ 94
+w_row6_context: equ w_row6+4
 w_row6_bg: equ w_row6+14
 w_row6_fg: equ w_row6+29
 w_row6_text: equ w_row6+36
@@ -125,12 +134,13 @@ w_row6_send:
     ld bc,w_row6_len
     jp ui_send
 w_row7:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,172,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,172,0,25,101,174
     db 1,183,0,18,0,63,25,4,82,0,172,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row7_end:
 w_row7_len: equ 94
+w_row7_context: equ w_row7+4
 w_row7_bg: equ w_row7+14
 w_row7_fg: equ w_row7+29
 w_row7_text: equ w_row7+36
@@ -139,12 +149,13 @@ w_row7_send:
     ld bc,w_row7_len
     jp ui_send
 w_row8:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,184,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,184,0,25,101,174
     db 1,195,0,18,0,63,25,4,82,0,184,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row8_end:
 w_row8_len: equ 94
+w_row8_context: equ w_row8+4
 w_row8_bg: equ w_row8+14
 w_row8_fg: equ w_row8+29
 w_row8_text: equ w_row8+36
@@ -153,12 +164,13 @@ w_row8_send:
     ld bc,w_row8_len
     jp ui_send
 w_row9:
-    db 23,0,200,0,1,23,0,149,0,241,33,0,18,0,0,25,4,81,0,196,0,25,101,174
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,81,0,196,0,25,101,174
     db 1,207,0,18,0,63,25,4,82,0,196,0,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
     db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
 w_row9_end:
 w_row9_len: equ 94
+w_row9_context: equ w_row9+4
 w_row9_bg: equ w_row9+14
 w_row9_fg: equ w_row9+29
 w_row9_text: equ w_row9+36
@@ -184,6 +196,7 @@ w_message:
     db 32,32,32,32,32,32,32,32,32,32,32,32
 w_message_end:
 w_message_len: equ 84
+w_message_context: equ w_message+4
 w_message_bg: equ w_message+14
 w_message_fg: equ w_message+29
 w_message_text: equ w_message+36
@@ -198,6 +211,7 @@ w_track:
     db 32,32,32,32,32,32,32,32
 w_track_end:
 w_track_len: equ 80
+w_track_context: equ w_track+4
 w_track_bg: equ w_track+14
 w_track_fg: equ w_track+29
 w_track_text: equ w_track+36
@@ -210,6 +224,7 @@ w_elapsed:
     db 0,18,1,18,0,63,25,4,183,0,11,1,32,32,32,32,32,32,32,32
 w_elapsed_end:
 w_elapsed_len: equ 44
+w_elapsed_context: equ w_elapsed+4
 w_elapsed_bg: equ w_elapsed+14
 w_elapsed_fg: equ w_elapsed+29
 w_elapsed_digits: equ w_elapsed+36
@@ -222,6 +237,7 @@ w_duration:
     db 1,18,1,18,0,63,25,4,33,1,11,1,32,32,32,32,32,32,32,32
 w_duration_end:
 w_duration_len: equ 44
+w_duration_context: equ w_duration+4
 w_duration_bg: equ w_duration+14
 w_duration_fg: equ w_duration+29
 w_duration_digits: equ w_duration+36
@@ -235,6 +251,7 @@ w_detail:
     db 32,32,32,32,32,32,32,32,32,32,32
 w_detail_end:
 w_detail_len: equ 59
+w_detail_context: equ w_detail+4
 w_detail_bg: equ w_detail+14
 w_detail_fg: equ w_detail+29
 w_detail_text: equ w_detail+36
@@ -248,6 +265,7 @@ w_voltext:
     db 32
 w_voltext_end:
 w_voltext_len: equ 49
+w_voltext_context: equ w_voltext+4
 w_voltext_bg: equ w_voltext+14
 w_voltext_fg: equ w_voltext+29
 w_voltext_text: equ w_voltext+36
@@ -336,13 +354,18 @@ ui_row_columns: equ 58
 ui_normal_fg: equ 63
 ui_selected_bg: equ 59
 ui_selected_fg: equ 0
+ui_normal_context: equ 3
+ui_selected_context: equ 4
 ui_progress_origin: equ 143
 ui_idle_play_code: equ art_idle
 sa_image_count: equ 163
+sa_playlist_image_count: equ 190
 sa_image_meta: incbin "../ui/artdeco/image-meta.bin"
 sa_image_meta_end:
 sa_contexts: incbin "../ui/artdeco/contexts.vdu"
 sa_contexts_end:
+sa_playlist_image_meta: incbin "../ui/artdeco/playlist-meta.bin"
+sa_playlist_image_meta_end:
 sa_cleanup: incbin "../ui/artdeco/cleanup.vdu"
 sa_cleanup_end:
 ui_static: incbin "../ui/artdeco/static.vdu"

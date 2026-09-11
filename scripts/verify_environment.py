@@ -15,7 +15,6 @@ VENV_DIR = PROJECT_ROOT / ".venv"
 RUNTIME_SKIN_ASSETS = (
     PROJECT_ROOT / "skins/artdeco/graphics.agnb",
     PROJECT_ROOT / "skins/artdeco/fonts/neutrino_5x8.font",
-    PROJECT_ROOT / "skins/artdeco/fonts/Lat7-Terminus12x6_6x12.font",
     PROJECT_ROOT / "skins/base/graphics.agnb",
     PROJECT_ROOT / "skins/base/fonts/body8x8.font",
     PROJECT_ROOT / "skins/base/fonts/body8x14.font",
@@ -29,6 +28,17 @@ def run(command: list[str], *, cwd: Path = PROJECT_ROOT) -> bool:
 
 def main() -> int:
     failures: list[str] = []
+    runtime_assets = list(RUNTIME_SKIN_ASSETS)
+    # Both authoring candidates have the same geometry and loader contract.
+    # Verify the actual playlist assets selected by the generated manifest.
+    try:
+        package = PROJECT_ROOT / "skins/artdeco"
+        manifest = dict(line.split("=", 1) for line in
+                        (package / "skin.cfg").read_text().splitlines() if "=" in line)
+        runtime_assets.extend(package / manifest[key] for key in
+                              ("playlist.font.file", "playlist.graphics.file"))
+    except (OSError, KeyError, ValueError) as exc:
+        failures.append(f"cannot find playlist assets in skin manifest: {exc}")
     print(f"Python: {sys.version.split()[0]}")
     print(f"Interpreter: {sys.executable}")
 
@@ -50,7 +60,7 @@ def main() -> int:
     ):
         failures.append("WAV tool tests failed")
 
-    for asset in RUNTIME_SKIN_ASSETS:
+    for asset in runtime_assets:
         if not asset.is_file():
             failures.append(f"missing runtime skin asset: {asset.relative_to(PROJECT_ROOT)}")
     for filename in ["config/jukebox.cfg", "skins/base/skin.cfg", "skins/artdeco/skin.cfg"]:
@@ -71,7 +81,7 @@ def main() -> int:
             binary_data = binary.read_bytes()
             if len(binary_data) + 0x40000 >= 0x6FF00:
                 failures.append("application overlaps fixed browser memory")
-            for asset in RUNTIME_SKIN_ASSETS:
+            for asset in runtime_assets:
                 if not asset.is_file():
                     continue
                 asset_data = asset.read_bytes()

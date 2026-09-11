@@ -43,26 +43,37 @@ is applied explicitly after skin loading.
 The ordinary `app.asm` build now uses the bounded Art Deco profile:
 
 ```ini
-format=artdeco-test2
+format=artdeco-test3
 graphics.file=graphics.agnb
 font.file=fonts/neutrino_5x8.font
-playlist.font.file=fonts/Lat7-Terminus12x6_6x12.font
+playlist.font.file=fonts/ArtDeco_Concept_02_6x12.font
+playlist.graphics.file=fonts/ArtDeco_Concept_02_6x12.agnb
 ```
 
-All four keys are required and unique; unknown keys are rejected. File and
+All five keys are required and unique; unknown keys are rejected. File and
 path grammar/limits are the same as the Base manifest below. The compiled
-profile uses Neutrino 5×8 for small fields (2,048 bytes) and Lat7 Terminus
-6×12 for playlist rows (3,072 bytes), each with 256 byte-indexed slots.
+profile uses Neutrino 5×8 for small fields (2,048 bytes) and the ArtDeco Concept 02
+6×12 monochrome export for playlist metrics (3,072 bytes), each with 256
+byte-indexed slots. The visible playlist glyphs come from the color AGNB.
 The playlist has ten rows of 58 characters. Width cannot be inferred from
 payload length; the compiled geometry is explicit. The manifest version
-prevents loading older one-font Art Deco or Base packages with this layout.
+rejects older Art Deco and Base packages that lack the required font assets.
 
-The AGNB consumer requires exactly 163 RGBA2222 records at IDs 0x2100–0x21A2,
-matching `src/ui/artdeco/image-meta.bin`. Metadata and payload boundaries are
-validated before upload. Small text uses font buffer 0x21F0 and the playlist
-uses 0x21F1. Text and art contexts are
-1/2; static application commands use 0x2200. The first 128 images map to printed
-characters in the art context; the remaining decorative tiles use direct plots.
+The graphics AGNB requires exactly 163 RGBA2222 records at IDs 0x2100–0x21A2,
+matching `src/ui/artdeco/image-meta.bin`. The playlist AGNB requires 190 opaque
+6×12 RGBA2222 records matching `src/ui/artdeco/playlist-meta.bin`: ASCII 32–126
+in normal colors at IDs 0x2300–0x235E and selected colors at 0x2400–0x245E.
+Each container's record metadata, payload boundaries and exact end are checked.
+Missing, malformed or substituted assets cause an error and return to MOS.
+
+Small text uses font buffer 0x21F0 in context 1. Normal and selected playlist
+rows use contexts 3/4, both with font 0x21F1 supplying six-pixel advance and
+12-pixel height. Their separate bitmap-character maps contain preblended Agon64
+glyphs; changing the highlight selects a context and prints the row normally.
+Bytes outside printable ASCII display as `?`. Art uses context 2; static
+application commands use 0x2200. The first 128 decorative images map to printed
+characters in the art context; the remaining tiles use direct plots. Cleanup
+retires all four owned contexts, fonts and both sets of bitmap buffers.
 
 This is a basic test profile with provisional information placement and no
 on-screen control legends. F1/modal help is a possible later addition. General

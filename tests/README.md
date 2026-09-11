@@ -17,11 +17,18 @@ change the application or emulator.
 ## Art Deco candidate — 2026-09-10
 
 The basic Art Deco profile runs the same 26 scenarios through
-`tests/asm/artdeco_check.asm`, with 6,975 expected pixels for its Lat7 6×12 playlist, Neutrino 5×8
-status text, field geometry, decorative frame and widget states. The automated test
+`tests/asm/artdeco_check.asm`, with 6,975 expected pixels for its antialiased
+ArtDeco Concept 02 6×12 playlist, Neutrino 5×8 status text, field geometry, decorative frame
+and widget states. An additional 7,110-pixel startup probe checks all 95 printable
+characters in both normal and selected font contexts, including every shade
+per glyph and six-pixel advance. It emits `LIVE_FONT_PIXELS_PASS` before the
+functional scenarios. The automated test
 passes. The project owner accepted the preceding all-Neutrino concept in
 49511a6; the owner subsequently confirmed that the Lat7 version runs and looks
-good on hardware, and authorized its rollback checkpoint. Base's
+good on hardware, and authorized rollback checkpoint `21e4826`. The new font
+candidate's results are in `artdeco-concept02-candidate.json`; the owner reviewed
+it on hardware with a CRT and authorized its checkpoint. `artdeco-font-candidate.json` retains the first contender's evidence
+(7,136 font pixels); `lat7-candidate.json` retains Lat7's evidence. Base's
 accepted checkpoint below remains separate.
 
 Prepare a new SD tree and check its log with:
@@ -32,8 +39,9 @@ Prepare a new SD tree and check its log with:
 .venv/bin/python tests/functional.py check /path/to/artdeco.log --skin artdeco
 ```
 
-The Art Deco fixture comes from the selected artwork and the font editor's
-native glyphs via `src/skins/artdeco/build.py`. It samples actual glyph strokes,
+The Art Deco fixtures come from the selected artwork, Neutrino's native glyphs
+and the accepted Art Deco color PNGs via `src/skins/artdeco/build.py`.
+They sample actual glyph strokes,
 spacing, row backgrounds and control states. Fixed comparisons exclude moving
 elapsed/progress pixels; pause, scheduling, seeking and EOF are exercised by
 the functional scenarios. See `src/skins/artdeco/README.md` for regeneration.

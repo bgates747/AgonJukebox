@@ -37,7 +37,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
 6. [ ] **SKIN-006 — Design and build the rich reference skin**
    - Started: 2026-09-10
    - Finished: --
-   - Status: Basic Art Deco concept accepted in 49511a6. Lat7 Terminus 6x12 playlist font passes 26 scenarios and 6,975 target pixels; the owner confirmed appearance and operation on hardware and authorized a rollback checkpoint. Extended qualification remains open.
+   - Status: Basic Art Deco concept accepted in 49511a6. Concept 02 antialiased 6×12 font passes 26 scenarios and 14,085 target pixels; the owner reviewed it on hardware with a CRT and authorized its checkpoint. Extended qualification remains open.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: --
    - Finished: --

@@ -6,7 +6,10 @@ commands, not bitmap/font payloads. `app_base.asm` retains that profile.
 
 The ordinary `app.asm` now selects the Art Deco test inputs in `artdeco/`.
 Those use the same player/event boundary with generated 6×12 playlist and 5×8 status-text geometry,
-163 expected AGNB records and no control legends. See
+163 expected decorative AGNB records, 190 antialiased glyph records and no
+control legends. `artdeco/playlist-meta.bin` contains the expected glyph
+metadata. Contexts 3/4 print normal/selected 6×12 characters; small text and art
+retain contexts 1/2. A highlight move sends two 94-byte row packets. See
 [the Art Deco authoring notes](../skins/artdeco/README.md) for generation,
 provisional field placement and test evidence. Both profiles retain complete
 foreground packets of at most 96 bytes and isolated text/art contexts.

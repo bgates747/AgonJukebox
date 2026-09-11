@@ -50,6 +50,8 @@ def check(log: Path, skin: str = "base") -> None:
         raise ValueError("target functional scenarios did not pass")
     if "LIVE_WIDGET_PIXELS_PASS" not in output:
         raise ValueError("target widget pixels did not pass")
+    if skin == "artdeco" and "LIVE_FONT_PIXELS_PASS" not in output:
+        raise ValueError("antialiased glyph/context pixels did not pass")
     match = re.search(r"SCHEDULE ([0-9A-F]{16})", output)
     if match is None:
         raise ValueError("missing target scheduling evidence")
@@ -64,11 +66,14 @@ def check(log: Path, skin: str = "base") -> None:
     pixels = 1327
     if skin == "artdeco":
         pixels = (PROJECT / "tests/fixtures/artdeco/widget-samples.bin").stat().st_size // 7
-    print(json.dumps({
+    result = {
         "result": "PASS", "skin": skin, "scenarios": 26, "widget_pixels": pixels,
         "rate_hz": 65535, "read_ticks": ticks, "bytes_remaining": remaining,
         "audio_output": "listening review is separate",
-    }, indent=2))
+    }
+    if skin == "artdeco":
+        result['font_pixels'] = (PROJECT / 'tests/fixtures/artdeco/font-samples.bin').stat().st_size // 7
+    print(json.dumps(result, indent=2))
 
 
 def main() -> None:

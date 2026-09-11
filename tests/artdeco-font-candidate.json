@@ -1,0 +1,82 @@
+{
+  "result": "PASS",
+  "skin": "artdeco",
+  "scenarios": 26,
+  "widget_pixels": 6975,
+  "rate_hz": 65535,
+  "read_ticks": 89,
+  "bytes_remaining": 115778,
+  "audio_output": "listening review is separate",
+  "font_pixels": 7136,
+  "date": "2026-09-10",
+  "rollback_commit": "21e4826",
+  "font": "ArtDeco_Concept_6x12",
+  "font_cell": [
+    6,
+    12
+  ],
+  "browser_columns": 58,
+  "browser_rows": 10,
+  "firmware": {
+    "emulator": "Fab 1.2.4",
+    "mos": "3.0.2 Arthur",
+    "vdp": "2.16.0 Bistromathics"
+  },
+  "binary_bytes": 51489,
+  "binary_sha256": "2df2c5ff16f8545afa138ab506faf59e400df54fb09a57a0d04b26158c16fc4e",
+  "functional_binary_bytes": 152236,
+  "functional_binary_sha256": "62c42f212a0c0bb2ae073381695f03dbd1956d38b7c560b78c2ad57878802c8f",
+  "agnb_sha256": "4b347cfa0fddc9f78b3c18bfcb54ba3a7d1a85716cbba57f0089c0c7b80b15a7",
+  "playlist_agnb_sha256": "811dc8383c757a6a73ca9b372e5facde2e5b220219ef9998d5342ba7811f550f",
+  "playlist_agnb_bytes": 22824,
+  "playlist_image_count": 190,
+  "playlist_source_sha256": {
+    "normal": "8e710a699773b7e28dd402dc00b3ca5be849434a6a266b87cd5db9c7d64af788",
+    "selected": "fbf92fcfecd281b482451f8a49da5182544755f5b8e051d093bf3e49215a0466"
+  },
+  "row_packet_bytes": 94,
+  "selection_change_bytes": 188,
+  "contexts": {
+    "normal": 3,
+    "selected": 4
+  },
+  "host_checks": {
+    "base": {
+      "bytes": 47644,
+      "sha256": "b63dd1cc3f24b0a3ed0ed055ac39e357ecc341b62844453269885c987a26e2b2",
+      "comparison": "byte-identical to 21e4826"
+    },
+    "base-functional": {
+      "bytes": 58482,
+      "sha256": "215d5e3cd3f7b3164c27bcb228aacc4d3a7d7f8943f7f8a9e58ee0f375641476",
+      "comparison": "byte-identical to 21e4826"
+    },
+    "repeat_build_files": 19,
+    "decorations": "AGNB, static VDU and backdrop unchanged from 21e4826"
+  },
+  "environment_check": "PASS: dependencies, 9 WAV tests, four assembly variants and external assets",
+  "asset_failure_checks": [
+    {
+      "case": "missing-container",
+      "error": "0x01",
+      "returned_to_MOS": true
+    },
+    {
+      "case": "wrong-glyph-id",
+      "error": "0x46",
+      "returned_to_MOS": true
+    },
+    {
+      "case": "truncated-container",
+      "error": "0x08",
+      "returned_to_MOS": true
+    },
+    {
+      "case": "missing-key",
+      "error": "0x45",
+      "returned_to_MOS": true
+    }
+  ],
+  "human_review": "pending",
+  "hardware_qualification": "pending for Art Deco font; preceding Lat7 version accepted on hardware"
+}

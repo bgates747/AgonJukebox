@@ -1,7 +1,8 @@
 # Editable skin fonts
 
-The Art Deco playlist now uses [Lat7 Terminus 6×12](terminus/README.md).
-Neutrino remains the small-field font.
+The Art Deco playlist now uses the Author's antialiased ArtDeco Concept 02 6×12 font.
+Neutrino remains the small-field font. The previously tested
+[Lat7 Terminus 6×12](terminus/README.md) source remains available.
 
 ## Neutrino 5×8
 
@@ -77,8 +78,20 @@ only and retains its existing metadata and provenance.
 [Art Deco concept 01](art-deco-concept-01/README.md) preserves the generated
 letterforms and the Author's thresholded source. Its aligned draft provides
 a 1024×2048 black/white PNG, 64×128 ASCII cells, editable SVG and font-maker XML.
-This is source art for review and editing, separate from the active fonts.
+The Author's finished 6×12 grayscale PNG and XML live beside those sources as
+`ArtDeco_Concept_6x12.png` and `.png.xml`. The `color-01` variants retain the first
+contender's normal and selected bitmap characters. The builder crops
+ASCII 32–126 into an AGNB container without changing pixels. The adjacent
+`src/fonts/ArtDeco_Concept_6x12.font` monochrome export supplies VDP metrics only;
+it does not preserve the PNG's antialiasing. Both representations are needed
+by that contender's runtime package.
 
 [Recoloring antialiased sheets](../../docs/font-coloring.md) documents
 `recolor_font.py`: configurable foreground/background PNG variants in the
 exact Agon64 palette, with metadata and no dithering or font-editor dependency.
+
+[ArtDeco Concept 02](art-deco-concept-02/README.md) supplies the current candidate.
+Its unchanged source, prepared 79×79 source cells, Author-saved 6×12 PNG and XML,
+and normal/selected color variants all live in that directory. The skin builder
+uses the saved pixels directly, packages the visible glyphs in AGNB and exports
+a loose metrics font with the existing editor writer.

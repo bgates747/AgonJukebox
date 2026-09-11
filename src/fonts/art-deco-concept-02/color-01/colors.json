@@ -1,0 +1,142 @@
+{
+  "source": "/home/smith/Agon/mystuff/AgonJukebox/src/fonts/art-deco-concept-02/ArtDeco_Concept_02_6x12.png",
+  "source_sha256": "a933bb673a305c6bb2444cdd3b818fa6b715bd9dadbdc1a6fa4e372cdc07a3ba",
+  "size": [
+    96,
+    192
+  ],
+  "cell": [
+    6,
+    12
+  ],
+  "columns": 16,
+  "rows": 16,
+  "first_char": 0,
+  "mask_channel": "gray",
+  "invert": false,
+  "coverage_denominator": 65025,
+  "coverage_levels": 4,
+  "input_has_intermediate_coverage": true,
+  "blend": "foreground * coverage + background * (1 - coverage), in RGB code values; round once to RGB8",
+  "palette_method": "agonutils RGB nearest color",
+  "dithering": false,
+  "alpha": "opaque; background is baked into each variant",
+  "palette_sha256": "c61dd1476415352e74add70f1ed0c81b1d141361a12b26587a6829ee66ec7f94",
+  "tool_sha256": {
+    "recolor_font.py": "185bfa51c64fe08e213e1f89024156c1b52891e2287317566fd527b9aeb3a240",
+    "agonutils": "0a1166e08a92e90342ce50a9b5435b065c2fd08e850ec9021434540b73ddad4e"
+  },
+  "variants": [
+    {
+      "name": "normal",
+      "foreground": [
+        255,
+        255,
+        170
+      ],
+      "background": [
+        0,
+        0,
+        0
+      ],
+      "png": "ArtDeco_Concept_02_6x12-normal.png",
+      "metadata": "ArtDeco_Concept_02_6x12-normal.png.xml",
+      "png_sha256": "8b195851bd26bd12509ab573870818505ec65d1234e810d95eaa6092d5a95899",
+      "visible_colors": 4,
+      "coverage_to_rgb": [
+        {
+          "numerator": 0,
+          "pixels": 12349,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "numerator": 21675,
+          "pixels": 2337,
+          "rgb": [
+            85,
+            85,
+            85
+          ]
+        },
+        {
+          "numerator": 43350,
+          "pixels": 2392,
+          "rgb": [
+            170,
+            170,
+            85
+          ]
+        },
+        {
+          "numerator": 65025,
+          "pixels": 1354,
+          "rgb": [
+            255,
+            255,
+            170
+          ]
+        }
+      ]
+    },
+    {
+      "name": "selected",
+      "foreground": [
+        0,
+        0,
+        0
+      ],
+      "background": [
+        255,
+        170,
+        85
+      ],
+      "png": "ArtDeco_Concept_02_6x12-selected.png",
+      "metadata": "ArtDeco_Concept_02_6x12-selected.png.xml",
+      "png_sha256": "6e5126254ed388bffad867a1ef40e49c6e6104ff6c721ad497738b764e6d2094",
+      "visible_colors": 4,
+      "coverage_to_rgb": [
+        {
+          "numerator": 0,
+          "pixels": 12349,
+          "rgb": [
+            255,
+            170,
+            85
+          ]
+        },
+        {
+          "numerator": 21675,
+          "pixels": 2337,
+          "rgb": [
+            170,
+            85,
+            85
+          ]
+        },
+        {
+          "numerator": 43350,
+          "pixels": 2392,
+          "rgb": [
+            85,
+            85,
+            0
+          ]
+        },
+        {
+          "numerator": 65025,
+          "pixels": 1354,
+          "rgb": [
+            0,
+            0,
+            0
+          ]
+        }
+      ]
+    }
+  ],
+  "source_unchanged": true
+}

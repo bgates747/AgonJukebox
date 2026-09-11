@@ -3,6 +3,9 @@ live_test_init:
     ld a,live_test_mode
     or a
     ret z
+    if skin_artdeco
+    call lt_font_probe
+    endif
     ld hl,lt_dir
     MOSCALL mos_cd
     or a
@@ -152,6 +155,12 @@ lt_widget_pixels:
     ld (lt_sample_ptr),hl
     ld hl,lt_sample_count
     ld (lt_samples_left),hl
+    if skin_artdeco
+    call lt_check_pixels
+    ld hl,lt_pixels_pass
+    jp sa_debug_puts
+lt_check_pixels:
+    endif
 @pixel:
     ld hl,(lt_sample_ptr)
     ld de,sa_pixel_command+3
@@ -188,8 +197,28 @@ lt_widget_pixels:
     or a
     sbc hl,de
     jp nz,@pixel
+    if skin_artdeco
+    ret
+
+lt_font_probe:
+    ld hl,lt_font_draw
+    ld bc,lt_font_draw_end-lt_font_draw
+    call ui_send
+    ld hl,lt_font_samples
+    ld (lt_sample_ptr),hl
+    ld hl,lt_font_sample_count
+    ld (lt_samples_left),hl
+    call lt_check_pixels
+    ld hl,lt_font_pass
+    jp sa_debug_puts
+lt_font_pass: asciz "LIVE_FONT_PIXELS_PASS\r\n"
+lt_font_draw: incbin "../../tests/fixtures/artdeco/font-probe.vdu"
+lt_font_draw_end:
+lt_font_samples: incbin "../../tests/fixtures/artdeco/font-samples.bin"
+    else
     ld hl,lt_pixels_pass
     jp sa_debug_puts
+    endif
 lt_fail:
     call sa_debug_hex
     ld a,(ix+4)

@@ -259,6 +259,9 @@ ui_row:
     ld (ix+w_row0_bg-w_row0),a
     ld a,ui_normal_fg
     ld (ix+w_row0_fg-w_row0),a
+    if skin_artdeco
+    ld (ix+w_row0_context-w_row0),ui_normal_context
+    endif
     ld a,(ui_row_index)
     ld hl,bf_files_cur_pg
     cp (hl)
@@ -276,6 +279,9 @@ ui_row:
     jr nz,@normal
     ld (ix+w_row0_bg-w_row0),ui_selected_bg
     ld (ix+w_row0_fg-w_row0),ui_selected_fg
+    if skin_artdeco
+    ld (ix+w_row0_context-w_row0),ui_selected_context
+    endif
 @normal:
     ld hl,(ui_row_text)
     ld (hl),'0'

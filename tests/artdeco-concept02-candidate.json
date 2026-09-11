@@ -1,0 +1,54 @@
+{
+  "result": "PASS",
+  "skin": "artdeco",
+  "scenarios": 26,
+  "widget_pixels": 6975,
+  "rate_hz": 65535,
+  "read_ticks": 89,
+  "bytes_remaining": 115778,
+  "audio_output": "listening review is separate",
+  "font_pixels": 7110,
+  "date": "2026-09-10",
+  "font": "ArtDeco_Concept_02_6x12",
+  "source_sha256": "a933bb673a305c6bb2444cdd3b818fa6b715bd9dadbdc1a6fa4e372cdc07a3ba",
+  "font_cell": [
+    6,
+    12
+  ],
+  "browser_columns": 58,
+  "browser_rows": 10,
+  "binary_bytes": 51489,
+  "binary_sha256": "2df2c5ff16f8545afa138ab506faf59e400df54fb09a57a0d04b26158c16fc4e",
+  "functional_binary_sha256": "24260b52bcc686b76b722502cdfd292565c6e1877f4ed637781c96b0fdac412a",
+  "firmware": {
+    "emulator": "Fab 1.2.4",
+    "mos": "3.0.2 Arthur",
+    "vdp": "2.16.0 Bistromathics"
+  },
+  "playlist_agnb_sha256": "2d47e078295b985ca58be1ee4b6ab1b4c2518ce0e0df4c3ea3fa06582490853a",
+  "playlist_agnb_bytes": 22824,
+  "playlist_source_sha256": {
+    "normal": "8b195851bd26bd12509ab573870818505ec65d1234e810d95eaa6092d5a95899",
+    "selected": "6e5126254ed388bffad867a1ef40e49c6e6104ff6c721ad497738b764e6d2094"
+  },
+  "playlist_metrics_sha256": "c00160a96d67a3f3573689af8e4a82408c6f497d106eb0b766bae006f6d26ba0",
+  "row_packet_bytes": 94,
+  "selection_change_bytes": 188,
+  "host_checks": {
+    "binary_unchanged_from_concept01": true,
+    "concept-02": {
+      "byte_identical_files": 19,
+      "comparison": "current generated files"
+    },
+    "concept-01": {
+      "byte_identical_files": 18,
+      "comparison": "previous candidate, except updated build report"
+    },
+    "runtime_layout_and_art_unchanged": true
+  },
+  "environment_check": "PASS: dependencies, 9 WAV tests, four assembly variants and external assets",
+  "loader_failure_checks": "unchanged loader and application binary; previous evidence in artdeco-font-candidate.json",
+  "human_review": "Owner reviewed Concept 02 in the emulator, then on hardware with a CRT, reported that it really shines, and explicitly authorized committing pending work.",
+  "hardware_qualification": "Owner visually reviewed the deployed Concept 02 build on hardware with a CRT; extended timing/resource qualification remains separate.",
+  "previous_candidate": "artdeco-font-candidate.json"
+}

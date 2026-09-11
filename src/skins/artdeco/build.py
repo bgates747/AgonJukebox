@@ -54,7 +54,7 @@ def clear_buffer(n): return bytes([23, 0, 0xa0]) + word(n) + b'\2'
 def sha(data): return hashlib.sha256(data).hexdigest()
 
 
-def build(output: Path):
+def build(output: Path, playlist_choice: str = 'concept-02'):
     source = SOURCE / 'source.png'
     if sha(source.read_bytes()) != '8b61a2b393284fa777b15a78ac34c7e1f218fc06c58234fdb9f7f9fd60b3e8b4':
         raise ValueError('accepted source.png changed; review and update its provenance explicitly')
@@ -73,19 +73,34 @@ def build(output: Path):
     editor = UTILS / 'examples/font_editor/src/python'
     sys.path.insert(0, str(editor))
     from config_manager import load_font_metadata_from_xml
-    from agon_font import read_font, get_chars_from_image
+    from agon_font import read_font, read_png_font, write_agon_font, get_chars_from_image
     font_path = PROJECT / 'src/fonts/neutrino_5x8.font'
     cfg = load_font_metadata_from_xml(str(font_path)+'.xml')
     cfg, sheet = read_font(str(font_path), cfg)
     assert (cfg['font_width_mod'], cfg['font_height_mod']) == (5,8)
     assert len(font_path.read_bytes()) == 2048
     glyphs = get_chars_from_image(cfg, sheet)
-    playlist_font = PROJECT / 'src/fonts/terminus/Lat7-Terminus12x6_6x12.font'
-    playlist_cfg = load_font_metadata_from_xml(str(playlist_font)+'.xml')
-    playlist_cfg, playlist_sheet = read_font(str(playlist_font), playlist_cfg)
-    assert (playlist_cfg['font_width_mod'], playlist_cfg['font_height_mod']) == (6,12)
-    assert len(playlist_font.read_bytes()) == 3072
-    playlist_glyphs = get_chars_from_image(playlist_cfg, playlist_sheet)
+    # The mono export supplies 6x12 VDP metrics. Visible song-list pixels come
+    # exclusively from the accepted, preblended PNGs via bitmap-character maps.
+    playlist_stem = 'ArtDeco_Concept_6x12' if playlist_choice == 'concept-01' else 'ArtDeco_Concept_02_6x12'
+    playlist_source = PROJECT / f'src/fonts/art-deco-{playlist_choice}'
+    color_source = playlist_source / 'color-01'
+    color_manifest = json.loads((color_source/'colors.json').read_text())
+    assert sha((playlist_source/(playlist_stem+'.png')).read_bytes()) == color_manifest['source_sha256'], 'regenerate colors after editing the saved font'
+    playlist_glyphs = {}
+    playlist_sources = {}
+    for variant in color_manifest['variants']:
+        png = color_source/variant['png']
+        assert sha(png.read_bytes()) == variant['png_sha256'], 'accepted font PNG changed'
+        sheet = Image.open(png).convert('RGBA')
+        assert sheet.size == (96,192)
+        assert all(a == 255 and all(c % 85 == 0 for c in (r,g,b))
+                   for r,g,b,a in sheet.get_flattened_data())
+        playlist_glyphs[variant['name']] = {
+            code: sheet.crop((code%16*6,code//16*12,code%16*6+6,code//16*12+12))
+            for code in range(32,127)}
+        playlist_sources[variant['name']] = variant['png_sha256']
+    assert set(playlist_glyphs) == {'normal','selected'}
 
     manifest_path = UTILS / 'examples/agnb/images/shared/scripts/image_manifest.py'
     writer_path = UTILS / 'examples/agnb/images/container/scripts/do_assembly.py'
@@ -99,27 +114,50 @@ def build(output: Path):
     for directory in [package/'fonts', ui, review]:
         directory.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(font_path, package/'fonts/neutrino_5x8.font')
-    shutil.copyfile(playlist_font, package/'fonts/Lat7-Terminus12x6_6x12.font')
-    (package/'skin.cfg').write_text('format=artdeco-test2\ngraphics.file=graphics.agnb\nfont.file=fonts/neutrino_5x8.font\nplaylist.font.file=fonts/Lat7-Terminus12x6_6x12.font\n')
+    playlist_font = package/'fonts'/(playlist_stem+'.font')
+    if playlist_choice == 'concept-01':
+        shutil.copyfile(PROJECT/'src/fonts/ArtDeco_Concept_6x12.font', playlist_font)
+    else:
+        # Read the saved pixels with normalized bitmap metadata; do not apply
+        # the original source's crop/scale recipe to the finished 6x12 sheet.
+        saved_png = playlist_source/(playlist_stem+'.png')
+        saved_config = load_font_metadata_from_xml(str(saved_png)+'.xml', bitmap=True)
+        assert saved_config is not None
+        saved_config, saved_sheet = read_png_font(str(saved_png), saved_config)
+        assert (saved_config['font_width_mod'], saved_config['font_height_mod']) == (6,12)
+        assert (saved_config['ascii_start'], saved_config['ascii_end'], saved_config['chars_per_row']) == (0,255,16)
+        write_agon_font(saved_config, saved_sheet, str(playlist_font))
+    assert len(playlist_font.read_bytes()) == 3072
+    (package/'fonts/Lat7-Terminus12x6_6x12.font').unlink(missing_ok=True)
+    other_stem = 'ArtDeco_Concept_02_6x12' if playlist_choice == 'concept-01' else 'ArtDeco_Concept_6x12'
+    for suffix in ('.font', '.agnb'):
+        (package/'fonts'/(other_stem+suffix)).unlink(missing_ok=True)
+    (package/'skin.cfg').write_text('format=artdeco-test3\ngraphics.file=graphics.agnb\nfont.file=fonts/neutrino_5x8.font\n'
+        f'playlist.font.file=fonts/{playlist_stem}.font\nplaylist.graphics.file=fonts/{playlist_stem}.agnb\n')
 
     assets = []
     by_name = {}
     entries = []
     placements = []
+    playlist_assets = []
     with tempfile.TemporaryDirectory(prefix='artdeco-agnb-') as temp:
         scratch = Path(temp)
 
-        def asset(name, image, role):
+        def encode_image(name, image):
             image = image.convert('RGBA')
-            assert len(assets) < 240, 'image IDs would collide with font 0x21f0'
-            buffer_id = 0x2100 + len(assets)
-            code = 128+len(assets) if len(assets) < 128 else None
             png, raw = scratch/(name+'.png'), scratch/(name+'.rgba2')
             image.save(png)
             au.img_to_rgba2(str(png), str(raw), str(editor/'colors/Agon64.gpl'), 'RGB', None)
             restored = scratch/(name+'-restored.png')
             au.rgba2_to_img(str(raw), str(restored), image.width, image.height)
             assert Image.open(restored).convert('RGBA').tobytes() == image.tobytes()
+            return image,png,raw
+
+        def asset(name, image, role):
+            assert len(assets) < 240, 'image IDs would collide with font 0x21f0'
+            buffer_id = 0x2100 + len(assets)
+            code = 128+len(assets) if len(assets) < 128 else None
+            image,png,raw = encode_image(name,image)
             entry = manifest.ImageManifestEntry(True, role, name, buffer_id,
                 image.width, image.height, 1, png.name, raw.name, raw.stat().st_size)
             entries.append(entry)
@@ -176,17 +214,34 @@ def build(output: Path):
                 if key not in tiles:
                     tiles[key] = asset('tile_'+str(len(tiles)).zfill(3), tile, 'static decoration')
                 placements.append({'name':tiles[key]['name'], 'x':x, 'y':y})
-        manifest.write_manifest(scratch/'images.jsonl', entries)
-        manifest.validate_asset_files(entries, scratch)
-        records = [writer.ImageRecord(e.source,e.name,e.bufferId,e.width,e.height,
-                   scratch/e.rgba2,e.dataSize) for e in entries]
-        packed = writer.build_container(records)
-        (package/'graphics.agnb').write_bytes(packed)
-        data, parsed = viewer.parse_container(package/'graphics.agnb')
-        assert len(parsed) == len(entries)
-        for r,e in zip(parsed, entries):
-            assert (r.bufferId,r.width,r.height,r.dataSize) == (e.bufferId,e.width,e.height,e.dataSize)
-            assert data[r.dataOffset:r.dataOffset+r.dataSize] == (scratch/e.rgba2).read_bytes()
+        def pack_images(records_in, path, manifest_name):
+            assert 0 < len(records_in) < 256
+            manifest.write_manifest(scratch/manifest_name, records_in)
+            manifest.validate_asset_files(records_in, scratch)
+            records = [writer.ImageRecord(e.source,e.name,e.bufferId,e.width,e.height,
+                       scratch/e.rgba2,e.dataSize) for e in records_in]
+            packed = writer.build_container(records)
+            path.write_bytes(packed)
+            data, parsed = viewer.parse_container(path)
+            assert len(parsed) == len(records_in)
+            for r,e in zip(parsed, records_in):
+                assert (r.bufferId,r.width,r.height,r.dataSize) == (e.bufferId,e.width,e.height,e.dataSize)
+                assert data[r.dataOffset:r.dataOffset+r.dataSize] == (scratch/e.rgba2).read_bytes()
+            return packed
+
+        packed = pack_images(entries,package/'graphics.agnb','images.jsonl')
+        playlist_entries = []
+        for variant,first_id in [('normal',0x2300),('selected',0x2400)]:
+            for code,image in playlist_glyphs[variant].items():
+                name = f'playlist_{variant}_{code:03d}'
+                image,png,raw = encode_image(name,image)
+                identifier = first_id+code-32
+                playlist_entries.append(manifest.ImageManifestEntry(True,'playlist glyph',name,
+                    identifier,6,12,1,png.name,raw.name,raw.stat().st_size))
+                playlist_assets.append({'name':name,'id':identifier,'char':code,'variant':variant,
+                    'width':6,'height':12,'sha256':sha(raw.read_bytes())})
+        playlist_packed = pack_images(playlist_entries,package/'fonts'/(playlist_stem+'.agnb'),'playlist.jsonl')
+        assert len({a['id'] for a in assets+playlist_assets}) == len(assets)+len(playlist_assets)
 
     reconstructed = Image.new('RGB',(512,384),BLACK)
     for p in placements:
@@ -195,6 +250,7 @@ def build(output: Path):
     reconstructed.save(review/'backdrop.png')
     meta = b''.join(struct.pack('<HHHBI',a['id'],a['width'],a['height'],1,a['width']*a['height']) for a in assets)
     (ui/'image-meta.bin').write_bytes(meta)
+    (ui/'playlist-meta.bin').write_bytes(b''.join(struct.pack('<HHHBI',a['id'],6,12,1,72) for a in playlist_assets))
 
     def put_asset(a,x,y):
         if a['code'] is None:
@@ -205,15 +261,21 @@ def build(output: Path):
     common = context(1)+bytes([23,0,200,2,79,5,23,0,192,0,23,16,64,0])+font(0x21f0)+bytes([23,1,0])
     mapping = b''.join(bytes([23,0,146,a['code']])+word(a['id']) for a in assets if a['code'] is not None)
     contexts = common+bytes([23,0,200,1,2])+context(2)+font(65535)+mapping+context(1)
+    for variant,identifier in [('normal',3),('selected',4)]:
+        # Clone the clean small-text context; never inherit the decorative map.
+        contexts += context(1)+bytes([23,0,200,1,identifier])+context(identifier)+font(0x21f1)
+        contexts += b''.join(bytes([23,0,146,a['char']])+word(a['id'])
+                            for a in playlist_assets if a['variant'] == variant)
+    contexts += context(1)
     (ui/'contexts.vdu').write_bytes(contexts)
     static = context(1)+fill(0,0,512,384,BLACK)+context(2)
     static += b''.join(put_asset(by_name[p['name']],p['x'],p['y']) for p in placements)
     static += context(1)+font(0x21f0)
     (ui/'static.vdu').write_bytes(static)
-    cleanup = context(0)+font(65535)+bytes([23,0,200,1,1,23,0,200,1,2])
+    cleanup = context(0)+font(65535)+b''.join(bytes([23,0,200,1,n]) for n in (1,2,3,4))
     cleanup += bytes([23,0,149,4])+word(0x21f0)
     cleanup += bytes([23,0,149,4])+word(0x21f1)
-    cleanup += b''.join(clear_buffer(a['id']) for a in assets)+clear_buffer(0x21f0)+clear_buffer(0x21f1)+clear_buffer(0x2200)
+    cleanup += b''.join(clear_buffer(a['id']) for a in assets+playlist_assets)+clear_buffer(0x21f0)+clear_buffer(0x21f1)+clear_buffer(0x2200)
     (ui/'cleanup.vdu').write_bytes(cleanup)
 
     generated = ['; Generated by src/skins/artdeco/build.py.']
@@ -232,8 +294,8 @@ def build(output: Path):
         rect = rect or (x,y,n*width,height)
         assert x >= rect[0] and y >= rect[1]
         assert x+n*width <= rect[0]+rect[2] and y+height <= rect[1]+rect[3]
-        data = context(1)+font(0x21f1 if cell == (6,12) else 0x21f0)
-        slots = {'bg':len(data)+2}
+        data = context(3 if cell == (6,12) else 1)+font(0x21f1 if cell == (6,12) else 0x21f0)
+        slots = {'context':4,'bg':len(data)+2}
         data += fill(*rect,bg)
         slots['fg'] = len(data)+2
         data += gcol(fg)+move(x,y)
@@ -276,9 +338,11 @@ def build(output: Path):
         generated.append(f'art_{name}: equ {by_name[name]["code"]}')
     generated += ['art_playing: equ art_pause','art_paused: equ art_play',
                   'ui_row_columns: equ 58',f'ui_normal_fg: equ {colour(TEXT)}',f'ui_selected_bg: equ {colour(GOLD)}',
-                  'ui_selected_fg: equ 0','ui_progress_origin: equ 143','ui_idle_play_code: equ art_idle',
-                  f'sa_image_count: equ {len(assets)}']
+                  'ui_selected_fg: equ 0','ui_normal_context: equ 3','ui_selected_context: equ 4',
+                  'ui_progress_origin: equ 143','ui_idle_play_code: equ art_idle',
+                  f'sa_image_count: equ {len(assets)}',f'sa_playlist_image_count: equ {len(playlist_assets)}']
     for label,filename in [('sa_image_meta','image-meta.bin'),('sa_contexts','contexts.vdu'),
+                           ('sa_playlist_image_meta','playlist-meta.bin'),
                            ('sa_cleanup','cleanup.vdu'),('ui_static','static.vdu')]:
         generated += [f'{label}: incbin "../ui/artdeco/{filename}"',f'{label}_end:']
     (ui/'widgets.inc').write_text('\n'.join(generated)+'\n')
@@ -302,10 +366,14 @@ def build(output: Path):
             ImageDraw.Draw(result).rectangle((rx,ry,rx+rw-1,ry+rh-1),fill=bg)
             value = fields.get(name,'')[:spec['n']].ljust(spec['n'])
             width,height = spec['cell']
-            chars = playlist_glyphs if spec['cell'] == (6,12) else glyphs
             for index,char in enumerate(value):
-                mask = chars[ord(char)].convert('L').crop((0,0,width,height))
-                result.paste(fg,(x+index*width,y,x+index*width+width,y+height),mask)
+                if spec['cell'] == (6,12):
+                    variant = 'selected' if bg == GOLD else 'normal'
+                    image = playlist_glyphs[variant][ord(char) if 32 <= ord(char) <= 126 else ord('?')]
+                    result.paste(image,(x+index*width,y))
+                else:
+                    mask = glyphs[ord(char)].convert('L').crop((0,0,width,height))
+                    result.paste(fg,(x+index*width,y,x+index*width+width,y+height),mask)
         return result
 
     example = {'w_path':'/music/Albums','w_page':'01 OF 01','selected':3,
@@ -342,18 +410,48 @@ def build(output: Path):
     fixture = output/'tests/fixtures/artdeco/widget-samples.bin'
     fixture.parent.mkdir(parents=True,exist_ok=True)
     fixture.write_bytes(payload)
-    (ui/'test-meta.inc').write_text(f'lt_sample_count: equ {len(points)}\n')
+    # Test every printable glyph in both context maps, with consecutive output
+    # proving six-pixel advance. Sample a checkerboard plus every shade in each
+    # glyph, keeping the test executable below the player's fixed RAM workspace.
+    font_draw = b''
+    font_points = {}
+    for variant,ctx,x0,bg,fg in [('normal',3,16,BLACK,TEXT),('selected',4,240,GOLD,BLACK)]:
+        font_draw += context(ctx)+font(0x21f1)+fill(x0,16,96,72,bg)+gcol(fg)
+        for row in range(6):
+            codes = list(range(32+row*16,min(48+row*16,127)))
+            font_draw += move(x0,16+row*12)+bytes(codes)
+            for col,code in enumerate(codes):
+                image = playlist_glyphs[variant][code].convert('RGB')
+                sample = {(x,y) for y in range(12) for x in range(6) if (x+y)%2 == 0}
+                shades = {}
+                for y in range(12):
+                    for x in range(6):
+                        shades.setdefault(image.getpixel((x,y)),(x,y))
+                sample.update(shades.values())
+                sample.update([(0,0),(5,11)])
+                for x,y in sample:
+                    font_points[(x0+col*6+x,16+row*12+y)] = image.getpixel((x,y))
+    font_draw += context(1)
+    (fixture.parent/'font-probe.vdu').write_bytes(font_draw)
+    (fixture.parent/'font-samples.bin').write_bytes(b''.join(xy(x,y)+bytes(rgb)
+        for (x,y),rgb in sorted(font_points.items())))
+    (ui/'test-meta.inc').write_text(f'lt_sample_count: equ {len(points)}\nlt_font_sample_count: equ {len(font_points)}\n')
     info = {'format':'artdeco-authoring-test1','source_sha256':sha(source.read_bytes()),
         'builder_sha256':sha(Path(__file__).read_bytes()),
         'font_sha256':sha(font_path.read_bytes()),'source_svg_sha256':sha((SOURCE/'source.svg').read_bytes()),
-        'playlist_font_sha256':sha(playlist_font.read_bytes()),
+        'playlist_choice':playlist_choice,'playlist_font':playlist_stem,
+        'playlist_font_sha256':sha(playlist_font.read_bytes()),'playlist_source_sha256':playlist_sources,
+        'playlist_assets':playlist_assets,'playlist_image_count':len(playlist_assets),
+        'playlist_agnb_sha256':sha(playlist_packed),'playlist_agnb_bytes':len(playlist_packed),
+        'playlist_bitmap_bytes':sum(a['width']*a['height'] for a in playlist_assets),
+        'playlist_contexts':{'normal':3,'selected':4},'row_packet_bytes':94,
         'screen':[512,384],'font_cell':[5,8],'playlist_font_cell':[6,12],'browser_columns':58,'browser_rows':10,
         'control_legends':False,'placements':placements,'widgets':specs,
         'assets':[{k:v for k,v in a.items() if k!='image'} for a in assets],
         'image_count':len(assets),'unique_backdrop_tiles':len(tiles),'backdrop_placements':len(placements),
         'bitmap_payload_bytes':sum(a['width']*a['height'] for a in assets),
         'agnb_bytes':len(packed),'font_bytes':5120,'static_command_bytes':len(static),
-        'test_pixels':len(points),'agnb_sha256':sha(packed),
+        'test_pixels':len(points),'font_test_pixels':len(font_points),'agnb_sha256':sha(packed),
         'tool_hashes':{str(p.relative_to(UTILS)):sha(p.read_bytes()) for p in [manifest_path,writer_path,viewer_path,editor/'agon_font.py']},
         'checks':['Agon palette','exact font dimensions','RGBA2222 round trips',
                   'canonical manifest validation','independent AGNB record/payload validation',
@@ -366,5 +464,6 @@ def build(output: Path):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output-root', type=Path, default=PROJECT)
+    parser.add_argument('--playlist-font', choices=['concept-01','concept-02'], default='concept-02')
     args = parser.parse_args()
-    build(args.output_root.resolve())
+    build(args.output_root.resolve(), args.playlist_font)
