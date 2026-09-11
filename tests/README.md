@@ -1,5 +1,24 @@
 # Passing functional milestone — 2026-09-08
 
+## Blocking-input correction candidate — 2026-09-10
+
+The shared player again waits in `mos_getkey`; periodic UI and automatic song
+changes run from the audio timer. The functional harness now queues its test
+keys for an independent PRT2 interrupt, delivered after the blocking wait begins.
+Zero-key wakeups allow the existing assertions to run. This test timer is absent
+from normal builds and is stopped, with its previous vector restored, on exit.
+The 26 scenarios pass for both Art Deco and Base with this correction.
+
+An additional isolated interactive-build diagnostic used stock-VDP PS/2 events,
+without the test timer or sysvar injection. It received and dispatched all 120
+loop/arrow commands across idle, paused and 65,535/32,000/8,000 Hz playback, and
+checked all 240 corresponding press/release packets. With no keys, it observed
+four timer-driven clock updates and two EOF transitions without leaving the
+blocking wait. Interrupt-state checks and mode-reply restoration on exit pass.
+The Author subsequently confirmed that responsiveness returned on hardware
+and authorized this incomplete Art Deco progress checkpoint. Earlier accepted checkpoints below
+remain historical evidence and do not pre-approve this correction.
+
 ## Optional font-color authoring checks
 
 The [font recoloring tool](../docs/font-coloring.md) has four host checks for

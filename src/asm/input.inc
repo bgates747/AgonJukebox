@@ -1,28 +1,23 @@
 get_input:
-; Foreground owns drawing, keyboard dispatch, and automatic track transitions.
-; Timer ISR only streams PCM, updates time, and posts pending flags.
-    ei
-    call ui_flush
-    call live_test_step
+; Restore the baseline scheduling contract: wait in MOS with interrupts enabled,
+; and dispatch commands with interrupts disabled. Automatic playlist routines
+; tail-jump here on the audio ISR's stack; return once to that continuation.
     di
     ld a,(ps_irq_transition)
     or a
-    jr z,@poll
+    jr z,@foreground
     xor a
     ld (ps_irq_transition),a
-    call ps_close_file
-    jp ps_song_over
-@poll:
-    MOSCALL mos_sysvars
-    ld a,(ix+sysvar_vkeycount)
-    ld hl,ui_key_count
-    cp (hl)
-    jp z,get_input
-    ld (hl),a
-    ld a,(ix+sysvar_vkeydown)
-    or a
-    jp z,get_input
-    ld a,(ix+sysvar_keyascii)
+    ret
+@foreground:
+    call ui_flush
+    if live_test_mode
+    ei
+    call live_test_step
+    endif
+    ei
+    MOSCALL mos_getkey
+    di
 input_dispatch:
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape

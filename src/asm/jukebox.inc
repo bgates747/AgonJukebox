@@ -66,6 +66,10 @@ start:
     di
     call ps_close_file
     call ps_clear_audio_buffers
+    call ui_shutdown
+    if live_test_mode
+    call live_test_shutdown
+    endif
     ei
     call sa_restore
     ld hl,exit_message

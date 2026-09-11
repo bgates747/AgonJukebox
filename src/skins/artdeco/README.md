@@ -1,9 +1,13 @@
 # Basic Art Deco authoring
 
-`source.png` and `source.svg` are unchanged copies of the full-color draft
-accepted for testing on 2026-09-10 (SKIN-013, commit d470d32). The 512×384 PNG
-is indexed to Agon's palette. The matching editable SVG retains the traced
-shapes. These inputs and the selected font all live under `src`.
+`source.png` is the accepted second-mask Art Deco application composite, with
+colors sampled from the smooth concept art. It preserves the preceding toolbar
+and repairs the baked selection arrow's border; sprite 0 supplies the moving
+pointer. `source.svg` retains the 564 traced source shapes before those raster
+compositing edits. Both use the Agon palette at 512×384 without dithering.
+The source art, application composite and provenance are retained in
+`candidates/smooth-color-02/`. This hardware-tested checkpoint remains an
+incomplete skin: color choices and decorative refinement are still provisional.
 
 `build.py` clears baked sample information, chooses fixed live-field locations,
 derives opaque state widgets and deduplicates exact 32×32 decorative tiles.

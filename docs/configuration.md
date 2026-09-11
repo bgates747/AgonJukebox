@@ -59,7 +59,7 @@ The playlist has ten rows of 58 characters. Width cannot be inferred from
 payload length; the compiled geometry is explicit. The manifest version
 rejects older Art Deco and Base packages that lack the required font assets.
 
-The graphics AGNB requires exactly 163 RGBA2222 records at IDs 0x2100–0x21A2,
+The graphics AGNB requires exactly 162 RGBA2222 records at IDs 0x2100–0x21A1,
 matching `src/ui/artdeco/image-meta.bin`. The playlist AGNB requires 190 opaque
 6×12 RGBA2222 records matching `src/ui/artdeco/playlist-meta.bin`: ASCII 32–126
 in normal colors at IDs 0x2300–0x235E and selected colors at 0x2400–0x245E.
@@ -71,7 +71,8 @@ rows use contexts 3/4, both with font 0x21F1 supplying six-pixel advance and
 12-pixel height. Their separate bitmap-character maps contain preblended Agon64
 glyphs; changing the highlight selects a context and prints the row normally.
 Bytes outside printable ASCII display as `?`. Art uses context 2; static
-application commands use 0x2200. The first 128 decorative images map to printed
+application commands use 0x2200. Sprite 0 uses the 10×12 bitmap at 0x2115
+to follow the selected playlist row and is hidden for an empty listing. The first 128 decorative images map to printed
 characters in the art context; the remaining tiles use direct plots. Cleanup
 retires all four owned contexts, fonts and both sets of bitmap buffers.
 
@@ -108,6 +109,22 @@ The renderer uses contexts 1/2 and application drawing buffer 0x2200. Audio
 owns 0x3000–0x3003 separately. Cleanup releases those owned resources without
 clearing unrelated buffers. Skin discovery, switching, arbitrary layouts and
 a final public package ABI remain unfinished.
+
+## Runtime scheduling and VDP replies
+
+The foreground blocks in `mos_getkey` with interrupts enabled. Commands run
+with interrupts disabled and flush pending drawing before returning to that
+wait. The audio timer streams PCM, updates the clock, advances finished tracks
+and flushes periodic drawing. Rendering preserves the caller's interrupt state
+so it cannot enable nested timer interrupts. Complete UI packets remain at most
+96 bytes; this limits command traffic, not the duration of a VDP CTS wait.
+
+Both profiles reserve command buffer 0x2201 for the stock VDP 2.16.0 mode-packet
+callback (type 0x0106). While the UI is active, it suppresses mode replies caused
+by context/font selection. Keyboard packets and pixel replies remain enabled.
+The application removes its callback and clears that buffer before restoring
+MOS's display, so normal mode queries work again on exit. Code that needs mode
+replies during a future skin switch must first remove this filter.
 
 ## Assembly interface
 

@@ -13,7 +13,7 @@ live_test_init:
     MOSCALL mos_sysvars
     ld hl,(ix+sysvar_time)
     ld (lt_last_time),hl
-    ret
+    jp lt_timer_init
 
 live_test_step:
     ld a,live_test_mode
@@ -52,18 +52,62 @@ live_test_step:
     ld (lt_step),a
     jp (hl)
 
-; Inject real MOS sysvars packets. The next foreground poll must dispatch the
-; event; no direct calls bypass the live input path.
+; Queue a test key for the independent timer. Injecting it here, before
+; mos_getkey starts waiting, would test a different acquisition path.
 lt_key:
-    push af
+    ld (lt_pending_key),a
+    ret
+
+; Test-only 60 Hz wakeups let the existing foreground assertions run while
+; production waits in the real blocking MOS API. A zero key wakes but does not
+; dispatch a player command. The test IRQ never renders or runs assertions.
+lt_timer_init:
     di
-    MOSCALL mos_sysvars
-    pop af
-    ld (ix+sysvar_keyascii),a
-    ld (ix+sysvar_vkeydown),1
-    inc (ix+sysvar_vkeycount)
+    ld hl,lt_timer_irq
+    ld e,0x0e
+    MOSCALL mos_setintvector
+    ld (lt_old_vector),hl
+    ld hl,1200
+    out0 (TMR2_CTL+TMR_RES_LOW),l
+    out0 (TMR2_CTL+TMR_RES_HIGH),h
+    ld a,IRQ_EN_1|PRT_MODE_1|CLK_DIV_256|RST_EN_1|PRT_EN_1
+    out0 (TMR2_CTL),a
     ei
     ret
+
+live_test_shutdown:
+    xor a
+    out0 (TMR2_CTL),a
+    ld hl,(lt_old_vector)
+    ld e,0x0e
+    MOSCALL mos_setintvector
+    ret
+
+lt_timer_irq:
+    di
+    push af
+    push bc
+    push de
+    push hl
+    push ix
+    in0 a,(TMR2_CTL)
+    MOSCALL mos_sysvars
+    ld a,(lt_pending_key)
+    ld (ix+sysvar_keyascii),a
+    xor a
+    ld (lt_pending_key),a
+    ld (ix+sysvar_vkeydown),1
+    inc (ix+sysvar_vkeycount)
+    pop ix
+    pop hl
+    pop de
+    pop bc
+    pop af
+    ei
+    reti.l
+
+lt_pending_key: db 0
+lt_old_vector: dl 0
 
 lt_blue_pixel:
     if skin_artdeco
@@ -86,7 +130,13 @@ lt_frame_pixel:
     if skin_artdeco
     ld bc,74
     ld de,110
-    jp lt_blue_pixel
+    ld a,255
+    ld (lt_rgb),a
+    ld a,170
+    ld (lt_rgb+1),a
+    xor a
+    ld (lt_rgb+2),a
+    jp lt_pixel
     else
     ld bc,502
     ld de,158
@@ -237,6 +287,8 @@ lt_fail:
     call sa_debug_puts
     di
     call ps_close_file
+    call ui_shutdown
+    call live_test_shutdown
     ei
     call sa_restore
 @halt:

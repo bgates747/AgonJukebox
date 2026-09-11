@@ -2,7 +2,7 @@
 
 ## State
 
-- Status: Full-image flat-color draft 02 accepted for testing; progress committed
+- Status: Smooth-reference recoloring ready for review; geometry preserved
 - Started: 2026-09-10 14:49 EDT
 - Finished: --
 - Registered: 2026-09-10, at the Author's request after discussing edge/noise
@@ -309,3 +309,68 @@ exploration remains open; this is not final-art or runtime qualification.
 
 The full-image flat-color draft is accepted for testing. Preserve this baseline
 and await the next instruction before integration, gradients or refinement.
+
+## Smooth-reference recoloring — 2026-09-10
+
+The Author requested a rollback commit, then one predominant source-art color
+per surviving shape. They explicitly selected the earlier smooth master when
+asked which reference to use. Checkpoint fd3bb2c freezes the CRT-reviewed
+Concept 02 application and prior assets. Preserve the existing simplified SVG
+paths, IDs, transforms and black background. Reuse the established inset/mode
+color sampler and Agon64 mapping against the smooth master's corresponding
+source coordinates; both images are 1448×1086. Render 512×384 with the existing
+Cairo antialias-free renderer. Keep the new SVG/PNG as a separate review
+candidate. The Author will handle regions lost to thresholding later.
+
+Review: `SKIN-013/smooth-color-01/README.md`, `preview.png` and `colored-shapes.svg`. 372 fills changed; 20 Agon colors. 27 paths sample to black because source details differ; all geometry remains editable. Palette, opacity, coverage, source hashes, non-fill SVG structure and byte-identical repeat checks pass. No runtime deployment.
+
+## Second threshold-mask pass — 2026-09-10
+
+The Author supplied source-test-01/flat-outline-master_bw_threshold_2.png and
+authorized the exact tracing/simplification/sampling pipeline through smooth
+master color assignment. The existing frozen scripts and parameters produced
+smooth-color-02: 564 shapes, 117 holes, 24 visible Agon colors, 512×384 without
+antialiasing or dithering. White source coverage grows 13.83%. Reproducibility,
+palette/opacity, source immutability, bounds and independent-renderer checks
+pass. Preview, editable SVG and previous-left/new-right comparison are in
+SKIN-013/smooth-color-02; see its README and verification.json. Existing artwork,
+application assets and the Author's in-progress Concept 02 font edits are
+preserved. No production integration, deployment or commit. Await visual review.
+
+## Smooth-color-02 live application review — 2026-09-10
+
+The Author requested application integration while preserving previous art,
+retaining controls/volume bar, moving the triangle with selection, and using
+their updated Concept 02 font (old font derivatives may be replaced). Built an
+isolated fd3bb2c-based candidate in .emulator/smooth-color-02-work; new artwork
+and app composite/preview/provenance are vendored in
+src/skins/artdeco/candidates/smooth-color-02. Canonical AGNB build retains all
+21 existing control-state payloads exactly; the toolbar is preserved. The
+baked marker is removed and a 10×12 AGNB bitmap on sprite 0 follows selection,
+hides for empty listings, and is cleaned up on exit. Move packet is 17 bytes.
+The Author's updated PNG/XML and regenerated normal/selected color-01 variants
+are used; no rescaling of the finished sheet. Graphics: 162 records, 189,604 B.
+
+26 scenarios, 6,975 widget pixels and 7,124 font pixels pass. One old fixed
+frame-color expectation was updated from the generated new backdrop; existing
+control expectations remain. Input/audio scheduling is unchanged; this does
+not qualify or fix SKIN-017 hardware responsiveness. Binary 51,591 bytes, SHA256
+6ccc3e884029b54266c37d0a9ef241b6250fa22ac6df2645d13caadff44fbcf0.
+
+Previous deployment saved in .emulator/live-test/before-smooth-color-02; new
+binary/package installed in that profile, retaining config/autoexec/music map.
+Launched through ./fab-agon-emulator; SKIN_ASSETS_READY logged. Receipt/log/PID
+use smooth-color-02 prefix. Await Author visual/moving-sprite review. Default
+production assembly/artwork remain unchanged; do not rebuild/deploy them over
+this candidate accidentally. No physical card, firmware, commit or push changes.
+Details/scripts: docs/tasks/SKIN-013/app-smooth-color-02/README.md.
+
+## Accepted Art Deco progress checkpoint — 2026-09-10
+
+The Author confirms hardware responsiveness returned and explicitly authorizes
+committing this successful but incomplete Art Deco advance, then stopping.
+SKIN-017 is complete and removed from TODO. Promote the exact tested
+.emulator/skin017-fix-work source/runtime assets into public application space;
+preserve shared builder discovery of sibling agon-utils. Keep further skin
+refinement open. Separate root that-70s-skin artwork is unrelated and untouched.
+No push or further development is authorized.

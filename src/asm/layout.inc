@@ -40,6 +40,7 @@ ui_post:
     ret
 
 ui_init:
+    call ui_mode_filter_init
     ld hl,0x2200
     call vdu_clear_buffer
     ld hl,0x2200
@@ -54,14 +55,12 @@ ui_init:
     ld (ui_last_page),hl
     ld a,255
     ld (ui_last_row),a
-    MOSCALL mos_sysvars
-    ld a,(ix+sysvar_vkeycount)
-    ld (ui_key_count),a
     ret
 
-; Foreground-only complete bounded packets. Audio can interrupt between calls,
-; never inside a command, text run, or printed-bitmap run. The largest packet
-; is 96 bytes. No live UI code calls the audio buffer upload helper.
+; Send one complete packet, preserving the caller's interrupt state. In normal
+; use both command dispatch and timer-driven rendering enter with interrupts
+; disabled. Test/setup callers that enter enabled must still receive replies.
+; Packet byte counts do not bound CTS wait time on physical hardware.
 ui_send:
     push af
     push bc
@@ -69,6 +68,8 @@ ui_send:
     push hl
     push ix
     push iy
+    ld a,i
+    push af
     di
     push hl
     ld hl,(ui_tx_bytes)
@@ -76,7 +77,10 @@ ui_send:
     ld (ui_tx_bytes),hl
     pop hl
     rst.lil 0x18
+    pop af
+    jp po,@disabled
     ei
+@disabled:
     pop iy
     pop ix
     pop hl
@@ -86,6 +90,11 @@ ui_send:
     ret
 
 ui_flush:
+; Rendering runs either after a command or from the audio timer. Serialize the
+; entire formatting/drawing pass, and never enable interrupts inside an ISR.
+    push af
+    ld a,i
+    push af
     di
     ld a,(ui_pending)
     ld (ui_batch),a
@@ -93,10 +102,9 @@ ui_flush:
     ld (ui_pending),a
     ld hl,(ps_playhead)
     ld (ui_elapsed),hl
-    ei
     ld a,(ui_batch)
     or a
-    ret z
+    jr z,@done
     bit 6,a
     call nz,ui_directory
     ld a,(ui_batch)
@@ -117,7 +125,44 @@ ui_flush:
     ld a,(ui_batch)
     bit 5,a
     call nz,ui_detail
+@done:
+    pop af
+    jp po,@disabled
+    ei
+@disabled:
+    pop af
     ret
+
+; VDP 2.16 callback 0x0106 runs immediately before a mode packet is sent.
+; Its seven-byte buffer suppresses that one packet only. Callback buffer calls
+; do not process queued keyboard events, so a key packet cannot consume the
+; suppression flag between this callback and sendModeInformation's send_packet.
+; Suppressing all output, or a generic 'suppress next' before a UI packet,
+; would also risk dropping keyboard events and is deliberately not used.
+; 0x2200 is the static UI command buffer; 0x2201 is owned by this callback.
+ui_mode_filter_init:
+    ld hl,0x2201
+    call vdu_clear_buffer
+    ld hl,0x2201
+    ld de,ui_mode_filter_body
+    ld bc,7
+    call vdu_load_buffer
+    ld hl,ui_mode_filter_add
+    ld bc,8
+    jp ui_send
+
+ui_shutdown:
+; Remove only our callback before restoring MOS's context/font/mode. Keep all
+; other applications' callbacks and all keyboard/pixel reply types intact.
+    ld hl,ui_mode_filter_remove
+    ld bc,8
+    call ui_send
+    ld hl,0x2201
+    jp vdu_clear_buffer
+
+ui_mode_filter_body: db 23,0,0xf8,3,1,1,0
+ui_mode_filter_add: db 23,0,0xa0,1,0x22,0x50,6,1
+ui_mode_filter_remove: db 23,0,0xa0,1,0x22,0x51,6,1
 
 ; Copy bounded printable text and pad the entire field, preventing filenames
 ; from becoming VDU commands or leaving old pixels. HL source, DE target, B len.
@@ -234,6 +279,7 @@ ui_browser:
     cp 10
     jr c,@row
 @remember:
+    call ui_selection_pointer
     ld hl,(bf_page_cur)
     ld (ui_last_page),hl
     ld a,(bf_file_idx)
@@ -586,7 +632,6 @@ ui_detail:
 
 ui_pending: db 0
 ui_batch: db 0
-ui_key_count: db 0
 ui_elapsed: dl 0
 ui_last_page: dl -1
 ui_last_row: db 255
@@ -617,3 +662,32 @@ ui_rate: asciz "RATE 00000 Hz"
     else
 ui_rate: asciz "RATE 00000 Hz   SEEK STEP 000s"
     endif
+
+; SKIN-013 candidate: AGNB bitmap on sprite 0, following the browser selection.
+; Foreground only; move/show/refresh is one complete 17-byte packet.
+ui_selection_pointer:
+    ld a,(bf_files_cur_pg)
+    or a
+    jr z,@hide
+    ld a,(bf_file_idx)
+    ld hl,bf_files_cur_pg
+    cp (hl)
+    jr nc,@hide
+    add a,a
+    ld b,a
+    add a,a
+    add a,b
+    add a,a
+    add a,88
+    ld (ui_selection_packet+9),a
+    ld hl,ui_selection_packet
+    ld bc,17
+    jp ui_send
+@hide:
+    ld hl,ui_selection_hide
+    ld bc,10
+    jp ui_send
+ui_selection_packet:
+    db 23,27,4,0,23,27,13,69,0,88,0,23,27,11,23,27,15
+ui_selection_hide:
+    db 23,27,4,0,23,27,12,23,27,15

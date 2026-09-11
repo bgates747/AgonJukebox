@@ -56,7 +56,7 @@ def sha(data): return hashlib.sha256(data).hexdigest()
 
 def build(output: Path, playlist_choice: str = 'concept-02'):
     source = SOURCE / 'source.png'
-    if sha(source.read_bytes()) != '8b61a2b393284fa777b15a78ac34c7e1f218fc06c58234fdb9f7f9fd60b3e8b4':
+    if sha(source.read_bytes()) != '7ade8177b5c767743ad2c4b863f4f6fc3660d580a97b4165e8c676fe287b25c1':
         raise ValueError('accepted source.png changed; review and update its provenance explicitly')
     im = Image.open(source).convert('RGB')
     assert im.size == (512, 384)
@@ -203,6 +203,10 @@ def build(output: Path, playlist_choice: str = 'concept-02'):
         asset('progress_track', progress, 'progress background')
         asset('progress_marker', Image.new('RGB',(7,6),GOLD), 'progress marker')
 
+        pointer = Image.new('RGBA',(10,12),(0,0,0,0))
+        ImageDraw.Draw(pointer).polygon([(0,0),(9,5),(9,6),(0,11)], fill=(255,170,0,255), outline=(0,0,0,255))
+        asset('selection_pointer', pointer, 'selection sprite')
+
         # Deduplicate exact 32x32 decorative tiles; blank tiles are free fills.
         tiles = {}
         for y in range(0,384,32):
@@ -271,8 +275,9 @@ def build(output: Path, playlist_choice: str = 'concept-02'):
     static = context(1)+fill(0,0,512,384,BLACK)+context(2)
     static += b''.join(put_asset(by_name[p['name']],p['x'],p['y']) for p in placements)
     static += context(1)+font(0x21f0)
+    static += bytes([23,27,4,0,23,27,5,23,27,38])+word(by_name['selection_pointer']['id'])+bytes([23,27,7,1,23,27,12,23,27,15])
     (ui/'static.vdu').write_bytes(static)
-    cleanup = context(0)+font(65535)+b''.join(bytes([23,0,200,1,n]) for n in (1,2,3,4))
+    cleanup = bytes([23,27,4,0,23,27,12,23,27,5,23,27,7,0,23,27,15])+context(0)+font(65535)+b''.join(bytes([23,0,200,1,n]) for n in (1,2,3,4))
     cleanup += bytes([23,0,149,4])+word(0x21f0)
     cleanup += bytes([23,0,149,4])+word(0x21f1)
     cleanup += b''.join(clear_buffer(a['id']) for a in assets+playlist_assets)+clear_buffer(0x21f0)+clear_buffer(0x21f1)+clear_buffer(0x2200)
@@ -374,6 +379,9 @@ def build(output: Path, playlist_choice: str = 'concept-02'):
                 else:
                     mask = glyphs[ord(char)].convert('L').crop((0,0,width,height))
                     result.paste(fg,(x+index*width,y,x+index*width+width,y+height),mask)
+        if fields.get('has_entries',True):
+            pointer = by_name['selection_pointer']['image']
+            result.paste(pointer,(69,88+12*fields.get('selected',0)),pointer)
         return result
 
     example = {'w_path':'/music/Albums','w_page':'01 OF 01','selected':3,

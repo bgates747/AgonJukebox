@@ -60,7 +60,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
 13. [ ] **SKIN-013 — Explore vector tracing before downscaling Art Deco artwork**
    - Started: 2026-09-10 14:49 EDT
    - Finished: --
-   - Status: Full-image 512x384 flat-color draft accepted for testing and committed: 554 sampled shapes, 14 Agon colors, antialiasing off, reproducible scripts and checks. Further authoring exploration remains open.
+   - Status: Full-image 512x384 flat-color draft accepted for testing and committed: 554 sampled shapes, 14 Agon colors, antialiasing off, reproducible scripts and checks. Second threshold-mask artwork running in the local emulator with preserved controls/volume bar, updated Concept 02 font, and a moving selection sprite. 26 scenarios and 14,099 pixel checks pass. Hardware responsiveness restored and progress checkpoint accepted; color/refinement and final skin completion remain open.
 14. [ ] **SKIN-014 — Trace and align the Art Deco font concept for font-maker import**
    - Started: 2026-09-10
    - Finished: --

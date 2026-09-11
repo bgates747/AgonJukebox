@@ -37,7 +37,7 @@ ps_wav_bytes_remaining: dw32 0 ; unread bytes remaining in the declared data chu
 ps_wav_buffer_bytes: dl 0 ; PCM bytes accumulated in the current VDP buffer
 ps_wav_eof_pending: db 0 ; data exhausted; finish and play the current buffer
 ps_wav_drain_ticks: db 0 ; timer ticks until the final VDP sample has finished
-ps_irq_transition: db 0 ; pending automatic transition, consumed in foreground
+ps_irq_transition: db 0 ; get_input must return to the ISR playlist continuation
 ps_active: db 0 ; verified open playing/paused track
 ps_error: db 0 ; invalid selected WAV
 
@@ -250,11 +250,13 @@ ps_read_sample:
     jp nz,@load ; we read some data
 ; a short/truncated data chunk ended before its declared size
 @song_over:
-; No filenames, rendering, FPP, or playlist traversal on the interrupt stack.
-; Stop the timer after the existing final-sample drain, then post one event.
-    call ps_prt_stop
+; The baseline playlist tail-jumps through play_song to get_input. That entry
+; consumes this sentinel and returns here instead of blocking inside the ISR.
+; ps_close_file must not clear the sentinel when play_song closes the old file.
+    call ps_close_file
     ld a,1
     ld (ps_irq_transition),a
+    call ps_song_over
     ret
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
@@ -355,7 +357,6 @@ ps_clear_audio_buffers:
 ps_close_file:
     xor a
     ld (ps_active),a
-    ld (ps_irq_transition),a
     ld hl,ps_mode
     res ps_mode_playing,(hl)
     call ui_event_track

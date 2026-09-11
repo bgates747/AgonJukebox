@@ -37,7 +37,9 @@ contract and known size limits.
 - `src/asm/` contains the complete production assembly closure.
 - `src/asm/jukebox_cfg.inc`, `skin_assets.inc`, `layout.inc` and `ui_widgets.inc`
   own configuration, external loading and presentation. Player/browser logic
-  posts pending events; the foreground renders between complete audio packets.
+  posts pending events. The foreground waits in `mos_getkey`; the audio timer
+  services periodic redraws and automatic track changes. Command handlers flush
+  their redraws before returning to the blocking wait.
 - `src/ui/` contains compiled application drawing commands and image metadata.
 - `vendor/agnb/` contains an unchanged snapshot of the canonical AGNB loader.
 - `skins/base/` contains the external AGNB container, fonts and skin manifest;

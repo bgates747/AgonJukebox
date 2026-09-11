@@ -358,7 +358,7 @@ ui_normal_context: equ 3
 ui_selected_context: equ 4
 ui_progress_origin: equ 143
 ui_idle_play_code: equ art_idle
-sa_image_count: equ 163
+sa_image_count: equ 162
 sa_playlist_image_count: equ 190
 sa_image_meta: incbin "../ui/artdeco/image-meta.bin"
 sa_image_meta_end:

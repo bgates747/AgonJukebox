@@ -1,0 +1,83 @@
+{
+  "binary_bytes": 51655,
+  "binary_sha256": "ec0c1d8cdcb142f2fb08f1da856a33e68fa444523973e1bf35143890489e15f0",
+  "shared_source_matches": true,
+  "all_skin_assets_match_accepted_visual_candidate": true,
+  "source_sha256": {
+    "input.inc": "8abc40daace7fdb916822a79327cedd89e9d6452cbb291f60234610818e80a8f",
+    "jukebox.inc": "52a07f0456456d62f74103b4228ad1396252fa2377d7b0021c834246a1d0654a",
+    "play.inc": "7662d0f8e11c5a1914de53bda5c60be4410ccd3387de2c0d7624da8129fe6a8e",
+    "timer_jukebox.inc": "debb52931913f225b95e537844f8f29a91ebdb2ee6cfeba0e21f2427ab004495",
+    "layout.inc": "e204d41f01eb625d8780b25c10cac534360e6ae796480bbd12ad87348c992349"
+  },
+  "milestone": "Successful but incomplete Art Deco advance",
+  "hardware_result": "Author: App responsiveness returned.",
+  "accepted_for_commit": true,
+  "artdeco": {
+    "result": "PASS",
+    "skin": "artdeco",
+    "scenarios": 26,
+    "widget_pixels": 6975,
+    "rate_hz": 65535,
+    "read_ticks": 89,
+    "bytes_remaining": 115778,
+    "audio_output": "listening review is separate",
+    "font_pixels": 7124,
+    "mode_packets_suppressed": 398
+  },
+  "base": {
+    "result": "PASS",
+    "skin": "base",
+    "scenarios": 26,
+    "widget_pixels": 1327,
+    "rate_hz": 65535,
+    "read_ticks": 89,
+    "bytes_remaining": 115778,
+    "audio_output": "listening review is separate",
+    "mode_packets_suppressed": 443
+  },
+  "blocking_input": {
+    "result": "PASS",
+    "real_ps2_commands": 120,
+    "press_release_packets_checked": 240,
+    "phases": {
+      "idle": {
+        "6C": 8,
+        "0A": 8,
+        "0B": 8
+      },
+      "play65535": {
+        "6C": 8,
+        "0A": 8,
+        "0B": 8
+      },
+      "paused": {
+        "6C": 8,
+        "0A": 8,
+        "0B": 8
+      },
+      "play32000": {
+        "6C": 8,
+        "0A": 8,
+        "0B": 8
+      },
+      "play8000": {
+        "6C": 8,
+        "0A": 8,
+        "0B": 8
+      }
+    },
+    "blocking_time_updates": 4,
+    "blocking_eof_transitions": 2,
+    "iff_preservation": "PASS",
+    "mode_suppression_pixel_barrier": "PASS",
+    "mode_reply_after_shutdown": "PASS",
+    "hardware_latency": "Author confirms responsiveness returned; no instrumented hardware timing."
+  },
+  "remaining": "Art Deco visual refinement, general skin switching and final release qualification remain open.",
+  "promotion_checks": [
+    "Interactive binary identical to hardware-tested candidate",
+    "All regenerated assets and fixtures identical; only builder provenance hash rebased",
+    "Environment verification: nine WAV tests and four assembly variants pass"
+  ]
+}

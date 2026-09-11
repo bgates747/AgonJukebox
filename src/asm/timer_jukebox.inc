@@ -52,8 +52,9 @@ ps_prt_irq_init:
 ; interrupt routine for playing the next sample
 ps_prt_irq_handler:
     di
-; Preserve both register banks and index registers. Foreground formatting may
-; be interrupted; audio arithmetic must not borrow its alternate bank or IX/IY.
+; Preserve both register banks and index registers used by audio and rendering.
+; ui_flush preserves the disabled interrupt state, so no nested audio, MOS file
+; operation or renderer invocation can corrupt this frame.
     push af
     push bc
     push de
@@ -70,6 +71,7 @@ ps_prt_irq_handler:
     ld hl,ps_mode
     bit ps_mode_playing,(hl)
     call nz,ps_read_sample
+    call ui_flush
     pop hl
     pop de
     pop bc
