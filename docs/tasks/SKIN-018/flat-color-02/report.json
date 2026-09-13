@@ -1,0 +1,52 @@
+{
+  "inputs_sha256": {
+    "/Users/bgates/Agon/mystuff/AgonJukebox/that-70s-skin.png": "5d0fb9a613fd796daf790282efcacf4d3dec12180a6dbb0458b375a0b73d75a0",
+    "/Users/bgates/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-018/state-text-02/clean-mask.png": "34e72cd46bc2f489f053e5512c00f101828ed6ab7dbbd26676fea808a72bf6d4",
+    "/Users/bgates/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-018/state-text-02/report.json": "d820787ea4463502a37d45277b1796d996fa90dd65a7178d3ba8c25b13d911a6",
+    "/Users/bgates/Agon/mystuff/AgonJukebox/docs/tasks/SKIN-013/flat-color-full-02/Agon64.gpl": "c61dd1476415352e74add70f1ed0c81b1d141361a12b26587a6829ee66ec7f94"
+  },
+  "shape_count": 174,
+  "connectivity": 4,
+  "source_size": [
+    1448,
+    1086
+  ],
+  "preview_size": [
+    512,
+    384
+  ],
+  "sampling": {
+    "sample_inset_source_pixels": 2,
+    "histogram_bin_width": 16
+  },
+  "state_text_excluded_from_sampling": true,
+  "visible_colors": 6,
+  "supplementary_brown": {
+    "color": {
+      "sample_count": 291492,
+      "inset_fallback": false,
+      "winning_bin": 801,
+      "winning_bin_count": 101455,
+      "winning_bin_fraction": 0.3480541489989434,
+      "representative_rgb": [
+        57.0,
+        32.0,
+        18.0
+      ],
+      "palette_index": 25,
+      "fill_rgb": [
+        85,
+        0,
+        0
+      ],
+      "fill": "#550000"
+    },
+    "rule": "R-G >= 12, G-B >= 6, Pillow L < 100; outside white mask and text boxes; 4-connected area >=64; cleared nonselected text boxes filled",
+    "added_pixels": 588911
+  },
+  "candidate_1_black_outside_mask": true,
+  "candidate_2_white_shape_geometry_and_colors_unchanged": true,
+  "rasterization": "Source-resolution masks; nearest-neighbor target preview only, not vector tracing or smoothing",
+  "consistent_color_method": "Eight global source families in Oklab; deterministic initialization; per-region majority family; nearest Agon64 Oklab",
+  "off_palette_pixels": 0
+}

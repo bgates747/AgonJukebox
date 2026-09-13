@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>Threshold shape review</title>
+<style>body{background:#202124;color:#eee;font:16px system-ui;margin:24px}a{color:#8bd3ff}.pair{display:flex;gap:12px}.pair img{width:49%;object-fit:contain;image-rendering:pixelated}section{margin:40px 0}img{max-width:100%}</style>
+<h1>Threshold shape candidates</h1><p>Left: untouched binary threshold. Right: connected white regions colored for inspection (not proposed skin colors). Click a binary link for original dimensions. Browser previews are scaled.</p>
+<p>Heuristic ranking favors threshold stability, boundary contrast and few speckles; it cannot recognize intended artwork or recover equal-luminance color boundaries. Tiny regions are counted, never removed. 512×384 previews use nearest neighbor only, not final vector rasterization.</p>
+<details><summary>Original source</summary><img src="source.png"></details><section><h2>Candidate 1: pillow-luma &gt; 80</h2>
+<p>Score 99.6; 394 useful regions; 3 tiny regions; white 43.6%.</p>
+<a href="candidate-01.png">Full-resolution binary PNG</a> · <a href="candidate-01-gray.png">Grayscale</a>
+<div class="pair"><img src="candidate-01.png"><img src="candidate-01-shapes.png"></div></section><section><h2>Candidate 2: pillow-luma &gt; 148</h2>
+<p>Score 98.1; 305 useful regions; 29 tiny regions; white 24.6%.</p>
+<a href="candidate-02.png">Full-resolution binary PNG</a> · <a href="candidate-02-gray.png">Grayscale</a>
+<div class="pair"><img src="candidate-02.png"><img src="candidate-02-shapes.png"></div></section><section><h2>Candidate 3: rec709-encoded &gt; 96</h2>
+<p>Score 97.4; 396 useful regions; 60 tiny regions; white 40.2%.</p>
+<a href="candidate-03.png">Full-resolution binary PNG</a> · <a href="candidate-03-gray.png">Grayscale</a>
+<div class="pair"><img src="candidate-03.png"><img src="candidate-03-shapes.png"></div></section><section><h2>Candidate 4: linear-luminance-srgb &gt; 52</h2>
+<p>Score 93.2; 419 useful regions; 201 tiny regions; white 53.5%.</p>
+<a href="candidate-04.png">Full-resolution binary PNG</a> · <a href="candidate-04-gray.png">Grayscale</a>
+<div class="pair"><img src="candidate-04.png"><img src="candidate-04-shapes.png"></div></section><section><h2>Candidate 5: rec709-encoded &gt; 124</h2>
+<p>Score 93.1; 325 useful regions; 201 tiny regions; white 28.9%.</p>
+<a href="candidate-05.png">Full-resolution binary PNG</a> · <a href="candidate-05-gray.png">Grayscale</a>
+<div class="pair"><img src="candidate-05.png"><img src="candidate-05-shapes.png"></div></section>

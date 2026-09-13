@@ -1,0 +1,93 @@
+{
+  "repeat_identical_files": 25,
+  "mask_geometry_exact": true,
+  "foreground_reconstructs_from_labels_and_colors": true,
+  "background_disjoint_from_shapes": true,
+  "black_ink_outside_masks_preserved": true,
+  "palette_checks": [
+    {
+      "file": "candidate-2-brown-backdrop-3x.png",
+      "dimensions": [
+        1536,
+        1152
+      ],
+      "colors": 17,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-1-mask-only.png",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "colors": 16,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-2-brown-backdrop.png",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "colors": 17,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-3-consistent-families-512.png",
+      "dimensions": [
+        512,
+        384
+      ],
+      "colors": 8,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-3-consistent-families.png",
+      "dimensions": [
+        1448,
+        1086
+      ],
+      "colors": 8,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-1-mask-only-3x.png",
+      "dimensions": [
+        1536,
+        1152
+      ],
+      "colors": 16,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-2-brown-backdrop-512.png",
+      "dimensions": [
+        512,
+        384
+      ],
+      "colors": 17,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-1-mask-only-512.png",
+      "dimensions": [
+        512,
+        384
+      ],
+      "colors": 16,
+      "off_palette_pixels": 0
+    },
+    {
+      "file": "candidate-3-consistent-families-3x.png",
+      "dimensions": [
+        1536,
+        1152
+      ],
+      "colors": 8,
+      "off_palette_pixels": 0
+    }
+  ],
+  "input_hashes_match": true,
+  "html_links_resolve": true,
+  "oklab_black_white_red_reference_values": "passed at 1e-7 tolerance"
+}

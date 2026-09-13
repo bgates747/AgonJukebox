@@ -10,7 +10,7 @@ ready for distribution.
 1. [ ] **EMU-001 — Prepare and qualify the dedicated tagged-release emulator**
    - Started: 2026-09-08 13:49 EDT
    - Finished: --
-   - Status: Usable samples validated; Fab 1.2.4 restored. Large-file omission deferred in main TODO.md (ccd2e46).
+   - Status: Mac project-local Fab 1.2.4/MOS 3.0.2 setup passed Author emulator checks on 2026-09-12. Original tagged-release qualification and large-file omission remain separate; new skin review is SKIN-019.
 
 ## Skinning
 
@@ -37,7 +37,7 @@ chooser/switching, authoring tools, resource limits and release qualification.
 6. [ ] **SKIN-006 — Design and build the rich reference skin**
    - Started: 2026-09-10
    - Finished: --
-   - Status: Basic Art Deco concept accepted in 49511a6. Concept 02 antialiased 6×12 font passes 26 scenarios and 14,085 target pixels; the owner reviewed it on hardware with a CRT and authorized its checkpoint. Extended qualification remains open.
+   - Status: Art Deco hardware-tested progress checkpoint 0a09cee preserved. Reference-skin development temporarily shifts to the simpler 70s design under SKIN-019; gradients and extended qualification remain open.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: --
    - Finished: --
@@ -69,3 +69,8 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: 2026-09-10
    - Finished: --
    - Status: Real 6×12 PNG processed; normal/selected variants each retain four Agon colors and all 94 glyphs. Pixel mapping and repeat-build checks pass. Review: src/fonts/art-deco-concept-01/color-01.
+
+17. [ ] **SKIN-019 — Build and qualify the 70s skin in an isolated emulator**
+   - Started: 2026-09-12
+   - Finished: --
+   - Status: Author authorized the reviewed flat-color skin for implementation and emulator deployment; pre-code checkpoint required. Gradients follow the first live review.
