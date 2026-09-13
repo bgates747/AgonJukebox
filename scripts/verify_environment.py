@@ -15,6 +15,8 @@ VENV_DIR = PROJECT_ROOT / ".venv"
 RUNTIME_SKIN_ASSETS = (
     PROJECT_ROOT / "skins/artdeco/graphics.agnb",
     PROJECT_ROOT / "skins/artdeco/fonts/neutrino_5x8.font",
+    PROJECT_ROOT / "skins/seventies/graphics.agnb",
+    PROJECT_ROOT / "skins/seventies/fonts/neutrino_5x8.font",
     PROJECT_ROOT / "skins/base/graphics.agnb",
     PROJECT_ROOT / "skins/base/fonts/body8x8.font",
     PROJECT_ROOT / "skins/base/fonts/body8x14.font",
@@ -39,6 +41,12 @@ def main() -> int:
                               ("playlist.font.file", "playlist.graphics.file"))
     except (OSError, KeyError, ValueError) as exc:
         failures.append(f"cannot find playlist assets in skin manifest: {exc}")
+    try:
+        package = PROJECT_ROOT / "skins/seventies"
+        manifest = dict(line.split("=", 1) for line in (package / "skin.cfg").read_text().splitlines() if "=" in line)
+        runtime_assets.extend(package / manifest[key] for key in ("playlist.font.file", "playlist.graphics.file"))
+    except (OSError, KeyError, ValueError) as exc:
+        failures.append(f"cannot find seventies playlist assets: {exc}")
     print(f"Python: {sys.version.split()[0]}")
     print(f"Interpreter: {sys.executable}")
 
@@ -98,6 +106,8 @@ def main() -> int:
         ):
             failures.append("functional test assembly failed")
         for source, target in [("app_base.asm", "base.bin"),
+                               ("app_seventies.asm", "seventies.bin"),
+                               ("../../tests/asm/seventies_check.asm", "seventycheck.bin"),
                                ("../../tests/asm/artdeco_check.asm", "artcheck.bin")]:
             if not run(["ez80asm", source, str(Path(temp_dir) / target)],
                        cwd=PROJECT_ROOT / "src/asm"):

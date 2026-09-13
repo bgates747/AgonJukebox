@@ -596,8 +596,14 @@ sa_key_graphics: asciz "graphics.file"
 sa_key_font8: asciz "font.file"
 sa_key_font14: asciz "playlist.font.file"
 sa_key_playlist_graphics: asciz "playlist.graphics.file"
+    endif
+    if skin_seventies
+sa_manifest_version: asciz "seventies-test1"
+    endif
+    if skin_artdeco-skin_seventies
 sa_manifest_version: asciz "artdeco-test3"
-    else
+    endif
+    if 1-skin_artdeco
 sa_key_font8: asciz "font8.file"
 sa_manifest_version: asciz "skin004-proof1"
 sa_key_font14: asciz "font14.file"

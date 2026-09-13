@@ -234,9 +234,24 @@ ui_directory:
     ld (ui_last_page),hl
     ld hl,bf_dir_path
     ld de,w_path_text
+    if skin_seventies
+    ld b,15
+    else
     ld b,48
+    endif
     call ui_copy
     call w_path_send
+    if skin_seventies
+    ld hl,(bf_dir_num_files)
+    ld de,w_count_text
+    ld b,3
+    call ui_decimal
+    ld hl,ui_count_suffix
+    ld de,w_count_text+3
+    ld b,10
+    call ui_copy
+    call w_count_send
+    endif
     jp ui_message
 
 ui_browser:
@@ -301,7 +316,11 @@ ui_row:
     ld hl,ui_empty
     ld b,ui_row_columns
     call ui_copy
+    if skin_seventies
+    ld a,ui_normal_bg
+    else
     xor a
+    endif
     ld (ix+w_row0_bg-w_row0),a
     ld a,ui_normal_fg
     ld (ix+w_row0_fg-w_row0),a
@@ -313,12 +332,20 @@ ui_row:
     cp (hl)
     jr c,@entry
     or a
+    if skin_seventies
+    jp nz,@send
+    else
     jr nz,@send
+    endif
     ld hl,ui_no_entries
     ld de,(ui_row_text)
     ld b,ui_row_columns
     call ui_copy
+    if skin_seventies
+    jp @send
+    else
     jr @send
+    endif
 @entry:
     ld hl,bf_file_idx
     cp (hl)
@@ -347,10 +374,18 @@ ui_row:
     add hl,de
     ld iy,(hl)
     ld hl,(ui_row_text)
+    if skin_seventies
+    ld de,5
+    else
     ld de,3
+    endif
     add hl,de
     ex de,hl
+    if skin_seventies
+    ld b,42
+    else
     ld b,ui_row_columns-3
+    endif
     bit AM_DIR,(iy+filinfo_fattrib)
     jr z,@filename
     push de
@@ -361,10 +396,26 @@ ui_row:
     ld hl,6
     add hl,de
     ex de,hl
+    if skin_seventies
+    ld b,36
+    else
     ld b,ui_row_columns-9
+    endif
 @filename:
     lea hl,iy+filinfo_fname
     call ui_copy
+    if skin_seventies
+    bit AM_DIR,(iy+filinfo_fattrib)
+    jp nz,@send
+    push ix
+    ld hl,(ui_row_text)
+    ld de,50
+    add hl,de
+    ex de,hl
+    ld hl,(iy+filinfo_altname) ; ADL24 OK: cached u24 seconds.
+    call ui_digits
+    pop ix
+    endif
 @send:
     push ix
     pop hl
@@ -402,12 +453,20 @@ ui_track:
     call ui_copy
     ld hl,ps_filinfo_fname
     ld de,w_track_text+8
+    if skin_seventies
+    ld b,22
+    else
     ld b,36
+    endif
     call ui_copy
     jr @send
 @name:
     ld de,w_track_text
+    if skin_seventies
+    ld b,30
+    else
     ld b,44
+    endif
     call ui_copy
 @send:
     call w_track_send
@@ -673,12 +732,20 @@ ui_selection_pointer:
     ld hl,bf_files_cur_pg
     cp (hl)
     jr nc,@hide
+    if skin_seventies
+    ld hl,ui_selection_y
+    ld de,0
+    ld e,a
+    add hl,de
+    ld a,(hl)
+    else
     add a,a
     ld b,a
     add a,a
     add a,b
     add a,a
     add a,88
+    endif
     ld (ui_selection_packet+9),a
     ld hl,ui_selection_packet
     ld bc,17
@@ -691,3 +758,7 @@ ui_selection_packet:
     db 23,27,4,0,23,27,13,69,0,88,0,23,27,11,23,27,15
 ui_selection_hide:
     db 23,27,4,0,23,27,12,23,27,15
+
+    if skin_seventies
+ui_count_suffix: asciz " FILES"
+    endif

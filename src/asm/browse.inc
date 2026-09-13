@@ -51,6 +51,9 @@ bf_get_dir:
     lea de,ix+filinfo_fname ; de = pointer to filename
     call bf_verify_wav
     jp z,@readFileInfo ; not a .wav file, so skip it
+    if skin_seventies
+    call bf_cache_duration
+    endif
 ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
     ld a,'1'
     ld (ix+filinfo_fname-1),a
@@ -132,3 +135,43 @@ bf_check_dir_or_file:
 
 bf_print_dir_name:
     jp ui_event_directory
+
+    if skin_seventies
+; Cache seconds while the already-required WAV validation header is available.
+; filinfo_altname[0..2] is application-owned after enumeration; sorting uses only
+; altname[12]. No additional file open/read and no redraw-time SD traffic.
+bf_cache_duration:
+    push af
+    push bc
+    push de
+    push hl
+    push ix
+    ld a,(bf_wav_header+wav_data_size+3)
+    ld ix,(bf_wav_header+wav_data_size)
+    ld de,(bf_wav_header+wav_sample_rate)
+    call udiv3223
+    or a
+    jr nz,@saturate
+    ld bc,0
+    or a
+    sbc hl,bc
+    jr z,@ready
+    inc ix
+    push ix
+    pop hl
+    or a
+    sbc hl,bc
+    jr nz,@ready
+@saturate:
+    ld ix,0xffffff
+@ready:
+    push ix
+    pop hl
+    pop ix
+    ld (ix+filinfo_altname),hl ; ADL24 OK: owns all three cache bytes.
+    pop hl
+    pop de
+    pop bc
+    pop af
+    ret
+    endif

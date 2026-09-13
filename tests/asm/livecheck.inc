@@ -110,6 +110,15 @@ lt_pending_key: db 0
 lt_old_vector: dl 0
 
 lt_blue_pixel:
+    if skin_seventies
+    ld a,255
+    ld (lt_rgb),a
+    ld a,170
+    ld (lt_rgb+1),a
+    xor a
+    ld (lt_rgb+2),a
+    jp lt_pixel
+    endif
     if skin_artdeco
     ld a,255
     ld (lt_rgb),a
@@ -127,6 +136,16 @@ lt_blue_pixel:
     jr lt_pixel
     endif
 lt_frame_pixel:
+    if skin_seventies
+    ld bc,70
+    ld de,110
+    ld a,255
+    ld (lt_rgb),a
+    ld (lt_rgb+1),a
+    ld a,170
+    ld (lt_rgb+2),a
+    jp lt_pixel
+    endif
     if skin_artdeco
     ld bc,74
     ld de,110
@@ -262,10 +281,18 @@ lt_font_probe:
     ld hl,lt_font_pass
     jp sa_debug_puts
 lt_font_pass: asciz "LIVE_FONT_PIXELS_PASS\r\n"
+    endif
+    if skin_seventies
+lt_font_draw: incbin "../../tests/fixtures/seventies/font-probe.vdu"
+lt_font_draw_end:
+lt_font_samples: incbin "../../tests/fixtures/seventies/font-samples.bin"
+    endif
+    if skin_artdeco-skin_seventies
 lt_font_draw: incbin "../../tests/fixtures/artdeco/font-probe.vdu"
 lt_font_draw_end:
 lt_font_samples: incbin "../../tests/fixtures/artdeco/font-samples.bin"
-    else
+    endif
+    if 1-skin_artdeco
     ld hl,lt_pixels_pass
     jp sa_debug_puts
     endif
@@ -313,9 +340,13 @@ lt_rgb: db 0,0,0
 lt_pixels_pass: asciz "LIVE_WIDGET_PIXELS_PASS\r\n"
 lt_sample_ptr: dl 0
 lt_samples_left: dl 0
-    if skin_artdeco
+    if skin_seventies
+lt_samples: incbin "../../tests/fixtures/seventies/widget-samples.bin"
+    endif
+    if skin_artdeco-skin_seventies
 lt_samples: incbin "../../tests/fixtures/artdeco/widget-samples.bin"
-    else
+    endif
+    if 1-skin_artdeco
 lt_samples: incbin "../../tests/fixtures/skin/widget-samples.bin"
     endif
 lt_table:
@@ -428,23 +459,42 @@ lt_case5:
     or a
     sbc hl,de
     jp nz,lt_fail
-    if skin_artdeco
+    if skin_seventies
+    ld bc,81
+    ld de,91
+    ld a,85
+    ld (lt_rgb),a
+    xor a
+    ld (lt_rgb+1),a
+    ld (lt_rgb+2),a
+    call lt_pixel
+    ld bc,81
+    ld de,104
+    call lt_blue_pixel
+    endif
+    if skin_artdeco-skin_seventies
     ld bc,81
     ld de,89
-    else
+    endif
+    if 1-skin_artdeco
     ld bc,10
     ld de,151
     endif
+    if 1-skin_seventies
     xor a
     call lt_grey_pixel
-    if skin_artdeco
+    endif
+    if skin_artdeco-skin_seventies
     ld bc,81
     ld de,101
-    else
+    endif
+    if 1-skin_artdeco
     ld bc,10
     ld de,165
     endif
+    if 1-skin_seventies
     call lt_blue_pixel
+    endif
 
     ld a,13
     call lt_key
@@ -759,8 +809,12 @@ lt_case25:
 
     ret
 
-    if skin_artdeco
+    if skin_seventies
+    include "../ui/seventies/test-meta.inc"
+    endif
+    if skin_artdeco-skin_seventies
     include "../ui/artdeco/test-meta.inc"
-    else
+    endif
+    if 1-skin_artdeco
 lt_sample_count: equ 1327
     endif

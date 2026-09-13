@@ -31,9 +31,13 @@
     include "agnb_vdu.inc"
     include "skin_assets.inc"
     include "layout.inc"
-    if skin_artdeco
+    if skin_seventies
+    include "../ui/seventies/widgets.inc"
+    endif
+    if skin_artdeco-skin_seventies
     include "../ui/artdeco/widgets.inc"
-    else
+    endif
+    if 1-skin_artdeco
     include "ui_widgets.inc"
     endif
     if live_test_mode
