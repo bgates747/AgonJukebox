@@ -1,0 +1,24 @@
+{
+  "binary_bytes": 62622,
+  "sha256": {
+    "tgt/jukebox-runtime.bin": "10a27d9c41ba470f0ace9d57c78bc04cf1a4edcb865fcbbc090dd3f9d01ae582",
+    "skins/runtime/artdeco/README.md": "3eec15b0a5e61540b5d002bb93d2f36a31afe4430ebbc499120e8d0fca680e1a",
+    "skins/runtime/artdeco/fonts/ArtDeco_Concept_02_6x12.agnb": "598132793e75d9dce9ed6965768ea5dd2b8e45d65353eda38f89613651bcd94a",
+    "skins/runtime/artdeco/fonts/ArtDeco_Concept_02_6x12.font": "d0cb5cf646fd51c8fccead288d7eb4a81ad1d511e6824e9ddf916463479546bc",
+    "skins/runtime/artdeco/fonts/neutrino_5x8.font": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
+    "skins/runtime/artdeco/graphics.agnb": "9d74d91c61e120bd1808ac49dfbe55d0a93141b6c562c70615f9ef8db05e4769",
+    "skins/runtime/artdeco/layout.bin": "15dcf1c458c0f96b88d168c75b0af6253deeef6a6b9ed77651a99588d53509d9",
+    "skins/runtime/artdeco/skin.cfg": "0f382f9de3c20eb1880bdda29dc738390c9946d1f461d552ed73dcc68cb6771a",
+    "skins/runtime/seventies/fonts/Lat7-Terminus12x6_6x12.agnb": "4e1cd5237f7bc42cf9727110168b0546300dafb0e90a5837c95d6abea68bf906",
+    "skins/runtime/seventies/fonts/Lat7-Terminus12x6_6x12.font": "5624448f93da6a47ced8507d975cc7b8fee0a73c02f4bbf105a145f398f20609",
+    "skins/runtime/seventies/fonts/neutrino_5x8.font": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
+    "skins/runtime/seventies/graphics.agnb": "298bc3671a4cc8c5243681ab95d2ed255dca23d2f2a9fd71428ad5e6594e24ea",
+    "skins/runtime/seventies/layout.bin": "d0f7f66efbce744d97c15427e6c6a28955ba5ac11dcd711f1e5d341b2a8ce81a",
+    "skins/runtime/seventies/skin.cfg": "6bfd8d7cf4a383ab9961ff81ce2e767583c76bb48c7e6d9aeed3acf2b78e3747"
+  },
+  "repeat_build": "All fixed runtime template files and both runtime packages identical on a second export",
+  "host_schema_tests": "5 methods passed",
+  "adl_audit": "All new wide scalar loads/stores target dl fields; indirect pointers are dl table entries, metadata size is explicit u32 low-three-byte store, packet length is dl after 96-byte slot. u16 geometry uses byte accesses.",
+  "human_review": "Accepted 2026-09-14: Author confirmed runtime launch and skin switching, then authorized commit and push.",
+  "hardware_access": false
+}

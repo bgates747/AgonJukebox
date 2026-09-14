@@ -14,18 +14,18 @@ import wave
 PROJECT = Path(__file__).resolve().parents[1]
 
 
-def prepare(destination: Path, skin: str = "base") -> None:
+def prepare(destination: Path, skin: str = "base", runtime: bool = False) -> None:
     if not re.fullmatch(r"[a-z][a-z0-9_]{0,23}",skin):
         raise ValueError("Invalid skin id")
     # Require a new destination so existing SD contents cannot be overwritten.
     destination.mkdir(parents=True, exist_ok=False)
     (destination / "bin").mkdir()
     subprocess.run(
-        ["ez80asm", "../../tests/asm/" + ({"artdeco":"artdeco_check.asm","seventies":"seventies_check.asm"}.get(skin,"livecheck.asm" if skin=="base" else skin+"_check.asm")),
+        ["ez80asm", "../../tests/asm/" + (f"runtime_{skin}_check.asm" if runtime else {"artdeco":"artdeco_check.asm","seventies":"seventies_check.asm"}.get(skin,"livecheck.asm" if skin=="base" else skin+"_check.asm")),
          os.path.relpath(destination / "bin/livecheck.bin", PROJECT / "src/asm")],
         cwd=PROJECT / "src/asm", check=True,
     )
-    shutil.copytree(PROJECT / "skins" / skin, destination / "jukebox/skins" / skin)
+    shutil.copytree(PROJECT / "skins" / ("runtime/" + skin if runtime else skin), destination / "jukebox/skins" / skin)
     (destination / "bin/jukebox.cfg").write_text(
         f"format=1\nskin_dir=/jukebox/skins/{skin}\n", encoding="ascii"
     )

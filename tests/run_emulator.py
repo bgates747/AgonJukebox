@@ -4,9 +4,9 @@ import argparse,sys,subprocess,os,shutil,time,json,signal
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'tests'))
 import functional
-p=argparse.ArgumentParser();p.add_argument('directory',type=Path);p.add_argument('--skin',default='seventies');a=p.parse_args()
+p=argparse.ArgumentParser();p.add_argument('directory',type=Path);p.add_argument('--skin',default='seventies');p.add_argument('--runtime',action='store_true');a=p.parse_args()
 root=a.directory.resolve();root.mkdir(parents=True,exist_ok=False)
-functional.prepare(root/'fixture',a.skin)
+functional.prepare(root/'fixture',a.skin,a.runtime)
 subprocess.run([str(ROOT/'.venv/bin/python'),str(ROOT.parent/'agon-dev-env/scripts/setup_emulator.py'),'jukebox','--state-root',str(root),'--jukebox-binary',str(ROOT/'tgt/jukebox.bin')],check=True)
 profile=root/'jukebox';sd=profile/'sdcard'
 for item in ['qualification','jukebox']:shutil.copytree(root/'fixture'/item,sd/item)
@@ -19,7 +19,7 @@ with log.open('wb') as out:
   deadline=time.monotonic()+150
   while time.monotonic()<deadline:
    text=log.read_text(errors='replace')
-   if 'LIVE_TEST_PASS' in text or 'LIVE_TEST_FAIL' in text:break
+   if any(mark in text for mark in ('LIVE_TEST_PASS','LIVE_TEST_FAIL','Jukebox skin/config error')):break
    if proc.poll() is not None:break
    time.sleep(.2)
  finally:

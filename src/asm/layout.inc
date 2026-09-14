@@ -45,7 +45,11 @@ ui_init:
     call vdu_clear_buffer
     ld hl,0x2200
     ld de,ui_static
+    if skin_runtime
+    ld bc,(rt_static_len)
+    else
     ld bc,ui_static_end-ui_static
+    endif
     call vdu_load_buffer
     ld hl,0x2200
     call vdu_call_buffer
@@ -234,7 +238,12 @@ ui_directory:
     ld (ui_last_page),hl
     ld hl,bf_dir_path
     ld de,w_path_text
+    if skin_runtime
+    ld a,(rt_path_columns)
+    ld b,a
+    else
     ld b,ui_path_columns
+    endif
     call ui_copy
     call w_path_send
     if ui_has_count
@@ -312,13 +321,22 @@ ui_row:
     ld hl,ui_empty
     ld b,ui_row_columns
     call ui_copy
+    if skin_runtime
+    ld a,(rt_normal_bg_value)
+    endif
     if ui_normal_bg_value
     ld a,ui_normal_bg_value
+    endif
+    if skin_runtime+ui_normal_bg_value
     else
     xor a
     endif
     ld (ix+w_row0_bg-w_row0),a
+    if skin_runtime
+    ld a,(rt_normal_fg)
+    else
     ld a,ui_normal_fg
+    endif
     ld (ix+w_row0_fg-w_row0),a
     if skin_artdeco
     ld (ix+w_row0_context-w_row0),ui_normal_context
@@ -346,8 +364,16 @@ ui_row:
     ld hl,bf_file_idx
     cp (hl)
     jr nz,@normal
+    if skin_runtime
+    ld a,(rt_selected_bg)
+    ld (ix+w_row0_bg-w_row0),a
+    ld a,(rt_selected_fg)
+    ld (ix+w_row0_fg-w_row0),a
+    ld a,(ui_row_index)
+    else
     ld (ix+w_row0_bg-w_row0),ui_selected_bg
     ld (ix+w_row0_fg-w_row0),ui_selected_fg
+    endif
     if skin_artdeco
     ld (ix+w_row0_context-w_row0),ui_selected_context
     endif
@@ -370,10 +396,21 @@ ui_row:
     add hl,de
     ld iy,(hl)
     ld hl,(ui_row_text)
+    if skin_runtime
+    ld de,0
+    ld a,(rt_filename_offset)
+    ld e,a
+    else
     ld de,ui_filename_offset
+    endif
     add hl,de
     ex de,hl
+    if skin_runtime
+    ld a,(rt_filename_columns)
+    ld b,a
+    else
     ld b,ui_filename_columns
+    endif
     bit AM_DIR,(iy+filinfo_fattrib)
     jr z,@filename
     push de
@@ -384,16 +421,36 @@ ui_row:
     ld hl,6
     add hl,de
     ex de,hl
+    if skin_runtime
+    ld a,(rt_filename_columns)
+    sub 6
+    ld b,a
+    else
     ld b,ui_filename_columns-6
+    endif
 @filename:
     lea hl,iy+filinfo_fname
     call ui_copy
+    if skin_runtime
+    ld a,(rt_duration_offset)
+    cp 255
+    jp z,@send
+    endif
     if ui_has_row_duration
     bit AM_DIR,(iy+filinfo_fattrib)
     jp nz,@send
     push ix
     ld hl,(ui_row_text)
+    endif
+    if skin_runtime
+    ld de,0
+    ld a,(rt_duration_offset)
+    ld e,a
+    endif
+    if ui_has_row_duration-skin_runtime
     ld de,ui_duration_offset
+    endif
+    if ui_has_row_duration
     add hl,de
     ex de,hl
     ld hl,(iy+filinfo_altname) ; ADL24 OK: cached u24 seconds.
@@ -437,12 +494,23 @@ ui_track:
     call ui_copy
     ld hl,ps_filinfo_fname
     ld de,w_track_text+8
+    if skin_runtime
+    ld a,(rt_track_columns)
+    sub 8
+    ld b,a
+    else
     ld b,ui_track_columns-8
+    endif
     call ui_copy
     jr @send
 @name:
     ld de,w_track_text
+    if skin_runtime
+    ld a,(rt_track_columns)
+    ld b,a
+    else
     ld b,ui_track_columns
+    endif
     call ui_copy
 @send:
     call w_track_send
@@ -531,7 +599,11 @@ ui_time:
     xor a
     ld (ui_progress_pixel),a
     ld hl,0
+    if skin_runtime
+    ld a,(rt_progress_span)
+    else
     ld a,ui_progress_span
+    endif
 @fraction:
     push af
     add hl,de
@@ -556,7 +628,11 @@ ui_time:
     ld a,(ui_progress_pixel)
     ld e,a
 @position:
+    if skin_runtime
+    ld hl,(rt_progress_origin)
+    else
     ld hl,ui_progress_origin
+    endif
     add hl,de
     ld a,l
     ld (w_marker_x),a
@@ -701,6 +777,11 @@ ui_rate: asciz "RATE 00000 Hz   SEEK STEP 000s"
 ; SKIN-013 candidate: AGNB bitmap on sprite 0, following the browser selection.
 ; Foreground only; move/show/refresh is one complete 17-byte packet.
 ui_selection_pointer:
+    if skin_runtime
+    ld a,(rt_pointer_enabled)
+    or a
+    jp z,@hide
+    endif
     if 1-ui_pointer_enabled
     jp @hide
     endif

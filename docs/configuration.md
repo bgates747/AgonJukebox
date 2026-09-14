@@ -148,4 +148,5 @@ The authoring `schema_version=1` is distinct from runtime `skin.cfg` formats.
 Generated layout parameters replace skin-specific formatting constants; the
 existing accepted application binaries and packages are byte-identical.
 New authoring IDs use a generated compile-time app and `schema-test1` package.
-Selecting an arbitrary skin directory still does not provide runtime switching.
+The new `app_runtime.asm` candidate loads external layouts and offers a chooser;
+see [runtime installation, controls and validation](runtime-skins.md).

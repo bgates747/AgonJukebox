@@ -121,3 +121,10 @@ packages, six pixel-identical previews/backgrounds and all six byte-identical
 application/test binaries, including Base. `TMPDIR=/tmp` and ez80asm 2.2 on PATH
 are required on this Mac. Exact image file compression may differ with Pillow;
 the regression checks decoded pixels as well as exact runtime bytes.
+
+## Runtime package export
+
+After compiling a definition, use `scripts/skin_schema/runtime.py --skin ID`
+to export its bounded runtime-v1 package for the shared executable. See
+[runtime skins](runtime-skins.md) for the additional package/resource bounds,
+installation and chooser controls. The accepted authoring schema is unchanged.

@@ -6,8 +6,10 @@ sa_skin_assets_init:
     xor a
     ld (sa_mode_changed),a
     ld (sa_small_open),a
+    if 1-skin_runtime
     call jcfg_load
     ret nz
+    endif
     call jcfg_check_skin
     ret nz
     call jcfg_manifest_path
@@ -18,6 +20,10 @@ sa_skin_assets_init:
     ret nz
     call sa_parse_manifest
     ret nz
+    if skin_runtime
+    call rt_load
+    ret nz
+    endif
     ; Mode changes reset all saved sa_contexts. Wait for MOS mode reply.
     ld a,8
     rst.lil 8
@@ -103,18 +109,31 @@ sa_skin_assets_init:
 sa_restore:
     call agnb_close
     call sa_close_small
+    if 1-skin_runtime
     call jcfg_init
+    endif
     ld a,(sa_mode_changed)
     or a
     ret z
     ld hl,sa_cleanup
     ld bc,sa_cleanup_end-sa_cleanup
     rst.lil 0x18
+    if skin_runtime
+    MOSCALL mos_sysvars
+    res 4,(ix+4)
+    endif
     ld a,(sa_old_mode)
     ld (sa_restore_mode+1),a
     ld hl,sa_restore_mode
     ld bc,sa_restore_end-sa_restore_mode
     rst.lil 0x18
+    if skin_runtime
+    ld b,4
+    call sa_wait_packet
+    ret nz
+    xor a
+    ld (sa_mode_changed),a
+    endif
     ret
 
 ; Small-file reader, DE=path, BC=maximum; returns count and sentinel-terminated
@@ -394,7 +413,14 @@ sa_join_copy:
 sa_load_images:
     if skin_artdeco
     ld hl,sa_image_meta
+    endif
+    if skin_runtime
+    ld a,(rt_image_count)
+    endif
+    if skin_artdeco-skin_runtime
     ld a,sa_image_count
+    endif
+    if skin_artdeco
     jr sa_load_agnb_images
 sa_load_playlist_images:
     ld hl,sa_playlist_image_meta
@@ -603,7 +629,7 @@ sa_manifest_version: asciz "seventies-test1"
     if skin_artdeco-skin_seventies-skin_custom
 sa_manifest_version: asciz "artdeco-test3"
     endif
-    if skin_custom
+    if skin_custom-skin_runtime
 sa_manifest_version: asciz "schema-test1"
     endif
     if 1-skin_artdeco
@@ -614,3 +640,7 @@ sa_key_font14: asciz "font14.file"
 sa_ready: asciz "SKIN_ASSETS_READY\r\n"
 sa_error_text: asciz "Jukebox skin/config error 0x"
 sa_error_end: asciz ". Check /bin/jukebox.cfg and assets.\r\n"
+
+    if skin_runtime
+sa_manifest_version: asciz "jukebox-runtime1"
+    endif

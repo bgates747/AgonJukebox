@@ -24,6 +24,10 @@ input_dispatch:
     ret z 
     cp 'q' ; quit
     ret z
+    if skin_runtime
+    cp 'k'
+    jp z,rt_request_switch
+    endif
 
 ; Ignore function, alt, control, caps lock, and shift key events.
     or a

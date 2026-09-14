@@ -17,20 +17,14 @@ ready for distribution.
 The first live skin milestone passed functional emulator testing and is
 promoted into the application tree. Configuration, AGNB loading, live widgets
 and playback are integrated. Remaining work covers the complete skin contracts,
-chooser/switching, authoring tools, resource limits and release qualification.
+authoring-tool refinements, artwork, resource qualification and release packaging.
+The shared runtime loader, discovery and recovery chooser are accepted.
 
 
 1. [ ] **SKIN-001 — Resolve and document the v1 skin contracts**
    - Started: 2026-09-07 20:49 EDT
    - Finished: --
-   - Status: In progress; printed bitmap characters and Winamp artwork import accepted. Import proof complete; layout, package and resource contracts remain to be finalized.
-3. [ ] **SKIN-003 — Implement configuration, discovery, and recovery chooser**
-   - Started: --
-   - Finished: --
-4. [ ] **SKIN-004 — Load external assets and render the new skin**
-   - Started: 2026-09-08 16:32 EDT
-   - Finished: --
-   - Status: First native render and live integration accepted; complete loader/switching work remains.
+   - Status: Authoring schema and bounded runtime layout/package contracts accepted (SKIN-020/021); reconcile the remaining decision register and resource qualification before release.
 5. [ ] **SKIN-005 — Build reproducible skin authoring and validation tools**
    - Started: 2026-09-13
    - Status: SKIN-020 supplies the bounded shared compiler, strict validation and review generation; general authoring/resource/tool promotion remains.

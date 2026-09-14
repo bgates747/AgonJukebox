@@ -1,3 +1,4 @@
+skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/base/profile.inc"
 ; Assemble from src/asm; same application with target-side functional tests.

@@ -1,3 +1,4 @@
+skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/artdeco/profile.inc"
 ; Interactive application; tests/asm/livecheck.asm selects the test hooks.

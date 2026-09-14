@@ -1,3 +1,4 @@
+skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/artdeco/profile.inc"
 ; Same functional scenarios, with Art Deco geometry and pixel expectations.

@@ -1,3 +1,4 @@
+skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/base/profile.inc"
 ; Retained Base functional milestone, using the same player and loader.

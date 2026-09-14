@@ -1,3 +1,4 @@
+skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/seventies/profile.inc"
 ; 70s widgets with shared functional scenarios.
