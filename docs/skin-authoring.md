@@ -135,3 +135,11 @@ version. Shared 6×12 text must use the normal playlist foreground/background.
 Increase restoration rectangles to the actual cell extents; changing the cell
 alone is insufficient. Existing definitions require no edits. Custom per-skin
 fonts remain a later authoring step; glyph reuse is implemented now.
+
+The message widget `w_message` is optional, like the count field. Omit it from
+the authoring widget list and preview states to suppress the strip entirely.
+Runtime descriptors encode absence as fifteen zero bytes in text record 13;
+nonzero geometry with zero width is rejected. Existing packages are unchanged,
+and older loaders reject absent-message packages safely. The updated loader
+builds a zero-length send for an absent message; the compile-time generator
+retains a non-rendering producer slot.

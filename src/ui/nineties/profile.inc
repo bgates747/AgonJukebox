@@ -1,5 +1,5 @@
 ; Generated layout contract; no emitted bytes.
-ui_path_columns: equ 17
+ui_path_columns: equ 53
 ui_track_columns: equ 50
 ui_filename_offset: equ 5
 ui_filename_columns: equ 42

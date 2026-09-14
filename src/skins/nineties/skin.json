@@ -152,9 +152,9 @@
     {
       "name": "w_path",
       "kind": "text",
-      "x": 46,
-      "y": 351,
-      "n": 17,
+      "x": 108,
+      "y": 244,
+      "n": 53,
       "bg": [
         0,
         0,
@@ -166,9 +166,9 @@
         170
       ],
       "rect": [
-        46,
-        351,
-        102,
+        108,
+        244,
+        318,
         12
       ],
       "cell": [
@@ -514,34 +514,6 @@
       "slot": "text"
     },
     {
-      "name": "w_message",
-      "kind": "text",
-      "x": 112,
-      "y": 35,
-      "n": 48,
-      "bg": [
-        0,
-        0,
-        0
-      ],
-      "fg": [
-        170,
-        255,
-        170
-      ],
-      "rect": [
-        112,
-        35,
-        288,
-        12
-      ],
-      "cell": [
-        6,
-        12
-      ],
-      "slot": "text"
-    },
-    {
       "name": "w_track",
       "kind": "text",
       "x": 104,
@@ -629,7 +601,7 @@
       "name": "w_detail",
       "kind": "text",
       "x": 15,
-      "y": 365,
+      "y": 357,
       "n": 23,
       "bg": [
         0,
@@ -643,7 +615,7 @@
       ],
       "rect": [
         15,
-        365,
+        357,
         138,
         12
       ],
@@ -736,12 +708,11 @@
   "progress_span": 242,
   "review": {
     "example": {
-      "w_path": "/MUSIC/ALBUMS",
+      "w_path": "/music/Albums/Fleetwood Mac/Rumours",
       "w_page": "01 OF 01",
       "selected": 3,
       "w_track": "PLAYING  SAPPHIRE.WAV",
       "w_count": "007 FILES",
-      "w_message": "Ready",
       "w_elapsed": "00:01:26",
       "w_duration": "00:04:18",
       "w_detail": "RATE 32000 Hz",
@@ -759,12 +730,11 @@
       "w_row6": "06   Wild_Flower.wav                              00:04:18"
     },
     "test": {
-      "w_path": "/qualification...",
+      "w_path": "/qualification/Play",
       "w_page": "01 OF 02",
       "selected": 0,
       "w_track": "PAUSED  00_Long_65535.wav",
       "w_count": "012 FILES",
-      "w_message": "Loop current song; Shuffle setting retained",
       "w_duration": "00:00:04",
       "w_detail": "RATE 65535 Hz",
       "w_voltext": "VOL 10",

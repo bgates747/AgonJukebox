@@ -260,6 +260,8 @@ def build(definition: Path, output: Path):
             generated += ['ui_rows:']+[f'    dl w_row{n},w_row{n}_text' for n in range(10)]
     if not all(ROW_Y[n] == 88+12*n for n in range(10)):
         generated += ['ui_selection_y: db '+','.join(map(str,ROW_Y)),f'ui_normal_bg: equ {colour(BG)}']
+    if 'w_message' not in specs:
+        generated += ['w_message_text: blkb 48,32','w_message_send: ret']
     # Existing event producers retain these fields; no hints/extra icons draw.
     generated += ['w_hint_text: blkb 15,32','w_hint_send: ret',
                   'w_mode_code: db 0','w_mode_send: ret',

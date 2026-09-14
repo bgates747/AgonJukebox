@@ -101,3 +101,11 @@ glyphs. Target validation checks the selected width/height and rejects invalid
 font values and mismatched glyph colors before drawing. Older executables reject
 these new packages because the previously reserved byte is nonzero; use the
 updated executable. Existing package bytes and typography remain unchanged.
+
+The message widget `w_message` is optional, like the count field. Omit it from
+the authoring widget list and preview states to suppress the strip entirely.
+Runtime descriptors encode absence as fifteen zero bytes in text record 13;
+nonzero geometry with zero width is rejected. Existing packages are unchanged,
+and older loaders reject absent-message packages safely. The updated loader
+builds a zero-length send for an absent message; the compile-time generator
+retains a non-rendering producer slot.

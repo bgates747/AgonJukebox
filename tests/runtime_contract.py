@@ -13,7 +13,10 @@ def fixtures(sd):
     add('valid70',base,0);add('validdeco',(ROOT/'skins/runtime/artdeco/layout.bin').read_bytes(),0)
     large=(ROOT/'skins/runtime/nineties/layout.bin').read_bytes()
     add('valid_nineties_large_status',large,0)
-    for name,off,value in [('large_status_narrow',rt.GEOMETRY+8,60),('large_status_short',rt.GEOMETRY+10,355)]:
+    b=bytearray(large);b[rt.GEOMETRY+13*15:rt.GEOMETRY+14*15]=bytes(15);add('absent_message',bytes(b),0)
+    b[rt.GEOMETRY+13*15]=1;add('absent_message_dirty_geometry',b)
+    b=bytearray(large);b[rt.GEOMETRY:rt.GEOMETRY+15]=bytes(15);add('absent_required_path',b)
+    for name,off,value in [('large_status_narrow',rt.GEOMETRY+8,60),('large_status_short',rt.GEOMETRY+10,struct.unpack_from('<H',large,rt.GEOMETRY+2)[0]+10)]:
         b=bytearray(large);struct.pack_into('<H',b,off,value);add(name,b)
     b=bytearray(large);b[rt.GEOMETRY+13]=1;add('large_status_wrong_bg',b)
     add('short',base[:-1],0x60);add('long',base+b'\0',0x43);add('magic',b'BADMAGIC'+base[8:],0x60)

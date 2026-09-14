@@ -8,6 +8,7 @@ class SchemaTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory();self.root=Path(self.tmp.name)
         shutil.copytree(ROOT/'src/skins/seventies/prepared',self.root/'prepared')
+        shutil.copy2(ROOT/'src/skins/seventies/concept.png',self.root/'concept.png')
         shutil.copy2(ROOT/'src/skins/seventies/source.png',self.root/'source.png')
         self.d=json.loads((ROOT/'src/skins/seventies/skin.json').read_text());self.path=self.root/'skin.json'
     def tearDown(self):self.tmp.cleanup()
@@ -33,6 +34,10 @@ class SchemaTests(unittest.TestCase):
         for mutate in mutations:
             d=copy.deepcopy(self.d);mutate(d)
             with self.subTest(mutation=mutations.index(mutate)),self.assertRaises(DefinitionError):self.check(d)
+    def test_optional_message(self):
+        self.d['widgets']=[w for w in self.d['widgets'] if w['name']!='w_message']
+        for state in ('example','test'):self.d['review'][state].pop('w_message',None)
+        self.check()
     def test_duplicate_json_keys(self):
         self.path.write_text('{"schema_version":1,"schema_version":2}')
         with self.assertRaisesRegex(DefinitionError,'duplicate'):load_definition(self.path)

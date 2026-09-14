@@ -117,7 +117,10 @@ rt_validate:
 @widget:
     ld a,(rt_index)
     cp 2
+    jr z,@optional
+    cp 13 ; message, like count, may be absent
     jr nz,@required
+@optional:
     ld a,(ix+12)
     or a
     jr nz,@required

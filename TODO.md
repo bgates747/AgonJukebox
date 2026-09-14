@@ -10,7 +10,7 @@ ready for distribution.
 7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
    - Started: 2026-09-14 (cross-skin UI review)
    - Finished: --
-   - Status: First priority: review Art Deco, Seventies, PCB and Nineties against one control/state and text-layout matrix; correct each skin and align shared behavior where practical. Check play/pause/stop feedback, navigation, shuffle/loop/volume, dynamic text and transitions. Coordinate directory placement with SKIN-024; preserve each skin’s visual identity. Existing pixel tests are supporting evidence, not visual acceptance. Extended resource/hardware qualification remains in this same task.
+   - Status: First priority: review Art Deco, Seventies, PCB and Nineties against one control/state and text-layout matrix; correct each skin and align shared behavior where practical. Nineties first changes implemented (paired play/pause highlights, directory/RATE placement, meter/deck cleanup); Author accepted these requested updates. Continue control feedback, navigation, shuffle/loop/volume, dynamic text and transitions. Coordinate directory placement with SKIN-024; preserve each skin’s visual identity. Existing pixel tests are supporting evidence, not visual acceptance. Extended resource/hardware qualification remains in this same task.
 
 This review takes precedence over new skins, gradients, custom fonts and cosmetic
 expansion. Review worksheets and focused automated checks precede uninterrupted
