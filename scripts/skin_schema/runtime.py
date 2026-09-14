@@ -42,6 +42,7 @@ def export(skin, output):
         colour(d['palette']['text']),colour(d['palette']['selection']),
         colour(d['palette']['selected_text']),d['progress_span']])
     struct.pack_into('<H',buf,20,d['selection']['x'])
+    buf[22]=int(w['w_track']['cell']==[6,12]) # 0 retains legacy 5x8 status; 1 uses playlist glyphs
     for i,name in enumerate(TEXT):
         a=w.get(name)
         if a is None:continue

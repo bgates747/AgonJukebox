@@ -74,7 +74,7 @@ crop recipes. Other preparation tools may produce these inputs.
 
 ## What remains deliberately bounded
 
-1. Screen: 512×384; ten rows, 58 columns, 6×12 playlist and 5×8 small font cells.
+1. Screen: 512×384; ten rows, 58 columns, 6×12 playlist; status roles select a common 5×8 or 6×12 cell.
 2. Rows may have different Y positions, but their origins remain within 0–255
    because the retained sprite packet updates one Y byte. Pointer is 10×12.
 3. Fixed playback vocabulary and twelve volume levels. Message/detail/volume
@@ -128,3 +128,10 @@ After compiling a definition, use `scripts/skin_schema/runtime.py --skin ID`
 to export its bounded runtime-v1 package for the shared executable. See
 [runtime skins](runtime-skins.md) for the additional package/resource bounds,
 installation and chooser controls. The accepted authoring schema is unchanged.
+
+Status fields may now all use `cell: [6,12]` to share the normal playlist glyph
+bank, or retain `[5,8]`. Mixed status metrics are rejected in this bounded
+version. Shared 6×12 text must use the normal playlist foreground/background.
+Increase restoration rectangles to the actual cell extents; changing the cell
+alone is insufficient. Existing definitions require no edits. Custom per-skin
+fonts remain a later authoring step; glyph reuse is implemented now.

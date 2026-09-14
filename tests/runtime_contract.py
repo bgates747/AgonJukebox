@@ -6,14 +6,20 @@ sys.path.insert(0,str(ROOT/'scripts/skin_schema'))
 import runtime as rt
 
 def fixtures(sd):
-    base=(ROOT/'skins/runtime/seventies/layout.bin').read_bytes()
+    # Freeze the legacy 5x8 geometry so malformed cases survive skin redesigns.
+    base=(ROOT/'tests/fixtures/runtime-legacy-layout.bin').read_bytes()
     cases=[]
     def add(name,data,error=0x61):cases.append((name,data,error))
     add('valid70',base,0);add('validdeco',(ROOT/'skins/runtime/artdeco/layout.bin').read_bytes(),0)
+    large=(ROOT/'skins/runtime/nineties/layout.bin').read_bytes()
+    add('valid_nineties_large_status',large,0)
+    for name,off,value in [('large_status_narrow',rt.GEOMETRY+8,60),('large_status_short',rt.GEOMETRY+10,355)]:
+        b=bytearray(large);struct.pack_into('<H',b,off,value);add(name,b)
+    b=bytearray(large);b[rt.GEOMETRY+13]=1;add('large_status_wrong_bg',b)
     add('short',base[:-1],0x60);add('long',base+b'\0',0x43);add('magic',b'BADMAGIC'+base[8:],0x60)
     def byte(name,off,value):b=bytearray(base);b[off]=value;add(name,b)
     def word(name,off,value):b=bytearray(base);struct.pack_into('<H',b,off,value);add(name,b)
-    for name,off,value in [('noimages',8,0),('too_many_images',8,215),('shortpath',9,5),('shorttrack',10,8),('badnameoffset',11,0),('shortname',12,6),('overlap_duration',13,30),('badpointerflag',14,2),('badpalette',15,64),('zerospan',19,0),('reserved',22,1),('badrowwidth',rt.GEOMETRY+3*15+12,57),('rowpalette',rt.GEOMETRY+3*15+13,1),('badpagewidth',rt.GEOMETRY+15+12,7),('badtile',rt.TILES,0),('unloadedtile',rt.TILES,214)]:byte(name,off,value)
+    for name,off,value in [('noimages',8,0),('too_many_images',8,215),('shortpath',9,5),('shorttrack',10,8),('badnameoffset',11,0),('shortname',12,6),('overlap_duration',13,30),('badpointerflag',14,2),('badpalette',15,64),('zerospan',19,0),('reserved',23,1),('bad_status_font',22,2),('large_font_small_rects',22,1),('badrowwidth',rt.GEOMETRY+3*15+12,57),('rowpalette',rt.GEOMETRY+3*15+13,1),('badpagewidth',rt.GEOMETRY+15+12,7),('badtile',rt.TILES,0),('unloadedtile',rt.TILES,214)]:byte(name,off,value)
     for name,off,value in [('pointeroffscreen',20,503),('textoffscreen',rt.GEOMETRY,512),('textoutside',rt.GEOMETRY+8,62),('row_y_high',rt.GEOMETRY+3*15+2,256),('artoffscreen',rt.ART_START,512),('artclips',rt.ART_START,500),('imagezero',rt.IMAGES,0),('imagewide',rt.IMAGES,513),('imagetall',rt.IMAGES+2,65),('tilewrongsize',rt.IMAGES+22*4,31),('unusedimage',rt.IMAGES+213*4,1),('pointerwrongsize',rt.IMAGES+21*4,11),('statewrongsize',rt.IMAGES+4,90)]:word(name,off,value)
     # Every individual image is bounded, but the sum must also fit the budget.
     b=bytearray(base)
@@ -149,8 +155,13 @@ start:
     ld (ct_index),a
 @cycle:
     ld a,(ct_index)
-    and 1
+    ld hl,ct_nineties
+    or a
+    jr z,@skin
+    cp 3
+    jr z,@skin
     ld hl,ct_deco
+    cp 2
     jr z,@skin
     ld hl,ct_70
 @skin:
@@ -296,6 +307,7 @@ ct_cwd_after: blkb 256,0
 ct_root: asciz "/jukebox/skins/"
 ct_deco: asciz "/jukebox/skins/artdeco"
 ct_70: asciz "/jukebox/skins/seventies"
+ct_nineties: asciz "/nineties-test"
 ct_broken_graphics: asciz "/broken-graphics"
 ct_broken_font: asciz "/broken-font"
 ct_empty: asciz "/empty"
@@ -310,10 +322,13 @@ TABLE
 def main():
     p=argparse.ArgumentParser();p.add_argument('directory',type=Path);a=p.parse_args();root=a.directory.resolve();root.mkdir(parents=True,exist_ok=False)
     sd=root/'fixture';(sd/'bin').mkdir(parents=True);(sd/'empty').mkdir()
-    shutil.copytree(ROOT/'skins/runtime',sd/'jukebox/skins')
+    # Keep discovery fixtures stable when unrelated new packages are added.
+    for skin in ('artdeco','seventies'):
+        shutil.copytree(ROOT/'skins/runtime'/skin,sd/'jukebox/skins'/skin)
     for name,leaf in [('broken-graphics','graphics.agnb'),('broken-font','fonts/neutrino_5x8.font')]:
         shutil.copytree(ROOT/'skins/runtime/seventies',sd/name)
         (sd/name/leaf).unlink()
+    shutil.copytree(ROOT/'skins/runtime/nineties',sd/'nineties-test')
     cases,table=fixtures(sd)
     # Assemble from src/asm so all established relative includes resolve.
     source=ROOT/'src/asm/runtime_contract_generated.asm'
@@ -341,5 +356,5 @@ def main():
             except subprocess.TimeoutExpired:proc.kill();proc.wait()
     text=log.read_text(errors='replace');print(text[-2000:])
     assert 'RUNTIME_CONTRACT_PASS' in text and 'RUNTIME_CONTRACT_FAIL' not in text
-    (root/'result.json').write_text(json.dumps({'result':'PASS','layout_cases':[{'name':n,'expected':e} for n,b,e in cases],'skin_load_cycles':4,'partial_asset_failure_cleanup':2,'discovery':True,'cwd_preserved':True,'input_switch':True,'chooser_refresh_select_cancel':True,'mode_restored':True},indent=2)+'\n')
+    (root/'result.json').write_text(json.dumps({'result':'PASS','layout_cases':[{'name':n,'expected':e} for n,b,e in cases],'skin_load_cycles':4,'cycle_skins':['nineties','seventies','artdeco','nineties'],'partial_asset_failure_cleanup':2,'discovery':True,'cwd_preserved':True,'input_switch':True,'chooser_refresh_select_cancel':True,'mode_restored':True},indent=2)+'\n')
 if __name__=='__main__':main()

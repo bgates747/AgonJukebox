@@ -83,7 +83,11 @@ def _load_definition(path):
         if name in art_roles:require(w['asset']==art_roles[name],'incorrect initial state binding')
         else:
             require(w['slot']==('digits' if name in ('w_elapsed','w_duration') else 'text'),'widget slot mismatch')
-            require(w['cell']==([6,12] if name.startswith('w_row') else [5,8]),'widget font mismatch')
+            if name.startswith('w_row'):require(w['cell']==[6,12],'widget font mismatch')
+            if w['cell']==[6,12]:
+                require(w['bg']==d['palette']['background'] and w['fg']==d['palette']['text'],'6x12 text must match normal glyph colors')
+    status_cells={tuple(w['cell']) for name,w in seen.items() if w['kind']=='text' and not name.startswith('w_row')}
+    require(len(status_cells)==1,'status widgets must use one common font cell')
     for name,n in [('w_elapsed',8),('w_duration',8),('w_detail',23),('w_voltext',13),('w_message',48)]:require(seen[name]['n']==n,f'{name}: fixed v1 width {n}')
     require(seen['w_page']['n']>=8,'page field too short')
     if 'w_count' in seen:require(seen['w_count']['n']==13,'v1 count field is 13 cells')

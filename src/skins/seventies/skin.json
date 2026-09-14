@@ -6,7 +6,7 @@
     384
   ],
   "runtime_format": "seventies-test1",
-  "source": "source.png",
+  "source": "concept.png",
   "backdrop": "prepared/backdrop.png",
   "fonts": {
     "small": "prepared/small.font",
@@ -152,9 +152,9 @@
     {
       "name": "w_path",
       "kind": "text",
-      "x": 62,
-      "y": 357,
-      "n": 15,
+      "x": 88,
+      "y": 237,
+      "n": 56,
       "bg": [
         85,
         0,
@@ -166,22 +166,22 @@
         170
       ],
       "rect": [
-        62,
-        357,
-        75,
-        8
+        88,
+        237,
+        336,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_page",
       "kind": "text",
-      "x": 374,
-      "y": 367,
+      "x": 451,
+      "y": 353,
       "n": 8,
       "bg": [
         85,
@@ -194,22 +194,22 @@
         170
       ],
       "rect": [
-        374,
-        367,
-        40,
-        8
+        451,
+        353,
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_count",
       "kind": "text",
-      "x": 394,
-      "y": 355,
+      "x": 363,
+      "y": 353,
       "n": 13,
       "bg": [
         85,
@@ -222,14 +222,14 @@
         170
       ],
       "rect": [
-        394,
-        355,
-        65,
-        8
+        363,
+        353,
+        78,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
@@ -516,8 +516,8 @@
     {
       "name": "w_message",
       "kind": "text",
-      "x": 136,
-      "y": 291,
+      "x": 112,
+      "y": 294,
       "n": 48,
       "bg": [
         85,
@@ -530,23 +530,23 @@
         170
       ],
       "rect": [
-        136,
-        291,
-        240,
-        8
+        112,
+        294,
+        288,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_track",
       "kind": "text",
-      "x": 181,
-      "y": 256,
-      "n": 30,
+      "x": 130,
+      "y": 254,
+      "n": 42,
       "bg": [
         85,
         0,
@@ -558,22 +558,22 @@
         170
       ],
       "rect": [
-        181,
-        256,
-        150,
-        8
+        130,
+        254,
+        252,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_elapsed",
       "kind": "text",
-      "x": 213,
-      "y": 273,
+      "x": 195,
+      "y": 267,
       "n": 8,
       "bg": [
         85,
@@ -586,22 +586,22 @@
         170
       ],
       "rect": [
-        213,
-        273,
-        40,
-        8
+        195,
+        267,
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "digits"
     },
     {
       "name": "w_duration",
       "kind": "text",
-      "x": 282,
-      "y": 273,
+      "x": 263,
+      "y": 267,
       "n": 8,
       "bg": [
         85,
@@ -614,22 +614,22 @@
         170
       ],
       "rect": [
-        282,
-        273,
-        40,
-        8
+        263,
+        267,
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "digits"
     },
     {
       "name": "w_detail",
       "kind": "text",
-      "x": 20,
-      "y": 367,
+      "x": 12,
+      "y": 358,
       "n": 23,
       "bg": [
         85,
@@ -642,21 +642,21 @@
         170
       ],
       "rect": [
-        20,
-        367,
-        115,
-        8
+        12,
+        358,
+        138,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_voltext",
       "kind": "text",
-      "x": 434,
+      "x": 421,
       "y": 367,
       "n": 13,
       "bg": [
@@ -670,56 +670,56 @@
         170
       ],
       "rect": [
-        434,
+        421,
         367,
-        65,
-        8
+        78,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_play",
       "kind": "art",
-      "x": 122,
-      "y": 307,
+      "x": 120,
+      "y": 313,
       "asset": "idle"
     },
     {
       "name": "w_shuffle",
       "kind": "art",
-      "x": 266,
-      "y": 307,
+      "x": 258,
+      "y": 313,
       "asset": "shuffle_off"
     },
     {
       "name": "w_loop",
       "kind": "art",
-      "x": 308,
-      "y": 307,
+      "x": 304,
+      "y": 313,
       "asset": "loop_off"
     },
     {
       "name": "w_volume",
       "kind": "art",
-      "x": 368,
-      "y": 307,
+      "x": 366,
+      "y": 313,
       "asset": "volume_11"
     },
     {
       "name": "w_progress",
       "kind": "art",
-      "x": 141,
-      "y": 282,
+      "x": 136,
+      "y": 280,
       "asset": "progress_track"
     },
     {
       "name": "w_marker",
       "kind": "art",
-      "x": 143,
+      "x": 139,
       "y": 283,
       "asset": "progress_marker"
     }
@@ -733,13 +733,13 @@
     "enabled": true,
     "x": 69
   },
-  "progress_span": 216,
+  "progress_span": 231,
   "review": {
     "example": {
-      "w_path": "/music/Albums",
+      "w_path": "/music/Albums/Seventies/Fleetwood Mac/Rumours",
       "w_page": "01 OF 01",
       "selected": 3,
-      "w_track": "PLAYING Seven After Midnight",
+      "w_track": "PLAYING  Dreams.wav",
       "w_count": "007 FILES",
       "w_message": "Ready",
       "w_elapsed": "00:01:26",
@@ -759,7 +759,7 @@
       "w_row6": "06   Wild_Flower.wav                              00:04:18"
     },
     "test": {
-      "w_path": "/qualificati...",
+      "w_path": "/qualification/Play",
       "w_page": "01 OF 02",
       "selected": 0,
       "w_track": "PAUSED  00_Long_65535.wav",
@@ -785,16 +785,16 @@
     },
     "exclude": [
       [
-        212,
-        272,
-        254,
-        282
+        194,
+        266,
+        244,
+        280
       ],
       [
-        140,
-        281,
-        372,
-        291
+        135,
+        279,
+        377,
+        293
       ]
     ]
   }

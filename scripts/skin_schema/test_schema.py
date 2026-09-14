@@ -36,6 +36,19 @@ class SchemaTests(unittest.TestCase):
     def test_duplicate_json_keys(self):
         self.path.write_text('{"schema_version":1,"schema_version":2}')
         with self.assertRaisesRegex(DefinitionError,'duplicate'):load_definition(self.path)
+    def test_large_status_contract(self):
+        for w in self.d['widgets']:
+            if w['kind']=='text' and not w['name'].startswith('w_row'):
+                w['cell']=[6,12]
+                w['x']=min(w['x'],512-w['n']*6)
+                w['rect']=[w['x'],w['y'],w['n']*6,12]
+        self.check()
+        short=copy.deepcopy(self.d);short['widgets'][0]['rect'][3]=8
+        with self.assertRaisesRegex(DefinitionError,'exceeds restoration'):self.check(short)
+        mixed=copy.deepcopy(self.d);mixed['widgets'][0]['cell']=[5,8]
+        with self.assertRaisesRegex(DefinitionError,'common font'):self.check(mixed)
+        wrong=copy.deepcopy(self.d);wrong['widgets'][0]['fg']=[255,255,255]
+        with self.assertRaisesRegex(DefinitionError,'glyph colors'):self.check(wrong)
     def test_palette_must_match_glyph_background(self):
         self.d['palette']['selection']=[255,85,0]
         with self.assertRaisesRegex(DefinitionError,'space glyph'):self.check()

@@ -1,0 +1,202 @@
+{
+  "result": "PASS",
+  "layout_cases": [
+    {
+      "name": "valid70",
+      "expected": 0
+    },
+    {
+      "name": "validdeco",
+      "expected": 0
+    },
+    {
+      "name": "valid_nineties_large_status",
+      "expected": 0
+    },
+    {
+      "name": "large_status_narrow",
+      "expected": 97
+    },
+    {
+      "name": "large_status_short",
+      "expected": 97
+    },
+    {
+      "name": "large_status_wrong_bg",
+      "expected": 97
+    },
+    {
+      "name": "short",
+      "expected": 96
+    },
+    {
+      "name": "long",
+      "expected": 67
+    },
+    {
+      "name": "magic",
+      "expected": 96
+    },
+    {
+      "name": "noimages",
+      "expected": 97
+    },
+    {
+      "name": "too_many_images",
+      "expected": 97
+    },
+    {
+      "name": "shortpath",
+      "expected": 97
+    },
+    {
+      "name": "shorttrack",
+      "expected": 97
+    },
+    {
+      "name": "badnameoffset",
+      "expected": 97
+    },
+    {
+      "name": "shortname",
+      "expected": 97
+    },
+    {
+      "name": "overlap_duration",
+      "expected": 97
+    },
+    {
+      "name": "badpointerflag",
+      "expected": 97
+    },
+    {
+      "name": "badpalette",
+      "expected": 97
+    },
+    {
+      "name": "zerospan",
+      "expected": 97
+    },
+    {
+      "name": "reserved",
+      "expected": 97
+    },
+    {
+      "name": "bad_status_font",
+      "expected": 97
+    },
+    {
+      "name": "large_font_small_rects",
+      "expected": 97
+    },
+    {
+      "name": "badrowwidth",
+      "expected": 97
+    },
+    {
+      "name": "rowpalette",
+      "expected": 97
+    },
+    {
+      "name": "badpagewidth",
+      "expected": 97
+    },
+    {
+      "name": "badtile",
+      "expected": 97
+    },
+    {
+      "name": "unloadedtile",
+      "expected": 97
+    },
+    {
+      "name": "pointeroffscreen",
+      "expected": 97
+    },
+    {
+      "name": "textoffscreen",
+      "expected": 97
+    },
+    {
+      "name": "textoutside",
+      "expected": 97
+    },
+    {
+      "name": "row_y_high",
+      "expected": 97
+    },
+    {
+      "name": "artoffscreen",
+      "expected": 97
+    },
+    {
+      "name": "artclips",
+      "expected": 97
+    },
+    {
+      "name": "imagezero",
+      "expected": 97
+    },
+    {
+      "name": "imagewide",
+      "expected": 97
+    },
+    {
+      "name": "imagetall",
+      "expected": 97
+    },
+    {
+      "name": "tilewrongsize",
+      "expected": 97
+    },
+    {
+      "name": "unusedimage",
+      "expected": 97
+    },
+    {
+      "name": "pointerwrongsize",
+      "expected": 97
+    },
+    {
+      "name": "statewrongsize",
+      "expected": 97
+    },
+    {
+      "name": "imagebudget",
+      "expected": 97
+    },
+    {
+      "name": "lasttile",
+      "expected": 97
+    },
+    {
+      "name": "marker_outside_track",
+      "expected": 97
+    },
+    {
+      "name": "marker_travel_outside",
+      "expected": 97
+    },
+    {
+      "name": "rows_overlap",
+      "expected": 97
+    },
+    {
+      "name": "row_without_margin",
+      "expected": 97
+    }
+  ],
+  "skin_load_cycles": 4,
+  "cycle_skins": [
+    "nineties",
+    "seventies",
+    "artdeco",
+    "nineties"
+  ],
+  "partial_asset_failure_cleanup": 2,
+  "discovery": true,
+  "cwd_preserved": true,
+  "input_switch": true,
+  "chooser_refresh_select_cancel": true,
+  "mode_restored": true
+}

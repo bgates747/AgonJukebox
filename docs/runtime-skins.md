@@ -1,6 +1,6 @@
 # Runtime skins candidate
 
-`app_runtime.asm` builds one executable that loads Art Deco or Seventies from
+`app_runtime.asm` builds one executable that loads Art Deco, Seventies, PCB or Nineties from
 external packages. Press **k** to stop playback and open the MOS text chooser.
 Choose a numbered package; **r** rescans, and **q/Escape** returns to MOS. Switching
 keeps the current music directory and starts with playback stopped. The choice
@@ -38,7 +38,8 @@ leaf is always `layout.bin`. The exact 1,389-byte little-endian descriptor conta
 | 9–14 | 6 | Path/track widths, filename offset/width, duration offset (255 disables), pointer enabled |
 | 15–19 | 5 | Normal background/foreground, selected background/foreground, progress span |
 | 20 | 2 | Pointer X |
-| 22 | 10 | Reserved, all zero |
+| 22 | 1 | Status font: 0 = legacy 5×8, 1 = playlist 6×12 |
+| 23–31 | 9 | Reserved, all zero |
 | 32 | 285 | 19 text roles, 15 bytes each |
 | 317 | 24 | Six art origins, two u16 coordinates each |
 | 341 | 856 | 214 image width/height pairs; unused pairs zero |
@@ -88,3 +89,15 @@ is separate from functional timing/accounting checks. No hardware deployment was
 performed for this increment. The Author accepted emulator launch and skin
 switching on 2026-09-14 and authorized commit and push. Hardware qualification
 and broader audio-performance characterization remain separate work.
+
+## Status-font extension
+
+Descriptor byte 22 chooses the status font for all non-list text roles. Existing
+packages leave it zero and retain 5×8. Nineties sets it to one and reuses the
+existing normal 6×12 playlist glyph bank/context; no additional glyph memory or
+font files are needed. The compiler derives this value from the widgets' `cell`
+values. All status roles must agree; 6×12 colors must match normal playlist
+glyphs. Target validation checks the selected width/height and rejects invalid
+font values and mismatched glyph colors before drawing. Older executables reject
+these new packages because the previously reserved byte is nonzero; use the
+updated executable. Existing package bytes and typography remain unchanged.

@@ -5,12 +5,29 @@ Task IDs remain stable. Detailed working notes and experimental skin assets
 are local-only; finished skin documentation and tools will be published when
 ready for distribution.
 
+## First priority — Existing-skin UI correctness and consistency
+
+7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
+   - Started: 2026-09-14 (cross-skin UI review)
+   - Finished: --
+   - Status: First priority: review Art Deco, Seventies, PCB and Nineties against one control/state and text-layout matrix; correct each skin and align shared behavior where practical. Check play/pause/stop feedback, navigation, shuffle/loop/volume, dynamic text and transitions. Coordinate directory placement with SKIN-024; preserve each skin’s visual identity. Existing pixel tests are supporting evidence, not visual acceptance. Extended resource/hardware qualification remains in this same task.
+
+This review takes precedence over new skins, gradients, custom fonts and cosmetic
+expansion. Review worksheets and focused automated checks precede uninterrupted
+human emulator review; use one patched-beta session and leave it untouched.
+
 ## Emulator preparation
 
 1. [ ] **EMU-001 — Prepare and qualify the dedicated tagged-release emulator**
    - Started: 2026-09-08 13:49 EDT
    - Finished: --
    - Status: Mac project-local Fab 1.2.4/MOS 3.0.2 setup passed Author emulator checks on 2026-09-12. Original tagged-release qualification and large-file omission remain separate; 70s prototype accepted on hardware on 2026-09-13.
+
+2. [ ] **EMU-002 — Review Fab Agon Emulator v1.2.5-beta1 on Mac**
+   - Status: Author reports clean application exit and apparent audio improvement. Use 1.2.5-beta1 for several more review cycles to assess exit exceptions; preserve 1.2.4 for comparison.
+
+3. [ ] **EMU-003 — Correct emulator host-filesystem large-file size truncation**
+   - Status: Patched isolated beta build passes native 16 MiB boundary tests and Rumours validation; Author confirmed Rumours works and playback is clean; upstream PR #85 submitted, Tom is addressing f_truncate with a shared _poke32.
 
 ## Skinning
 
@@ -19,6 +36,18 @@ promoted into the application tree. Configuration, AGNB loading, live widgets
 and playback are integrated. Remaining work covers the complete skin contracts,
 authoring-tool refinements, artwork, resource qualification and release packaging.
 The shared runtime loader, discovery and recovery chooser are accepted.
+
+24. [ ] **SKIN-024 — Review directory placement across all skins**
+   - Started: 2026-09-14
+   - Status: Seventies implemented: 6×12 status text, 56-cell directory plaque and geometric SVG; native checks pass; Author considers the redraw a visual regression, refinement deferred. Directory placement and text-layout findings feed the first-priority SKIN-007 review; other skins remain pending review.
+
+23. [ ] **SKIN-023 — Prepare the Nineties rack-stereo skin**
+   - Started: 2026-09-14
+   - Status: Author selected option 2 colors and requested a fresh geometric SVG redraw with better black/two-grey material treatment; Geometric Nineties implemented with shared 6×12 status support and independent message line; 52 native scenarios / 28,749 pixel checks and font-switch lifecycle checks pass; graphical emulator launched, awaiting Author review. Custom fonts deferred.
+
+22. [ ] **SKIN-022 — Prepare the PCB concept for visual review**
+   - Started: 2026-09-14
+   - Status: Candidate 2 implemented and deployed to an isolated graphical emulator; 26 scenarios and 13,899 pixel checks pass. Await Author visual/audio acceptance before commit.
 
 
 1. [ ] **SKIN-001 — Resolve and document the v1 skin contracts**
@@ -33,10 +62,6 @@ The shared runtime loader, discovery and recovery chooser are accepted.
    - Started: 2026-09-10
    - Finished: --
    - Status: Art Deco hardware-tested progress checkpoint 0a09cee preserved. 70s flat-color prototype accepted on hardware (SKIN-019 complete); gradients and extended qualification remain open.
-7. [ ] **SKIN-007 — Qualify skinning and establish resource limits**
-   - Started: --
-   - Finished: --
-   - Status: First functional emulator milestone accepted; extended timing/resource and hardware qualification remain.
 8. [ ] **SKIN-008 — Package and document the skin-enabled release**
    - Started: --
    - Finished: --

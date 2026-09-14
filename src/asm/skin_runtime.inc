@@ -100,7 +100,11 @@ rt_validate:
     or a
     sbc hl,de
     jp nc,rt_bad_data
-    ld b,10
+    ld a,(ix) ; status font: legacy 5x8 or playlist 6x12
+    cp 2
+    jp nc,rt_bad_data
+    inc ix
+    ld b,9
 @reserved:
     ld a,(ix)
     or a
@@ -218,6 +222,17 @@ rt_validate:
     ld hl,0
     ld l,(ix+12)
     ld de,5
+    ld a,(rt_descriptor+22)
+    or a
+    jr z,@status_width_ready
+    ld de,6
+    ld a,(rt_normal_bg_value)
+    cp (ix+13)
+    jp nz,rt_bad_data
+    ld a,(rt_normal_fg)
+    cp (ix+14)
+    jp nz,rt_bad_data
+@status_width_ready:
     ld a,(rt_index)
     cp 3
     jr c,@small
@@ -251,6 +266,11 @@ rt_validate:
 @right_ok:
     ld hl,(rt_y)
     ld de,7
+    ld a,(rt_descriptor+22)
+    or a
+    jr z,@status_height_ready
+    ld de,11
+@status_height_ready:
     ld a,(rt_index)
     cp 3
     jr c,@height
@@ -609,6 +629,12 @@ rt_make_widgets:
     ld hl,rt_text_template
     ld bc,36
     ldir
+    ld a,(rt_descriptor+22)
+    or a
+    jr z,@status_font_ready
+    ld (iy+4),3
+    ld (iy+9),0xf1
+@status_font_ready:
     push ix
     call rt_word
     ld (iy+32),l
