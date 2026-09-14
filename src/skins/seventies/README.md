@@ -6,7 +6,9 @@ cached during existing WAV validation; the small status font is Neutrino 5×8.
 Sprite 0 follows browser selection. No gradients or hardware-sprite enablement.
 
 Build from the project root using `.venv/bin/python src/skins/seventies/build.py`.
-Requires the canonical sibling agon-utils AGNB helpers and font editor modules.
+Uses `skin.json` and the [shared skin compiler](../../../docs/skin-authoring.md).
+Requires the canonical sibling agon-utils AGNB helpers; the font editor API is
+no longer a build-time dependency. Prepared-art provenance is preserved.
 Use `--output-root /tmp/jukebox-70-repeat` for an isolated reproduction.
 Existing font sources and source.png are immutable inputs.
 

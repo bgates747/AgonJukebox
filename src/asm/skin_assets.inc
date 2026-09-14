@@ -600,8 +600,11 @@ sa_key_playlist_graphics: asciz "playlist.graphics.file"
     if skin_seventies
 sa_manifest_version: asciz "seventies-test1"
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
 sa_manifest_version: asciz "artdeco-test3"
+    endif
+    if skin_custom
+sa_manifest_version: asciz "schema-test1"
     endif
     if 1-skin_artdeco
 sa_key_font8: asciz "font8.file"

@@ -1,0 +1,393 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Agon Jukebox prepared skin authoring v1",
+  "description": "Structural schema. compile.py additionally validates semantic roles, file ownership, Agon pixels, glyph backgrounds, geometry, state dimensions, packet bounds and runtime compatibility.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "id",
+    "screen",
+    "runtime_format",
+    "source",
+    "backdrop",
+    "fonts",
+    "palette",
+    "assets",
+    "widgets",
+    "playlist",
+    "selection",
+    "progress_span",
+    "review"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]{0,23}$"
+    },
+    "screen": {
+      "const": [
+        512,
+        384
+      ]
+    },
+    "runtime_format": {
+      "enum": [
+        "artdeco-test3",
+        "seventies-test1",
+        "schema-test1"
+      ]
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "backdrop": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "fonts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "small",
+        "playlist",
+        "normal",
+        "selected"
+      ],
+      "properties": {
+        "small": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "playlist": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "normal": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        },
+        "selected": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+        }
+      }
+    },
+    "palette": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "background",
+        "text",
+        "selection",
+        "selected_text"
+      ],
+      "properties": {
+        "background": {
+          "type": "array",
+          "items": {
+            "enum": [
+              0,
+              85,
+              170,
+              255
+            ]
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "text": {
+          "type": "array",
+          "items": {
+            "enum": [
+              0,
+              85,
+              170,
+              255
+            ]
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "selection": {
+          "type": "array",
+          "items": {
+            "enum": [
+              0,
+              85,
+              170,
+              255
+            ]
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "selected_text": {
+          "type": "array",
+          "items": {
+            "enum": [
+              0,
+              85,
+              170,
+              255
+            ]
+          },
+          "minItems": 3,
+          "maxItems": 3
+        }
+      }
+    },
+    "assets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "file",
+          "role"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "file": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "minItems": 22,
+      "maxItems": 22
+    },
+    "widgets": {
+      "type": "array",
+      "minItems": 24,
+      "maxItems": 25,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "kind",
+              "x",
+              "y",
+              "n",
+              "bg",
+              "fg",
+              "rect",
+              "cell",
+              "slot"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "const": "text"
+              },
+              "x": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "y": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "n": {
+                "type": "integer",
+                "minimum": 6,
+                "maximum": 60
+              },
+              "bg": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    0,
+                    85,
+                    170,
+                    255
+                  ]
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "fg": {
+                "type": "array",
+                "items": {
+                  "enum": [
+                    0,
+                    85,
+                    170,
+                    255
+                  ]
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rect": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "minItems": 4,
+                "maxItems": 4
+              },
+              "cell": {
+                "enum": [
+                  [
+                    5,
+                    8
+                  ],
+                  [
+                    6,
+                    12
+                  ]
+                ]
+              },
+              "slot": {
+                "enum": [
+                  "text",
+                  "digits"
+                ]
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "name",
+              "kind",
+              "x",
+              "y",
+              "asset"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "kind": {
+                "const": "art"
+              },
+              "x": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "y": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "asset": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        ]
+      }
+    },
+    "playlist": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "filename_offset",
+        "filename_columns",
+        "duration_offset"
+      ],
+      "properties": {
+        "filename_offset": {
+          "type": "integer",
+          "minimum": 3,
+          "maximum": 40
+        },
+        "filename_columns": {
+          "type": "integer",
+          "minimum": 12,
+          "maximum": 55
+        },
+        "duration_offset": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0,
+          "maximum": 50
+        }
+      }
+    },
+    "selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "enabled",
+        "x"
+      ],
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "x": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 502
+        }
+      }
+    },
+    "progress_span": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 255
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "example",
+        "test",
+        "exclude"
+      ],
+      "properties": {
+        "example": {
+          "type": "object"
+        },
+        "test": {
+          "type": "object"
+        },
+        "exclude": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "minItems": 4,
+            "maxItems": 4
+          }
+        }
+      }
+    }
+  }
+}

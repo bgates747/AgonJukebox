@@ -234,14 +234,10 @@ ui_directory:
     ld (ui_last_page),hl
     ld hl,bf_dir_path
     ld de,w_path_text
-    if skin_seventies
-    ld b,15
-    else
-    ld b,48
-    endif
+    ld b,ui_path_columns
     call ui_copy
     call w_path_send
-    if skin_seventies
+    if ui_has_count
     ld hl,(bf_dir_num_files)
     ld de,w_count_text
     ld b,3
@@ -316,8 +312,8 @@ ui_row:
     ld hl,ui_empty
     ld b,ui_row_columns
     call ui_copy
-    if skin_seventies
-    ld a,ui_normal_bg
+    if ui_normal_bg_value
+    ld a,ui_normal_bg_value
     else
     xor a
     endif
@@ -332,7 +328,7 @@ ui_row:
     cp (hl)
     jr c,@entry
     or a
-    if skin_seventies
+    if ui_row_wide_jumps
     jp nz,@send
     else
     jr nz,@send
@@ -341,7 +337,7 @@ ui_row:
     ld de,(ui_row_text)
     ld b,ui_row_columns
     call ui_copy
-    if skin_seventies
+    if ui_row_wide_jumps
     jp @send
     else
     jr @send
@@ -374,18 +370,10 @@ ui_row:
     add hl,de
     ld iy,(hl)
     ld hl,(ui_row_text)
-    if skin_seventies
-    ld de,5
-    else
-    ld de,3
-    endif
+    ld de,ui_filename_offset
     add hl,de
     ex de,hl
-    if skin_seventies
-    ld b,42
-    else
-    ld b,ui_row_columns-3
-    endif
+    ld b,ui_filename_columns
     bit AM_DIR,(iy+filinfo_fattrib)
     jr z,@filename
     push de
@@ -396,20 +384,16 @@ ui_row:
     ld hl,6
     add hl,de
     ex de,hl
-    if skin_seventies
-    ld b,36
-    else
-    ld b,ui_row_columns-9
-    endif
+    ld b,ui_filename_columns-6
 @filename:
     lea hl,iy+filinfo_fname
     call ui_copy
-    if skin_seventies
+    if ui_has_row_duration
     bit AM_DIR,(iy+filinfo_fattrib)
     jp nz,@send
     push ix
     ld hl,(ui_row_text)
-    ld de,50
+    ld de,ui_duration_offset
     add hl,de
     ex de,hl
     ld hl,(iy+filinfo_altname) ; ADL24 OK: cached u24 seconds.
@@ -453,20 +437,12 @@ ui_track:
     call ui_copy
     ld hl,ps_filinfo_fname
     ld de,w_track_text+8
-    if skin_seventies
-    ld b,22
-    else
-    ld b,36
-    endif
+    ld b,ui_track_columns-8
     call ui_copy
     jr @send
 @name:
     ld de,w_track_text
-    if skin_seventies
-    ld b,30
-    else
-    ld b,44
-    endif
+    ld b,ui_track_columns
     call ui_copy
 @send:
     call w_track_send
@@ -555,7 +531,7 @@ ui_time:
     xor a
     ld (ui_progress_pixel),a
     ld hl,0
-    ld a,216
+    ld a,ui_progress_span
 @fraction:
     push af
     add hl,de
@@ -725,6 +701,9 @@ ui_rate: asciz "RATE 00000 Hz   SEEK STEP 000s"
 ; SKIN-013 candidate: AGNB bitmap on sprite 0, following the browser selection.
 ; Foreground only; move/show/refresh is one complete 17-byte packet.
 ui_selection_pointer:
+    if 1-ui_pointer_enabled
+    jp @hide
+    endif
     ld a,(bf_files_cur_pg)
     or a
     jr z,@hide
@@ -732,7 +711,7 @@ ui_selection_pointer:
     ld hl,bf_files_cur_pg
     cp (hl)
     jr nc,@hide
-    if skin_seventies
+    if ui_pointer_table
     ld hl,ui_selection_y
     ld de,0
     ld e,a
@@ -755,10 +734,12 @@ ui_selection_pointer:
     ld bc,10
     jp ui_send
 ui_selection_packet:
-    db 23,27,4,0,23,27,13,69,0,88,0,23,27,11,23,27,15
+    db 23,27,4,0,23,27,13
+    dw ui_pointer_x
+    db ui_pointer_initial_y,0,23,27,11,23,27,15
 ui_selection_hide:
     db 23,27,4,0,23,27,12,23,27,15
 
-    if skin_seventies
+    if ui_has_count
 ui_count_suffix: asciz " FILES"
     endif

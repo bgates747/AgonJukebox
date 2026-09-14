@@ -32,7 +32,8 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Finished: --
    - Status: First native render and live integration accepted; complete loader/switching work remains.
 5. [ ] **SKIN-005 — Build reproducible skin authoring and validation tools**
-   - Started: --
+   - Started: 2026-09-13
+   - Status: SKIN-020 supplies the bounded shared compiler, strict validation and review generation; general authoring/resource/tool promotion remains.
    - Finished: --
 6. [ ] **SKIN-006 — Design and build the rich reference skin**
    - Started: 2026-09-10

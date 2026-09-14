@@ -1,0 +1,33 @@
+; Shared application body; assemble app.asm from src/asm.
+    assume adl=1
+    org 0x040000
+    jp start
+    align 64
+    db "MOS",0,1
+
+    include "mos_api.inc"
+    include "macros.inc"
+    include "functions.inc"
+    include "arith24.inc"
+    include "maths.inc"
+    include "fixed168.inc"
+    include "time.inc"
+    include "timer.inc"
+    include "vdu.inc"
+    include "vdu_buffered_api.inc"
+    include "vdu_fonts.inc"
+    include "vdu_plot.inc"
+    include "vdu_sound.inc"
+    include "fpp.inc"
+    include "fpp_ext.inc"
+    include "browse.inc"
+    include "input.inc"
+    include "play.inc"
+    include "sort.inc"
+    include "timer_jukebox.inc"
+    include "wav.inc"
+    include "jukebox_cfg.inc"
+    include "../../vendor/agnb/agnb_api.inc"
+    include "agnb_vdu.inc"
+    include "skin_assets.inc"
+    include "layout.inc"

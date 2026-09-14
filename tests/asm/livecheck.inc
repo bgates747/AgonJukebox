@@ -136,6 +136,9 @@ lt_blue_pixel:
     jr lt_pixel
     endif
 lt_frame_pixel:
+    if skin_custom
+    jp lt_schema_frame_pixel
+    endif
     if skin_seventies
     ld bc,70
     ld de,110
@@ -287,7 +290,7 @@ lt_font_draw: incbin "../../tests/fixtures/seventies/font-probe.vdu"
 lt_font_draw_end:
 lt_font_samples: incbin "../../tests/fixtures/seventies/font-samples.bin"
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
 lt_font_draw: incbin "../../tests/fixtures/artdeco/font-probe.vdu"
 lt_font_draw_end:
 lt_font_samples: incbin "../../tests/fixtures/artdeco/font-samples.bin"
@@ -343,7 +346,7 @@ lt_samples_left: dl 0
     if skin_seventies
 lt_samples: incbin "../../tests/fixtures/seventies/widget-samples.bin"
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
 lt_samples: incbin "../../tests/fixtures/artdeco/widget-samples.bin"
     endif
     if 1-skin_artdeco
@@ -459,6 +462,10 @@ lt_case5:
     or a
     sbc hl,de
     jp nz,lt_fail
+    if skin_custom
+    call lt_schema_row0
+    call lt_schema_row1
+    endif
     if skin_seventies
     ld bc,81
     ld de,91
@@ -472,7 +479,7 @@ lt_case5:
     ld de,104
     call lt_blue_pixel
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
     ld bc,81
     ld de,89
     endif
@@ -480,11 +487,11 @@ lt_case5:
     ld bc,10
     ld de,151
     endif
-    if 1-skin_seventies
+    if 1-skin_seventies-skin_custom
     xor a
     call lt_grey_pixel
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
     ld bc,81
     ld de,101
     endif
@@ -492,7 +499,7 @@ lt_case5:
     ld bc,10
     ld de,165
     endif
-    if 1-skin_seventies
+    if 1-skin_seventies-skin_custom
     call lt_blue_pixel
     endif
 
@@ -812,7 +819,7 @@ lt_case25:
     if skin_seventies
     include "../ui/seventies/test-meta.inc"
     endif
-    if skin_artdeco-skin_seventies
+    if skin_artdeco-skin_seventies-skin_custom
     include "../ui/artdeco/test-meta.inc"
     endif
     if 1-skin_artdeco

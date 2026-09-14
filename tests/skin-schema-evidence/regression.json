@@ -1,0 +1,72 @@
+{
+  "baseline": "5df71d5",
+  "packages": {
+    "skins/artdeco/README.md": "3eec15b0a5e61540b5d002bb93d2f36a31afe4430ebbc499120e8d0fca680e1a",
+    "skins/artdeco/fonts/ArtDeco_Concept_02_6x12.agnb": "598132793e75d9dce9ed6965768ea5dd2b8e45d65353eda38f89613651bcd94a",
+    "skins/artdeco/fonts/ArtDeco_Concept_02_6x12.font": "d0cb5cf646fd51c8fccead288d7eb4a81ad1d511e6824e9ddf916463479546bc",
+    "skins/artdeco/fonts/neutrino_5x8.font": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
+    "skins/artdeco/graphics.agnb": "9d74d91c61e120bd1808ac49dfbe55d0a93141b6c562c70615f9ef8db05e4769",
+    "skins/artdeco/skin.cfg": "7860073b6d1e30cc13769f14bda784bc599d282cac8c77a4014122d8fff90ca1",
+    "src/ui/artdeco/cleanup.vdu": "d627a7c075e72ecd15490c4e9ca9c06f8451801726fafea4345ccb958a96307d",
+    "src/ui/artdeco/contexts.vdu": "3f055b6c641658bd90c82a465d5d7263bf5bc00b6fac76686052f4bc956e0cf0",
+    "src/ui/artdeco/image-meta.bin": "f1b94beec15ae307c17e1254047d05bbf06f433e8f579c902ea63aaf4368466b",
+    "src/ui/artdeco/playlist-meta.bin": "b6e9e4ff4cd111325c7dc60669ca1abf535cb81768caa380c9f2ce0759010c82",
+    "src/ui/artdeco/static.vdu": "6a0c7f32a43a1ce6d814b69c81430eae42151686f61035a5137c3d43296504b9",
+    "tests/fixtures/artdeco/font-probe.vdu": "8e98cb25e6325690ae4f024b1b0d42dbecceb3941838ac53de4e12b1b781d436",
+    "tests/fixtures/artdeco/font-samples.bin": "d10659ace85e50b9a87f43ea0a073d6c57e02a23d64aa3d217966babcd370a33",
+    "tests/fixtures/artdeco/widget-samples.bin": "63bcbc68958362ad622a3ddd0d51940d63ad8eeeaeda99522f06d64961735c69",
+    "skins/seventies/fonts/Lat7-Terminus12x6_6x12.agnb": "4e1cd5237f7bc42cf9727110168b0546300dafb0e90a5837c95d6abea68bf906",
+    "skins/seventies/fonts/Lat7-Terminus12x6_6x12.font": "5624448f93da6a47ced8507d975cc7b8fee0a73c02f4bbf105a145f398f20609",
+    "skins/seventies/fonts/neutrino_5x8.font": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
+    "skins/seventies/graphics.agnb": "298bc3671a4cc8c5243681ab95d2ed255dca23d2f2a9fd71428ad5e6594e24ea",
+    "skins/seventies/skin.cfg": "1c0eeaebd1f0c10c79d86b305e464ec1c0b394aaf4dea42213c49aab916da5b1",
+    "src/ui/seventies/cleanup.vdu": "17d3354f44dc18a5da8a41a476a65237afa8cce5a2fa623340227ece24b1fff5",
+    "src/ui/seventies/contexts.vdu": "3f055b6c641658bd90c82a465d5d7263bf5bc00b6fac76686052f4bc956e0cf0",
+    "src/ui/seventies/image-meta.bin": "310a0a155a0508a27030879cad3dac0f9c9a88eefdbbbb341d5f7ba392606b06",
+    "src/ui/seventies/playlist-meta.bin": "b6e9e4ff4cd111325c7dc60669ca1abf535cb81768caa380c9f2ce0759010c82",
+    "src/ui/seventies/static.vdu": "2adf6f4e3355b46b046bf9ae4f9cf90aa913470fdc1b83ba9e1d9f14f3c2357c",
+    "tests/fixtures/seventies/font-probe.vdu": "c13d7866050b405c24be0152e9ed9eff0c126766a0c25f02a22a12de3e2c255e",
+    "tests/fixtures/seventies/font-samples.bin": "cae6463219935476d95593ac05a15e23c2b2cfbde2985d563806936c382b88d8",
+    "tests/fixtures/seventies/widget-samples.bin": "c4f971b58599318829c47f7e6fc47999bc6255b287529b2ed6b93128d264b01a"
+  },
+  "images": {
+    "src/skins/artdeco/generated/preview.png": "identical pixels",
+    "src/skins/artdeco/generated/backdrop.png": "identical pixels",
+    "src/skins/artdeco/generated/test-paused.png": "identical pixels",
+    "src/skins/seventies/generated/preview.png": "identical pixels",
+    "src/skins/seventies/generated/backdrop.png": "identical pixels",
+    "src/skins/seventies/generated/test-paused.png": "identical pixels"
+  },
+  "binaries": {
+    "app.asm": {
+      "bytes": 51655,
+      "sha256": "ec0c1d8cdcb142f2fb08f1da856a33e68fa444523973e1bf35143890489e15f0",
+      "identical": true
+    },
+    "app_base.asm": {
+      "bytes": 47792,
+      "sha256": "a91c8339e4ca673c9c1e7081f52d22f7b46e16d728ae26e352c3b92329f7ba07",
+      "identical": true
+    },
+    "app_seventies.asm": {
+      "bytes": 52032,
+      "sha256": "8ed30b1e62238f0f26770fcfc8f35eb74e53a3e1cb7b0f3abecaafd8d80016d0",
+      "identical": true
+    },
+    "../../tests/asm/livecheck.asm": {
+      "bytes": 58730,
+      "sha256": "86cbc791e39e9bf553608240f77ffca8a33ed44b37dc0dc03d35e9b10072184f",
+      "identical": true
+    },
+    "../../tests/asm/artdeco_check.asm": {
+      "bytes": 152435,
+      "sha256": "132c353685547a550028c2349d443502629fd0a181416e92ee884b666c676243",
+      "identical": true
+    },
+    "../../tests/asm/seventies_check.asm": {
+      "bytes": 151482,
+      "sha256": "3529daa39ed1c4655921bd89b2cfebb25b3732785feda68a65c9fbb5bd3cc9c3",
+      "identical": true
+    }
+  }
+}

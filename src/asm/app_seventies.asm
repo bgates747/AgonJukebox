@@ -1,3 +1,5 @@
+skin_custom: equ 0
+    include "../ui/seventies/profile.inc"
 ; Separate 70s profile; same player and loader.
 skin_seventies: equ 1
 live_test_mode: equ 0

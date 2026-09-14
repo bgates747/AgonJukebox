@@ -51,7 +51,7 @@ bf_get_dir:
     lea de,ix+filinfo_fname ; de = pointer to filename
     call bf_verify_wav
     jp z,@readFileInfo ; not a .wav file, so skip it
-    if skin_seventies
+    if ui_has_row_duration
     call bf_cache_duration
     endif
 ; set the last byte of filinfo_faltname to 1 to indicate this is a file for filename sorting
@@ -136,7 +136,7 @@ bf_check_dir_or_file:
 bf_print_dir_name:
     jp ui_event_directory
 
-    if skin_seventies
+    if ui_has_row_duration
 ; Cache seconds while the already-required WAV validation header is available.
 ; filinfo_altname[0..2] is application-owned after enumeration; sorting uses only
 ; altname[12]. No additional file open/read and no redraw-time SD traffic.

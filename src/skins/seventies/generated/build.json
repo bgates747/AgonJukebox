@@ -1,15 +1,16 @@
 {
-  "format": "seventies-authoring-test1",
+  "format": "skin-authoring-v1",
+  "definition_sha256": "35840e367c8490c24c4a48fee7524d05104a478a629f5584a6aaff4c9736db59",
   "source_sha256": "a1082a8ddc0e6ea3f3ee36036e21948cdceab1572c5427299e06f793fe80f5ee",
-  "builder_sha256": "f847d334f93676be368ce87175029da156bf3549af61a51aed476146da958834",
+  "builder_sha256": "bf51d94536ae17864d879ab955077b9e6cf9f55becd83d306ac899f084ceba88",
   "font_sha256": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
-  "source_reference": "SKIN-018 flat-color-04 candidate 3",
-  "playlist_choice": "terminus",
+  "source_reference": "source.png",
+  "playlist_choice": "prepared",
   "playlist_font": "Lat7-Terminus12x6_6x12",
   "playlist_font_sha256": "5624448f93da6a47ced8507d975cc7b8fee0a73c02f4bbf105a145f398f20609",
   "playlist_source_sha256": {
-    "normal": "c589062e9d5af4fdf471bcb49f7ab75431ee6257d566bded4440f8e465c44f7c",
-    "selected": "6c1f19bba128252bb7a851b779f94ff621a98583422cf2ed2b2c9f19623570e6"
+    "normal": "6f5c8eb043629749176675f42bf2d7869c1e70db1c96b3db622730711d3129c5",
+    "selected": "d190e56018feed11d971859d0b83450a7559a4c3c8b46a82b15bd903c86e22cd"
   },
   "playlist_assets": [
     {
@@ -4813,8 +4814,7 @@
   "tool_hashes": {
     "examples/agnb/images/shared/scripts/image_manifest.py": "94e6013c5fb895dd4c6f063272b6cd71c0f437d543598cfa0059eb803e46e4f8",
     "examples/agnb/images/container/scripts/do_assembly.py": "39371ca2813e14594143bf9ebb4a792434145fd5547c0f3c9630b427912645c9",
-    "examples/agnb/images/container/scripts/view_agnb.py": "2bdf9d5e3acd8b5e4cbec8d8f79c16454fc76d7fbd18c7d604e81abed6408fc7",
-    "examples/font_editor/src/python/agon_font.py": "e313e170b3a051ca20b035df92cbe68ce5ac2c508f2ef87a6a24042aa08047f1"
+    "examples/agnb/images/container/scripts/view_agnb.py": "2bdf9d5e3acd8b5e4cbec8d8f79c16454fc76d7fbd18c7d604e81abed6408fc7"
   },
   "checks": [
     "Agon palette",

@@ -1,15 +1,16 @@
 {
-  "format": "artdeco-authoring-test1",
+  "format": "skin-authoring-v1",
+  "definition_sha256": "50e81090fb69a2558ed8a49d3f52bcf386e8392fe9f5a858e74dbd549160794b",
   "source_sha256": "7ade8177b5c767743ad2c4b863f4f6fc3660d580a97b4165e8c676fe287b25c1",
-  "builder_sha256": "6b2c9cc1b31fbf2127bcd43413ca277afef30bdb277ed9dfd88ca381b027cc80",
+  "builder_sha256": "bf51d94536ae17864d879ab955077b9e6cf9f55becd83d306ac899f084ceba88",
   "font_sha256": "43c93d89c35e83fb5bac59926075abb9c8c2b3d85327a1eeaa86e9f43af89b6b",
-  "source_svg_sha256": "c7a2fb1540c246bdafdefedfde2c44a1d7f3a88c60c2549729ad0e77ae11e8d4",
-  "playlist_choice": "concept-02",
+  "source_reference": "source.png",
+  "playlist_choice": "prepared",
   "playlist_font": "ArtDeco_Concept_02_6x12",
   "playlist_font_sha256": "d0cb5cf646fd51c8fccead288d7eb4a81ad1d511e6824e9ddf916463479546bc",
   "playlist_source_sha256": {
-    "normal": "bb893e7e22b945ca23ce24dc0d51b929aea535bd31fe568e979ee83cc09be4be",
-    "selected": "c7ccc037d601a0dacd55802acd7c49b02832a4130bf41e249b1b49b91ba6751f"
+    "normal": "dca08290358249430a94a6959fd8a558c95a19aa827d0f6b3236d7ce8a5b42c3",
+    "selected": "19307fe4b68b0aeaedeb92adde58fbad2b2f9aa03137e3672b7e9134219e31b4"
   },
   "playlist_assets": [
     {
@@ -4688,8 +4689,7 @@
   "tool_hashes": {
     "examples/agnb/images/shared/scripts/image_manifest.py": "94e6013c5fb895dd4c6f063272b6cd71c0f437d543598cfa0059eb803e46e4f8",
     "examples/agnb/images/container/scripts/do_assembly.py": "39371ca2813e14594143bf9ebb4a792434145fd5547c0f3c9630b427912645c9",
-    "examples/agnb/images/container/scripts/view_agnb.py": "2bdf9d5e3acd8b5e4cbec8d8f79c16454fc76d7fbd18c7d604e81abed6408fc7",
-    "examples/font_editor/src/python/agon_font.py": "4d5bf9a4a1a4253fd2bd29641a2b59a54bfb6bcba99c4d14f5091882e6345ced"
+    "examples/agnb/images/container/scripts/view_agnb.py": "2bdf9d5e3acd8b5e4cbec8d8f79c16454fc76d7fbd18c7d604e81abed6408fc7"
   },
   "checks": [
     "Agon palette",

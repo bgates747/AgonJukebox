@@ -1,0 +1,771 @@
+{
+  "schema_version": 1,
+  "id": "artdeco",
+  "screen": [
+    512,
+    384
+  ],
+  "runtime_format": "artdeco-test3",
+  "source": "source.png",
+  "backdrop": "prepared/backdrop.png",
+  "fonts": {
+    "small": "prepared/small.font",
+    "playlist": "prepared/ArtDeco_Concept_02_6x12.font",
+    "normal": "prepared/normal.png",
+    "selected": "prepared/selected.png"
+  },
+  "palette": {
+    "background": [
+      0,
+      0,
+      0
+    ],
+    "text": [
+      255,
+      255,
+      170
+    ],
+    "selection": [
+      255,
+      170,
+      85
+    ],
+    "selected_text": [
+      0,
+      0,
+      0
+    ]
+  },
+  "assets": [
+    {
+      "name": "idle",
+      "file": "prepared/idle.png",
+      "role": "play/pause feedback"
+    },
+    {
+      "name": "pause",
+      "file": "prepared/pause.png",
+      "role": "play/pause feedback"
+    },
+    {
+      "name": "play",
+      "file": "prepared/play.png",
+      "role": "play/pause feedback"
+    },
+    {
+      "name": "shuffle_off",
+      "file": "prepared/shuffle_off.png",
+      "role": "shuffle feedback"
+    },
+    {
+      "name": "shuffle_on",
+      "file": "prepared/shuffle_on.png",
+      "role": "shuffle feedback"
+    },
+    {
+      "name": "loop_off",
+      "file": "prepared/loop_off.png",
+      "role": "loop feedback"
+    },
+    {
+      "name": "loop_on",
+      "file": "prepared/loop_on.png",
+      "role": "loop feedback"
+    },
+    {
+      "name": "volume_0",
+      "file": "prepared/volume_0.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_1",
+      "file": "prepared/volume_1.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_2",
+      "file": "prepared/volume_2.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_3",
+      "file": "prepared/volume_3.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_4",
+      "file": "prepared/volume_4.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_5",
+      "file": "prepared/volume_5.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_6",
+      "file": "prepared/volume_6.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_7",
+      "file": "prepared/volume_7.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_8",
+      "file": "prepared/volume_8.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_9",
+      "file": "prepared/volume_9.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_10",
+      "file": "prepared/volume_10.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "volume_11",
+      "file": "prepared/volume_11.png",
+      "role": "volume feedback"
+    },
+    {
+      "name": "progress_track",
+      "file": "prepared/progress_track.png",
+      "role": "progress background"
+    },
+    {
+      "name": "progress_marker",
+      "file": "prepared/progress_marker.png",
+      "role": "progress marker"
+    },
+    {
+      "name": "selection_pointer",
+      "file": "prepared/selection_pointer.png",
+      "role": "selection sprite"
+    }
+  ],
+  "widgets": [
+    {
+      "name": "w_path",
+      "kind": "text",
+      "x": 85,
+      "y": 76,
+      "n": 48,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        85,
+        76,
+        240,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_page",
+      "kind": "text",
+      "x": 366,
+      "y": 76,
+      "n": 13,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        366,
+        76,
+        65,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row0",
+      "kind": "text",
+      "x": 82,
+      "y": 88,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        88,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row1",
+      "kind": "text",
+      "x": 82,
+      "y": 100,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        100,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row2",
+      "kind": "text",
+      "x": 82,
+      "y": 112,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        112,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row3",
+      "kind": "text",
+      "x": 82,
+      "y": 124,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        124,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row4",
+      "kind": "text",
+      "x": 82,
+      "y": 136,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        136,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row5",
+      "kind": "text",
+      "x": 82,
+      "y": 148,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        148,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row6",
+      "kind": "text",
+      "x": 82,
+      "y": 160,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        160,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row7",
+      "kind": "text",
+      "x": 82,
+      "y": 172,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        172,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row8",
+      "kind": "text",
+      "x": 82,
+      "y": 184,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        184,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_row9",
+      "kind": "text",
+      "x": 82,
+      "y": 196,
+      "n": 58,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        81,
+        196,
+        350,
+        12
+      ],
+      "cell": [
+        6,
+        12
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_message",
+      "kind": "text",
+      "x": 100,
+      "y": 215,
+      "n": 48,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        170,
+        85
+      ],
+      "rect": [
+        100,
+        215,
+        240,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_track",
+      "kind": "text",
+      "x": 146,
+      "y": 251,
+      "n": 44,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        146,
+        251,
+        220,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_elapsed",
+      "kind": "text",
+      "x": 183,
+      "y": 267,
+      "n": 8,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        183,
+        267,
+        40,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "digits"
+    },
+    {
+      "name": "w_duration",
+      "kind": "text",
+      "x": 289,
+      "y": 267,
+      "n": 8,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        289,
+        267,
+        40,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "digits"
+    },
+    {
+      "name": "w_detail",
+      "kind": "text",
+      "x": 24,
+      "y": 359,
+      "n": 23,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        24,
+        359,
+        115,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_voltext",
+      "kind": "text",
+      "x": 388,
+      "y": 359,
+      "n": 13,
+      "bg": [
+        0,
+        0,
+        0
+      ],
+      "fg": [
+        255,
+        255,
+        170
+      ],
+      "rect": [
+        388,
+        359,
+        65,
+        8
+      ],
+      "cell": [
+        5,
+        8
+      ],
+      "slot": "text"
+    },
+    {
+      "name": "w_play",
+      "kind": "art",
+      "x": 122,
+      "y": 307,
+      "asset": "idle"
+    },
+    {
+      "name": "w_shuffle",
+      "kind": "art",
+      "x": 266,
+      "y": 307,
+      "asset": "shuffle_off"
+    },
+    {
+      "name": "w_loop",
+      "kind": "art",
+      "x": 308,
+      "y": 307,
+      "asset": "loop_off"
+    },
+    {
+      "name": "w_volume",
+      "kind": "art",
+      "x": 368,
+      "y": 307,
+      "asset": "volume_11"
+    },
+    {
+      "name": "w_progress",
+      "kind": "art",
+      "x": 141,
+      "y": 280,
+      "asset": "progress_track"
+    },
+    {
+      "name": "w_marker",
+      "kind": "art",
+      "x": 143,
+      "y": 282,
+      "asset": "progress_marker"
+    }
+  ],
+  "playlist": {
+    "filename_offset": 3,
+    "filename_columns": 55,
+    "duration_offset": null
+  },
+  "selection": {
+    "enabled": true,
+    "x": 69
+  },
+  "progress_span": 216,
+  "review": {
+    "example": {
+      "w_path": "/music/Albums",
+      "w_page": "01 OF 01",
+      "selected": 3,
+      "w_track": "PLAYING Led_Zeppelin__Physical_Graffiti.wav",
+      "w_message": "Ready",
+      "w_elapsed": "00:01:26",
+      "w_duration": "01:22:15",
+      "w_detail": "RATE 32000 Hz",
+      "w_voltext": "VOL 11",
+      "w_play": "pause",
+      "w_shuffle": "shuffle_on",
+      "active": true,
+      "progress": 4,
+      "w_row0": "00 <DIR> Boston",
+      "w_row1": "01 <DIR> Led Zeppelin",
+      "w_row2": "02 Boston__Boston.wav",
+      "w_row3": "03 Led_Zeppelin__Physical_Graffiti.wav",
+      "w_row4": "04 Pink_Floyd__The_Wall.wav",
+      "w_row5": "05 The_Cars__Heartbeat_City.wav",
+      "w_row6": "06 Wild_Flower.wav"
+    },
+    "test": {
+      "w_path": "/qualification/Play",
+      "w_page": "01 OF 02",
+      "selected": 0,
+      "w_track": "PAUSED  00_Long_65535.wav",
+      "w_message": "Loop current song; Shuffle setting retained",
+      "w_duration": "00:00:04",
+      "w_detail": "RATE 65535 Hz",
+      "w_voltext": "VOL 10",
+      "w_play": "play",
+      "w_shuffle": "shuffle_on",
+      "w_loop": "loop_on",
+      "w_volume": "volume_10",
+      "w_row0": "00 00_Long_65535.wav",
+      "w_row1": "01 01_Short_8000.wav",
+      "w_row2": "02 02_Short_8000.wav",
+      "w_row3": "03 03_Short_8000.wav",
+      "w_row4": "04 04_Short_8000.wav",
+      "w_row5": "05 05_Short_8000.wav",
+      "w_row6": "06 06_Short_8000.wav",
+      "w_row7": "07 07_Short_8000.wav",
+      "w_row8": "08 08_Short_8000.wav",
+      "w_row9": "09 09_Short_8000.wav"
+    },
+    "exclude": [
+      [
+        180,
+        266,
+        225,
+        276
+      ],
+      [
+        140,
+        279,
+        372,
+        291
+      ]
+    ]
+  }
+}

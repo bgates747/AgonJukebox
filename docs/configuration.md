@@ -140,3 +140,12 @@ validation, missing settings and directory failures. Skin-loader errors also
 include AGNB validation and the consumer's 0x41–0x53 file/metadata/VDP errors.
 The displayed hexadecimal code identifies the failing operation; correct the
 configuration or package and run `jukebox` again.
+
+## Shared authoring schema
+
+Art Deco and Seventies now use the [declarative authoring compiler](skin-authoring.md).
+The authoring `schema_version=1` is distinct from runtime `skin.cfg` formats.
+Generated layout parameters replace skin-specific formatting constants; the
+existing accepted application binaries and packages are byte-identical.
+New authoring IDs use a generated compile-time app and `schema-test1` package.
+Selecting an arbitrary skin directory still does not provide runtime switching.
