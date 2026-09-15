@@ -152,9 +152,9 @@
     {
       "name": "w_path",
       "kind": "text",
-      "x": 62,
-      "y": 357,
-      "n": 15,
+      "x": 152,
+      "y": 250,
+      "n": 37,
       "bg": [
         0,
         0,
@@ -166,21 +166,21 @@
         170
       ],
       "rect": [
-        62,
-        357,
-        75,
-        8
+        152,
+        250,
+        222,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_page",
       "kind": "text",
-      "x": 374,
+      "x": 405,
       "y": 367,
       "n": 8,
       "bg": [
@@ -194,22 +194,22 @@
         170
       ],
       "rect": [
-        374,
+        405,
         367,
-        40,
-        8
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_count",
       "kind": "text",
-      "x": 394,
-      "y": 355,
+      "x": 390,
+      "y": 353,
       "n": 13,
       "bg": [
         0,
@@ -222,14 +222,14 @@
         170
       ],
       "rect": [
-        394,
-        355,
-        65,
-        8
+        390,
+        353,
+        78,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
@@ -514,11 +514,11 @@
       "slot": "text"
     },
     {
-      "name": "w_message",
+      "name": "w_track",
       "kind": "text",
       "x": 136,
-      "y": 291,
-      "n": 48,
+      "y": 264,
+      "n": 40,
       "bg": [
         0,
         0,
@@ -531,49 +531,21 @@
       ],
       "rect": [
         136,
-        291,
+        264,
         240,
-        8
+        12
       ],
       "cell": [
-        5,
-        8
-      ],
-      "slot": "text"
-    },
-    {
-      "name": "w_track",
-      "kind": "text",
-      "x": 181,
-      "y": 256,
-      "n": 30,
-      "bg": [
-        0,
-        0,
-        0
-      ],
-      "fg": [
-        255,
-        255,
-        170
-      ],
-      "rect": [
-        181,
-        256,
-        150,
-        8
-      ],
-      "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_elapsed",
       "kind": "text",
-      "x": 213,
-      "y": 273,
+      "x": 220,
+      "y": 278,
       "n": 8,
       "bg": [
         0,
@@ -586,22 +558,22 @@
         170
       ],
       "rect": [
-        213,
-        273,
-        40,
-        8
+        220,
+        278,
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "digits"
     },
     {
       "name": "w_duration",
       "kind": "text",
-      "x": 282,
-      "y": 273,
+      "x": 328,
+      "y": 278,
       "n": 8,
       "bg": [
         0,
@@ -614,14 +586,14 @@
         170
       ],
       "rect": [
-        282,
-        273,
-        40,
-        8
+        328,
+        278,
+        48,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "digits"
     },
@@ -629,35 +601,7 @@
       "name": "w_detail",
       "kind": "text",
       "x": 24,
-      "y": 367,
-      "n": 23,
-      "bg": [
-        0,
-        0,
-        0
-      ],
-      "fg": [
-        255,
-        255,
-        170
-      ],
-      "rect": [
-        24,
-        367,
-        115,
-        8
-      ],
-      "cell": [
-        5,
-        8
-      ],
-      "slot": "text"
-    },
-    {
-      "name": "w_voltext",
-      "kind": "text",
-      "x": 424,
-      "y": 367,
+      "y": 355,
       "n": 13,
       "bg": [
         0,
@@ -670,57 +614,57 @@
         170
       ],
       "rect": [
-        424,
-        367,
-        65,
-        8
+        24,
+        355,
+        78,
+        12
       ],
       "cell": [
-        5,
-        8
+        6,
+        12
       ],
       "slot": "text"
     },
     {
       "name": "w_play",
       "kind": "art",
-      "x": 117,
-      "y": 306,
+      "x": 115,
+      "y": 307,
       "asset": "idle"
     },
     {
       "name": "w_shuffle",
       "kind": "art",
-      "x": 258,
-      "y": 306,
+      "x": 259,
+      "y": 307,
       "asset": "shuffle_off"
     },
     {
       "name": "w_loop",
       "kind": "art",
-      "x": 305,
-      "y": 306,
+      "x": 307,
+      "y": 307,
       "asset": "loop_off"
     },
     {
       "name": "w_volume",
       "kind": "art",
-      "x": 367,
-      "y": 306,
+      "x": 368,
+      "y": 307,
       "asset": "volume_11"
     },
     {
       "name": "w_progress",
       "kind": "art",
-      "x": 139,
-      "y": 281,
+      "x": 136,
+      "y": 293,
       "asset": "progress_track"
     },
     {
       "name": "w_marker",
       "kind": "art",
-      "x": 142,
-      "y": 283,
+      "x": 136,
+      "y": 293,
       "asset": "progress_marker"
     }
   ],
@@ -733,19 +677,17 @@
     "enabled": true,
     "x": 69
   },
-  "progress_span": 216,
+  "progress_span": 237,
   "review": {
     "example": {
-      "w_path": "/music/Albums",
+      "w_path": "/music/Albums/Fleetwood Mac/Rumours",
       "w_page": "01 OF 01",
       "selected": 3,
-      "w_track": "PLAYING PCB candidate 2",
+      "w_track": "PLAYING Fleetwood_Mac__Rumours.wav",
       "w_count": "007 FILES",
-      "w_message": "Ready",
       "w_elapsed": "00:01:26",
       "w_duration": "01:22:15",
       "w_detail": "RATE 32000 Hz",
-      "w_voltext": "VOL 11",
       "w_play": "pause",
       "w_shuffle": "shuffle_on",
       "active": true,
@@ -759,15 +701,13 @@
       "w_row6": "06   Wild_Flower.wav                              00:04:18"
     },
     "test": {
-      "w_path": "/qualificati...",
+      "w_path": "/qualification/Play",
       "w_page": "01 OF 02",
       "selected": 0,
       "w_track": "PAUSED  00_Long_65535.wav",
       "w_count": "012 FILES",
-      "w_message": "Loop current song; Shuffle setting retained",
       "w_duration": "00:00:04",
       "w_detail": "RATE 65535 Hz",
-      "w_voltext": "VOL 10",
       "w_play": "play",
       "w_shuffle": "shuffle_on",
       "w_loop": "loop_on",
@@ -783,19 +723,6 @@
       "w_row8": "08   08_Short_8000.wav                            00:00:01",
       "w_row9": "09   09_Short_8000.wav                            00:00:01"
     },
-    "exclude": [
-      [
-        212,
-        272,
-        254,
-        282
-      ],
-      [
-        140,
-        281,
-        372,
-        291
-      ]
-    ]
+    "exclude": []
   }
 }
