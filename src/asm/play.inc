@@ -431,53 +431,22 @@ ps_song_over:
 ; end ps_song_over
 
 ps_play_next_song:
-    ld a,(bf_files_cur_pg)
-    or a ; check for zero files
-    jp z,get_input ; no files to play so return to user input loop
-    ld b,a ; loop counter
-@next_file:
-    push bc ; save loop counter
-    call get_next_file_idx ; (bf_file_idx)++ with wraparound
-    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-    call bf_check_dir_or_file ; if zero then it's a song
-    pop bc ; restore loop counter
-    jp z,@play_song ; is a file so play song
-    djnz @next_file ; try the next file
-    jp get_input ; no files in this directory so return to user input loop
-@play_song:
-    call bf_highlight_file ; highlight the selected file
+    call bf_select_next_song
+    jp z,get_input
+    call bf_highlight_file
     jp play_song
 ; end ps_play_next_song
 
-; queue a random song on the current page to play next
+; Queue a random song from the complete open directory listing.
 ps_play_random:
-    ld a,(bf_files_cur_pg)
-    or a ; check for zero files
-    jp z,get_input ; no files to play so return to user input loop
-    ld b,a ; loop counter
-    ld a,(bf_file_idx) ; save current song index
-    ld (@file_idx),a
-@next_file:
-    push bc ; save loop counter
-    call get_rand_file_idx ; a->(bf_file_idx)
-    ld hl,@file_idx
-    cp (hl) ; check for same song
-    jp z,@same ; same song so try again
-    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-    call bf_check_dir_or_file ; if zero then it's a song
-@bump_counter:
-    pop bc ; restore loop counter
-    jp z,@play_song ; is a file so play song
-    djnz @next_file ; try the next file
-    jp get_input ; no files in this directory so return to user input loop
-@same:
-    or a,1 ; reset zero flag
-    jp @bump_counter
-@play_song:
-    call bf_highlight_file ; highlight the selected file
+    call bf_select_random_song
+    jp z,get_input
+    call bf_highlight_file
     jp play_song
-@file_idx: db 0
 ; end ps_play_random
+
+    include "random_song.inc"
+    include "next_song.inc"
 
 ps_load_audio_cmd_buffers:
     ld hl,ps_wav_cmd_bufferId0

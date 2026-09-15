@@ -238,3 +238,42 @@ The SD card retained a build tree and binary, but not the missing
 hashes, branch comparison, Oryx details, rejected feature sets, and recovery
 recommendations are preserved in
 [audio-only-jukebox-archaeology.md](audio-only-jukebox-archaeology.md).
+
+## Directory-wide random selection — 2026-09-15
+
+On dev, shuffle at end-of-track and the r command now share a selector over
+the entire open directory pointer table. Count eligible WAV files, exclude the
+selected WAV if alternatives exist, draw a random rank, then select its absolute
+entry and update page/row/page size. Directories never consume a random rank.
+The old bounded page-local retry loop could miss valid candidates and is removed.
+Empty and directory-only listings preserve selection; a sole WAV remains playable.
+Sequential next-song behavior is unchanged. No recursive directory traversal.
+
+Production app assembles. tests/random_song.py runs the actual selector, arithmetic
+and page helpers with a deterministic PRNG in an isolated headless Fab profile:
+328 cases pass, including every eligible rank in mixed multi-page and 256-entry
+lists. Evidence: /tmp/jukebox-random-flzkld6f. This is selection-code verification,
+not audio or hardware acceptance. No graphical review session or hardware touched.
+No commit or push requested.
+
+## Directory-wide sequential playback — 2026-09-15
+
+ps_play_next_song now selects the next WAV across the complete current listing.
+Cross page boundaries, skip directories, and wrap to the first playable entry
+only after reaching the end of the listing. No-files cases preserve selection;
+a sole WAV repeats. Existing cursor/page navigation wrapping is unchanged.
+The bounded scan runs only at a song transition, outside the streaming hot loop.
+
+374 native selector/page-helper cases pass in an isolated headless emulator,
+including a directory-only intervening page, partial/exact final pages and
+256-entry listings. tests/random_song.py --sequential reproduces the test;
+evidence /tmp/jukebox-random-tdbzjbjg. App rebuilt. No graphical review process
+or hardware was touched; no commit/push requested.
+
+## v0.11.0-beta release
+
+Author passed emulator review of both playlist enhancements and requested the
+v0.11.0-beta bump, commit, main fast-forward and tagged release. Banner updated;
+release notes in docs/releases/v0.11.0-beta.md. Environment validation passes all
+nine WAV tests, dependency checks, assembly and embedded-asset checks. This
+release excludes the skins branch; new hardware qualification remains pending.
