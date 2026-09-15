@@ -244,11 +244,12 @@ w_duration_send:
     ld bc,w_duration_len
     jp ui_send
 w_detail:
-    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,15,0,101,1,25,101,152
+    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,0,25,4,15,0,101,1,25,101,146
     db 0,112,1,18,0,50,25,4,15,0,101,1,32,32,32,32,32,32,32,32,32,32,32,32
-    db 32,32,32,32,32,32,32,32,32,32,32
+    db 32,32,32,32,32,32,32,32,32,32
 w_detail_end:
-w_detail_len: equ 59
+w_detail_len: equ 58
+    blkb 1,32
 w_detail_context: equ w_detail+4
 w_detail_bg: equ w_detail+14
 w_detail_fg: equ w_detail+29
