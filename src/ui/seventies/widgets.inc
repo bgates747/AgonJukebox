@@ -202,21 +202,6 @@ ui_rows:
     dl w_row7,w_row7_text
     dl w_row8,w_row8_text
     dl w_row9,w_row9_text
-w_message:
-    db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,25,25,4,112,0,38,1,25,101,143
-    db 1,49,1,18,0,63,25,4,112,0,38,1,32,32,32,32,32,32,32,32,32,32,32,32
-    db 32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32
-    db 32,32,32,32,32,32,32,32,32,32,32,32
-w_message_end:
-w_message_len: equ 84
-w_message_context: equ w_message+4
-w_message_bg: equ w_message+14
-w_message_fg: equ w_message+29
-w_message_text: equ w_message+36
-w_message_send:
-    ld hl,w_message
-    ld bc,w_message_len
-    jp ui_send
 w_track:
     db 23,0,200,0,3,23,0,149,0,241,33,0,18,0,25,25,4,130,0,254,0,25,101,125
     db 1,9,1,18,0,63,25,4,130,0,254,0,32,32,32,32,32,32,32,32,32,32,32,32
@@ -287,7 +272,7 @@ w_voltext_send:
     ld bc,w_voltext_len
     jp ui_send
 w_play:
-    db 23,0,200,0,2,25,4,120,0,73,1,128,23,0,200,0,1
+    db 23,0,200,0,2,25,4,115,0,73,1,128,23,0,200,0,1
 w_play_end:
 w_play_len: equ 17
 w_play_x: equ w_play+7
@@ -297,7 +282,7 @@ w_play_send:
     ld bc,w_play_len
     jp ui_send
 w_shuffle:
-    db 23,0,200,0,2,25,4,2,1,73,1,131,23,0,200,0,1
+    db 23,0,200,0,2,25,4,3,1,73,1,131,23,0,200,0,1
 w_shuffle_end:
 w_shuffle_len: equ 17
 w_shuffle_x: equ w_shuffle+7
@@ -307,7 +292,7 @@ w_shuffle_send:
     ld bc,w_shuffle_len
     jp ui_send
 w_loop:
-    db 23,0,200,0,2,25,4,48,1,73,1,133,23,0,200,0,1
+    db 23,0,200,0,2,25,4,51,1,73,1,133,23,0,200,0,1
 w_loop_end:
 w_loop_len: equ 17
 w_loop_x: equ w_loop+7
@@ -317,7 +302,7 @@ w_loop_send:
     ld bc,w_loop_len
     jp ui_send
 w_volume:
-    db 23,0,200,0,2,25,4,110,1,73,1,146,23,0,200,0,1
+    db 23,0,200,0,2,25,4,112,1,73,1,146,23,0,200,0,1
 w_volume_end:
 w_volume_len: equ 17
 w_volume_x: equ w_volume+7
@@ -348,6 +333,8 @@ w_marker_send:
     jp ui_send
 ui_selection_y: db 90,103,117,130,144,157,171,184,198,211
 ui_normal_bg: equ 25
+w_message_text: blkb 48,32
+w_message_send: ret
 w_hint_text: blkb 15,32
 w_hint_send: ret
 w_mode_code: db 0

@@ -514,34 +514,6 @@
       "slot": "text"
     },
     {
-      "name": "w_message",
-      "kind": "text",
-      "x": 112,
-      "y": 294,
-      "n": 48,
-      "bg": [
-        85,
-        0,
-        0
-      ],
-      "fg": [
-        255,
-        255,
-        170
-      ],
-      "rect": [
-        112,
-        294,
-        288,
-        12
-      ],
-      "cell": [
-        6,
-        12
-      ],
-      "slot": "text"
-    },
-    {
       "name": "w_track",
       "kind": "text",
       "x": 130,
@@ -684,29 +656,29 @@
     {
       "name": "w_play",
       "kind": "art",
-      "x": 120,
-      "y": 313,
+      "x": 115,
+      "y": 307,
       "asset": "idle"
     },
     {
       "name": "w_shuffle",
       "kind": "art",
-      "x": 258,
-      "y": 313,
+      "x": 259,
+      "y": 307,
       "asset": "shuffle_off"
     },
     {
       "name": "w_loop",
       "kind": "art",
-      "x": 304,
-      "y": 313,
+      "x": 307,
+      "y": 307,
       "asset": "loop_off"
     },
     {
       "name": "w_volume",
       "kind": "art",
-      "x": 366,
-      "y": 313,
+      "x": 368,
+      "y": 307,
       "asset": "volume_11"
     },
     {
@@ -741,7 +713,6 @@
       "selected": 3,
       "w_track": "PLAYING  Dreams.wav",
       "w_count": "007 FILES",
-      "w_message": "Ready",
       "w_elapsed": "00:01:26",
       "w_duration": "01:22:15",
       "w_detail": "RATE 32000 Hz",
@@ -764,7 +735,6 @@
       "selected": 0,
       "w_track": "PAUSED  00_Long_65535.wav",
       "w_count": "012 FILES",
-      "w_message": "Loop current song; Shuffle setting retained",
       "w_duration": "00:00:04",
       "w_detail": "RATE 65535 Hz",
       "w_voltext": "VOL 10",
