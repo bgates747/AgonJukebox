@@ -109,3 +109,14 @@ nonzero geometry with zero width is rejected. Existing packages are unchanged,
 and older loaders reject absent-message packages safely. The updated loader
 builds a zero-length send for an absent message; the compile-time generator
 retains a non-rendering producer slot.
+
+Status widgets may independently select 5×8 or normal-bank 6×12 cells. Runtime
+byte 22 preserves the all-large default; bytes 23..25 hold a little-endian mask
+indexed by text-record number. Only status bits 0..2 and 13..18 are valid;
+playlist/unused bits are rejected. A set bit selects 6×12. Export retains old
+bytes for uniform-font definitions. Earlier loaders safely reject mixed packages.
+RATE (`w_detail`) may display 13..23 cells; its producer still has 23 bytes of
+storage, with compile-time padding excluded from the VDU send length.
+
+Numeric volume status (`w_voltext`) may also be omitted: text record 18 must
+then be all zero. The volume control/indicator remains required and functional.

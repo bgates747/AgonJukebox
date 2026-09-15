@@ -13,6 +13,15 @@ def fixtures(sd):
     add('valid70',base,0);add('validdeco',(ROOT/'skins/runtime/artdeco/layout.bin').read_bytes(),0)
     large=(ROOT/'skins/runtime/nineties/layout.bin').read_bytes()
     add('valid_nineties_large_status',large,0)
+    mixed=(ROOT/'skins/runtime/pcb/layout.bin').read_bytes()
+    add('valid_mixed_status',mixed,0)
+    b=bytearray(mixed);b[rt.GEOMETRY+18*15:rt.GEOMETRY+19*15]=bytes(15);add('absent_volume_status',bytes(b),0)
+    b[rt.GEOMETRY+18*15]=1;add('absent_volume_dirty_geometry',b)
+    for name,off,value in [('font_mask_row',23,8),('font_mask_row_middle',24,1),('font_mask_unused',25,8),('detail_too_short',rt.GEOMETRY+17*15+12,12)]:
+        b=bytearray(mixed);b[off]=value;add(name,b)
+    b=bytearray(mixed);struct.pack_into('<H',b,rt.GEOMETRY+2*15+10,struct.unpack_from('<H',mixed,rt.GEOMETRY+2*15+2)[0]+10);add('mixed_count_short_height',b)
+    b=bytearray(mixed);b[rt.GEOMETRY+2*15+14]=1;add('mixed_count_wrong_fg',b)
+
     b=bytearray(large);b[rt.GEOMETRY+13*15:rt.GEOMETRY+14*15]=bytes(15);add('absent_message',bytes(b),0)
     b[rt.GEOMETRY+13*15]=1;add('absent_message_dirty_geometry',b)
     b=bytearray(large);b[rt.GEOMETRY:rt.GEOMETRY+15]=bytes(15);add('absent_required_path',b)
@@ -22,7 +31,7 @@ def fixtures(sd):
     add('short',base[:-1],0x60);add('long',base+b'\0',0x43);add('magic',b'BADMAGIC'+base[8:],0x60)
     def byte(name,off,value):b=bytearray(base);b[off]=value;add(name,b)
     def word(name,off,value):b=bytearray(base);struct.pack_into('<H',b,off,value);add(name,b)
-    for name,off,value in [('noimages',8,0),('too_many_images',8,215),('shortpath',9,5),('shorttrack',10,8),('badnameoffset',11,0),('shortname',12,6),('overlap_duration',13,30),('badpointerflag',14,2),('badpalette',15,64),('zerospan',19,0),('reserved',23,1),('bad_status_font',22,2),('large_font_small_rects',22,1),('badrowwidth',rt.GEOMETRY+3*15+12,57),('rowpalette',rt.GEOMETRY+3*15+13,1),('badpagewidth',rt.GEOMETRY+15+12,7),('badtile',rt.TILES,0),('unloadedtile',rt.TILES,214)]:byte(name,off,value)
+    for name,off,value in [('noimages',8,0),('too_many_images',8,215),('shortpath',9,5),('shorttrack',10,8),('badnameoffset',11,0),('shortname',12,6),('overlap_duration',13,30),('badpointerflag',14,2),('badpalette',15,64),('zerospan',19,0),('reserved',26,1),('bad_status_font',22,2),('large_font_small_rects',22,1),('badrowwidth',rt.GEOMETRY+3*15+12,57),('rowpalette',rt.GEOMETRY+3*15+13,1),('badpagewidth',rt.GEOMETRY+15+12,7),('badtile',rt.TILES,0),('unloadedtile',rt.TILES,214)]:byte(name,off,value)
     for name,off,value in [('pointeroffscreen',20,503),('textoffscreen',rt.GEOMETRY,512),('textoutside',rt.GEOMETRY+8,62),('row_y_high',rt.GEOMETRY+3*15+2,256),('artoffscreen',rt.ART_START,512),('artclips',rt.ART_START,500),('imagezero',rt.IMAGES,0),('imagewide',rt.IMAGES,513),('imagetall',rt.IMAGES+2,65),('tilewrongsize',rt.IMAGES+22*4,31),('unusedimage',rt.IMAGES+213*4,1),('pointerwrongsize',rt.IMAGES+21*4,11),('statewrongsize',rt.IMAGES+4,90)]:word(name,off,value)
     # Every individual image is bounded, but the sum must also fit the budget.
     b=bytearray(base)

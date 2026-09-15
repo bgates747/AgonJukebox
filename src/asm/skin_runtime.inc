@@ -104,7 +104,20 @@ rt_validate:
     cp 2
     jp nc,rt_bad_data
     inc ix
-    ld b,9
+    ; Font override mask permits status roles only (bits 0..2 and 13..18).
+    ld a,(ix)
+    and 248
+    jp nz,rt_bad_data
+    inc ix
+    ld a,(ix)
+    and 31
+    jp nz,rt_bad_data
+    inc ix
+    ld a,(ix)
+    and 248
+    jp nz,rt_bad_data
+    inc ix
+    ld b,6
 @reserved:
     ld a,(ix)
     or a
@@ -119,6 +132,8 @@ rt_validate:
     cp 2
     jr z,@optional
     cp 13 ; message, like count, may be absent
+    jr z,@optional
+    cp 18 ; numeric volume status may be absent
     jr nz,@required
 @optional:
     ld a,(ix+12)
@@ -158,6 +173,15 @@ rt_validate:
     cp 64
     jp nc,rt_bad_data
     ld a,(rt_index)
+    cp 17
+    jr nz,@not_detail_width
+    ld a,(ix+12)
+    cp 13
+    jp c,rt_bad_data
+    cp 24
+    jp nc,rt_bad_data
+    jr @width_ok
+@not_detail_width:
     cp 1
     jr nz,@fixed_width
     ld a,(ix+12)
@@ -225,8 +249,7 @@ rt_validate:
     ld hl,0
     ld l,(ix+12)
     ld de,5
-    ld a,(rt_descriptor+22)
-    or a
+    call rt_status_large
     jr z,@status_width_ready
     ld de,6
     ld a,(rt_normal_bg_value)
@@ -269,8 +292,7 @@ rt_validate:
 @right_ok:
     ld hl,(rt_y)
     ld de,7
-    ld a,(rt_descriptor+22)
-    or a
+    call rt_status_large
     jr z,@status_height_ready
     ld de,11
 @status_height_ready:
@@ -632,8 +654,7 @@ rt_make_widgets:
     ld hl,rt_text_template
     ld bc,36
     ldir
-    ld a,(rt_descriptor+22)
-    or a
+    call rt_status_large
     jr z,@status_font_ready
     ld (iy+4),3
     ld (iy+9),0xf1
@@ -831,3 +852,38 @@ rt_table: dl 0
 rt_bitmap_total: dl 0
 rt_marker_x: dl 0
 rt_marker_y: dl 0
+
+; NZ selects the normal 6x12 bank for this status role. Preserve work registers.
+rt_status_large:
+    push bc
+    push hl
+    ld a,(rt_descriptor+22)
+    or a
+    jr nz,@done
+    ld a,(rt_index)
+    ld c,a
+    and 7
+    ld b,a
+    ld a,c
+    srl a
+    srl a
+    srl a
+    ld hl,rt_descriptor+23
+    ld c,a
+    ld a,b
+    ld b,0
+    add hl,bc
+    ld b,a
+    ld a,b
+    or a
+    ld a,(hl)
+    jr z,@bit
+@shift:
+    srl a
+    djnz @shift
+@bit:
+    and 1
+@done:
+    pop hl
+    pop bc
+    ret

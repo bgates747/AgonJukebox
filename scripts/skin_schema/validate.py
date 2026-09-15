@@ -60,7 +60,7 @@ def _load_definition(path):
     for group in [('idle','play','pause'),('shuffle_off','shuffle_on'),('loop_off','loop_on'),tuple('volume_'+str(i) for i in range(12))]:
         require(len({dims[n] for n in group})==1,'state variants must have equal dimensions')
     require(dims['selection_pointer']==(10,12),'v1 pointer must be 10x12')
-    required_widgets={'w_path','w_page','w_track','w_elapsed','w_duration','w_detail','w_voltext','w_play','w_shuffle','w_loop','w_volume','w_progress','w_marker'}|{'w_row'+str(i) for i in range(10)}
+    required_widgets={'w_path','w_page','w_track','w_elapsed','w_duration','w_detail','w_play','w_shuffle','w_loop','w_volume','w_progress','w_marker'}|{'w_row'+str(i) for i in range(10)}
     seen={}
     require(isinstance(d['widgets'],list),'widgets must be a list')
     for w in d['widgets']:
@@ -75,7 +75,7 @@ def _load_definition(path):
             keys(w,['name','kind','x','y','asset']);require(w['asset'] in dims,'unknown widget asset');box([w['x'],w['y'],*dims[w['asset']]])
         integer(w['x'],0,511);integer(w['y'],0,383)
         require(w['x']>0 or w['y']>0,'screen origin is reserved for static qualification')
-        require(w['name'] in required_widgets|{'w_count','w_message'} and w['name'] not in seen,'unknown or duplicate widget role');seen[w['name']]=w
+        require(w['name'] in required_widgets|{'w_count','w_message','w_voltext'} and w['name'] not in seen,'unknown or duplicate widget role');seen[w['name']]=w
     require(required_widgets<=seen.keys(),'missing required widget roles')
     art_roles={'w_play':'idle','w_shuffle':'shuffle_off','w_loop':'loop_off','w_volume':'volume_11','w_progress':'progress_track','w_marker':'progress_marker'}
     for name,w in seen.items():
@@ -86,10 +86,9 @@ def _load_definition(path):
             if name.startswith('w_row'):require(w['cell']==[6,12],'widget font mismatch')
             if w['cell']==[6,12]:
                 require(w['bg']==d['palette']['background'] and w['fg']==d['palette']['text'],'6x12 text must match normal glyph colors')
-    status_cells={tuple(w['cell']) for name,w in seen.items() if w['kind']=='text' and not name.startswith('w_row')}
-    require(len(status_cells)==1,'status widgets must use one common font cell')
-    for name,n in [('w_elapsed',8),('w_duration',8),('w_detail',23),('w_voltext',13),('w_message',48)]:
+    for name,n in [('w_elapsed',8),('w_duration',8),('w_voltext',13),('w_message',48)]:
         if name in seen:require(seen[name]['n']==n,f'{name}: fixed v1 width {n}')
+    require(13<=seen['w_detail']['n']<=23,'detail field must be 13..23 cells')
     require(seen['w_page']['n']>=8,'page field too short')
     if 'w_count' in seen:require(seen['w_count']['n']==13,'v1 count field is 13 cells')
     require(seen['w_track']['n']>=14,'track needs status prefix and filename')

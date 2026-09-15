@@ -42,7 +42,10 @@ def export(skin, output):
         colour(d['palette']['text']),colour(d['palette']['selection']),
         colour(d['palette']['selected_text']),d['progress_span']])
     struct.pack_into('<H',buf,20,d['selection']['x'])
-    buf[22]=int(w['w_track']['cell']==[6,12]) # 0 retains legacy 5x8 status; 1 uses playlist glyphs
+    status=[(i,name) for i,name in enumerate(TEXT) if not name.startswith('w_row') and name in w]
+    buf[22]=int(all(w[name]['cell']==[6,12] for i,name in status))
+    mask=0 if buf[22] else sum(1<<i for i,name in status if w[name]['cell']==[6,12])
+    buf[23:26]=mask.to_bytes(3,'little') # per-status 6x12 overrides; rows excluded
     for i,name in enumerate(TEXT):
         a=w.get(name)
         if a is None:continue

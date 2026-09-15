@@ -226,6 +226,9 @@ def build(definition: Path, output: Path):
         for start in range(0,len(data),24):
             generated.append('    db '+','.join(map(str,data[start:start+24])))
         generated.extend([f'{name}_end:',f'{name}_len: equ {len(data)}'])
+        # ui_detail writes its full 23-cell producer buffer even if fewer cells display.
+        if name=='w_detail' and len(data)<59:
+            generated.append(f'    blkb {59-len(data)},32')
         generated.extend(f'{name}_{label}: equ {name}+{offset}' for label,offset in slots.items())
         generated.extend([name+'_send:',f'    ld hl,{name}',f'    ld bc,{name}_len','    jp ui_send'])
 
@@ -260,8 +263,9 @@ def build(definition: Path, output: Path):
             generated += ['ui_rows:']+[f'    dl w_row{n},w_row{n}_text' for n in range(10)]
     if not all(ROW_Y[n] == 88+12*n for n in range(10)):
         generated += ['ui_selection_y: db '+','.join(map(str,ROW_Y)),f'ui_normal_bg: equ {colour(BG)}']
-    if 'w_message' not in specs:
-        generated += ['w_message_text: blkb 48,32','w_message_send: ret']
+    for optional,width in [('w_message',48),('w_voltext',13)]:
+        if optional not in specs:
+            generated += [f'{optional}_text: blkb {width},32',f'{optional}_send: ret']
     # Existing event producers retain these fields; no hints/extra icons draw.
     generated += ['w_hint_text: blkb 15,32','w_hint_send: ret',
                   'w_mode_code: db 0','w_mode_send: ret',

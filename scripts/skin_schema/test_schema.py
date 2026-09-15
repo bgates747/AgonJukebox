@@ -34,6 +34,16 @@ class SchemaTests(unittest.TestCase):
         for mutate in mutations:
             d=copy.deepcopy(self.d);mutate(d)
             with self.subTest(mutation=mutations.index(mutate)),self.assertRaises(DefinitionError):self.check(d)
+    def test_short_detail(self):
+        detail=next(w for w in self.d['widgets'] if w['name']=='w_detail')
+        detail['n']=13
+        self.check()
+        detail['n']=12
+        with self.assertRaisesRegex(DefinitionError,'detail field'):self.check()
+    def test_optional_volume_status(self):
+        self.d['widgets']=[w for w in self.d['widgets'] if w['name']!='w_voltext']
+        for state in ('example','test'):self.d['review'][state].pop('w_voltext',None)
+        self.check()
     def test_optional_message(self):
         self.d['widgets']=[w for w in self.d['widgets'] if w['name']!='w_message']
         for state in ('example','test'):self.d['review'][state].pop('w_message',None)
@@ -51,7 +61,7 @@ class SchemaTests(unittest.TestCase):
         short=copy.deepcopy(self.d);short['widgets'][0]['rect'][3]=8
         with self.assertRaisesRegex(DefinitionError,'exceeds restoration'):self.check(short)
         mixed=copy.deepcopy(self.d);mixed['widgets'][0]['cell']=[5,8]
-        with self.assertRaisesRegex(DefinitionError,'common font'):self.check(mixed)
+        self.check(mixed)
         wrong=copy.deepcopy(self.d);wrong['widgets'][0]['fg']=[255,255,255]
         with self.assertRaisesRegex(DefinitionError,'glyph colors'):self.check(wrong)
     def test_palette_must_match_glyph_background(self):
