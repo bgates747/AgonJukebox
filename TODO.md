@@ -89,3 +89,10 @@ The shared runtime loader, discovery and recovery chooser are accepted.
    - Started: 2026-09-10
    - Finished: --
    - Status: Real 6×12 PNG processed; normal/selected variants each retain four Agon colors and all 94 glyphs. Pixel mapping and repeat-build checks pass. Review: src/fonts/art-deco-concept-01/color-01.
+
+## Audio playback engines
+
+1. [ ] **AMP-001 — Evaluate agonAMP and reusable tracker-music hooks**
+   - Started: --
+   - Finished: --
+   - Status: Commit/push plan first; then clone upstream, acquire native samples, prove Pi5 emulator playback, qualify hardware and research integration for Jukebox, AgonWolf3D and Nurples. Pi5 runs need no reservation.
