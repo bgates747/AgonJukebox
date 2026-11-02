@@ -86,8 +86,20 @@ chooser/switching, authoring tools, resource limits and release qualification.
 1. [ ] **UART-001 — Explore runtime-selectable MOS UART0 transport**
    - Started: 2026-11-01
    - Finished: --
-   - Status: CTS1 prototype passes Pi5 qualification; Author provisionally reports sustained hardware playback, fewer directory-navigation skips and snappy keys. Effective hardware mode/firmware identity and snapshot remain uncollected. Progress checkpoint accepted; full runtime switching and logging remain incomplete. UART-002 is the next focused test.
+   - Status: CTS1 prototype passes Pi5 qualification; Author provisionally reports sustained hardware playback, fewer directory-navigation skips and snappy keys. Returned snapshot confirms CTS1, zero errors and all 95902 packets released; installed firmware identity remains unconfirmed. Progress checkpoint accepted; full runtime switching and logging remain incomplete. UART-002 is the next focused test.
 
 2. [ ] **UART-002 — Test explicit batch16 OTIRX playback**
    - Started: 2026-11-01
-   - Status: Preserve CTS1 baseline; next build explicitly selects and queries batch16 on the exact matched MOS/VDP pair. Keep scheduler and borrowed-buffer rules unchanged, qualify on Pi5, then prepare separate manual hardware review. No active hardware run changes.
+   - Status: Separate batch16 build explicitly sets/queries16; five Pi5 checks pass, 799359 PCM bytes match source exactly. CTS1 and normal runtime binaries unchanged. Deployed in place at /test/jukebox/jukebox-async.bin after archiving CTS1 report/build on PCs. Author reports sustained clean playback with pre-existing sample-boundary pops; last run was not quit normally, so final stats/effective16 confirmation are unavailable. Installed firmware identity remains unconfirmed.
+
+## Analyzer distribution
+
+1. [ ] **AUD-002 — Ship a stock-transport analyzer build on skins**
+   - Started: 2026-11-02
+   - Status: Promote the accepted PCM analyzer without experimental UART APIs; qualify on stock firmware and prepare a lean source/executable/skins/config ZIP.
+
+## Repository and releases
+
+1. [ ] **REL-001 — Separate private development and public versioned releases**
+   - Requested: 2026-11-02
+   - Status: In progress. REL-001-S01 inventory and verified local recovery backup complete (2026-11-02); dirty candidates preserved without committing them. REL-001-S02 baseline identification authorized next, after committing/pushing pending development checkpoints. No repository rename or visibility change authorized.
