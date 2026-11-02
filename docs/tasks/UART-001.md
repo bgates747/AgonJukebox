@@ -8,10 +8,10 @@ that distinguish scheduler changes from UART batching gains. The accepted
 player remains the rollback/control; this task does not approve a replacement.
 
 - Requested: 2026-11-01
-- Started: --
+- Started: 2026-11-01
 - Finished: --
-- Status: Planned; specification only, no implementation or branch created
-- Implementation branch: `codex/uart0-runtime-ab` (create at implementation start)
+- Status: CTS1 provisionally passes Author hardware playback/input review; full runtime switching/logging remains incomplete; UART-002 batch16 test next
+- Implementation branch: `codex/uart0-runtime-ab` in `.emulator/uart001-worktree`
 - Task evidence: `docs/tasks/UART-001/` (private, when needed)
 - Authority: Author requested this task, a separate branch, metrics, live mode
   changes while a file plays, and independent runtime logging controls.
@@ -231,5 +231,7 @@ needs the Author's hardware/audio review.
    costs, with physical audio/latency review and an honest benefit assessment.
 
 AMP-001 tracker-player work and SKIN-018 startup-reset diagnosis remain separate.
-This task registers exploration only; no implementation, branch creation,
-firmware deployment, emulator run, commit or push was performed by writing it.
+The original registration was planning-only. The Author subsequently authorized
+the first prototype tranche and checkpoint/push. Current results and hardware
+handoff are recorded in `docs/tasks/UART-001/README.md` and `qualification.json`.
+Prototype deployed to /test/jukebox/; Author reports sustained playback, fewer navigation skips and snappy commands. No agent flashing or production promotion occurred. Actual hardware firmware/mode confirmation and /JUART.DAT remain pending. UART-002 owns the next explicit batch16 test.
