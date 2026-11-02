@@ -5,13 +5,6 @@ Task IDs remain stable. Detailed working notes and experimental skin assets
 are local-only; finished skin documentation and tools will be published when
 ready for distribution.
 
-## Emulator preparation
-
-1. [ ] **EMU-001 — Prepare and qualify the dedicated tagged-release emulator**
-   - Started: 2026-09-08 13:49 EDT
-   - Finished: --
-   - Status: Usable samples validated; Fab 1.2.4 restored. Large-file omission deferred in main TODO.md (ccd2e46).
-
 ## Skinning
 
 The first live skin milestone passed functional emulator testing and is
