@@ -1,4 +1,4 @@
-; UART-001 first prototype. Foreground only, default per-byte CTS, one borrowed
+; UART prototype. Foreground only, explicit build-selected CTS, one borrowed
 ; complete packet. Graphics retain MOS's ordered synchronous compatibility path.
 ; All named pointer/count RAM fields below are dl (ADL 24-bit), metrics dw32.
 ; Packet RAM is beyond WAV staging and inside the MOS API's application range.
@@ -70,6 +70,10 @@ ua_begin:
     ret z
     bit 0,(ix+52)
     ret z
+    if uart_batch_size-1
+    bit 7,(ix+53) ; supported bitmap bit15 is size16
+    ret z
+    endif
     ld hl,(ix+13)
     ld (ua_open+1),hl
     ld hl,(ix+16)
@@ -86,6 +90,10 @@ ua_begin:
     ld (ua_drain+1),hl
     ld hl,(ix+34)
     ld (ua_close+1),hl
+    if uart_batch_size-1
+    ld hl,(ix+46)
+    ld (ua_set_batch+1),hl
+    endif
     ld hl,(ix+49)
     ld (ua_get_batch+1),hl
     ld a,1
@@ -116,14 +124,54 @@ ua_begin:
 @opened:
     ld a,1
     ld (ua_active),a
+    if uart_batch_size-1
+    ; No publication exists yet. TEMT may lag the preceding sync output.
+    ld ix,(ua_sysvars)
+    ld hl,(ix+sysvar_time)
+    ld (ua_open_time),hl
+@policy:
+    call ua_drain
+    or a
+    jr nz,@policy_retry
+    ld b,16
+    call ua_set_batch
+    or a
+    jr nz,@policy_retry
+    ld a,b
+    cp 16
+    ld a,2
+    jp nz,ua_fail
+    jr @verify
+@policy_retry:
+    cp 1
+    jp nz,ua_fail
+    ld hl,ua_busy
+    call ua_inc32
+    ld ix,(ua_sysvars)
+    ld hl,(ix+sysvar_time)
+    ld de,(ua_open_time)
+    or a
+    sbc hl,de
+    ld de,200
+    or a
+    sbc hl,de
+    ld a,1
+    jp nc,ua_fail ; startup error takes the existing drain/close path
+    jr @policy
+@verify:
+    endif
     call ua_get_batch
     or a
     jp nz,ua_fail
     ld a,b
-    cp 1
+    cp uart_batch_size
     ld a,2
     jp nz,ua_fail
+    if uart_batch_size-1
+    ld a,2 ; records a successful getter of16, not merely a request
+    else
     ld a,1
+    endif
     ld (ua_effective),a
     ret
 
@@ -139,6 +187,9 @@ ua_reap:    jp 0
 ua_drain:   jp 0
 ua_close:   jp 0
 ua_get_batch: jp 0
+    if uart_batch_size-1
+ua_set_batch: jp 0
+    endif
 
 ua_irq_init:
     ld hl,ua_irq
@@ -500,7 +551,11 @@ ua_print_result:
 ua_report_name: asciz "/JUART.DAT"
 ua_ready_message: asciz "UART_PROTO_READY\r\n"
 ua_sync_message: asciz "UART prototype: synchronous fallback; status "
+    if uart_batch_size-1
+ua_async_message: asciz "UART prototype: async CTS16 OTIRX; status "
+    else
 ua_async_message: asciz "UART prototype: async CTS1; status "
+    endif
 ua_result_end: asciz ". Metrics: /JUART.DAT\r\n"
 ua_report_warning: asciz "Metrics file could not be written completely.\r\n"
 
@@ -525,7 +580,7 @@ ua_state_end:
 ; Binary result schema: magic4/version1, five u8 fields, elapsed u24, nine u32.
 ua_stats: db "JUA1",1
 ua_stats_data:
-ua_effective: db 0 ; 0 foreground synchronous fallback, 1 async CTS1
+ua_effective: db 0 ; 0 foreground synchronous fallback, 1 async CTS1, 2 verified CTS16
 ua_capable: db 0
 ua_open_status: db 0
 ua_error: db 0

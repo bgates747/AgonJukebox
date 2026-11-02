@@ -4,7 +4,8 @@ This experimental executable moves WAV feeding into the foreground and uses
 the opt-in MOS UART0 API to submit complete audio packets. It is a first
 functional prototype, not a production transport change or a performance win.
 It preserves a stock-MOS synchronous fallback. Live transport switching,
-batch16 selection and runtime logging controls remain later work.
+runtime logging controls remain later work. UART-002 adds a separate explicit
+batch16 test build; physical batch16 acceptance remains pending.
 
 ## Build and run
 
@@ -12,6 +13,7 @@ batch16 selection and runtime logging controls remain later work.
 
    ```text
    ez80asm app_async.asm ../../tgt/jukebox-async.bin
+   ez80asm app_async16.asm ../../tgt/jukebox-async16.bin
    ```
 
 2. Keep this binary separate from the normal player. It uses the existing
@@ -68,7 +70,14 @@ batch16 selection and runtime logging controls remain later work.
 3. Startup validates `UTX1`, major1/minor>=2, length>=54, batching capability
    and support for size1. Operation addresses are 24-bit register-ABI pointers.
    Open is explicit, with bounded startup BUSY retries; a successful open's
-   batch policy is queried and must be1. It never selects batch16.
+   batch policy is queried and must match the build. `app_async.asm` remains
+   CTS1 and rebuilds byte-for-byte to the accepted baseline. `app_async16.asm`
+   also requires size16 bitmap bit15; after open it polls drain, explicitly sets
+   B=16 through offset46, checks success/effective16, and independently queries
+   offset49 to verify16. BUSY retries are bounded by the existing raw-time
+   startup budget. Unexpected policy errors/timeouts abort through drain/close;
+   unavailable capabilities retain synchronous fallback. No packets are
+   published before the policy is verified. Every skin reopen repeats selection.
 4. One application-owned 2,048-byte packet slot at `0x092000` holds a complete
    eight-byte buffer-write header plus PCM. The WAV staging area at `0x09034c`
    is separate. Existing validated rates require at most1,093 PCM bytes per
@@ -100,7 +109,7 @@ Run the project Python interpreter with:
 | --- | --- | --- |
 | 0 | 4 | `JUA1` |
 | 4 | 1 | Schema version1 |
-| 5 | 1 | Effective mode: 0 foreground sync fallback, 1 async CTS1 |
+| 5 | 1 | Effective mode: 0 foreground sync fallback, 1 async CTS1, 2 async CTS16 after successful getter verification |
 | 6 | 1 | Compatible API discovered |
 | 7 | 1 | Last open status |
 | 8 | 1 | Prototype error; 0 means none recorded |
@@ -141,6 +150,33 @@ to the subsequent UART-001 tranche.
 
 The Author reports sustained playback, fewer skips during directory navigation
 and snappy commands while playing. This is a provisional functional progress
-pass, not a complete implementation or a measured CPU-headroom gain. No returned
-hardware snapshot or installed-pair identity attestation has been collected yet.
+pass, not a complete implementation or a measured CPU-headroom gain. Returned hardware snapshot confirms CTS1, error0 and all95902 published sources
+released. Installed-pair identity attestation has not been collected yet.
 The CTS1 build is preserved for comparison; explicit batch16 is the next test.
+
+## Batch16 hardware test (UART-002)
+
+1. Preserve the CTS1 executable and its report before running the separate
+   `jukebox-async16.bin`. Keep the same skin, music, controls and scheduler for
+   comparison. Run only on the exact MOS/VDP pair above; Author installs firmware
+   and operates hardware manually. An application API cannot attest ROM/flash
+   SHA256 identities, so pair confirmation must be recorded separately.
+2. Normal exit must say `async CTS16 OTIRX; status 00`. Decode the resulting
+   snapshot using `--expect-async --expect-batch 16`. Mode2 means the getter
+   confirmed16 at session startup; a discovery or requested setting alone never
+   earns that label. A fallback or nonzero status is not a successful batch16 run.
+3. Observe sustained playback, arrows/directory navigation, pause/resume, seek,
+   EOF progression, skin change and quit/relaunch. Collect the snapshot after
+   normal quit. Audible results and input observations remain separate from
+   calibrated performance metrics; no speedup follows from emulator wall time.
+4. Application code never executes OTIRX itself: the matched MOS sender owns
+   UART0, gates blocks on CTS and executes its bounded OTIRX path. The build
+   selector changes startup policy only. Existing ordered synchronous graphics
+   retain their compatibility behavior. Reusable-code extraction is a later
+   promotion step after validating this small comparison.
+
+Current SD fixture (2026-11-01): `/test/jukebox/jukebox-async.bin` now contains
+the batch16 build from `app_async16.asm`. Author requested replacing this stable
+filename, without a parallel CTS1 executable on card. Earlier CTS1 binary/source
+and returned report are preserved on the PCs. This supersedes the separate
+`jukebox-async16.bin` hardware filename in the initial bundle above.

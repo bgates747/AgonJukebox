@@ -1,5 +1,6 @@
 ; Isolated foreground/per-byte async prototype; production entry is unchanged.
 uart_proto: equ 1
+uart_batch_size: equ 1
 skin_runtime: equ 1
 skin_custom: equ 1
 skin_artdeco: equ 1
