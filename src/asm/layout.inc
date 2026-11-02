@@ -321,5 +321,5 @@ agon_jukebox_ascii:
     db "     |    |  _/ /   |   \\ \\     /          \r\n"
     db "     |    |   \\/    |    \\/     \\          \r\n"
     db "     |______  /\\_______  /___/\\  \\         \r\n"
-    db "            \\/         \\/      \\_/             v0.10.0-beta\r\n"
+    db "            \\/         \\/      \\_/             v0.11.0-beta\r\n"
     db 0 ; list terminator
