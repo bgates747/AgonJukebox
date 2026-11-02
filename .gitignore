@@ -1,5 +1,5 @@
 # Python
-.venv/
+.venv
 __pycache__/
 *.py[cod]
 *$py.class
@@ -10,6 +10,8 @@ __pycache__/
 
 # Generated assembly output
 src/asm/*.lst
+/tgt/control-*.bin
+/tgt/jukebox-control-rebuild.bin
 
 # Dedicated local emulator, virtual SD, runtime and diagnostic artifacts
 /.emulator/

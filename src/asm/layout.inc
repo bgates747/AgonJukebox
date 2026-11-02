@@ -74,7 +74,11 @@ ui_send:
     push iy
     ld a,i
     push af
+    if uart_proto
+    ei
+    else
     di
+    endif
     push hl
     ld hl,(ui_tx_bytes)
     add hl,bc
@@ -109,6 +113,9 @@ ui_flush:
     ld a,(ui_batch)
     or a
     jr z,@done
+    if uart_proto
+    ei
+    endif
     bit 6,a
     call nz,ui_directory
     ld a,(ui_batch)

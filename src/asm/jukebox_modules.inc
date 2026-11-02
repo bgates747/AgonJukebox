@@ -31,3 +31,6 @@
     include "agnb_vdu.inc"
     include "skin_assets.inc"
     include "layout.inc"
+    if uart_proto
+    include "uart_async.inc"
+    endif

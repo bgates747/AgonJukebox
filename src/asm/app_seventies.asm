@@ -1,3 +1,4 @@
+uart_proto: equ 0
 skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/seventies/profile.inc"

@@ -230,6 +230,11 @@ vdu_bmp_create:
 ; load a vdu buffer from local memory
 ; inputs: hl = bufferId ; bc = length ; de = pointer to data
 vdu_load_buffer:
+    if uart_proto
+    ld a,(ua_active)
+    or a
+    jp nz,ua_upload
+    endif
     ld (@length),bc
     push de ; save data pointer
 ; send the vdu command string

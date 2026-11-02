@@ -10,6 +10,9 @@ get_input:
     ld (ps_irq_transition),a
     ret
 @foreground:
+    if uart_proto
+    jp ua_input
+    endif
     call ui_flush
     if live_test_mode
     ei
@@ -19,6 +22,9 @@ get_input:
     MOSCALL mos_getkey
     di
 input_dispatch:
+    if uart_proto
+    ei
+    endif
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
     ret z 

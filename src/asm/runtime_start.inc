@@ -12,6 +12,9 @@ start:
     push de
     push ix
     push iy
+    if uart_proto
+    call ua_reset
+    endif
     call jcfg_load
     jr nz,@recover_config
     call rt_set_root
@@ -36,17 +39,31 @@ rt_start_skin:
     call ui_init
     call ps_clear_audio_buffers
     call ps_prt_irq_init
+    if uart_proto
+    call ua_begin
+    ld hl,ua_ready_message
+    call sa_debug_puts
+    endif
     call get_input
     di
+    if uart_proto
+    ei
+    endif
     call ps_close_file
     call ps_clear_audio_buffers
     call ui_shutdown
+    if uart_proto
+    call ua_finish
+    endif
     if live_test_mode
     call live_test_shutdown
     endif
     ei
     call sa_restore
     jp nz,rt_restore_failed
+    if uart_proto
+    call ua_print_result
+    endif
     ld a,(rt_switch)
     or a
     jr nz,rt_start_chooser

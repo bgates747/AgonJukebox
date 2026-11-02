@@ -1,3 +1,4 @@
+uart_proto: equ 0
 ; One executable for every bounded runtime-v1 skin package.
 skin_runtime: equ 1
 skin_custom: equ 1
