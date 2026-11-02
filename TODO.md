@@ -93,6 +93,13 @@ The shared runtime loader, discovery and recovery chooser are accepted.
 ## Audio playback engines
 
 1. [ ] **AMP-001 — Evaluate agonAMP and reusable tracker-music hooks**
+   - Started: 2026-10-31
+   - Finished: --
+   - Status: Plan committed/pushed; unchanged agonAMP and four native ZXArt formats pass Pi5 headless playback/control/relaunch checks. Deployed to AGONC8 /others/pollito/agonAMP; awaiting hardware feedback before integration research.
+
+## UART transport experiments
+
+1. [ ] **UART-001 — Explore runtime-selectable MOS UART0 transport**
    - Started: --
    - Finished: --
-   - Status: Commit/push plan first; then clone upstream, acquire native samples, prove Pi5 emulator playback, qualify hardware and research integration for Jukebox, AgonWolf3D and Nurples. Pi5 runs need no reservation.
+   - Status: Initial async playback prototype authorized on an isolated branch. Preserve original control; defer live mode switching, batch16 and runtime logging until the basic prototype works.
