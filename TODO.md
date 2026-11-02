@@ -107,4 +107,4 @@ The shared runtime loader, discovery and recovery chooser are accepted.
 
 1. [ ] **REL-001 — Separate private development and public versioned releases**
    - Requested: 2026-11-02
-   - Status: In progress. REL-001-S01 inventory and verified local recovery backup complete (2026-11-02); dirty candidates preserved without committing them. REL-001-S02 baseline identification authorized next, after committing/pushing pending development checkpoints. No repository rename or visibility change authorized.
+   - Status: REL-001-S01 and S02 complete (2026-11-02). Pending development checkpoints committed/pushed; skins 01bce04 and Classic v0.11.0-beta pinned with byte-identical rebuilds. Next: REL-001-S03, sanitized publication trees. No repository migration authorized yet.
