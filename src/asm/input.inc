@@ -10,6 +10,9 @@ get_input:
     ld (ps_irq_transition),a
     ret
 @foreground:
+    if fg_audio
+    jp fg_input
+    endif
     call ui_flush
     if live_test_mode
     ei
@@ -19,6 +22,9 @@ get_input:
     MOSCALL mos_getkey
     di
 input_dispatch:
+    if fg_audio
+    ei
+    endif
 ; RETURN TO MAIN, which re-enables interrupts and exits app
     cp '\e' ; escape
     ret z 
@@ -32,6 +38,11 @@ input_dispatch:
 ; Ignore function, alt, control, caps lock, and shift key events.
     or a
     jp z,get_input
+
+    if pcm_spectrum
+    cp 'v'
+    jp z,sp_toggle
+    endif
 
 ; FILE BROWSER COMMANDS
     cp 0x0B ; up arrow
@@ -366,6 +377,11 @@ ps_seek_fwd:
 ; end ps_seek_fwd
 
 ps_seek:
+    if pcm_spectrum
+    push hl
+    call sp_clear
+    pop hl
+    endif
 ; Compute a zero-based target buffer with Euclidean modulo:
 ; ((displayed playhead + delta - 1) mod duration).
     ld de,(ps_playhead)

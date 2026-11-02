@@ -1,3 +1,5 @@
+fg_audio: equ 0
+pcm_spectrum: equ 0
 skin_runtime: equ 0
 skin_custom: equ 0
     include "../ui/artdeco/profile.inc"

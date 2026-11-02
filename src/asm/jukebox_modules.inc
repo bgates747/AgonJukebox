@@ -31,3 +31,10 @@
     include "agnb_vdu.inc"
     include "skin_assets.inc"
     include "layout.inc"
+
+    if fg_audio
+    include "audio_service.inc"
+    endif
+    if pcm_spectrum
+    include "pcm_spectrum.inc"
+    endif

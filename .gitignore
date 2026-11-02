@@ -1,5 +1,5 @@
 # Python
-.venv/
+.venv
 __pycache__/
 *.py[cod]
 *$py.class
@@ -43,3 +43,6 @@ Thumbs.db
 # Personal deployment integration (requires the local agon-dev-env checkout)
 /deploy.py
 /deploy.toml
+
+# Locally generated release archives
+/dist/

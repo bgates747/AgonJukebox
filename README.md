@@ -24,43 +24,32 @@ the PCM payload dynamically and streams only its declared length.
 
 ## Install or build
 
-The current skin-enabled build is [tgt/jukebox.bin](tgt/jukebox.bin). Install
-these files on the SD card:
+The default [tgt/jukebox.bin](tgt/jukebox.bin) is the runtime skin player with
+an optional PCM analyzer. It uses standard MOS output only; no experimental
+UART transport or private firmware is required.
 
-| Repository file/directory | SD card location |
-| --- | --- |
-| `tgt/jukebox.bin` | `/bin/jukebox.bin` |
-| `config/jukebox.cfg` | `/bin/jukebox.cfg` |
-| Contents of `skins/artdeco/` | `/jukebox/skins/artdeco/` |
+Install `tgt/jukebox.bin` as `/bin/jukebox.bin`, `config/jukebox.cfg` as
+`/bin/jukebox.cfg`, and the four directories under `skins/runtime/` as
+`/jukebox/skins/`. The example config selects Nineties and `/music`; edit it
+for your existing paths. Run `jukebox` from MOS. The K chooser changes skins.
+Nineties opts into measured PCM bars through `spectrum.bin` and `spectrum.agnb`.
 
-Edit `/bin/jukebox.cfg` to select the skin and initial music directories, then
-run `jukebox` from MOS. The example uses `/music`; create that directory or
-change the setting to an existing directory. Artwork and color glyphs load
-from AGNB containers; monochrome font data uses separate `.font` files. No command-line arguments are
-required. See [configuration and skin loading](docs/configuration.md).
+Build with `sh scripts/build_player.sh`, or assemble `src/asm/app.asm` to
+`tgt/jukebox.bin` using ez80asm. All assembler dependencies are vendored/generated;
+image or font authoring tools are not needed to build the player. The old static
+Art Deco entry remains `src/asm/app_artdeco.asm`; other static profiles remain.
 
-The current build is the Art Deco test candidate with an antialiased 6×12 ArtDeco Concept 02
-playlist font and 5×8 Neutrino status text. It omits on-screen control legends;
-the controls below still apply.
-Its automated functional and pixel checks pass with MOS **3.0.2 Arthur**, VDP
-**2.16.0 Bistromathics**, and Fab **1.2.4**. The project owner accepted this
-as a good working concept on 2026-09-10 and confirmed the subsequent Lat7 font
-version on hardware. Concept 02 was also reviewed on hardware with a CRT, and
-its checkpoint was authorized.
-The package schema remains provisional;
-skin discovery, switching, and Classic styling are still under development.
-
-The previously accepted Base skin remains in `skins/base`. Assemble
-`src/asm/app_base.asm` to use it, and install `config/jukebox-base.cfg` as
-`/bin/jukebox.cfg`. These are two bounded build profiles; changing the skin
-directory alone does not switch their layouts.
-
-To assemble it, install `ez80asm`, then run:
+Generate a lean source/player/skin distribution with:
 
 ```bash
-cd src/asm
-ez80asm app.asm ../../tgt/jukebox.bin
+python3 scripts/package_player.py
 ```
+
+The ZIP excludes repository history, private working notes, source artwork,
+test captures and unused skin previews. See [PCM analyzer](docs/pcm-spectrum.md).
+**Visualization design credit: Pollito / SanPollo — Nick J. Date, agonAMP**, for
+paced incremental drawing, desired/displayed state and falling bars. Copyright
+and upstream license are retained in `vendor/agonamp-visualization/LICENSE`.
 
 ## Controls
 
@@ -73,6 +62,8 @@ ez80asm app.asm ../../tgt/jukebox.bin
 | `0`–`9` | Open or play the corresponding entry on the current page |
 | `R` | Play a random WAV from the current page |
 | `P` | Pause or resume playback |
+| `K` | Choose a runtime skin |
+| `V` | Toggle analyzer when supported by the skin |
 | `L` | Toggle loop mode |
 | `S` | Toggle shuffle mode |
 | `[` / `]` | Seek backward / forward by the current seek interval |

@@ -264,7 +264,16 @@ ps_read_sample:
 ; load the chunk to the current sample buffer
     ld hl,(ps_wav_data_buffer)
     ld de,ps_wav_data ; pointer to data
+    if pcm_spectrum
+    push bc
+    push de
     call vdu_load_buffer
+    pop de
+    pop bc
+    call sp_capture
+    else
+    call vdu_load_buffer
+    endif
 @tick:
 ; decrement the chunk counter
     ld a,(ps_wav_chunk_counter)
@@ -317,6 +326,9 @@ ps_play_sample:
 ; call the command buffer to play the sound
     ld hl,(ps_wav_cmd_buffer)
     call vdu_call_buffer
+    if pcm_spectrum
+    call sp_on_play
+    endif
 ; flip the sample and command buffers
     call ps_set_audio_buffers
     ret ; back to interrupt handler
@@ -355,6 +367,9 @@ ps_clear_audio_buffers:
 
 ; close the file
 ps_close_file:
+    if pcm_spectrum
+    call sp_clear
+    endif
     xor a
     ld (ps_active),a
     ld hl,ps_mode

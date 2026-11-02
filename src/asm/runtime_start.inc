@@ -12,6 +12,9 @@ start:
     push de
     push ix
     push iy
+    if fg_audio
+    call fg_reset
+    endif
     call jcfg_load
     jr nz,@recover_config
     call rt_set_root
@@ -34,13 +37,31 @@ rt_start_skin:
     xor a
     ld (bf_file_idx),a
     call ui_init
+    if pcm_spectrum
+    call sp_init
+    endif
     call ps_clear_audio_buffers
     call ps_prt_irq_init
+    if fg_audio
+    call fg_begin
+    ld hl,fg_ready_message
+    call sa_debug_puts
+    endif
     call get_input
     di
+    if fg_audio
+    ei
+    endif
     call ps_close_file
     call ps_clear_audio_buffers
     call ui_shutdown
+    if fg_audio
+    call fg_finish
+    endif
+    if pcm_spectrum
+    call sp_finish
+    call sp_shutdown
+    endif
     if live_test_mode
     call live_test_shutdown
     endif

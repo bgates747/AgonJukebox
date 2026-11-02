@@ -96,3 +96,15 @@ The shared runtime loader, discovery and recovery chooser are accepted.
    - Started: --
    - Finished: --
    - Status: Commit/push plan first; then clone upstream, acquire native samples, prove Pi5 emulator playback, qualify hardware and research integration for Jukebox, AgonWolf3D and Nurples. Pi5 runs need no reservation.
+
+## Analyzer distribution
+
+1. [ ] **AUD-002 — Ship a stock-transport analyzer build on skins**
+   - Started: 2026-11-02
+   - Status: Promote the accepted PCM analyzer without experimental UART APIs; qualify on stock firmware and prepare a lean source/executable/skins/config ZIP.
+
+## Repository and releases
+
+1. [ ] **REL-001 — Separate private development and public versioned releases**
+   - Requested: 2026-11-02
+   - Status: In progress. REL-001-S01 inventory and verified local recovery backup complete (2026-11-02); dirty candidates preserved without committing them. REL-001-S02 baseline identification authorized next, after committing/pushing pending development checkpoints. No repository rename or visibility change authorized.
