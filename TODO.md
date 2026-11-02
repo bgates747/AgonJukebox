@@ -16,19 +16,6 @@ This review takes precedence over new skins, gradients, custom fonts and cosmeti
 expansion. Review worksheets and focused automated checks precede uninterrupted
 human emulator review; use one patched-beta session and leave it untouched.
 
-## Emulator preparation
-
-1. [ ] **EMU-001 — Prepare and qualify the dedicated tagged-release emulator**
-   - Started: 2026-09-08 13:49 EDT
-   - Finished: --
-   - Status: Mac project-local Fab 1.2.4/MOS 3.0.2 setup passed Author emulator checks on 2026-09-12. Original tagged-release qualification and large-file omission remain separate; 70s prototype accepted on hardware on 2026-09-13.
-
-2. [ ] **EMU-002 — Review Fab Agon Emulator v1.2.5-beta1 on Mac**
-   - Status: Author reports clean application exit and apparent audio improvement. Use 1.2.5-beta1 for several more review cycles to assess exit exceptions; preserve 1.2.4 for comparison.
-
-3. [ ] **EMU-003 — Correct emulator host-filesystem large-file size truncation**
-   - Status: Patched isolated beta build passes native 16 MiB boundary tests and Rumours validation; Author confirmed Rumours works and playback is clean; upstream PR #85 submitted, Tom is addressing f_truncate with a shared _poke32.
-
 ## Skinning
 
 The first live skin milestone passed functional emulator testing and is
