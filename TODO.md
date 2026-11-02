@@ -16,6 +16,11 @@ This review takes precedence over new skins, gradients, custom fonts and cosmeti
 expansion. Review worksheets and focused automated checks precede uninterrupted
 human emulator review; use one patched-beta session and leave it untouched.
 
+## Emulator preparation
+
+2. [ ] **EMU-002 — Review Fab Agon Emulator v1.2.5-beta1 on Mac**
+   - Status: Author reports clean application exit and apparent audio improvement. Use 1.2.5-beta1 for several more review cycles to assess exit exceptions; preserve 1.2.4 for comparison.
+
 ## Skinning
 
 The first live skin milestone passed functional emulator testing and is
