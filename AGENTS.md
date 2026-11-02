@@ -1,4 +1,7 @@
-# Agent instructions
+# Local agent entry point
+
+Read `docs/agents/AGENTS.md`, then `docs/agents/codex-workflow-notebook.md`.
+These local instructions and working records are intentionally gitignored.
 
 ## Network access authority
 

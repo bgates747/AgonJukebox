@@ -69,3 +69,21 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: 2026-09-10
    - Finished: --
    - Status: Real 6×12 PNG processed; normal/selected variants each retain four Agon colors and all 94 glyphs. Pixel mapping and repeat-build checks pass. Review: src/fonts/art-deco-concept-01/color-01.
+18. [ ] **SKIN-018 — Diagnose intermittent VDP reset during startup**
+   - Started: 2026-10-31
+   - Finished: --
+   - Status: Latest accepted runtime baseline pinned; full logging player deployed to AGONC8. Startup logs append to /JBSTART.LOG; awaiting hardware failure evidence.
+
+## Audio playback engines
+
+1. [ ] **AMP-001 — Evaluate agonAMP and reusable tracker-music hooks**
+   - Started: 2026-10-31
+   - Finished: --
+   - Status: Plan committed/pushed; unchanged agonAMP and four native ZXArt formats pass Pi5 headless playback/control/relaunch checks. Deployed to AGONC8 /others/pollito/agonAMP; awaiting hardware feedback before integration research.
+
+## UART transport experiments
+
+1. [ ] **UART-001 — Explore runtime-selectable MOS UART0 transport**
+   - Started: --
+   - Finished: --
+   - Status: Initial async playback prototype authorized on an isolated branch. Preserve original control; defer live mode switching, batch16 and runtime logging until the basic prototype works.
