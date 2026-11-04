@@ -89,6 +89,11 @@ The shared runtime loader, discovery and recovery chooser are accepted.
    - Finished: --
    - Status: Commit/push plan first; then clone upstream, acquire native samples, prove Pi5 emulator playback, qualify hardware and research integration for Jukebox, AgonWolf3D and Nurples. Pi5 runs need no reservation.
 
+
+3. [ ] **UART-003 — Test the skinned player with Eirene MOS UART0 RC2**
+   - Started: 2026-11-04
+   - Status: Task specified after reviewing the preceding day of UART chat/mail. Isolated opt-in 42h/43h player, exact RC2 ROM guard, ordered UI/audio handoff, bounded diagnostics and functional qualification; stock player preserved. Commit/push checkpoint precedes implementation; physical review remains separate.
+
 ## Analyzer distribution
 
 1. [ ] **AUD-002 — Ship a stock-transport analyzer build on skins**
