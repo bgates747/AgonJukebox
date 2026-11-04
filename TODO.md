@@ -85,6 +85,11 @@ chooser/switching, authoring tools, resource limits and release qualification.
    - Started: 2026-11-01
    - Status: Separate batch16 build explicitly sets/queries16; five Pi5 checks pass, 799359 PCM bytes match source exactly. CTS1 and normal runtime binaries unchanged. Deployed in place at /test/jukebox/jukebox-async.bin after archiving CTS1 report/build on PCs. Author reports sustained clean playback with pre-existing sample-boundary pops; last run was not quit normally, so final stats/effective16 confirmation are unavailable. Installed firmware identity remains unconfirmed.
 
+
+3. [ ] **UART-003 — Test the skinned player with Eirene MOS UART0 RC2**
+   - Started: 2026-11-04
+   - Status: Task specified after reviewing the preceding day of UART chat/mail. Isolated opt-in 42h/43h player, exact RC2 ROM guard, ordered UI/audio handoff, bounded diagnostics and functional qualification; stock player preserved. Commit/push checkpoint precedes implementation; physical review remains separate.
+
 ## Analyzer distribution
 
 1. [ ] **AUD-002 — Ship a stock-transport analyzer build on skins**
