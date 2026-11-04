@@ -12,6 +12,10 @@ start:
     push de
     push ix
     push iy
+    if fg_audio-2
+    else
+    call er_init
+    endif
     if fg_audio
     call fg_reset
     endif

@@ -9,6 +9,11 @@ fg_reset:
     ld (fg_sysvars),ix
     ret
 fg_begin:
+    if fg_audio-2
+    else
+    ld hl,er_sessions
+    call sp_inc32
+    endif
     ld ix,(fg_sysvars)
     ld a,(ix+sysvar_vkeycount)
     ld (fg_keycount),a
@@ -45,6 +50,20 @@ fg_irq:
     reti.l
 fg_input:
     ei
+    if fg_audio-2
+    else
+    ld a,(fg_due)
+    ld hl,er_due_high
+    cp (hl)
+    jr c,@high_ready
+    ld (hl),a
+@high_ready:
+    call er_poll
+    jr z,@released
+    call er_compute
+    jr fg_input
+@released:
+    endif
     di
     ld a,(fg_due)
     or a
@@ -52,6 +71,11 @@ fg_input:
     dec a
     ld (fg_due),a
     ei
+    if fg_audio-2
+    else
+    ld hl,er_served
+    call sp_inc32
+    endif
     ld a,(ps_mode)
     bit ps_mode_playing,a
     jr z,@draw
@@ -59,7 +83,11 @@ fg_input:
     call sp_tick
     endif
     call ps_read_sample
+    if fg_audio-2
     jr @draw
+    else
+    jp fg_input ; pending upload must finish before any UI/keyboard output
+    endif
 @no_tick:
     ei
 @draw:
@@ -84,10 +112,29 @@ fg_input:
     endif
     jr fg_input
 fg_finish:
+    if fg_audio-2
+    else
+    call er_wait
+    endif
     call ps_prt_stop
     ld hl,(fg_old_vector)
     ld e,0x0c
     MOSCALL mos_setintvector
+    if fg_audio-2
+    else
+    ld de,fg_irq
+    or a
+    sbc hl,de
+    jr nz,@different_owner
+    ld hl,er_restored
+    call sp_inc32
+    jr @report
+@different_owner:
+    ld a,0xe4
+    ld (er_error),a
+@report:
+    call er_report
+    endif
     ret
 fg_ready_message: asciz "JUKEBOX_READY\r\n"
 fg_due: db 0

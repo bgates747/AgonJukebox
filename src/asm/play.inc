@@ -267,12 +267,16 @@ ps_read_sample:
     if pcm_spectrum
     push bc
     push de
+    endif
+    if fg_audio-2
     call vdu_load_buffer
+    else
+    call er_upload
+    endif
+    if pcm_spectrum
     pop de
     pop bc
     call sp_capture
-    else
-    call vdu_load_buffer
     endif
 @tick:
 ; decrement the chunk counter
@@ -321,6 +325,12 @@ ps_update_playbar:
 ; end ps_update_playbar
 
 ps_play_sample:
+    if fg_audio-2
+    else
+    ld hl,er_barriers
+    call sp_inc32
+    call er_wait ; last PCM packet precedes synchronous sample-call/clear packets
+    endif
 ; update the playbar counter and display the time elapsed
     call ps_update_playbar
 ; call the command buffer to play the sound
