@@ -101,8 +101,7 @@ def play(connection, args):
     return {"mode": "play", "sample_rate": rate, "source_pcm_bytes_played": played,
             "silence_bytes_inserted": silence, "underrun_ticks": underruns,
             "late_foreground_ticks": late_ticks, "queue_low_water_bytes": low_water,
-            "audio_timeline_seconds": tick * args.chunk_ms / 1000,
-            "note": "Desktop Python/ffplay listening aid, not eZ80 or ESP throughput qualification"}
+            "audio_timeline_seconds": tick * args.chunk_ms / 1000}
 
 
 def main():

@@ -77,7 +77,9 @@ the timed client using a capture process instead of a speaker. No emulator runs.
 On 2026-11-07, the six host checks passed, Oryx fetched two seconds of PCM from
 the Pi, and a two-second run through the installed ffplay using dummy output
 completed with no inserted silence or client underrun ticks. The operator then
-accepted audible 8 kHz Africa playback on Oryx.
+accepted audible 8 kHz Africa playback on Oryx. A complete track subsequently
+played 2,367,507 PCM bytes over a 295.94-second client timeline, with no inserted
+silence, underrun ticks or late foreground ticks.
 
 This checkpoint establishes the host source and client. ESP8266/UART1 reception,
 Console8 playback, remote file browsing and higher sample rates remain future
