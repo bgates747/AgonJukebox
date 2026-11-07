@@ -84,6 +84,10 @@ The shared runtime loader, discovery and recovery chooser are accepted.
 
 ## Audio playback engines
 
+1. [ ] **NET-001 — Explore ESP8266 network PCM playback from 8 to 44.1 kHz**
+   - Started: 2026-11-07 (task specification)
+   - Status: First 8 kHz Pi-to-Oryx human listening test accepted (2026-11-07). Pi source and Python/ffplay client work; checkpoint commit/push authorized. Next: Console8 UART1 input and timed 8 kHz playback. All work on codex/net-001-pcm-stream.
+
 1. [ ] **AMP-001 — Evaluate agonAMP and reusable tracker-music hooks**
    - Started: --
    - Finished: --
@@ -93,6 +97,10 @@ The shared runtime loader, discovery and recovery chooser are accepted.
 3. [ ] **UART-003 — Test the skinned player with Eirene MOS UART0 RC2**
    - Started: 2026-11-04
    - Status: Task specified after reviewing the preceding day of UART chat/mail. Isolated opt-in 42h/43h player, exact RC2 ROM guard, ordered UI/audio handoff, bounded diagnostics and functional qualification; stock player preserved. Commit/push checkpoint precedes implementation; physical review remains separate.
+
+4. [ ] **UART-004 — Adapt the skinned player to Tom’s RFC async syscall**
+   - Started: 2026-11-05
+   - Status: Published RC3-pinned RFC25h package on Console8 with VDPlet 0.1.0-alpha: Smith reports hours of flawless playback (2026-11-06). Baseline included in the authorized network-branch checkpoint. Independent UART model receive-loss finding remains separately scoped; broader qualification is unfinished.
 
 ## Analyzer distribution
 

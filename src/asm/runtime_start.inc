@@ -12,9 +12,13 @@ start:
     push de
     push ix
     push iy
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     call er_init
+    endif
+    if fg_audio-3
+    else
+    jp nz,rfc_refuse
     endif
     if fg_audio
     call fg_reset

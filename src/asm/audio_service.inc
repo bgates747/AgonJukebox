@@ -9,7 +9,7 @@ fg_reset:
     ld (fg_sysvars),ix
     ret
 fg_begin:
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     ld hl,er_sessions
     call sp_inc32
@@ -50,7 +50,7 @@ fg_irq:
     reti.l
 fg_input:
     ei
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     ld a,(fg_due)
     ld hl,er_due_high
@@ -71,7 +71,7 @@ fg_input:
     dec a
     ld (fg_due),a
     ei
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     ld hl,er_served
     call sp_inc32
@@ -83,7 +83,7 @@ fg_input:
     call sp_tick
     endif
     call ps_read_sample
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     jr @draw
     else
     jp fg_input ; pending upload must finish before any UI/keyboard output
@@ -112,7 +112,7 @@ fg_input:
     endif
     jr fg_input
 fg_finish:
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     call er_wait
     endif
@@ -120,7 +120,7 @@ fg_finish:
     ld hl,(fg_old_vector)
     ld e,0x0c
     MOSCALL mos_setintvector
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     ld de,fg_irq
     or a

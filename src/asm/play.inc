@@ -268,7 +268,7 @@ ps_read_sample:
     push bc
     push de
     endif
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     call vdu_load_buffer
     else
     call er_upload
@@ -325,7 +325,7 @@ ps_update_playbar:
 ; end ps_update_playbar
 
 ps_play_sample:
-    if fg_audio-2
+    if [fg_audio-2]*[fg_audio-3]
     else
     ld hl,er_barriers
     call sp_inc32

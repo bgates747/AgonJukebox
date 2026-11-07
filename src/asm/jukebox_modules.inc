@@ -39,6 +39,10 @@
     else
     include "eirene_rc2.inc"
     endif
+    if fg_audio-3
+    else
+    include "uart_rfc.inc"
+    endif
     if pcm_spectrum
     include "pcm_spectrum.inc"
     endif
