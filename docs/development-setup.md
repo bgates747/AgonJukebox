@@ -98,7 +98,10 @@ Keep local emulator runtimes, virtual SD cards and media in the ignored
 `.emulator/` directory. Build and media conversion do not require a local
 emulator or any sibling repository.
 
-Use MOS 3.0.2 Arthur and VDP 2.16.0 Bistromathics for skin testing.
-Override the MOS shipped with an emulator when necessary. The public
+Use the [pinned firmware defaults](firmware-defaults.md) for current testing:
+Eirene RC3 on Alexe/Console8, owner-approved EMOS on Olimex, and VDPlet
+v0.1.2-alpha on all three. Override older emulator firmware only through the
+maintained profile workflow and existing human review. Earlier Arthur/
+Bistromathics results remain historical evidence. The public
 [functional test suite](../tests/README.md) uses the same application with
 scripted target-side checks and a separate generated SD tree.

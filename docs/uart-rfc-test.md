@@ -1,5 +1,9 @@
 # Eirene RC3 / RFC asynchronous Jukebox player
 
+Current VDP/default-platform selection: [firmware-defaults.md](firmware-defaults.md).
+VDPlet v0.1.2-alpha is the required VDP for current testing; earlier execution
+results below keep their actual firmware identities.
+
 The pinned MOS is our published fork prerelease `3.1.0_uart0_rc_3`, source
 `97311c437093e416342a6c836cf9914f2ced027d`, incorporating Tom's RFC sender and
 UART's startup correction. CRC32 `B08C80B8`; exact SHA/size are in FIRMWARE.json.
@@ -18,9 +22,14 @@ recheck the owner's final interface before coupling the artifacts.
 This complete skinned player uses Tom Morton's proposed syscall25h at RFC base
 ffab9c9c84a31535d1ec976b7e6f23b2579ecb80. Firmware compatibility is an explicit
 installation prerequisite, as with the common RC2 player. There is no ROM hash
-allowlist, discovery service, RC2 fallback or per-EMOS executable. The same app
-is intended for compatible MOS and EMOS native Legacy mode. Hardware deployment
-requires the tested startup correction supplied by the firmware owner.
+allowlist, discovery service, RC2 fallback or per-EMOS executable. The current
+binary fits bare RC3. Approved Olimex EMOS has meaningful admission
+status on25h: a nonzero refusal leaves the callback untouched. This player ignores
+A and can wait forever after refusal, so EMOS support is conditional on admission
+handling and qualification. Native Legacy mode alone does not guarantee admission.
+Do not apply EMOS status semantics to bare RC3, whose A return is not reliable.
+See [FW-001 audit](firmware-compatibility-audit.md) for the exact source disposition.
+Hardware deployment requires the firmware owner's tested startup correction.
 
 ## Sender and ownership
 
@@ -33,7 +42,8 @@ The app uses ADL1 and checks actual MBASE0 before setup. MOS owns UART interrupt
 The callback means last source read/FIFO load, not wire empty or VDP execution.
 Foreground waits for source flag then observes UART0 LSR TEMT before releasing
 its active state. No43h/finish syscall, invented status/cancel or UART-register
-writes are used. Ignore the RFC's unimplemented documented A=0 return. Positive
+writes are used. On bare RC3, ignore the RFC's unimplemented documented A=0 return;
+EMOS instead requires the admission handling described above. Positive
 single-producer submissions avoid its unchecked zero/null/overlap cases.
 
 Conservative TEMT applies before EVERY next packet and competing synchronous

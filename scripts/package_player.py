@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
-"""Create a deterministic, buildable stock-firmware distribution ZIP."""
+"""Create a deterministic, buildable synchronous-MOS distribution ZIP."""
 import argparse,hashlib,json,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
 INSTRUCTIONS='''# AgonJukebox — runtime skins and PCM analyzer
 
-A WAV-only eZ80 player for stock MOS3.0.2 Arthur and VDP2.16.0 Bistromathics.
-No experimental UART API, custom MOS or custom VDP is required or activated.
+A WAV-only eZ80 player using synchronous MOS VDU output.
+Current test/deployment defaults are EireneRC3 on Alexe/Console8, approved EMOS
+on Olimex, and VDPlet v0.1.2-alpha. See docs/firmware-defaults.md and its exact
+release checksums. No experimental UART transport is activated by this build.
 The analyzer is a coarse PCM filter bank, not a calibrated FFT instrument.
 
 ## Install
@@ -66,7 +68,7 @@ def files():
  for folder in ['src/asm','src/ui','vendor/agnb','vendor/agonamp-visualization']:
   for p in sorted((ROOT/folder).rglob('*')):
    if p.is_file() and p.suffix not in ['.lst','.pyc']:result[p.relative_to(ROOT).as_posix()]=p.read_bytes()
- for name in ['LICENSE','config/jukebox.cfg','tgt/jukebox.bin','scripts/build_player.sh','docs/pcm-spectrum.md']:
+ for name in ['LICENSE','config/jukebox.cfg','tgt/jukebox.bin','scripts/build_player.sh','docs/pcm-spectrum.md','docs/firmware-defaults.md','docs/firmware-defaults.json','docs/firmware-compatibility-audit.md']:
   result[name]=(ROOT/name).read_bytes()
  for skin in ['artdeco','nineties','pcb','seventies']:
   for p in sorted((ROOT/'skins/runtime'/skin).rglob('*')):

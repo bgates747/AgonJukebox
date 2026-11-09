@@ -1,0 +1,47 @@
+{
+  "schema": "jukebox-firmware-defaults-v1",
+  "authority_date": "2026-11-08",
+  "vdp": {
+    "tag": "v0.1.2-alpha",
+    "release_url": "https://github.com/bgates747/agon-vdplet/releases/tag/v0.1.2-alpha",
+    "asset": "vdp-vdplet-0.1.2-alpha.bin",
+    "bytes": 1100304,
+    "sha256": "b004570b607b45bbd6e87a3c704b65b23d3221981db3aac6cf2578aa22d766e3",
+    "checksums_asset": "SHA256SUMS",
+    "checksums_sha256": "6469f6d6717ede6acb68d9b7ce519db07a1d5a08a0ef7c765739dfe86658aa9d",
+    "targets": [
+      "Alexe",
+      "Olimex",
+      "Console8"
+    ]
+  },
+  "mos": {
+    "tag": "3.1.0_uart0_rc_3",
+    "release_url": "https://github.com/bgates747/eirene-mos/releases/tag/3.1.0_uart0_rc_3",
+    "archive": "3.1.0_uart0_rc_3.zip",
+    "member": "mos-rc3.bin",
+    "bytes": 100879,
+    "sha256": "d7a51147f3381cd68d56f3fbe4605434a897dfae1b049269afeba09ec2b7eb50",
+    "targets": [
+      "Alexe",
+      "Console8"
+    ]
+  },
+  "olimex_mos": {
+    "selection": "Scheduling owner maintains latest approved EMOS incorporating current Eirene enhancements",
+    "audited_snapshot": {
+      "build_id": "agon-emos-eirene-r04-b2026-11-06-09-02-21Z",
+      "bytes": 131072,
+      "sha256": "a25f1612f4aaa542c5488cf3266d968ad3d1d61e9df3b5ce2c680650f5d7a2ca",
+      "source_commit": "2c79c6006d6bcb0c2b3f9d8d6aae3ef4b36c730a",
+      "profile": {
+        "EMOS_UART0_RFC25": 1,
+        "network_parallel": false
+      }
+    },
+    "owner_document": "agon-extender/docs/olimex-firmware-standard.json",
+    "consumer_caveat": "Current RFC player ignores meaningful EMOS 25h admission status and can hang on refusal; admission handling and qualification required. Vanilla U1 receiver cannot take the resident UART1 port."
+  },
+  "exception_policy": "Identify and justify a required firmware exception in the scheduling request; follow owner standard-restore procedure.",
+  "permissions": "No new test, flash, deployment, hardware or emulator authorization."
+}

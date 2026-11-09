@@ -1,3 +1,9 @@
+# Current firmware qualification
+
+Use [firmware-defaults.md](../docs/firmware-defaults.md) for new tests. Existing
+execution permissions and human review still apply. The historical milestones
+below do not qualify the new firmware pair. No profile is changed by this note.
+
 # Passing functional milestone — 2026-09-08
 
 ## Blocking-input correction candidate — 2026-09-10
