@@ -53,7 +53,44 @@ Release assets are checksum-verified. Default instructions reflect the new pins.
 No historical result is relabeled, unrelated development resumed, or execution
 permission inferred from the firmware announcement.
 
-## Audit results — 2026-11-08
+## Published release amendment — async-r1
+
+The VDP owner published Smith's directed amendment after the original audit:
+the **same v0.1.2-alpha tag and URL now select 0.1.2-alpha-async-r1**. Future
+fixtures/defaults use the replacement bytes. The earlier audit below remains a
+record of the image actually inspected at that time.
+
+- **FW-001-A01 — Verified replacement.** Downloaded the current release firmware
+  and metadata. Firmware is1,115,568 bytes, SHA256
+  `dc43ecb8b1c324ffd1a032e6cc0c56d8c05dd33a355ce170c23adb35ffb533ab`;
+  source `60e5b4ebafa3e1c8bb740e45260d78cdb6125e30`. Current SHA256SUMS has SHA256
+  `52438920e70480cd1c0f0c9543fbf2e0f7771ce937b92f422ef2f6ea394f79ba`.
+  Firmware plus nine downloaded records match its entries; all eleven downloaded
+  release assets also match GitHub sizes/digests. Debug ELF/map archives were not
+  downloaded. Superseded records and original evidence are retained separately.
+- **FW-001-A02 — Feature correction.** Ordinary async rendering is now enabled,
+  ABI1.7/capability799, with earlier finite ABI0..6 views retained. Exact320×240
+  double-buffer/context/ownership/lifetime requirements and restricted worker
+  COMPUTE callbacks remain. Private384-byte witnesses, quiet polling, counted
+  return and PCM sink/queues remain excluded. The old image's async-disabled
+  statement is historical; it must not constrain future fixtures using async-r1.
+- **FW-001-A03 — Consumer disposition.** Current Jukebox candidates do not use
+  the newly enabled async-rendering API. Their ordinary-interface source findings
+  remain applicable, with exact amended-pair execution still pending. The RFC
+  EMOS admission gap, RC2/private-service exceptions and vanilla UART1 ownership
+  conflict remain open. This release change does not diagnose the ESP baud fault.
+  The larger firmware/changed static footprint and dynamic async allocations
+  have not been qualified with Jukebox; do not infer performance acceptance.
+- **FW-001-A04 — Scope and records.** Updated public/current pins and local
+  handoffs; old firmware/downloads/audit ZIPs remain intact. No application source,
+  emulator/profile, target firmware, service, SD contents or active custody changed.
+  MOS/EMOS selections are unchanged. Network development remains paused.
+
+Current defaults and exact hashes are in
+[firmware-defaults.json](firmware-defaults.json). Tag/version equality is
+insufficient to distinguish this amendment from the original release.
+
+## Original audit results — 2026-11-08 (superseded VDP identity)
 
 **Audit complete; execution against the newly selected firmware remains pending.**
 The task specification was frozen and pushed as `a40ae7d519be44b280c99c97c0b838864e775aad`
@@ -73,7 +110,7 @@ This audit records the required adaptation; it does not change the executable.
 | Eirene 3.1.0_uart0_rc_3 | Release source `97311c437093e416342a6c836cf9914f2ced027d`; ZIP SHA256 `9c8a9a28b0f597e6a9294d806491ffca3902c16cf1876b092ae8944f65368061` matches its published checksum. Extracted `mos-rc3.bin`: 100,879 bytes, SHA256 `d7a51147f3381cd68d56f3fbe4605434a897dfae1b049269afeba09ec2b7eb50`, exactly the Author's pin. |
 | Approved Olimex EMOS snapshot | Owner selector names `agon-emos-eirene-r04-b2026-11-06-09-02-21Z`, source `2c79c6006d6bcb0c2b3f9d8d6aae3ef4b36c730a`; 131,072-byte ROM SHA256 `a25f1612f4aaa542c5488cf3266d968ad3d1d61e9df3b5ce2c680650f5d7a2ca`. `EMOS_UART0_RFC25=1`, `network_parallel=false`. Owner confirmed the caller disposition below from that exact source. This is an approved-image binding, not a fresh physical readback. |
 
-The VDP release retains its public ABI/wire versions. Pixels, text96, borrowed
+The originally audited VDP image retains its public ABI/wire versions. Pixels, text96, borrowed
 rows, READ_BYTES and the UART RX repair are enabled; optional async worker,
 counted return and PCM sink are disabled. Current Jukebox audio uses ordinary
 buffered PCM commands and needs none of those disabled extensions. The release

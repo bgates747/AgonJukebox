@@ -5,15 +5,38 @@
     "tag": "v0.1.2-alpha",
     "release_url": "https://github.com/bgates747/agon-vdplet/releases/tag/v0.1.2-alpha",
     "asset": "vdp-vdplet-0.1.2-alpha.bin",
-    "bytes": 1100304,
-    "sha256": "b004570b607b45bbd6e87a3c704b65b23d3221981db3aac6cf2578aa22d766e3",
+    "bytes": 1115568,
+    "sha256": "dc43ecb8b1c324ffd1a032e6cc0c56d8c05dd33a355ce170c23adb35ffb533ab",
     "checksums_asset": "SHA256SUMS",
-    "checksums_sha256": "6469f6d6717ede6acb68d9b7ce519db07a1d5a08a0ef7c765739dfe86658aa9d",
+    "checksums_sha256": "52438920e70480cd1c0f0c9543fbf2e0f7771ce937b92f422ef2f6ea394f79ba",
     "targets": [
       "Alexe",
       "Olimex",
       "Console8"
-    ]
+    ],
+    "superseded_release": {
+      "bytes": 1100304,
+      "sha256": "b004570b607b45bbd6e87a3c704b65b23d3221981db3aac6cf2578aa22d766e3",
+      "source_commit": "b6c7c58331bf4cbbd54dbc4a1301c124e5963622",
+      "checksums_sha256": "6469f6d6717ede6acb68d9b7ce519db07a1d5a08a0ef7c765739dfe86658aa9d",
+      "async_worker": false
+    },
+    "selection": "0.1.2-alpha-async-r1",
+    "source_commit": "60e5b4ebafa3e1c8bb740e45260d78cdb6125e30",
+    "release_manifest_sha256": "23036cfdd5d12c9ed54d197ab5184f2227dd635e4c09647a5c9efda95f129f5d",
+    "features": {
+      "features": "pixels",
+      "pcm_wire": false,
+      "borrow_rows": true,
+      "release_failed_mode": false,
+      "read_bytes": true,
+      "text_profile": "text96",
+      "async_worker": true,
+      "counted_return": false,
+      "async_overlap_witness": false,
+      "quiet_async_poll": false,
+      "uart_rx_repair": true
+    }
   },
   "mos": {
     "tag": "3.1.0_uart0_rc_3",

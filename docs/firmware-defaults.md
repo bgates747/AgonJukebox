@@ -3,12 +3,12 @@
 Use these firmware defaults for current Jukebox testing and deployment. They
 identify the intended environment; they do not certify a candidate or authorize
 a test, flash, deployment or hardware checkout. The selection comes from the
-Author's 2026-11-08 instruction and remains in force until changed.
+Author's 2026-11-08 instruction and its published async-r1 amendment.
 
 1. **Alexe, Olimex and Console8: VDPlet v0.1.2-alpha.** Use the versioned
    `vdp-vdplet-0.1.2-alpha.bin` release asset and check the release SHA256SUMS.
-   Size: 1,100,304 bytes. SHA256:
-   `b004570b607b45bbd6e87a3c704b65b23d3221981db3aac6cf2578aa22d766e3`.
+   Selection: **0.1.2-alpha-async-r1**. Size: 1,115,568 bytes. SHA256:
+   `dc43ecb8b1c324ffd1a032e6cc0c56d8c05dd33a355ce170c23adb35ffb533ab`.
    [Release](https://github.com/bgates747/agon-vdplet/releases/tag/v0.1.2-alpha).
 2. **Alexe and Console8: Eirene MOS 3.1.0_uart0_rc_3.** Extract `mos-rc3.bin`
    from the versioned release ZIP. Size: 100,879 bytes. SHA256:
@@ -21,10 +21,20 @@ Author's 2026-11-08 instruction and remains in force until changed.
    owner's current selector before scheduling; this snapshot is not a reason
    to pin an obsolete EMOS after the owner approves an update.
 
-The VDP release includes UART RX-full recovery, pixels, text96, borrowed rows
-and READ_BYTES. Its public ABI/wire versions are unchanged. Optional async
-worker, counted return and PCM sink are disabled. The current Jukebox players
-use standard buffered PCM commands and do not require those optional features.
+The same tag/URL was amended: source now resolves to
+`60e5b4ebafa3e1c8bb740e45260d78cdb6125e30`. Re-download the release assets and
+verify current SHA256SUMS; a cached version label alone cannot identify them.
+The old 1,100,304-byte `b004570b…` image is superseded, not requalified.
+
+The current release retains UART RX recovery, pixels, text96, borrowed rows and
+READ_BYTES, and now enables ordinary async OPEN/SUBMIT/PUBLISH/STATUS/STOP/CLOSE
+(ABI1.7, capability799; earlier finite ABI0..6 views retained). Ordinary async
+still has its exact320×240 double-buffer/context/lifetime constraints; it is not
+a general arbitrary-resolution async interface. Worker-only COMPUTE restrictions
+remain. Private384-byte witnesses, quiet polling, counted return and PCM sink/
+queues remain excluded. Current Jukebox uses standard buffered PCM commands;
+this update does not add a Jukebox async-rendering or audio-streaming feature.
+The combined image has no new Jukebox hardware/emulator qualification.
 
 A required firmware exception must be named and justified in the scheduling
 request. RC2-only and private experimental MOS clients need an explicit ABI
