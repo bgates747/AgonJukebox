@@ -51,7 +51,7 @@
     ]
   },
   "olimex_mos": {
-    "selection": "Scheduling owner maintains latest approved EMOS incorporating current Eirene enhancements",
+    "selection": "Current bench production selection is governed solely by /Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md; the following snapshot is historical audit evidence.",
     "audited_snapshot": {
       "build_id": "agon-emos-eirene-r04-b2026-11-06-09-02-21Z",
       "bytes": 131072,
@@ -65,6 +65,7 @@
     "owner_document": "agon-extender/docs/olimex-firmware-standard.json",
     "consumer_caveat": "Current RFC player ignores meaningful EMOS 25h admission status and can hang on refusal; admission handling and qualification required. Vanilla U1 receiver cannot take the resident UART1 port."
   },
-  "exception_policy": "Identify and justify a required firmware exception in the scheduling request; follow owner standard-restore procedure.",
-  "permissions": "No new test, flash, deployment, hardware or emulator authorization."
+  "exception_policy": "Olimex bench procedures, including firmware exceptions, are governed solely by /Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md",
+  "permissions": "No new test, flash, deployment, hardware or emulator authorization.",
+  "bench_procedures": "/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md"
 }

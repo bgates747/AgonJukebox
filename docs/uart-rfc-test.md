@@ -1,5 +1,9 @@
 # Eirene RC3 / RFC asynchronous Jukebox player
 
+For all Olimex bench procedures, use [Olimex bench procedures](/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md) as the sole authoritative
+reference. This project keeps application requirements and results, not bench
+operating procedures.
+
 Current VDP/default-platform selection: [firmware-defaults.md](firmware-defaults.md).
 VDPlet v0.1.2-alpha is the required VDP for current testing; earlier execution
 results below keep their actual firmware identities.

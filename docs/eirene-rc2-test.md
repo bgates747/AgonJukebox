@@ -23,18 +23,19 @@ containing the firmware file run:
 
 The existing /mos/flash.bin performs the update and confirmation. Copying the
 file does not flash it; no automatic flashing or autoexec change is provided.
-Do not replace the Olimex bench's working EMOS with this plain MOS image:
-EMOS supplies that bench's Extender input/services and already includes the
-RC2 sender. Its source16ec1f78/full131072-byte ROMf62eed7f has passed the
-upstream RC2 functional fixture; Jukebox compatibility is still to be tested.
+For all Olimex bench procedures, use [Olimex bench procedures](/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md) as the sole authoritative
+reference. This project keeps application requirements and results, not bench
+operating procedures.
+The historical EMOS RC2 fixture result belongs to source16ec1f78/full ROM
+f62eed7f. It is not a current bench firmware selection.
 
 The published RC2 reference inherits the documented dormant-IRQ-table
 initialization defect. The EMOS image includes the separate correction. The
 bundled reference is the exact requested published artifact, not a substituted
 locally fixed ROM. Intended Console8 VDP is Bistromathics2.16.0; identify the
-actual Olimex native derivative separately. No VDP firmware is installed here.
+receiver identity for any new qualification. No VDP firmware is installed here.
 
-## Generic installation
+## Console8 installation
 
 1. Copy tgt/jukebox-rc2.bin to /bin/jukebox-rc2.bin.
 2. Copy config/jukebox.cfg to /bin/jukebox.cfg and adjust paths if needed.

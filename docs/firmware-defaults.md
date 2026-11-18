@@ -14,12 +14,12 @@ Author's 2026-11-08 instruction and its published async-r1 amendment.
    from the versioned release ZIP. Size: 100,879 bytes. SHA256:
    `d7a51147f3381cd68d56f3fbe4605434a897dfae1b049269afeba09ec2b7eb50`.
    [Release](https://github.com/bgates747/eirene-mos/releases/tag/3.1.0_uart0_rc_3).
-3. **Olimex: latest approved integrated EMOS, maintained by its scheduling
-   owner.** The audited selection is Eirene r04, full ROM 131,072 bytes, SHA256
+3. **Olimex: use the canonical bench guide for its production selection.**
+   The audited EMOS snapshot was Eirene r04, full ROM 131,072 bytes, SHA256
    `a25f1612f4aaa542c5488cf3266d968ad3d1d61e9df3b5ce2c680650f5d7a2ca`.
    That snapshot includes RFC25 output and excludes old RC2 42h/43h. Read the
-   owner's current selector before scheduling; this snapshot is not a reason
-   to pin an obsolete EMOS after the owner approves an update.
+   canonical bench guide for the current production baseline; this snapshot
+   is historical audit evidence, not a separate bench selection.
 
 The same tag/URL was amended: source now resolves to
 `60e5b4ebafa3e1c8bb740e45260d78cdb6125e30`. Re-download the release assets and
@@ -36,10 +36,12 @@ queues remain excluded. Current Jukebox uses standard buffered PCM commands;
 this update does not add a Jukebox async-rendering or audio-streaming feature.
 The combined image has no new Jukebox hardware/emulator qualification.
 
-A required firmware exception must be named and justified in the scheduling
-request. RC2-only and private experimental MOS clients need an explicit ABI
-exception; a vanilla UART1-owning application is not safe on an EMOS-owned port.
-Never replace Olimex EMOS with bare MOS as an implicit workaround. The current
+For all Olimex bench procedures, use [Olimex bench procedures](/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md) as the sole authoritative
+reference. This project keeps application requirements and results, not bench
+operating procedures.
+
+RC2-only and private experimental MOS clients do not fit the audited ABI;
+a vanilla UART1-owning application conflicts with EMOS-owned UART1. The current
 RFC player also needs EMOS admission-status handling: an ignored refusal can
 leave its callback wait hanging. Bare RC3 has different A-return semantics.
 See the audit before treating the same binary as qualified for both.

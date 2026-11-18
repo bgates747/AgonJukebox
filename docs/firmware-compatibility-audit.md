@@ -1,5 +1,9 @@
 # FW-001 — Audit Jukebox candidates against pinned firmware
 
+For all Olimex bench procedures, use [Olimex bench procedures](/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md) as the sole authoritative
+reference. This project keeps application requirements and results, not bench
+operating procedures.
+
 Audit current production and test candidates against the required firmware
 defaults before further testing or deployment. Identify which candidates fit
 the public interfaces, which require explicit exceptions, and which need new
@@ -15,11 +19,9 @@ This task authorizes the audit; it does not resume unrelated development.
    `mos-rc3.bin` from the release ZIP, exactly 100879 bytes, SHA256
    `d7a51147f3381cd68d56f3fbe4605434a897dfae1b049269afeba09ec2b7eb50`.
    Release: https://github.com/bgates747/eirene-mos/releases/tag/3.1.0_uart0_rc_3
-3. Olimex: scheduling owner maintains this VDPlet release and latest approved
-   EMOS incorporating current Eirene enhancements. Resolve exact approved
-   identity through the owner; do not substitute a random build.
-4. Any required exception must be explicitly identified and justified in its
-   scheduling request. Prior results keep their actual firmware identities.
+3. Olimex: the firmware identities below record the historical audit. Current
+   bench procedures and production baseline come solely from the canonical
+   bench guide linked above. Prior results keep their actual identities.
 
 ## Execution sequence
 
@@ -199,7 +201,7 @@ already in the verified release.
 
 The audit closes FW-001; it does not close SKIN-007, UART-004 or NET-001. Current
 source-compatible candidates need qualification against the exact new pair.
-RC2/private-ROM experiments require explicit scheduling exceptions. The RFC
+RC2/private-ROM experiments do not fit the audited default APIs. The RFC
 EMOS admission gap and vanilla UART1 ownership conflict must be addressed before
 claiming those applications support the Olimex default.
 

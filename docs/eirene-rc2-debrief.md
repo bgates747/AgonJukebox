@@ -81,18 +81,21 @@ performance qualification, not a release or a claim that sample timing is fixed.
 3. A useful future comparison would hold WAV bytes, sample rate, skin/analyzer,
    navigation pattern and receiver constant, distinguish idle from exercised
    Extender input, and separately measure bulk-transfer and short-command costs.
-   A true historical stock-MOS Olimex comparison would require a planned input
-   solution and explicit firmware/restoration scope; do not flash merely to
-   simplify the comparison. Any handoff-timing instrumentation needs bounded
-   overhead and must distinguish upload, play-command and actual playback time.
-4. Smith is handling physical bench release. No agent release, cleanup, reset,
-   restoration or further target access is implied by this checkpoint. The
-   temporary configuration and host backup are recorded in the private handoff
-   for the bench custodian. Publication and merging into standard skins remain
-   separate decisions.
+   That baseline would also depend on a usable input path. Handoff-timing
+   instrumentation would need to distinguish upload, play-command and actual
+   playback time without perturbing the result.
+4. This review was closed with Smith handling bench release. It supplies no
+   current custody or operating procedure. Publication and merging into standard
+   skins remained separate decisions.
 
 ## Credits
 
 Eirene/MOS UART0 API: Tom Morton and upstream contributors. Visualization
 techniques: **Nick J. Date (Pollito / SanPollo), agonAMP**; the independent PCM
 analyzer retains the existing notices and upstream license in the source tree.
+
+## Olimex bench procedures
+
+For all Olimex bench procedures, use [Olimex bench procedures](/Agon/mystuff/agon-extender/docs/operations/olimex-bench/README.md) as the sole authoritative
+reference. This project keeps application requirements and results, not bench
+operating procedures.
