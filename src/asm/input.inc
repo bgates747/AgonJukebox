@@ -103,17 +103,6 @@ input_dispatch:
     jp get_input
 ; end get_input
 
-get_rand_file_idx:
-    ld a,(bf_files_cur_pg)
-    or a
-    ret z ; no files on page
-    ld l,a
-    call rand_8 ; a = 0-255
-    ld h,a
-    call udiv8 ; a = mod(a,bf_files_per_pg)
-    ld (bf_file_idx),a
-    ret
-
 get_prev_file_idx:
     ld a,(bf_files_cur_pg)
     or a
