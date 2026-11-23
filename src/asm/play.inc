@@ -412,22 +412,11 @@ ps_song_over:
 ; end ps_song_over
 
 ps_play_next_song:
-    ld a,(bf_files_cur_pg)
-    or a ; check for zero files
-    jp z,get_input ; no files to play so return to user input loop
-    ld b,a ; loop counter
-@next_file:
-    push bc ; save loop counter
-    call get_next_file_idx ; (bf_file_idx)++ with wraparound
-    call bf_get_filinfo_from_pg_idx ; iy points to filinfo struct
-    call bf_check_dir_or_file ; if zero then it's a song
-    pop bc ; restore loop counter
-    jp z,@play_song ; is a file so play song
-    djnz @next_file ; try the next file
-    jp get_input ; no files in this directory so return to user input loop
-@play_song:
-    call bf_highlight_file ; highlight the selected file
+    call bf_select_next_song
+    jp z,get_input
+    call bf_highlight_file
     jp play_song
+    include "next_song.inc"
 ; end ps_play_next_song
 
 ; queue a random song on the current page to play next

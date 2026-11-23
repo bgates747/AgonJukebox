@@ -3,7 +3,7 @@
 import argparse,hashlib,json,zipfile
 from pathlib import Path
 ROOT=Path(__file__).resolve().parents[1]
-INSTRUCTIONS='''# AgonJukebox — runtime skins and PCM analyzer
+INSTRUCTIONS='''# AgonJukebox v0.11.1-beta — runtime skins and PCM analyzer
 
 A WAV-only eZ80 player for stock MOS3.0.2 Arthur and VDP2.16.0 Bistromathics.
 No experimental UART API, custom MOS or custom VDP is required or activated.

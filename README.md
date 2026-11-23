@@ -1,4 +1,4 @@
-# AgonJukebox
+# AgonJukebox v0.11.1-beta
 
 AgonJukebox is a WAV music player written in eZ80 assembly for the Agon Light
 family. It streams audio from the SD card into alternating VDP buffers while
